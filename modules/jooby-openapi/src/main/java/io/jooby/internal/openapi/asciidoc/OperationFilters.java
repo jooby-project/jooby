@@ -36,7 +36,7 @@ public enum OperationFilters implements Filter {
     private static final CharSequence ContentType = new HeaderName("Content-Type");
 
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -144,7 +144,7 @@ public enum OperationFilters implements Filter {
   },
   httpRequest {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -167,7 +167,7 @@ public enum OperationFilters implements Filter {
   },
   requestFields {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -188,7 +188,7 @@ public enum OperationFilters implements Filter {
   },
   httpResponse {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -218,7 +218,7 @@ public enum OperationFilters implements Filter {
   },
   responseFields {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -237,7 +237,7 @@ public enum OperationFilters implements Filter {
   },
   formParameters {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -252,7 +252,7 @@ public enum OperationFilters implements Filter {
   },
   queryParameters {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -268,7 +268,7 @@ public enum OperationFilters implements Filter {
   },
   pathParameters {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -283,7 +283,7 @@ public enum OperationFilters implements Filter {
   },
   cookieParameters {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -298,7 +298,7 @@ public enum OperationFilters implements Filter {
   },
   requestParameters {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -313,7 +313,7 @@ public enum OperationFilters implements Filter {
   },
   schema {
     @Override
-    public Object apply(
+    public String apply(
         Object input,
         Map<String, Object> args,
         PebbleTemplate self,
@@ -335,7 +335,7 @@ public enum OperationFilters implements Filter {
     }
 
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -350,7 +350,7 @@ public enum OperationFilters implements Filter {
   },
   statusCode {
     @Override
-    protected Object doApply(
+    protected String doApply(
         SnippetResolver resolver,
         OperationExt operation,
         Map<String, Object> snippetContext,
@@ -398,7 +398,7 @@ public enum OperationFilters implements Filter {
     return List.of("code");
   }
 
-  protected abstract Object doApply(
+  protected abstract String doApply(
       SnippetResolver resolver,
       OperationExt operation,
       Map<String, Object> snippetContext,
@@ -409,7 +409,7 @@ public enum OperationFilters implements Filter {
       throws Exception;
 
   @Override
-  public Object apply(
+  public String apply(
       Object input,
       Map<String, Object> args,
       PebbleTemplate self,

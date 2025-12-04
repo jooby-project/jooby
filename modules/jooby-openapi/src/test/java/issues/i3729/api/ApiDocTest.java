@@ -5,6 +5,7 @@
  */
 package issues.i3729.api;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.openapi.CurrentDir;
@@ -20,139 +21,140 @@ public class ApiDocTest {
 
   @OpenAPITest(value = AppLibrary.class)
   public void shouldGenerateAdoc(OpenAPIResult result) {
-    assertEquals(
-        """
-        = Library API.
-        Jooby Doc;
-        :doctype: book
-        :icons: font
-        :source-highlighter: highlightjs
-        :toc: left
-        :toclevels: 4
-        :sectlinks:
+    assertThat(
+            result.toAsciiDoc(
+                CurrentDir.basedir("src", "test", "resources", "adoc", "library.adoc")))
+        .isEqualToIgnoringNewLines(
+            """
+            = Library API.
+            Jooby Doc;
+            :doctype: book
+            :icons: font
+            :source-highlighter: highlightjs
+            :toc: left
+            :toclevels: 4
+            :sectlinks:
 
-        == Introduction
+            == Introduction
 
-        Available data: Books and authors.
+            Available data: Books and authors.
 
-        == Support
+            == Support
 
-        Write your questions at support@jooby.io
+            Write your questions at support@jooby.io
 
-        [[overview_operations]]
-        == Operations
+            [[overview_operations]]
+            == Operations
 
-        === List Books
+            === List Books
 
-        Query books. By using advanced filters.
+            Query books. By using advanced filters.
 
-        [source,bash]
-        ----
-        curl -H 'Accept: application/json'\\
-             -X GET 'https://api.fake-museum-example.com/v1/api/library?title=string&author=string&isbn=string1&isbn=string2&isbn=string3'
-        ----
+            [source,bash]
+            ----
+            curl -H 'Accept: application/json'\\
+                 -X GET 'https://api.fake-museum-example.com/v1/api/library?title=string&author=string&isbn=string1&isbn=string2&isbn=string3'
+            ----
 
-        ==== Request Fields
+            ==== Request Fields
 
-        |===
-        |Parameter|Type|Description
+            |===
+            |Parameter|Type|Description
 
-        |`+author+`
-        |`+string+`
-        |Book's author. Optional.
+            |`+author+`
+            |`+string+`
+            |Book's author. Optional.
 
-        |`+isbn+`
-        |`+array+`
-        |Book's isbn. Optional.
+            |`+isbn+`
+            |`+array+`
+            |Book's isbn. Optional.
 
-        |`+title+`
-        |`+string+`
-        |Book's title.
+            |`+title+`
+            |`+string+`
+            |Book's title.
 
-        |===
+            |===
 
-        === Find a book by ISBN
+            === Find a book by ISBN
 
-        [source,bash]
-        ----
-        curl -i\\
-             -H 'Accept: application/json'\\
-             -X GET 'https://api.fake-museum-example.com/v1/api/library/{isbn}'
-        ----
+            [source,bash]
+            ----
+            curl -i\\
+                 -H 'Accept: application/json'\\
+                 -X GET 'https://api.fake-museum-example.com/v1/api/library/{isbn}'
+            ----
 
-        .A matching book.
-        [source,json]
-        ----
-        {
-          "isbn" : "string",
-          "title" : "string",
-          "publicationDate" : "date",
-          "text" : "string",
-          "type" : "string",
-          "authors" : [ ],
-          "image" : "binary"
-        }
-        ----
+            .A matching book.
+            [source,json]
+            ----
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ ],
+              "image" : "binary"
+            }
+            ----
 
-        .Bad Request: For bad ISBN code.
-        [source,json]
-        ----
-        {
-          "message" : "...",
-          "statusCode" : 400,
-          "reason" : "Bad Request"
-        }
-        ----
+            .Bad Request: For bad ISBN code.
+            [source,json]
+            ----
+            {
+              "message" : "...",
+              "statusCode" : 400,
+              "reason" : "Bad Request"
+            }
+            ----
 
-        .Not Found: If a book doesn't exist.
-        [source,json]
-        ----
-        {
-          "message" : "...",
-          "statusCode" : 404,
-          "reason" : "Not Found"
-        }
-        ----
+            .Not Found: If a book doesn't exist.
+            [source,json]
+            ----
+            {
+              "message" : "...",
+              "statusCode" : 404,
+              "reason" : "Not Found"
+            }
+            ----
 
-        ==== Response Fields
+            ==== Response Fields
 
-        |===
-        |Path|Type|Description
+            |===
+            |Path|Type|Description
 
-        |`+isbn+`
-        |`+string+`
-        |Book ISBN. Method.
+            |`+isbn+`
+            |`+string+`
+            |Book ISBN. Method.
 
-        |`+title+`
-        |`+string+`
-        |Book's title.
+            |`+title+`
+            |`+string+`
+            |Book's title.
 
-        |`+publicationDate+`
-        |`+date+`
-        |Publication date. Format mm-dd-yyyy.
+            |`+publicationDate+`
+            |`+date+`
+            |Publication date. Format mm-dd-yyyy.
 
-        |`+text+`
-        |`+string+`
-        |Book's content.
+            |`+text+`
+            |`+string+`
+            |Book's content.
 
-        |`+type+`
-        |`+string+`
-        |Book type.
-          - Fiction: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
-          - NonFiction: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
+            |`+type+`
+            |`+string+`
+            |Book type.
+              - Fiction: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
+              - NonFiction: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
 
-        |`+authors+`
-        |`+[]+`
-        |
+            |`+authors+`
+            |`+[]+`
+            |
 
-        |`+image+`
-        |`+binary+`
-        |
+            |`+image+`
+            |`+binary+`
+            |
 
-        |===
-        """
-            .trim(),
-        result.toAsciiDoc(CurrentDir.basedir("src", "test", "resources", "adoc", "library.adoc")));
+            |===
+            """);
   }
 
   @OpenAPITest(value = ScriptLibrary.class)

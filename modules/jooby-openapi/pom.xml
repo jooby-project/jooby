@@ -18,12 +18,6 @@
       <version>${jooby.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>net.datafaker</groupId>
-      <artifactId>datafaker</artifactId>
-      <version>2.5.3</version>
-    </dependency>
-
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
@@ -153,6 +147,12 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.27.6</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
