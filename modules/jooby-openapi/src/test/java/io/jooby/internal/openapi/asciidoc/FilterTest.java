@@ -89,7 +89,7 @@ public class FilterTest {
         |`+string+`
         |
 
-        |===
+        |===\
         """,
         queryParameters.apply(
             operation("GET", "/api/library/{isbn}").query("foo", "bar").build(),
@@ -107,7 +107,7 @@ public class FilterTest {
         |`+string+`
         |
 
-        |===
+        |===\
         """,
         pathParameters.apply(
             operation("GET", "/api/library/{isbn}").path("isbn").build(),
@@ -125,7 +125,7 @@ public class FilterTest {
         |`+single-sign-on+`
         |
 
-        |===
+        |===\
         """,
         cookieParameters.apply(
             operation("GET", "/api/library/{isbn}").cookie("single-sign-on").build(),
@@ -148,7 +148,7 @@ public class FilterTest {
         |`+string+`
         |
 
-        |===
+        |===\
         """,
         formParameters.apply(
             operation("POST", "/api/library")
@@ -182,7 +182,7 @@ public class FilterTest {
         |`+string+`
         |
 
-        |===
+        |===\
         """,
         requestParameters.apply(
             operation("POST", "/api/library")
@@ -209,7 +209,7 @@ public class FilterTest {
         [source,bash]
         ----
         curl -X GET 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").build(),
@@ -224,7 +224,7 @@ public class FilterTest {
         [source,bash]
         ----
         curl -X GET 'https://api.libray.com/api/library/{isbn}?foo=string&bar=string'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").query("foo", "bar").build(),
@@ -241,7 +241,7 @@ public class FilterTest {
         curl --data-urlencode 'foo=string'\\
              --data-urlencode 'bar=string'\\
              -X POST 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("POST", "/api/library/{isbn}").form("foo", "bar").build(),
@@ -258,7 +258,7 @@ public class FilterTest {
         curl --data-urlencode 'foo=string'\\
              --data-urlencode 'bar=string'\\
              -X POST 'https://api.libray.com/api/library/{isbn}?active=boolean'
-        ----
+        ----\
         """,
         curl.apply(
             operation("POST", "/api/library/{isbn}")
@@ -281,7 +281,7 @@ public class FilterTest {
         ----
         curl -i\\
              -X GET 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").build(),
@@ -297,7 +297,7 @@ public class FilterTest {
         ----
         curl -i\\
              -X POST 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").build(),
@@ -313,7 +313,7 @@ public class FilterTest {
         ----
         curl -H 'Accept: application/json'\\
              -X GET 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").produces("application/json").build(),
@@ -329,7 +329,7 @@ public class FilterTest {
         ----
         curl -H 'Accept: application/xml'\\
              -X GET 'https://api.libray.com/api/library/{isbn}'
-        ----
+        ----\
         """,
         curl.apply(
             operation("GET", "/api/library/{isbn}").produces("application/json").build(),
@@ -345,7 +345,7 @@ public class FilterTest {
         curl -H 'Content-Type: application/json'\\
              -d '{"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}'\\
              -X POST 'https://api.libray.com/api/library'
-        ----
+        ----\
         """,
         curl.apply(
             operation("POST", "/api/library").body(new Book(), "application/json").build(),
@@ -362,7 +362,7 @@ public class FilterTest {
              --data-urlencode 'name=string'\\
              -F "file=@/file.extension"\\
              -X POST 'https://api.libray.com/api/library'
-        ----
+        ----\
         """,
         curl.apply(
             operation("POST", "/api/library")
@@ -382,7 +382,7 @@ public class FilterTest {
         [source,http,options="nowrap"]
         ----
         GET /api/library/{isbn} HTTP/1.1
-        ----
+        ----\
         """,
         httpRequest.apply(
             operation("GET", "/api/library/{isbn}").build(),
@@ -397,7 +397,7 @@ public class FilterTest {
         ----
         GET /api/library/{isbn} HTTP/1.1
         Accept: application/json
-        ----
+        ----\
         """,
         httpRequest.apply(
             operation("GET", "/api/library/{isbn}").produces("application/json").build(),
@@ -413,7 +413,7 @@ public class FilterTest {
         POST /api/library HTTP/1.1
         Content-Type: application/json
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         httpRequest.apply(
             operation("POST", "/api/library").body(new Book(), "application/json").build(),
@@ -430,7 +430,7 @@ public class FilterTest {
         [source,http,options="nowrap"]
         ----
         HTTP/1.1 200 Success
-        ----
+        ----\
         """,
         httpResponse.apply(
             operation("GET", "/api/library/{isbn}").defaultResponse().build(),
@@ -445,7 +445,7 @@ public class FilterTest {
         ----
         HTTP/1.1 200 Success
         Content-Type: application/json
-        ----
+        ----\
         """,
         httpResponse.apply(
             operation("GET", "/api/library/{isbn}")
@@ -464,7 +464,7 @@ public class FilterTest {
         HTTP/1.1 201 Created
         Content-Type: application/json
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         httpResponse.apply(
             operation("POST", "/api/library")
@@ -483,7 +483,7 @@ public class FilterTest {
         HTTP/1.1 201 Created
         Content-Type: application/json
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         httpResponse.apply(
             operation("POST", "/api/library")
@@ -502,7 +502,7 @@ public class FilterTest {
         HTTP/1.1 400 Bad Request
         Content-Type: application/json
         {"path":"string","message":"string","code":"int32"}
-        ----
+        ----\
         """,
         httpResponse.apply(
             operation("POST", "/api/library")
@@ -551,7 +551,7 @@ public class FilterTest {
         |`+binary+`
         |
 
-        |===
+        |===\
         """,
         responseFields.apply(
             operation("POST", "/api/library")
@@ -596,7 +596,7 @@ public class FilterTest {
         |`+binary+`
         |
 
-        |===
+        |===\
         """,
         responseFields.apply(
             operation("POST", "/api/library")
@@ -625,7 +625,7 @@ public class FilterTest {
         |`+int32+`
         |
 
-        |===
+        |===\
         """,
         responseFields.apply(
             operation("POST", "/api/library")
@@ -655,7 +655,7 @@ public class FilterTest {
           "authors" : [ ],
           "image" : "binary"
         }
-        ----
+        ----\
         """,
         statusCode.apply(
             operation("POST", "/api/library")
@@ -678,7 +678,7 @@ public class FilterTest {
           "message" : "string",
           "code" : "int32"
         }
-        ----
+        ----\
         """,
         statusCode.apply(
             operation("POST", "/api/library")
@@ -700,7 +700,7 @@ public class FilterTest {
         [source,json]
         ----
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         schema.apply(
             operation("POST", "/api/library")
@@ -718,7 +718,7 @@ public class FilterTest {
         [source,json]
         ----
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         schema.apply(
             operation("POST", "/api/library")
@@ -736,7 +736,7 @@ public class FilterTest {
         [source,json]
         ----
         {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
-        ----
+        ----\
         """,
         schema.apply(
             operation("POST", "/api/library")

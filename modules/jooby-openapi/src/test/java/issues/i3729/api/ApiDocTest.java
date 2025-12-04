@@ -52,7 +52,6 @@ public class ApiDocTest {
              -X GET 'https://api.fake-museum-example.com/v1/api/library?title=string&author=string&isbn=string1&isbn=string2&isbn=string3'
         ----
 
-
         ==== Request Fields
 
         |===
@@ -72,9 +71,7 @@ public class ApiDocTest {
 
         |===
 
-
         === Find a book by ISBN
-
 
         [source,bash]
         ----
@@ -116,7 +113,6 @@ public class ApiDocTest {
           "reason" : "Not Found"
         }
         ----
-
 
         ==== Response Fields
 

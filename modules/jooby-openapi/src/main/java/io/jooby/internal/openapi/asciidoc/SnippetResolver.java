@@ -26,8 +26,9 @@ public class SnippetResolver {
 
   public String apply(String snippet, Map<String, Object> context) throws IOException {
     var writer = new StringWriter();
-    var snippetContent = resolve(baseDir, snippet);
-    engine.getLiteralTemplate(snippetContent).evaluate(writer, context);
+    var snippetContent = resolve(baseDir, snippet).trim().replaceAll("\r\n", "\n");
+    var template = engine.getLiteralTemplate(snippetContent);
+    template.evaluate(writer, context);
     return writer.toString();
   }
 
