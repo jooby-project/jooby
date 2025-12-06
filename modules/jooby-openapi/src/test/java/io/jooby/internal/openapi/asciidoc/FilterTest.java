@@ -394,7 +394,7 @@ public class FilterTest {
   @Test
   public void httpRequest() {
     assertThat(
-            httpRequest.apply(
+            request.apply(
                 operation("GET", "/api/library/{isbn}").build(),
                 args(),
                 template(),
@@ -409,7 +409,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpRequest.apply(
+            request.apply(
                 operation("GET", "/api/library/{isbn}").produces("application/json").build(),
                 args(),
                 template(),
@@ -425,7 +425,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpRequest.apply(
+            request.apply(
                 operation("POST", "/api/library").body(new Book(), "application/json").build(),
                 args(),
                 template(),
@@ -445,7 +445,7 @@ public class FilterTest {
   @Test
   public void httpResponse() {
     assertThat(
-            httpResponse.apply(
+            response.apply(
                 operation("GET", "/api/library/{isbn}").defaultResponse().build(),
                 args(),
                 template(),
@@ -460,7 +460,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpResponse.apply(
+            response.apply(
                 operation("GET", "/api/library/{isbn}")
                     .defaultResponse()
                     .produces("application/json")
@@ -479,7 +479,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpResponse.apply(
+            response.apply(
                 operation("POST", "/api/library")
                     .produces("application/json")
                     .response(new Book(), StatusCode.CREATED, "application/json")
@@ -499,7 +499,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpResponse.apply(
+            response.apply(
                 operation("POST", "/api/library")
                     .produces("application/json")
                     .response(new Book(), StatusCode.CREATED, "application/json")
@@ -519,7 +519,7 @@ public class FilterTest {
             """);
 
     assertThat(
-            httpResponse.apply(
+            response.apply(
                 operation("POST", "/api/library")
                     .produces("application/json")
                     .response(new Book(), StatusCode.CREATED, "application/json")

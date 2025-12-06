@@ -15,6 +15,19 @@ import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 
 public enum Functions implements Function {
+  GET {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("pattern");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      args.put("identifier", name());
+      return operation.execute(args, self, context, lineNumber);
+    }
+  },
   operation {
     @Override
     public List<String> getArgumentNames() {

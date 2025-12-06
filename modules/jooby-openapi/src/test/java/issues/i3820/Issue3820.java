@@ -19,7 +19,18 @@ public class Issue3820 {
             """
             [source,json]
             ----
-            {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","publisher":{"id":"int64","name":"string"},"authors":[]}
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ ]
+            }
             ----
             """);
   }

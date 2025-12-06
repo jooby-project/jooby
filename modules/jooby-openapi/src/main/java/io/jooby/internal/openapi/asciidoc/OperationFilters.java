@@ -146,7 +146,7 @@ public enum OperationFilters implements Filter {
               });
     }
   },
-  httpRequest {
+  request {
     @Override
     protected String doApply(
         SnippetResolver resolver,
@@ -191,7 +191,7 @@ public enum OperationFilters implements Filter {
       return resolver.apply(id(), snippetContext);
     }
   },
-  httpResponse {
+  response {
     @Override
     protected String doApply(
         SnippetResolver resolver,
