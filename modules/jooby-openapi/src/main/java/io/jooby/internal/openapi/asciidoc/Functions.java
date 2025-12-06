@@ -24,7 +24,59 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("identifier", name());
+      args.put("method", name());
+      return operation.execute(args, self, context, lineNumber);
+    }
+  },
+  POST {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("pattern");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      args.put("method", name());
+      return operation.execute(args, self, context, lineNumber);
+    }
+  },
+  PUT {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("pattern");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      args.put("method", name());
+      return operation.execute(args, self, context, lineNumber);
+    }
+  },
+  PATCH {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("pattern");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      args.put("method", name());
+      return operation.execute(args, self, context, lineNumber);
+    }
+  },
+  DELETE {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("pattern");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      args.put("method", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },
