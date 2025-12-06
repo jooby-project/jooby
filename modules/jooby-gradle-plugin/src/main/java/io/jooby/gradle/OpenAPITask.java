@@ -17,7 +17,10 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
 
 /**
  * Generate an OpenAPI file from a jooby application.
@@ -36,6 +39,8 @@ public class OpenAPITask extends BaseTask {
   private String excludes;
 
   private String specVersion;
+
+  private List<File> adoc;
 
   /**
    * Creates an OpenAPI task.
@@ -61,7 +66,8 @@ public class OpenAPITask extends BaseTask {
               .map(File::toPath);
         })
         .distinct()
-        .toList();    Path outputDir = classes(getProject(), false);
+        .toList();
+    Path outputDir = classes(getProject(), false);
 
     ClassLoader classLoader = createClassLoader(projects);
 
@@ -82,9 +88,10 @@ public class OpenAPITask extends BaseTask {
 
     OpenAPI result = tool.generate(mainClass);
 
-    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.values()) {
-      Path output = tool.export(result, format);
-      getLogger().info("  writing: " + output);
+    var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
+    for (var format : OpenAPIGenerator.Format.values()) {
+      tool.export(result, format, Map.of("adoc", adocPath))
+          .forEach(output -> getLogger().info("  writing: " + output));
     }
   }
 
@@ -186,6 +193,26 @@ public class OpenAPITask extends BaseTask {
    */
   public void setSpecVersion(String specVersion) {
     this.specVersion = specVersion;
+  }
+
+  /**
+   * Optionally generates adoc output.
+   *
+   * @return List of adoc templates.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public List<File> getAdoc() {
+    return adoc;
+  }
+
+  /**
+   * Set adoc templates to build.
+   *
+   * @param adoc Adoc templates to build.
+   */
+  public void setAdoc(List<File> adoc) {
+    this.adoc = adoc;
   }
 
   private Optional<String> trim(String value) {

@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,35 +26,36 @@ public class Issue1582 {
 
   @Test
   public void shouldGenerateOnOneLvelPackageLocation() throws IOException {
-    Path output = export("com.App");
-    assertTrue(Files.exists(output));
-    assertEquals(outDir.resolve("com").resolve("App.yaml"), output);
+    var output = export("com.App");
+    output.forEach(it -> assertTrue(Files.exists(it)));
+    assertEquals(List.of(outDir.resolve("com").resolve("App.yaml")), output);
   }
 
   @Test
   public void shouldGenerateOnPackageLocation() throws IOException {
-    Path output = export("com.myapp.App");
-    assertTrue(Files.exists(output));
-    assertEquals(outDir.resolve("com").resolve("myapp").resolve("App.yaml"), output);
+    var output = export("com.myapp.App");
+    output.forEach(it -> assertTrue(Files.exists(it)));
+    assertEquals(List.of(outDir.resolve("com").resolve("myapp").resolve("App.yaml")), output);
   }
 
   @Test
   public void shouldGenerateOnDeepPackageLocation() throws IOException {
-    Path output = export("com.foo.bar.app.App");
-    assertTrue(Files.exists(output));
+    var output = export("com.foo.bar.app.App");
+    output.forEach(it -> assertTrue(Files.exists(it)));
     assertEquals(
-        outDir.resolve("com").resolve("foo").resolve("bar").resolve("app").resolve("App.yaml"),
+        List.of(
+            outDir.resolve("com").resolve("foo").resolve("bar").resolve("app").resolve("App.yaml")),
         output);
   }
 
   @Test
   public void shouldGenerateOnRootLocation() throws IOException {
-    Path output = export("App");
-    assertTrue(Files.exists(output));
-    assertEquals(outDir.resolve("App.yaml"), output);
+    var output = export("App");
+    output.forEach(it -> assertTrue(Files.exists(it)));
+    assertEquals(List.of(outDir.resolve("App.yaml")), output);
   }
 
-  private Path export(String source) throws IOException {
+  private List<Path> export(String source) throws IOException {
     Info info = new Info();
     info.setTitle("API");
     info.setVersion("1.0");
@@ -64,6 +67,6 @@ public class Issue1582 {
 
     OpenAPIGenerator generator = new OpenAPIGenerator();
     generator.setOutputDir(outDir);
-    return generator.export(openAPI, OpenAPIGenerator.Format.YAML);
+    return generator.export(openAPI, OpenAPIGenerator.Format.YAML, Map.of());
   }
 }

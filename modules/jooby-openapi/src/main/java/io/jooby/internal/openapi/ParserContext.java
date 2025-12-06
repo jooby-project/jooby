@@ -89,6 +89,8 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.media.UUIDSchema;
+import jakarta.data.page.Page;
+import jakarta.data.page.PageRequest;
 
 public class ParserContext {
 
@@ -171,13 +173,14 @@ public class ParserContext {
             context.insertAnnotationIntrospector(new ConflictiveSetter());
           }
         });
-    /** Java8/Optional: */
+    /* Java8/Optional: */
     modules.add(new Jdk8Module());
     modules.forEach(module -> mappers.forEach(mapper -> mapper.registerModule(module)));
-    /** Set class loader: */
-    mappers.stream()
-        .forEach(
-            mapper -> mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(classLoader)));
+    /* Set class loader: */
+    mappers.forEach(
+        mapper -> mapper.setTypeFactory(mapper.getTypeFactory().withClassLoader(classLoader)));
+    /* Mixin */
+    mappers.forEach(MixinHook::mixin);
   }
 
   public Collection<Schema> schemas() {
@@ -403,12 +406,8 @@ public class ParserContext {
   }
 
   public Schema schema(Type type) {
-    if (isArray(type)) {
-      // For array we need internal name :S
-      return schema(type.getInternalName());
-    } else {
-      return schema(type.getClassName());
-    }
+    // For array we need internal name :S
+    return schema(isArray(type) ? type.getInternalName() : type.getClassName());
   }
 
   private boolean isArray(Type type) {
@@ -452,6 +451,19 @@ public class ParserContext {
       MapSchema mapSchema = new MapSchema();
       mapSchema.setAdditionalProperties(schema(type.getContentType()));
       return mapSchema;
+    } else if (type.getRawClass() == Page.class) {
+      // must be embedded it mimics a List<T>. This is bc it might have a different item type
+      // per operation.
+      var pageSchema = converters.read(type.getRawClass()).get("Page");
+      // force loading of PageRequest
+      schema(PageRequest.class);
+
+      var params = type.getBindings().getTypeParameters();
+      if (params != null && !params.isEmpty()) {
+        Schema<?> contentSchema = (Schema<?>) pageSchema.getProperties().get("content");
+        contentSchema.setItems(schema(params.getFirst()));
+      }
+      return pageSchema;
     }
     return schema(type.getRawClass());
   }

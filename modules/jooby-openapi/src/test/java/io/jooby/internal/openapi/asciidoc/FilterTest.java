@@ -737,7 +737,15 @@ public class FilterTest {
             """
             [source,json]
             ----
-            {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ ],
+              "image" : "binary"
+            }
             ----\
             """);
 
@@ -756,7 +764,15 @@ public class FilterTest {
             """
             [source,json]
             ----
-            {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ ],
+              "image" : "binary"
+            }
             ----\
             """);
 
@@ -778,7 +794,15 @@ public class FilterTest {
             """
             [source,json]
             ----
-            {"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ ],
+              "image" : "binary"
+            }
             ----\
             """);
   }

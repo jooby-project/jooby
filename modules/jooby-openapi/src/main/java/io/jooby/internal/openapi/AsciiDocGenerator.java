@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
+import org.asciidoctor.SafeMode;
+
 import io.jooby.internal.openapi.asciidoc.Filters;
 import io.jooby.internal.openapi.asciidoc.Functions;
 import io.jooby.internal.openapi.asciidoc.SnippetResolver;
@@ -39,6 +43,23 @@ public class AsciiDocGenerator {
     var context = new HashMap<String, Object>();
     template.evaluate(writer, context);
     return writer.toString().trim();
+  }
+
+  public static void export(Path baseDir, Path input, Path outputDir) {
+    try (var asciidoctor = Asciidoctor.Factory.create()) {
+
+      var options =
+          Options.builder()
+              .backend("html5")
+              .baseDir(baseDir.toFile())
+              .toDir(outputDir.toFile())
+              .mkDirs(true)
+              .safe(SafeMode.UNSAFE)
+              .build();
+
+      // Perform the conversion
+      asciidoctor.convertFile(input.toFile(), options);
+    }
   }
 
   @SuppressWarnings("unchecked")

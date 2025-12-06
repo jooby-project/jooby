@@ -21,4 +21,8 @@ module io.jooby.openapi {
   requires jdk.jshell;
   requires com.google.common;
   requires org.checkerframework.checker.qual;
+  requires org.asciidoctor.asciidoctorj.api;
+  requires jakarta.data;
+  requires io.swagger.annotations;
+  requires org.jruby;
 }

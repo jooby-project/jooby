@@ -1,0 +1,1 @@
+${operation("POST", "/library/books").requestBody | schema}

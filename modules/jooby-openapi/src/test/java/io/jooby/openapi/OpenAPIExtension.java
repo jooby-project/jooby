@@ -43,7 +43,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
             : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
     OpenAPIGenerator tool = newTool(debugOptions);
-    tool.setSpecVersion(metadata.version());
+    tool.setSpecVersion(metadata.version().name());
     String templateName = metadata.templateName();
     if (templateName.isEmpty()) {
       templateName = classname.replace(".", "/").toLowerCase() + ".yaml";

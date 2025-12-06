@@ -19,6 +19,224 @@ public class ApiDocTest {
     checkResult(result);
   }
 
+  @OpenAPITest(value = AppLibrary2.class)
+  public void shouldGenerateGoodDoc(OpenAPIResult result) {
+    assertThat(result.toYaml())
+        .isEqualToIgnoringNewLines(
+            """
+            openapi: 3.0.1
+            info:
+              title: Library2 API
+              description: Library2 API description
+              version: "1.0"
+            tags:
+            - name: Library
+              description: Available library operations.
+            paths:
+              /library/books/{isbn}:
+                summary: The Public Front Desk of the library.
+                get:
+                  tags:
+                  - Library
+                  summary: Get Book Details.
+                  description: Call this to show the details page of a specific book.
+                  operationId: getBook
+                  parameters:
+                  - name: isbn
+                    in: path
+                    description: "The unique ID from the URL (e.g., /books/978-3-16-148410-0)"
+                    required: true
+                    schema:
+                      type: string
+                  responses:
+                    "200":
+                      description: The book data
+                      content:
+                        application/json:
+                          schema:
+                            $ref: "#/components/schemas/Book"
+                    "404":
+                      description: "Not Found: error if it doesn't exist."
+              /library/search:
+                summary: The Public Front Desk of the library.
+                get:
+                  tags:
+                  - Library
+                  summary: Search Books.
+                  description: "A general search bar. Users type a word, and we find matches."
+                  operationId: searchBooks
+                  parameters:
+                  - name: q
+                    in: query
+                    description: The search term typed by the user.
+                    schema:
+                      type: string
+                  responses:
+                    "200":
+                      description: A list of books matching that term.
+                      content:
+                        application/json:
+                          schema:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/Book"
+              /library/books:
+                summary: The Public Front Desk of the library.
+                get:
+                  tags:
+                  - Library
+                  summary: Browse Books (Paginated).
+                  operationId: getBooksByTitle
+                  parameters:
+                  - name: title
+                    in: query
+                    description: The exact book title to filter by.
+                    schema:
+                      type: string
+                  - name: page
+                    in: query
+                    description: Which page number to load (defaults to 1).
+                    required: true
+                    schema:
+                      type: integer
+                      format: int32
+                  - name: size
+                    in: query
+                    description: How many books to show per page (defaults to 20).
+                    required: true
+                    schema:
+                      type: integer
+                      format: int32
+                  responses:
+                    "200":
+                      description: "A \\"Page\\" object containing the books and info like \\"Total\\
+                        \\ Pages: 5\\"."
+                      content:
+                        application/json:
+                          schema:
+                            type: object
+                            properties:
+                              content:
+                                type: array
+                                items:
+                                  $ref: "#/components/schemas/Book"
+                              numberOfElements:
+                                type: integer
+                                format: int32
+                              totalElements:
+                                type: integer
+                                format: int64
+                              totalPages:
+                                type: integer
+                                format: int64
+                              pageRequest:
+                                $ref: "#/components/schemas/PageRequest"
+                              nextPageRequest:
+                                $ref: "#/components/schemas/PageRequest"
+                              previousPageRequest:
+                                $ref: "#/components/schemas/PageRequest"
+                post:
+                  tags:
+                  - Library
+                  summary: Add New Book.
+                  description: "Usage: Send a JSON packet to this URL to create a new book entry\\
+                    \\ in the system."
+                  operationId: addBook
+                  requestBody:
+                    description: New book to add.
+                    content:
+                      application/json:
+                        schema:
+                          $ref: "#/components/schemas/Book"
+                    required: true
+                  responses:
+                    "200":
+                      description: A text message confirming success.
+                      content:
+                        application/json:
+                          schema:
+                            $ref: "#/components/schemas/Book"
+            components:
+              schemas:
+                Address:
+                  type: object
+                  properties:
+                    street:
+                      type: string
+                      description: Street name.
+                    city:
+                      type: string
+                      description: City name.
+                    state:
+                      type: string
+                      description: State.
+                    country:
+                      type: string
+                      description: Two digit country code.
+                  description: Author address.
+                PageRequest:
+                  type: object
+                  properties:
+                    page:
+                      type: integer
+                      format: int64
+                    size:
+                      type: integer
+                      format: int32
+                Book:
+                  type: object
+                  properties:
+                    isbn:
+                      type: string
+                      description: Book ISBN. Method.
+                    title:
+                      type: string
+                      description: Book's title.
+                    publicationDate:
+                      type: string
+                      description: Publication date. Format mm-dd-yyyy.
+                      format: date
+                    text:
+                      type: string
+                      description: Book's content.
+                    type:
+                      type: string
+                      description: |-
+                        Book type.
+                          - Fiction: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
+                          - NonFiction: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
+                      enum:
+                      - Fiction
+                      - NonFiction
+                    authors:
+                      uniqueItems: true
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/Author"
+                    image:
+                      type: string
+                      format: binary
+                  description: Book model.
+                Author:
+                  type: object
+                  properties:
+                    ssn:
+                      type: string
+                      description: Social security number.
+                    name:
+                      type: string
+                      description: Author's name.
+                    address:
+                      $ref: "#/components/schemas/Address"
+                    books:
+                      uniqueItems: true
+                      type: array
+                      description: Published books.
+                      items:
+                        $ref: "#/components/schemas/Book"
+            """);
+  }
+
   @OpenAPITest(value = AppLibrary.class)
   public void shouldGenerateAdoc(OpenAPIResult result) {
     assertThat(

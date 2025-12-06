@@ -79,7 +79,11 @@ public enum OperationFilters implements Filter {
           if (mediaType != null) {
             var json = InternalContext.json(context);
             options.put(
-                "-d", "'" + json.writeValueAsString(SchemaData.from(mediaType.getSchema())) + "'");
+                "-d",
+                "'"
+                    + json.writeValueAsString(
+                        SchemaData.from(mediaType.getSchema(), schemaRefResolver(context)))
+                    + "'");
           }
         }
       } else {
@@ -158,7 +162,8 @@ public enum OperationFilters implements Filter {
       if (operation.getRequestBody() != null) {
         var json = InternalContext.json(context);
         var schema = schema(context, operation.getRequestBody());
-        requestBodyString = json.writeValueAsString(SchemaData.from(schema)) + "\n";
+        requestBodyString =
+            json.writeValueAsString(SchemaData.from(schema, schemaRefResolver(context))) + "\n";
       }
       snippetContext.put("requestBody", requestBodyString);
       snippetContext.put("headers", snippetContext.get("requestHeaders"));
@@ -180,7 +185,7 @@ public enum OperationFilters implements Filter {
       List<Map<String, String>> fields = List.of();
       if (operation.getRequestBody() != null) {
         var schema = schema(context, operation.getRequestBody());
-        fields = schemaToTable(schema);
+        fields = schemaToTable(schema, context);
       }
       snippetContext.put("fields", fields);
       return resolver.apply(id(), snippetContext);
@@ -207,7 +212,8 @@ public enum OperationFilters implements Filter {
       var json = InternalContext.json(context);
       var schema = schema(context, response);
       if (schema != null) {
-        requestBodyString = json.writeValueAsString(SchemaData.from(schema)) + "\n";
+        requestBodyString =
+            json.writeValueAsString(SchemaData.from(schema, schemaRefResolver(context))) + "\n";
       }
       snippetContext.put("statusCode", statusCode.value());
       snippetContext.put("statusReason", statusCode.reason());
@@ -231,7 +237,7 @@ public enum OperationFilters implements Filter {
       var statusCode = findStatusCode(args);
       var response = responseByStatusCode(operation, statusCode);
       var schema = schema(context, response);
-      snippetContext.put("fields", schemaToTable(schema));
+      snippetContext.put("fields", schemaToTable(schema, context));
       return resolver.apply(id(), snippetContext);
     }
   },
@@ -325,7 +331,12 @@ public enum OperationFilters implements Filter {
         var snippetResolver = InternalContext.resolver(context);
         var json = InternalContext.json(context);
         return snippetResolver.apply(
-            id(), Map.of("schema", json.writeValueAsString(SchemaData.from(schema))));
+            id(),
+            Map.of(
+                "schema",
+                json.writer()
+                    .withDefaultPrettyPrinter()
+                    .writeValueAsString(SchemaData.from(schema, schemaRefResolver(context)))));
       } catch (PebbleException pebbleException) {
         throw pebbleException;
       } catch (Exception exception) {
@@ -378,7 +389,7 @@ public enum OperationFilters implements Filter {
           throw new IllegalArgumentException("No schema response for: " + statusCode);
         }
       } else {
-        schemaData = SchemaData.from(schema);
+        schemaData = SchemaData.from(schema, schemaRefResolver(context));
       }
       var responseString = json.writer().withDefaultPrettyPrinter().writeValueAsString(schemaData);
       snippetContext.put(
@@ -496,9 +507,9 @@ public enum OperationFilters implements Filter {
     return null;
   }
 
-  protected List<Map<String, String>> schemaToTable(Schema<?> schema) {
+  protected List<Map<String, String>> schemaToTable(Schema<?> schema, EvaluationContext context) {
     List<Map<String, String>> fields = new ArrayList<>();
-    SchemaData.from(schema)
+    SchemaData.from(schema, schemaRefResolver(context))
         .forEach(
             (name, type) -> {
               var field = new LinkedHashMap<String, String>();
@@ -554,14 +565,22 @@ public enum OperationFilters implements Filter {
                   "Unable to get schema from " + input.getClass().getName());
         };
     if (schema != null && schema.get$ref() != null) {
-      var openapi = InternalContext.openApi(context);
-      var components = openapi.getComponents();
-      if (components != null) {
-        var name = schema.get$ref().substring("#/components/schemas/".length());
-        return components.getSchemas().getOrDefault(name, schema);
-      }
+      return schemaRefResolver(context).apply(schema.get$ref()).orElse(schema);
     }
     return schema;
+  }
+
+  @SuppressWarnings("unchecked")
+  protected Function<String, Optional<Schema<?>>> schemaRefResolver(EvaluationContext context) {
+    var openapi = InternalContext.openApi(context);
+    return ref -> {
+      var name = ref.substring("#/components/schemas/".length());
+      var components = openapi.getComponents();
+      if (components != null) {
+        return Optional.ofNullable(components.getSchemas().get(name));
+      }
+      return Optional.empty();
+    };
   }
 
   protected Multimap<CharSequence, String> parseHeaders(Collection<String> headers) {
