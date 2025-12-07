@@ -241,6 +241,7 @@ public class OpenAPIGenerator {
                 doc.getServers().forEach(openapi::addServersItem);
                 doc.getContact().forEach(info::setContact);
                 doc.getLicense().forEach(info::setLicense);
+                doc.getTags().forEach(openapi::addTagsItem);
               });
     }
 

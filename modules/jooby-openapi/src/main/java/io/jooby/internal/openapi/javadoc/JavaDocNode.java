@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.javadocToken;
 
 import java.util.*;

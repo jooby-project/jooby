@@ -8,11 +8,14 @@ package io.jooby.internal.openapi.asciidoc;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
+import io.swagger.v3.oas.models.media.Schema;
 
 public enum Functions implements Function {
   GET {
@@ -78,6 +81,51 @@ public enum Functions implements Function {
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
       args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
+    }
+  },
+  tag {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("name");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      var openApi = InternalContext.openApi(context);
+      var name = args.get("name");
+      return openApi.getTags().stream()
+          .filter(tag -> tag.getName().equals(name))
+          .findFirst()
+          .orElseThrow(() -> new IllegalArgumentException("Tag not found: " + name));
+    }
+  },
+  schema {
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("name");
+    }
+
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      var openApi = InternalContext.openApi(context);
+      var name = args.get("name").toString();
+      var path = name.split("\\.");
+      var schema = openApi.getComponents().getSchemas().get(path[0]);
+      if (schema == null) {
+        throw new IllegalArgumentException("Schema not found: " + name);
+      }
+      for (int i = 1; i < path.length; i++) {
+        Schema<?> inner = (Schema<?>) schema.getProperties().get(path[i]);
+        if (inner == null) {
+          throw new IllegalArgumentException(
+              "Property not found: " + Stream.of(path).limit(i).collect(Collectors.joining(".")));
+        }
+        schema = inner;
+      }
+
+      return schema;
     }
   },
   operation {

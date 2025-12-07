@@ -30,20 +30,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.Period;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Currency;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
@@ -75,20 +62,7 @@ import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.models.SpecVersion;
-import io.swagger.v3.oas.models.media.ArraySchema;
-import io.swagger.v3.oas.models.media.BinarySchema;
-import io.swagger.v3.oas.models.media.BooleanSchema;
-import io.swagger.v3.oas.models.media.ByteArraySchema;
-import io.swagger.v3.oas.models.media.DateSchema;
-import io.swagger.v3.oas.models.media.DateTimeSchema;
-import io.swagger.v3.oas.models.media.FileSchema;
-import io.swagger.v3.oas.models.media.IntegerSchema;
-import io.swagger.v3.oas.models.media.MapSchema;
-import io.swagger.v3.oas.models.media.NumberSchema;
-import io.swagger.v3.oas.models.media.ObjectSchema;
-import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
-import io.swagger.v3.oas.models.media.UUIDSchema;
+import io.swagger.v3.oas.models.media.*;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 
@@ -283,7 +257,7 @@ public class ParserContext {
       return new ObjectSchema();
     }
     if (type.isEnum()) {
-      StringSchema schema = new StringSchema();
+      var schema = new EnumSchema();
       EnumSet.allOf(type).forEach(e -> schema.addEnumItem(((Enum) e).name()));
       return schema;
     }
@@ -333,36 +307,56 @@ public class ParserContext {
         .ifPresent(
             javadoc -> {
               Optional.ofNullable(javadoc.getText()).ifPresent(schema::setDescription);
+              // make a copy
               Map<String, Schema> properties = schema.getProperties();
               if (properties != null) {
-                properties.forEach(
-                    (key, value) -> {
-                      var text = javadoc.getPropertyDoc(key);
-                      var propertyType = getPropertyType(typeName, key);
-                      var isEnum =
-                          propertyType != null
-                              && propertyType.isEnum()
-                              && resolvedSchema.referencedSchemasByType.keySet().stream()
-                                  .map(this::toClass)
-                                  .anyMatch(it -> !it.equals(propertyType));
-                      if (isEnum) {
-                        javadocParser
-                            .parse(propertyType.getName())
-                            .ifPresent(
-                                enumDoc -> {
-                                  var enumDesc = enumDoc.getEnumDescription(text);
-                                  if (enumDesc != null) {
-                                    value.setDescription(enumDesc);
-                                  }
-                                });
-                      } else {
-                        value.setDescription(text);
-                        var example = javadoc.getPropertyExample(key);
-                        if (example != null) {
-                          value.setExample(example);
-                        }
-                      }
-                    });
+                new LinkedHashMap<>(properties)
+                    .forEach(
+                        (key, value) -> {
+                          var text = javadoc.getPropertyDoc(key);
+                          var propertyType = getPropertyType(typeName, key);
+                          var isEnum =
+                              propertyType != null
+                                  && propertyType.isEnum()
+                                  && resolvedSchema.referencedSchemasByType.keySet().stream()
+                                      .map(this::toClass)
+                                      .anyMatch(it -> !it.equals(propertyType));
+                          if (isEnum) {
+                            javadocParser
+                                .parse(propertyType.getName())
+                                .ifPresent(
+                                    enumDoc -> {
+                                      var enumDesc = enumDoc.getEnumDescription(text);
+                                      if (enumDesc != null) {
+                                        EnumSchema enumSchema;
+                                        if (!(value instanceof EnumSchema)) {
+                                          enumSchema = new EnumSchema();
+                                          value.getEnum().stream()
+                                              .forEach(
+                                                  enumValue ->
+                                                      enumSchema.addEnumItemObject(
+                                                          enumValue.toString()));
+                                          properties.put(key, enumSchema);
+                                        } else {
+                                          enumSchema = (EnumSchema) value;
+                                        }
+                                        for (var field : enumSchema.getEnum()) {
+                                          var enumItemDesc = enumDoc.getEnumItemDescription(field);
+                                          if (enumItemDesc != null) {
+                                            enumSchema.setDescription(field, enumItemDesc);
+                                          }
+                                        }
+                                        enumSchema.setDescription(enumDesc);
+                                      }
+                                    });
+                          } else {
+                            value.setDescription(text);
+                            var example = javadoc.getPropertyExample(key);
+                            if (example != null) {
+                              value.setExample(example);
+                            }
+                          }
+                        });
               }
             });
   }

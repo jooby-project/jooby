@@ -65,6 +65,7 @@ public enum OperationFilters implements Filter {
             .getConsumes()
             .forEach(value -> options.put("-H", "'Content-Type: " + value + "'"));
       }
+      var parameters = Optional.ofNullable(operation.getParameters()).orElse(List.of());
       /* Body */
       if (operation.getRequestBody() != null) {
         var requestBody = operation.getRequestBody();
@@ -84,8 +85,7 @@ public enum OperationFilters implements Filter {
         }
       } else {
         // can be form
-        var form =
-            operation.getParameters().stream().filter(it -> "form".equals(it.getIn())).toList();
+        var form = parameters.stream().filter(it -> "form".equals(it.getIn())).toList();
         encodeUrlParameter(form)
             .forEach(
                 it ->
@@ -97,8 +97,7 @@ public enum OperationFilters implements Filter {
       }
       /* Method */
       var url = snippetContext.get("url").toString();
-      var query =
-          operation.getParameters().stream().filter(it -> "query".equals(it.getIn())).toList();
+      var query = parameters.stream().filter(it -> "query".equals(it.getIn())).toList();
       // query parameters
       if (!query.isEmpty()) {
         url +=
@@ -520,10 +519,9 @@ public enum OperationFilters implements Filter {
     map.put("url", serverUrl + operation.getPath());
     var requestHeaders = ArrayListMultimap.<String, String>create();
     var responseHeaders = ArrayListMultimap.<String, String>create();
+    var parameters = Optional.ofNullable(operation.getParameters()).orElse(List.of());
     var headerParams =
-        operation.getParameters().stream()
-            .filter(it -> "header".equalsIgnoreCase(it.getIn()))
-            .toList();
+        parameters.stream().filter(it -> "header".equalsIgnoreCase(it.getIn())).toList();
     operation
         .getProduces()
         .forEach(

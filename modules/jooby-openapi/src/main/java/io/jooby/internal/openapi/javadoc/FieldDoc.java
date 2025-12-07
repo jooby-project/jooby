@@ -17,6 +17,12 @@ public class FieldDoc extends JavaDocNode {
     super(ctx, node, javadoc);
   }
 
+  @Override
+  public String getText() {
+    var text = super.getText();
+    return text == null ? null : text.replace("<p>", "").replace("</p>", "").trim();
+  }
+
   public String getName() {
     return JavaDocSupport.getSimpleName(node);
   }

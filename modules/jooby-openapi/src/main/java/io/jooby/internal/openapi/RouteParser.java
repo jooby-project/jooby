@@ -63,7 +63,6 @@ public class RouteParser {
     String applicationName =
         Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
-
     // JavaDoc
     addJavaDoc(ctx, ctx.getRouter().getClassName(), "", operations);
 
