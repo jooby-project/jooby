@@ -1,7 +1,9 @@
+[cols="1,1,1,3"]
 |===
-|Parameter|Type|Description
+|Parameter|In|Type|Description
 {% for parameter in parameters %}
 |`+${parameter.name}+`
+|`+${parameter.in}+`
 |`+${parameter.type}+`
 |${parameter.description}
 {% endfor %}

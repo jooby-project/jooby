@@ -75,7 +75,7 @@ public class RouteParser {
 
     List<OperationExt> result = new ArrayList<>();
     for (OperationExt operation : operations) {
-      List<String> patterns = Router.expandOptionalVariables(operation.getPattern());
+      List<String> patterns = Router.expandOptionalVariables(operation.getPath());
       if (patterns.size() == 1) {
         result.add(operation);
       } else {
@@ -112,8 +112,7 @@ public class RouteParser {
       if (operation.getController() == null) {
         javaDoc
             .flatMap(
-                doc ->
-                    doc.getScript(operation.getMethod(), operation.getPattern().substring(offset)))
+                doc -> doc.getScript(operation.getMethod(), operation.getPath().substring(offset)))
             .ifPresent(
                 scriptDoc -> {
                   if (scriptDoc.getPath() != null) {
@@ -249,8 +248,7 @@ public class RouteParser {
   private String operationId(OperationExt operation) {
     return Optional.ofNullable(operation.getOperationId())
         .orElseGet(
-            () ->
-                operation.getMethod().toLowerCase() + patternToOperationId(operation.getPattern()));
+            () -> operation.getMethod().toLowerCase() + patternToOperationId(operation.getPath()));
   }
 
   private String patternToOperationId(String pattern) {

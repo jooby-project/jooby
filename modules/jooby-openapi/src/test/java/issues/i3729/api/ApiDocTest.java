@@ -268,14 +268,11 @@ public class ApiDocTest {
 
             Query books. By using advanced filters.
 
-            [source,bash]
-            ----
-            curl -H 'Accept: application/json'\\
-                 -X GET 'https://api.fake-museum-example.com/v1/api/library?title=string&author=string&isbn=string1&isbn=string2&isbn=string3'
-            ----
+            Example: `/api/library?title=...`
 
             ==== Request Fields
 
+            [cols="1,1,3"]
             |===
             |Parameter|Type|Description
 
@@ -295,7 +292,7 @@ public class ApiDocTest {
 
             === Find a book by ISBN
 
-            [source,bash]
+            [source]
             ----
             curl -i\\
                  -H 'Accept: application/json'\\
@@ -338,6 +335,7 @@ public class ApiDocTest {
 
             ==== Response Fields
 
+            [cols="1,1,3"]
             |===
             |Path|Type|Description
 

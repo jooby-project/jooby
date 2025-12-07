@@ -75,6 +75,76 @@ public class FilterTest {
   }
 
   @Test
+  public void path() {
+    // Query parameter filtering by name
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/search").query("title", "isbn").build(),
+                args("title", "Some..."),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/search?title=Some...");
+    // All
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/search").query("title", "isbn").build(),
+                args(),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/search?isbn=string&title=string");
+
+    // Path+Query
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/book/{isbn}")
+                    .parameter(
+                        Map.of("query", mapOf("title", "string"), "path", mapOf("isbn", "string")))
+                    .build(),
+                args("title", "Some...", "isbn", "12340"),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/book/12340?title=Some...");
+    // Default Path
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/book/{isbn}")
+                    .parameter(
+                        Map.of("query", mapOf("title", "string"), "path", mapOf("isbn", "string")))
+                    .build(),
+                args("title", "Some..."),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/book/{isbn}?title=Some...");
+
+    // Only Path
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/book/{isbn}").path("isbn").build(),
+                args(),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/book/{isbn}");
+
+    // Defaults
+    assertThat(
+            path.apply(
+                operation("GET", "/api/library/book/{isbn}")
+                    .parameter(
+                        Map.of("query", mapOf("title", "string"), "path", mapOf("isbn", "string")))
+                    .build(),
+                args(),
+                template(),
+                evaluationContext(),
+                1))
+        .isEqualTo("/api/library/book/{isbn}?title=string");
+  }
+
+  @Test
   public void requestParams() {
     // Query parameter
     assertThat(
@@ -86,6 +156,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,3"]
             |===
             |Parameter|Type|Description
 
@@ -109,6 +180,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,3"]
             |===
             |Parameter|Type|Description
 
@@ -129,6 +201,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,3"]
             |===
             |Parameter|Description
 
@@ -151,6 +224,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,3"]
             |===
             |Parameter|Type|Description
 
@@ -185,22 +259,27 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,1,3"]
             |===
-            |Parameter|Type|Description
+            |Parameter|In|Type|Description
 
             |`+active+`
+            |`+query+`
             |`+true+`
             |
 
             |`+file+`
+            |`+form+`
             |`+binary+`
             |
 
             |`+isbn+`
+            |`+path+`
             |`+string+`
             |
 
             |`+name+`
+            |`+form+`
             |`+string+`
             |
 
@@ -219,7 +298,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -X GET 'https://api.libray.com/api/library/{isbn}'
             ----\
@@ -229,13 +308,13 @@ public class FilterTest {
     assertThat(
             curl.apply(
                 operation("GET", "/api/library/{isbn}").query("foo", "bar").build(),
-                args(),
+                args("language", "bash"),
                 template(),
                 evaluationContext(),
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source, bash]
             ----
             curl -X GET 'https://api.libray.com/api/library/{isbn}?foo=string&bar=string'
             ----\
@@ -251,7 +330,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl --data-urlencode 'foo=string'\\
                  --data-urlencode 'bar=string'\\
@@ -276,7 +355,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl --data-urlencode 'foo=string'\\
                  --data-urlencode 'bar=string'\\
@@ -294,7 +373,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -i\\
                  -X GET 'https://api.libray.com/api/library/{isbn}'
@@ -311,7 +390,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -i\\
                  -X POST 'https://api.libray.com/api/library/{isbn}'
@@ -328,7 +407,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -H 'Accept: application/json'\\
                  -X GET 'https://api.libray.com/api/library/{isbn}'
@@ -345,7 +424,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -H 'Accept: application/xml'\\
                  -X GET 'https://api.libray.com/api/library/{isbn}'
@@ -361,7 +440,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -H 'Content-Type: application/json'\\
                  -d '{"isbn":"string","title":"string","publicationDate":"date","text":"string","type":"string","authors":[],"image":"binary"}'\\
@@ -381,7 +460,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
-            [source,bash]
+            [source]
             ----
             curl -H 'Content-Type: multipart/form-data'\\
                  --data-urlencode 'name=string'\\
@@ -554,6 +633,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,3"]
             |===
             |Path|Type|Description
 
@@ -590,6 +670,7 @@ public class FilterTest {
 
     assertEquals(
         """
+        [cols="1,1,3"]
         |===
         |Path|Type|Description
 
@@ -646,6 +727,7 @@ public class FilterTest {
                 1))
         .isEqualToNormalizingNewlines(
             """
+            [cols="1,1,3"]
             |===
             |Path|Type|Description
 

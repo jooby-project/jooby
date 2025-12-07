@@ -27,7 +27,7 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
   @JsonIgnore private final MethodNode node;
   @JsonIgnore private String method;
-  @JsonIgnore private final String pattern;
+  @JsonIgnore private final String path;
   @JsonIgnore private Boolean hidden;
   @JsonIgnore private LinkedList<String> produces = new LinkedList<>();
   @JsonIgnore private LinkedList<String> consumes = new LinkedList<>();
@@ -41,10 +41,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   @JsonIgnore private ClassNode controller;
 
   public OperationExt(
-      MethodNode node, String method, String pattern, List arguments, ResponseExt response) {
+      MethodNode node, String method, String path, List arguments, ResponseExt response) {
     this.node = node;
     this.method = method.toUpperCase();
-    this.pattern = pattern;
+    this.path = path;
     setParameters(arguments);
     this.defaultResponse = response;
     setResponses(apiResponses(Collections.singletonList(response)));
@@ -87,8 +87,8 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     this.method = method;
   }
 
-  public String getPattern() {
-    return pattern;
+  public String getPath() {
+    return path;
   }
 
   public List<String> getProduces() {
@@ -120,7 +120,7 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   }
 
   public String toString() {
-    return getMethod() + " " + getPattern();
+    return getMethod() + " " + getPath();
   }
 
   public Parameter getParameter(int i) {
@@ -266,5 +266,9 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     copy.setPathDescription(getPathDescription());
     copy.setPathExtensions(getPathExtensions());
     return copy;
+  }
+
+  public String getPath(Map<String, Object> pathParams) {
+    return Router.reverse(getPath(), pathParams);
   }
 }

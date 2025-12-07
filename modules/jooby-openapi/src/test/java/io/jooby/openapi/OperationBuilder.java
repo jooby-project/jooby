@@ -13,6 +13,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
+
+import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.*;
 import io.swagger.v3.core.converter.ModelConverters;
@@ -106,8 +110,12 @@ public class OperationBuilder {
     return this;
   }
 
+  @SuppressWarnings("unchecked")
   public OperationBuilder pattern(String pattern) {
-    when(operation.getPattern()).thenReturn(pattern);
+    when(operation.getPath()).thenReturn(pattern);
+    ArgumentCaptor<Map<String, Object>> args = ArgumentCaptor.forClass(Map.class);
+    when(operation.getPath(args.capture()))
+        .thenAnswer((Answer<String>) invocationOnMock -> Router.reverse(pattern, args.getValue()));
     return this;
   }
 

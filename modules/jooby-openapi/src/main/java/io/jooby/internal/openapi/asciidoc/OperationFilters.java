@@ -15,6 +15,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.collect.*;
+import com.google.common.net.UrlEscapers;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.MediaType;
@@ -46,13 +47,8 @@ public enum OperationFilters implements Filter {
         int lineNumber)
         throws Exception {
       var options = args(args);
-      var method =
-          Optional.of(options.removeAll("-X"))
-              .map(Collection::iterator)
-              .filter(Iterator::hasNext)
-              .map(Iterator::next)
-              .orElse(operation.getMethod())
-              .toUpperCase();
+      var method = removeOption(options, "-X", operation.getMethod()).toUpperCase();
+      var language = removeOption(options, "language", "");
       /* Accept/Content-Type: */
       var addAccept = true;
       var addContentType = true;
@@ -111,9 +107,19 @@ public enum OperationFilters implements Filter {
                 .collect(Collectors.joining("&", "?", ""));
       }
       options.put("-X", method + " '" + url + "'");
-      var optionString = toString(options);
-      snippetContext.put("options", optionString);
+      var optionsString = toString(options);
+      snippetContext.put("options", optionsString);
+      snippetContext.put("language", language);
       return resolver.apply(id(), snippetContext);
+    }
+
+    @NonNull private static String removeOption(
+        Multimap<String, String> options, String name, String defaultValue) {
+      return Optional.of(options.removeAll(name))
+          .map(Collection::iterator)
+          .filter(Iterator::hasNext)
+          .map(Iterator::next)
+          .orElse(defaultValue);
     }
 
     @NonNull private static Stream<Map.Entry<String, String>> encodeUrlParameter(List<Parameter> query) {
@@ -272,6 +278,49 @@ public enum OperationFilters implements Filter {
       return resolver.apply(id(), snippetContext);
     }
   },
+  path {
+    @Override
+    protected String doApply(
+        SnippetResolver resolver,
+        OperationExt operation,
+        Map<String, Object> snippetContext,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber) {
+      var namedArgs = positionalArgs(args);
+      // Path
+      var path = parameters(operation, p -> "path".equals(p.getIn()));
+      var pathParams = new HashMap<String, Object>();
+      path.forEach(
+          p -> {
+            pathParams.put(
+                p.getName(), namedArgs.getOrDefault(p.getName(), "{" + p.getName() + "}"));
+          });
+      // QueryString
+      var query =
+          parameters(
+              operation,
+              p ->
+                  "query".equals(p.getIn())
+                      && (namedArgs.isEmpty() || namedArgs.containsKey(p.getName())));
+      var queryString =
+          query.isEmpty()
+              ? ""
+              : query.stream()
+                  .map(
+                      it -> {
+                        var value =
+                            namedArgs.getOrDefault(
+                                it.getName(), SchemaData.shemaType(it.getSchema()));
+                        return it.getName()
+                            + "="
+                            + UrlEscapers.urlFragmentEscaper().escape(value.toString());
+                      })
+                  .collect(Collectors.joining("&", "?", ""));
+      return operation.getPath(pathParams) + queryString;
+    }
+  },
   pathParameters {
     @Override
     protected String doApply(
@@ -406,7 +455,7 @@ public enum OperationFilters implements Filter {
 
   @Override
   public List<String> getArgumentNames() {
-    return List.of("code");
+    return null;
   }
 
   protected abstract String doApply(
@@ -465,10 +514,10 @@ public enum OperationFilters implements Filter {
 
   protected Map<String, Object> newSnippetContext(String serverUrl, OperationExt operation) {
     Map<String, Object> map = new HashMap<>();
-    map.put("pattern", operation.getPattern());
-    map.put("path", operation.getPattern());
+    map.put("pattern", operation.getPath());
+    map.put("path", operation.getPath());
     map.put("method", operation.getMethod());
-    map.put("url", serverUrl + operation.getPattern());
+    map.put("url", serverUrl + operation.getPath());
     var requestHeaders = ArrayListMultimap.<String, String>create();
     var responseHeaders = ArrayListMultimap.<String, String>create();
     var headerParams =
@@ -524,14 +573,17 @@ public enum OperationFilters implements Filter {
     return fields;
   }
 
+  protected List<Parameter> parameters(OperationExt operation, Predicate<Parameter> predicate) {
+    return Optional.ofNullable(operation.getParameters()).orElse(List.of()).stream()
+        .filter(predicate)
+        .sorted(Comparator.comparing(Parameter::getName))
+        .toList();
+  }
+
   protected List<Map<String, String>> parametersToTable(
       OperationExt operation, Predicate<Parameter> predicate) {
     List<Map<String, String>> fields = new ArrayList<>();
-    var parameters =
-        Optional.ofNullable(operation.getParameters()).orElse(List.of()).stream()
-            .filter(predicate)
-            .sorted(Comparator.comparing(Parameter::getName))
-            .toList();
+    var parameters = parameters(operation, predicate);
     parameters.forEach(
         it -> {
           var schema = it.getSchema();
@@ -601,25 +653,34 @@ public enum OperationFilters implements Filter {
   protected static final Set<String> READ_METHODS = Set.of("GET", "HEAD");
 
   protected String toString(Multimap<String, String> options) {
-    if (options.isEmpty()) {
-      return "";
-    }
     var sb = new StringBuilder();
     var separator = "\\\n";
     var tabSize = id().length() + 1;
-    options.forEach(
-        (k, v) -> {
-          if (!sb.isEmpty()) {
-            sb.append(" ".repeat(tabSize));
-          }
-          sb.append(k);
-          if (v != null && !v.isEmpty()) {
-            sb.append(" ").append(v);
-          }
-          sb.append(separator);
-        });
+    for (Map.Entry<String, String> entry : options.entries()) {
+      var k = entry.getKey();
+      var v = entry.getValue();
+      if (!sb.isEmpty()) {
+        sb.append(" ".repeat(tabSize));
+      }
+      sb.append(k);
+      if (v != null && !v.isEmpty()) {
+        sb.append(" ").append(v);
+      }
+      sb.append(separator);
+    }
     sb.setLength(sb.length() - separator.length());
     return sb.toString();
+  }
+
+  protected Map<String, Object> positionalArgs(Map<String, Object> args) {
+    var optionList = new ArrayList<>(args.values());
+    Map<String, Object> result = new LinkedHashMap<>();
+    for (int i = 0; i < optionList.size(); i += 2) {
+      var key = optionList.get(i).toString();
+      var value = optionList.get(i + 1);
+      result.put(key, value);
+    }
+    return result;
   }
 
   protected Multimap<String, String> args(Map<String, Object> args) {

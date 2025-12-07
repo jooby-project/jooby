@@ -24,7 +24,7 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("method", name());
+      args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },
@@ -37,7 +37,7 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("method", name());
+      args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },
@@ -50,7 +50,7 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("method", name());
+      args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },
@@ -63,7 +63,7 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("method", name());
+      args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },
@@ -76,7 +76,7 @@ public enum Functions implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      args.put("method", name());
+      args.put("identifier", name());
       return operation.execute(args, self, context, lineNumber);
     }
   },

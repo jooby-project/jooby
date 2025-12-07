@@ -22,7 +22,7 @@ Write your questions at ${info.contact.email}
 {% set listBooks = operation("GET", "/api/library") %}
 ${listBooks.summary} ${listBooks.description}
 
-${ listBooks | curl }
+Example: `${ listBooks | path("title", "...") }`
 
 ==== Request Fields
 

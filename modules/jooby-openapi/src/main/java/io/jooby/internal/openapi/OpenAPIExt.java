@@ -243,7 +243,7 @@ public class OpenAPIExt extends OpenAPI {
   }
 
   public OperationExt findOperation(String method, String pattern) {
-    Predicate<OperationExt> filter = op -> op.getPattern().equals(pattern);
+    Predicate<OperationExt> filter = op -> op.getPath().equals(pattern);
     if (method != null) {
       filter = filter.and(op -> op.getMethod().equals(method));
     }

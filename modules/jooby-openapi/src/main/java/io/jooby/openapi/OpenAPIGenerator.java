@@ -265,7 +265,7 @@ public class OpenAPIGenerator {
     Map<String, Tag> globalTags = new LinkedHashMap<>();
     Paths paths = new Paths();
     for (OperationExt operation : operations) {
-      String pattern = operation.getPattern();
+      String pattern = operation.getPath();
       if (!includes(pattern) || excludes(pattern)) {
         log.debug("skipping {}", pattern);
         continue;
