@@ -77,7 +77,7 @@
     <jdbi.version>3.50.0</jdbi.version>
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
-    <lettuce.version>7.1.0.RELEASE</lettuce.version>
+    <lettuce.version>7.2.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
     <kafka.version>4.1.1</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
@@ -106,7 +106,7 @@
 
     <!-- Server -->
     <undertow.version>2.3.20.Final</undertow.version>
-    <jetty.version>12.1.4</jetty.version>
+    <jetty.version>12.1.5</jetty.version>
     <netty.version>4.2.7.Final</netty.version>
     <vertx.version>5.0.5</vertx.version>
 
@@ -133,7 +133,7 @@
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.2.2</pac4j.version>
-    <quartz.version>2.5.1</quartz.version>
+    <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.15.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.794</aws-java-sdk.version>
