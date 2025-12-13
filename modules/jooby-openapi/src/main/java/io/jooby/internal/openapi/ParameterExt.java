@@ -8,8 +8,12 @@ package io.jooby.internal.openapi;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 
-public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter {
+public class ParameterExt extends Parameter {
   @JsonIgnore private String javaType;
 
   @JsonIgnore private Object defaultValue;
@@ -53,5 +57,23 @@ public class ParameterExt extends io.swagger.v3.oas.models.parameters.Parameter 
   @Override
   public String toString() {
     return javaType + " " + getName();
+  }
+
+  public static Parameter header(@NonNull String name, @Nullable String value) {
+    return basic(name, "header", value);
+  }
+
+  public static Parameter cookie(@NonNull String name, @Nullable String value) {
+    return basic(name, "cookie", value);
+  }
+
+  public static Parameter basic(@NonNull String name, @NonNull String in, @Nullable String value) {
+    ParameterExt param = new ParameterExt();
+    param.setName(name);
+    param.setIn(in);
+    param.setDefaultValue(value);
+    param.setSchema(new StringSchema());
+    param.setJavaType(String.class.getName());
+    return param;
   }
 }

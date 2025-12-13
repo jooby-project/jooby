@@ -8,12 +8,9 @@ package io.jooby.internal.openapi.asciidoc.http;
 import java.util.Map;
 
 import io.jooby.SneakyThrows;
+import io.jooby.internal.openapi.ParameterExt;
 import io.jooby.internal.openapi.asciidoc.*;
 
-/**
- * [source,http,options="nowrap"] ---- HTTP/1.1 ${statusCode} ${statusReason} {% for h in headers
- * -%} ${h.name}: ${h.value} {% endfor -%} ${responseBody -} ----
- */
 public record ResponseToHttp(AsciiDocContext context, HttpResponse response) implements ToSnippet {
   @Override
   public String render(Map<String, Object> options) {
@@ -27,7 +24,8 @@ public record ResponseToHttp(AsciiDocContext context, HttpResponse response) imp
           .append(response.getStatusCode().reason())
           .append('\n');
       for (var header : response.getHeaders()) {
-        sb.append(header.name()).append(": ").append(header.value()).append('\n');
+        var value = ((ParameterExt) header).getDefaultValue();
+        sb.append(header.getName()).append(": ").append(value).append('\n');
       }
       var schema = response.getBody();
       if (schema != AsciiDocContext.EMPTY_SCHEMA) {

@@ -8,6 +8,7 @@ package io.jooby.internal.openapi.asciidoc.http;
 import java.util.Map;
 
 import io.jooby.SneakyThrows;
+import io.jooby.internal.openapi.ParameterExt;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.asciidoc.HttpRequest;
 import io.jooby.internal.openapi.asciidoc.ToSnippet;
@@ -32,7 +33,10 @@ public record RequestToHttp(AsciiDocContext context, HttpRequest request) implem
           .append(" HTTP/1.1")
           .append('\n');
       for (var header : request.getHeaders()) {
-        sb.append(header.name()).append(": ").append(header.value()).append('\n');
+        sb.append(header.getName())
+            .append(": ")
+            .append(((ParameterExt) header).getDefaultValue())
+            .append('\n');
       }
       var schema = request.getBody();
       if (schema != AsciiDocContext.EMPTY_SCHEMA) {

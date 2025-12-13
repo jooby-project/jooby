@@ -17,8 +17,6 @@ public class Issue3820 {
     assertThat(result.toAsciiDoc(CurrentDir.testClass(getClass(), "schema.adoc")))
         .isEqualToIgnoringNewLines(
             """
-            [source,json]
-            ----
             {
               "isbn" : "string",
               "title" : "string",
@@ -29,9 +27,16 @@ public class Issue3820 {
                 "id" : "int64",
                 "name" : "string"
               },
-              "authors" : [ ]
-            }
-            ----
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            }\
             """);
   }
 }

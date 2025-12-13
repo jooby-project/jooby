@@ -917,27 +917,14 @@ public final class StatusCode {
 
   private final String reason;
 
-  private final transient boolean unknown;
-
   private StatusCode(final int value, final String reason) {
     this.value = value;
     this.reason = reason;
-    this.unknown = false;
   }
 
   private StatusCode(final int value) {
     this.value = value;
     this.reason = Integer.toString(value);
-    this.unknown = true;
-  }
-
-  /**
-   * True for custom status code.
-   *
-   * @return True for custom status code.
-   */
-  public boolean isUnknown() {
-    return unknown;
   }
 
   /**

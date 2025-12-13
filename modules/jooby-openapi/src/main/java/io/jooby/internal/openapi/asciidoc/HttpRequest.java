@@ -11,21 +11,43 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.net.UrlEscapers;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Router;
 import io.jooby.internal.openapi.OperationExt;
+import io.jooby.internal.openapi.ParameterExt;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
+@JsonIncludeProperties({"path", "method"})
 public record HttpRequest(
     AsciiDocContext context, OperationExt operation, Map<String, Object> options)
     implements HttpMessage {
 
   private static final Predicate<Parameter> NOOP = p -> true;
+
+  private List<Parameter> allParameters() {
+    var parameters = new ArrayList<>(getImplicitHeaders());
+    parameters.addAll(Optional.ofNullable(operation.getParameters()).orElse(List.of()));
+    return parameters;
+  }
+
+  private List<Parameter> getImplicitHeaders() {
+    var implicitHeaders = new ArrayList<Parameter>();
+    operation
+        .getProduces()
+        .forEach(value -> implicitHeaders.add(ParameterExt.header("Accept", value)));
+    if (Set.of(Router.PATCH, Router.PUT, Router.POST, Router.DELETE)
+        .contains(operation.getMethod())) {
+      operation
+          .getConsumes()
+          .forEach(value -> implicitHeaders.add(ParameterExt.header("Content-Type", value)));
+    }
+    return implicitHeaders;
+  }
 
   public String getMethod() {
     return operation.getMethod();
@@ -44,72 +66,74 @@ public record HttpRequest(
   }
 
   @Override
-  public HttpParamList getHeaders() {
-    var requestHeaders = ArrayListMultimap.<String, HttpParam>create();
-    var parameters = Optional.ofNullable(operation.getParameters()).orElse(List.of());
-    var headerParams = parameters.stream().filter(it -> "header".equals(it.getIn())).toList();
-    operation
-        .getProduces()
-        .forEach(
-            value ->
-                requestHeaders.put(
-                    "Accept", new HttpParam("Accept", new StringSchema(), value, "header", null)));
-    if (Set.of(Router.PATCH, Router.PUT, Router.POST, Router.DELETE)
-        .contains(operation.getMethod())) {
-      operation
-          .getConsumes()
-          .forEach(
-              value ->
-                  requestHeaders.put(
-                      "Content-Type",
-                      new HttpParam("Content-Type", new StringSchema(), value, "header", null)));
-    }
-    headerParams.forEach(
-        it ->
-            requestHeaders.put(
-                it.getName(),
-                new HttpParam(
-                    it.getName(), it.getSchema(), "{{" + it.getName() + "}}", "header", null)));
-    return new HttpParamList(
-        requestHeaders.entries().stream().map(Map.Entry::getValue).toList(),
-        HttpParamList.NAME_DESC);
+  public ParameterList getHeaders() {
+    return new ParameterList(
+        allParameters().stream().filter(inFilter("header")).toList(), ParameterList.NAME_DESC);
   }
 
   @Override
-  public HttpParamList getCookies() {
-    var parameters = Optional.ofNullable(operation.getParameters()).orElse(List.of());
-    return new HttpParamList(
-        parameters.stream()
-            .filter(it -> "cookie".equals(it.getIn()))
-            .map(
-                it ->
-                    new HttpParam(
-                        it.getName(),
-                        it.getSchema(),
-                        "{{" + it.getName() + "}}",
-                        "cookie",
-                        it.getDescription()))
-            .toList(),
-        HttpParamList.NAME_DESC);
+  public ParameterList getCookies() {
+    return new ParameterList(
+        allParameters().stream().filter(inFilter("cookie")).toList(), ParameterList.NAME_DESC);
   }
 
-  public HttpParamList getParameters() {
-    return getParameterList(NOOP, Map.of(), HttpParamList.PARAM);
+  public ParameterList getQuery() {
+    return new ParameterList(
+        allParameters().stream().filter(inFilter("query")).toList(), ParameterList.NAME_TYPE_DESC);
   }
 
-  public HttpParamList getQueryParameters() {
-    return getQueryParameters(Map.of());
+  public ParameterList getParameters() {
+    return getParameterList(NOOP, ParameterList.PARAM);
+  }
+
+  public ParameterList getParameters(List<String> in, List<String> includes) {
+    var show =
+        in.isEmpty() || in.contains("*")
+            ? ParameterList.PARAM
+            : (in.size() == 1 && in.contains("cookie") || in.contains("header"))
+                ? ParameterList.NAME_DESC
+                : ParameterList.NAME_TYPE_DESC;
+    return getParameterList(toFilter(in, includes), show);
+  }
+
+  private Predicate<Parameter> toFilter(List<String> in, List<String> includes) {
+    Predicate<Parameter> inFilter;
+    if (in.isEmpty()) {
+      inFilter = NOOP;
+    } else {
+      inFilter = null;
+      for (var type : in) {
+        var itFilter = inFilter(type);
+        if (inFilter == null) {
+          inFilter = itFilter;
+        } else {
+          inFilter = inFilter.or(itFilter);
+        }
+      }
+    }
+    Predicate<Parameter> paramFilter = NOOP;
+    if (!includes.isEmpty()) {
+      paramFilter = p -> includes.contains(p.getName());
+    }
+    return inFilter.and(paramFilter);
   }
 
   public String getQueryString() {
+    return getQueryString(Map.of());
+  }
+
+  public String getQueryString(Map<String, Object> filter) {
     var sb = new StringBuilder("?");
 
-    for (var param : getParameters(inFilter("query"), Map.of())) {
+    for (var param : getParameters(List.of("query"), filter.keySet().stream().toList())) {
       encode(
           param.getName(),
           param.getSchema(),
           (schema, e) ->
-              Map.entry(e.getKey(), UrlEscapers.urlFragmentEscaper().escape(e.getValue())),
+              Map.entry(
+                  e.getKey(),
+                  UrlEscapers.urlFragmentEscaper()
+                      .escape(filter.getOrDefault(e.getKey(), e.getValue()).toString())),
           (name, value) -> sb.append(name).append("=").append(value).append("&"));
     }
     if (sb.length() > 1) {
@@ -119,10 +143,6 @@ public record HttpRequest(
     return "";
   }
 
-  private HttpParamList getQueryParameters(Map<String, Object> paramValues) {
-    return getParameterList(inFilter("query"), paramValues, HttpParamList.NAME_TYPE_DESC);
-  }
-
   @SuppressWarnings("unchecked")
   private Schema<?> getBody(List<String> contentType) {
     var body =
@@ -130,15 +150,12 @@ public record HttpRequest(
             .map(it -> toSchema(it.getContent(), contentType))
             .map(context::resolveSchema)
             .orElse(AsciiDocContext.EMPTY_SCHEMA);
+
     return selectBody(body, options.getOrDefault("body", "full").toString());
   }
 
   public Schema<?> getForm() {
     return getBody(List.of("application/x-www-form-urlencoded)", "multipart/form-data"));
-  }
-
-  public ListMultimap<String, String> getFormUrlEncoded() {
-    return formUrlEncoded((schema, field) -> field);
   }
 
   @NonNull public ListMultimap<String, String> formUrlEncoded(
@@ -203,12 +220,8 @@ public record HttpRequest(
     return getBody(List.of());
   }
 
-  public HttpParamList getPathParameters() {
-    return getParameterList(inFilter("path"), Map.of(), HttpParamList.NAME_TYPE_DESC);
-  }
-
-  public HttpParamList getAllParameters() {
-    var parameters = new ArrayList<>(getParameters(NOOP, Map.of()));
+  public ParameterList getAllParameters() {
+    var parameters = allParameters();
     var body = getForm();
     var bodyType = "form";
     if (body == AsciiDocContext.EMPTY_SCHEMA) {
@@ -228,45 +241,21 @@ public record HttpRequest(
             parameters.add(p);
           });
     }
-    return toParameterList(parameters, Map.of(), HttpParamList.PARAM);
+    return new ParameterList(parameters, ParameterList.PARAM);
   }
 
-  private HttpParamList getParameterList(
-      Predicate<Parameter> predicate, Map<String, Object> paramValues, List<String> includes) {
-    return toParameterList(getParameters(predicate, paramValues), paramValues, includes);
+  private ParameterList getParameterList(Predicate<Parameter> predicate, List<String> includes) {
+    return new ParameterList(getParameters(predicate), includes);
   }
 
-  private HttpParamList toParameterList(
-      List<Parameter> parameters, Map<String, Object> paramValues, List<String> includes) {
-    return new HttpParamList(
-        parameters.stream()
-            .map(
-                it ->
-                    new HttpParam(
-                        it.getName(),
-                        context.resolveSchema(it.getSchema()),
-                        paramValues.get(it.getName()),
-                        it.getIn(),
-                        it.getDescription()))
-            .toList(),
-        includes);
-  }
-
-  private List<Parameter> getParameters(
-      Predicate<Parameter> predicate, Map<String, Object> paramValues) {
-    var parameters = Optional.ofNullable(operation.getParameters()).orElse(List.of());
-    return parameters.stream().filter(predicate.and(paramValueFilter(paramValues))).toList();
-  }
-
-  private static Predicate<Parameter> paramValueFilter(Map<String, Object> paramValues) {
-    if (paramValues == null || paramValues.isEmpty()) {
-      return NOOP;
-    }
-    return p -> paramValues.containsKey(p.getName());
+  private List<Parameter> getParameters(Predicate<Parameter> predicate) {
+    return predicate == NOOP
+        ? allParameters()
+        : allParameters().stream().filter(predicate).toList();
   }
 
   private static Predicate<Parameter> inFilter(String in) {
-    return p -> in.equals(p.getIn());
+    return p -> "*".equals(in) || in.equals(p.getIn());
   }
 
   @NonNull @Override

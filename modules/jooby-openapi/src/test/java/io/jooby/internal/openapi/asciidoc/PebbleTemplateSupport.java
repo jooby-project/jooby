@@ -9,12 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Path;
 
 import org.assertj.core.api.AbstractStringAssert;
 
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
-import io.jooby.openapi.CurrentDir;
 import io.swagger.v3.core.util.Json31;
 import io.swagger.v3.core.util.Yaml31;
 
@@ -22,13 +22,8 @@ public class PebbleTemplateSupport {
 
   private final AsciiDocContext context;
 
-  public PebbleTemplateSupport(OpenAPIExt openapi) {
-    var baseDir = CurrentDir.testClass(getClass());
-    var outDir = CurrentDir.basedir("target").resolve("asciidoc-out");
-    var classLoader = getClass().getClassLoader();
-    this.context =
-        new AsciiDocContext(
-            classLoader, Json31.mapper(), Yaml31.mapper(), openapi, baseDir, outDir);
+  public PebbleTemplateSupport(Path basedir, OpenAPIExt openapi) {
+    this.context = new AsciiDocContext(basedir, Json31.mapper(), Yaml31.mapper(), openapi);
   }
 
   public AbstractStringAssert<?> evaluateThat(String input) throws IOException {

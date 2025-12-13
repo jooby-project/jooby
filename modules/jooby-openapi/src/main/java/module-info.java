@@ -27,4 +27,6 @@ module io.jooby.openapi {
   requires org.jruby;
   requires net.datafaker;
   requires com.fasterxml.jackson.dataformat.yaml;
+  requires io.swagger.models;
+  requires com.fasterxml.jackson.annotation;
 }

@@ -276,9 +276,12 @@ public class ApiDocTest {
 
             ==== Request Fields
 
-            [cols="1,1,3"]
+            [cols="1,1,3", options="header"]
             |===
-            |Parameter|Type|Description
+            |Name|Type|Description
+            |`+title+`
+            |`+string+`
+            |Book's title.
 
             |`+author+`
             |`+string+`
@@ -288,10 +291,6 @@ public class ApiDocTest {
             |`+array+`
             |Book's isbn. Optional.
 
-            |`+title+`
-            |`+string+`
-            |Book's title.
-
             |===
 
             === Find a book by ISBN
@@ -300,11 +299,11 @@ public class ApiDocTest {
             ----
             curl -i\\
                  -H 'Accept: application/json'\\
-                 -X GET 'https://api.fake-museum-example.com/v1/api/library/{isbn}'
+                 -X GET '/api/library/{isbn}'
             ----
 
-            .A matching book.
-            [source,json]
+            .GET /api/library/{isbn}
+            [source, json]
             ----
             {
               "isbn" : "string",
@@ -312,37 +311,74 @@ public class ApiDocTest {
               "publicationDate" : "date",
               "text" : "string",
               "type" : "string",
-              "authors" : [ ],
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "state" : "string",
+                  "country" : "string"
+                },
+                "books" : [ { } ]
+              } ],
               "image" : "binary"
             }
             ----
 
-            .Bad Request: For bad ISBN code.
-            [source,json]
+            .GET /api/library/{isbn}
+            [source, json]
             ----
             {
-              "message" : "...",
-              "statusCode" : 400,
-              "reason" : "Bad Request"
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "state" : "string",
+                  "country" : "string"
+                },
+                "books" : [ { } ]
+              } ],
+              "image" : "binary"
             }
             ----
 
-            .Not Found: If a book doesn't exist.
-            [source,json]
+            .GET /api/library/{isbn}
+            [source, json]
             ----
             {
-              "message" : "...",
-              "statusCode" : 404,
-              "reason" : "Not Found"
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "state" : "string",
+                  "country" : "string"
+                },
+                "books" : [ { } ]
+              } ],
+              "image" : "binary"
             }
             ----
 
             ==== Response Fields
 
-            [cols="1,1,3"]
+            [cols="1,1,3a", options="header"]
             |===
-            |Path|Type|Description
-
+            |Name|Type|Description
             |`+isbn+`
             |`+string+`
             |Book ISBN. Method.
@@ -361,19 +397,20 @@ public class ApiDocTest {
 
             |`+type+`
             |`+string+`
-            |Book type.
-              - Fiction: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
-              - NonFiction: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
+            |Books can be broadly categorized into fiction and non-fiction.
+
+            * *Fiction*: Fiction books are based on imaginary characters and events, while non-fiction books are based o n real people and events.
+            * *NonFiction*: Non-fiction genres include biography, autobiography, history, self-help, and true crime.
 
             |`+authors+`
-            |`+[]+`
+            |`+array+`
             |
 
             |`+image+`
             |`+binary+`
             |
 
-            |===
+            |===\
             """);
   }
 

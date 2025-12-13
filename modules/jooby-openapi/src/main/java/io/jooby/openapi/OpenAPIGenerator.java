@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
+import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -89,13 +90,14 @@ public class OpenAPIGenerator {
         }
         var outputDir = (Path) options.get("outputDir");
         var outputList = new ArrayList<Path>();
+        var context = tool.createAsciidoc(files.getFirst().getParent(), (OpenAPIExt) result);
         for (var file : files) {
           var opts = new HashMap<>(options);
           opts.put("adoc", file);
           var content = toString(tool, result, opts);
           var output = outputDir.resolve(file.getFileName());
           Files.write(output, List.of(content));
-          AsciiDocGenerator.export(file.getParent(), output, outputDir);
+          context.export(output, outputDir);
           outputList.add(output);
         }
         return outputList;
@@ -161,6 +163,8 @@ public class OpenAPIGenerator {
   private List<Path> sources;
 
   private SpecVersion specVersion = SpecVersion.V30;
+
+  private AsciiDocContext asciidoc;
 
   /** Default constructor. */
   public OpenAPIGenerator() {}
@@ -387,7 +391,7 @@ public class OpenAPIGenerator {
       if (file == null) {
         throw new IllegalArgumentException("'adoc' file is required: " + options);
       }
-      return AsciiDocGenerator.generate((OpenAPIExt) openAPI, file);
+      return createAsciidoc(file.getParent(), (OpenAPIExt) openAPI).generate(file);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
     }
@@ -474,7 +478,7 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set output directory used by {@link #export(OpenAPI, Format)} operation.
+   * Set output directory used by {@link #export(OpenAPI, Format, Map)} operation.
    *
    * <p>Defaults to {@link #getBasedir()}.
    *
@@ -521,7 +525,7 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set output directory used by {@link #export(OpenAPI, Format)}.
+   * Set output directory used by {@link #export(OpenAPI, Format, Map)}.
    *
    * @param outputDir Output directory.
    */
@@ -555,6 +559,10 @@ public class OpenAPIGenerator {
         throw new IllegalArgumentException(
             "Invalid spec version: " + version + ". Supported version: [3.0.1, 3.1.0]");
     }
+  }
+
+  protected AsciiDocContext createAsciidoc(Path basedir, OpenAPIExt openapi) {
+    return new AsciiDocContext(basedir, jsonMapper(), yamlMapper(), openapi);
   }
 
   private String appname(String classname) {

@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.SneakyThrows;
-import io.jooby.internal.openapi.AsciiDocGenerator;
 import io.jooby.internal.openapi.OpenAPIExt;
+import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -112,11 +112,12 @@ public class OpenAPIResult {
         }
         throw new IllegalStateException(
             "Invalid OpenAPI specification:\n\t- "
-                + result.getMessages().stream().collect(Collectors.joining("\n\t- ")).trim()
+                + String.join("\n\t- ", result.getMessages()).trim()
                 + "\n\n"
                 + json);
       }
-      return AsciiDocGenerator.generate(openAPI, index);
+      var asciiDoc = new AsciiDocContext(index.getParent(), this.json, this.yaml, openAPI);
+      return asciiDoc.generate(index);
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

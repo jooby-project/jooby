@@ -11,24 +11,86 @@ import java.io.IOException;
 
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.asciidoc.PebbleTemplateSupport;
+import io.jooby.openapi.CurrentDir;
 import io.jooby.openapi.OpenAPITest;
 import io.swagger.v3.core.util.Json31;
 import io.swagger.v3.core.util.Yaml31;
+import io.swagger.v3.oas.models.SpecVersion;
+import issues.i3729.api.AppLibrary;
 import issues.i3820.app.AppLib;
 
 public class PebbleSupportTest {
 
+  @OpenAPITest(value = AppLibrary.class)
+  public void bodyBug(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    templates
+        .evaluateThat("{{ GET(\"/api/library/{isbn}\") | response | body | json(false) }}")
+        .isEqualToIgnoringNewLines(
+            """
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "state" : "string",
+                  "country" : "string"
+                },
+                "books" : [ { } ]
+              } ],
+              "image" : "binary"
+            }\
+            """);
+  }
+
+  @OpenAPITest(value = AppLib.class, version = SpecVersion.V31)
+  public void shouldSupportJsonSchemaInV31(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    templates
+        .evaluateThat("{{ POST(\"/library/books\") | request | body | json(false) }}")
+        .isEqualToIgnoringNewLines(
+            """
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            }\
+            """);
+  }
+
   @OpenAPITest(value = AppLib.class)
   public void openApi(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
     templates.evaluate(
-        "{{openapi | json}}",
+        "{{openapi | json(wrap=false) }}",
         output -> {
           Json31.mapper().readTree(output);
         });
 
     templates.evaluate(
-        "{{GET(\"/library/search\") | json}}",
+        "{{GET(\"/library/search\") | json(false)}}",
         output -> {
           Json31.mapper().readTree(output);
         });
@@ -48,7 +110,7 @@ public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
   public void tags(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
     templates
         .evaluateThat("{{tag(\"Library\").description }}")
         .isEqualTo(
@@ -59,12 +121,14 @@ public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
   public void schema(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
     templates
         .evaluateThat("{{schema(\"Book\") | truncate | json}}")
         .isEqualTo(
             """
+            [source, json]
+            ----
             {
               "isbn" : "string",
               "title" : "string",
@@ -73,11 +137,12 @@ public class PebbleSupportTest {
               "type" : "string",
               "publisher" : { },
               "authors" : [ { } ]
-            }\
+            }
+            ----\
             """);
 
     templates
-        .evaluateThat("{{schema(\"Book\") | truncate | yaml}}")
+        .evaluateThat("{{schema(\"Book\") | truncate | yaml(false) }}")
         .isEqualTo(
             """
             isbn: string
@@ -98,7 +163,7 @@ public class PebbleSupportTest {
     assertEquals(yamlOutput, templates.evaluate("{{model(\"Book\") | example | yaml}}"));
 
     templates
-        .evaluateThat("{{schema(\"Book\") | json}}")
+        .evaluateThat("{{schema(\"Book\") | json(false) }}")
         .isEqualToIgnoringNewLines(
             """
             {
@@ -198,7 +263,7 @@ public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
   public void curl(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
     templates
         .evaluateThat("{{POST(\"/library/authors\") | curl }}")
@@ -299,7 +364,7 @@ public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
   public void response(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
     /* Error response code: */
     templates
@@ -417,12 +482,42 @@ public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
   public void request(OpenAPIExt openapi) throws IOException {
-    var templates = new PebbleTemplateSupport(openapi);
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | request | path }}")
+        .isEqualTo("/library/books?title=string&page=int32&size=int32");
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | request | path(title=\"...\") }}")
+        .isEqualTo("/library/books?title=...");
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | request | path(title=\"...\", page=1) }}")
+        .isEqualTo("/library/books?title=...&page=1");
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | request | path(title=\"word space\", page=1) }}")
+        .isEqualTo("/library/books?title=word%20space&page=1");
+
+    templates
+        .evaluateThat("{{GET(\"/library/books/{isbn}\") | request | path }}")
+        .isEqualTo("/library/books/{isbn}");
+
+    templates
+        .evaluateThat("{{GET(\"/library/books/{isbn}\") | request | path(isbn=123) }}")
+        .isEqualTo("/library/books/123");
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | list }}")
         .isEqualTo(
             """
+            Accept::
+            * type: `+string+`
+            * in: `+header+`
+            Content-Type::
+            * type: `+string+`
+            * in: `+header+`
             isbn::
             * type: `+string+`
             * in: `+body+`
@@ -465,6 +560,16 @@ public class PebbleSupportTest {
             [cols="1,1,1,3a", options="header"]
             |===
             |Name|Type|In|Description
+            |`+Accept+`
+            |`+string+`
+            |`+header+`
+            |
+
+            |`+Content-Type+`
+            |`+string+`
+            |`+header+`
+            |
+
             |`+isbn+`
             |`+string+`
             |`+body+`
@@ -516,6 +621,11 @@ public class PebbleSupportTest {
             [cols="1,1,1,3", options="header"]
             |===
             |Name|Type|In|Description
+            |`+Accept+`
+            |`+string+`
+            |`+header+`
+            |
+
             |`+title+`
             |`+string+`
             |`+query+`
@@ -535,7 +645,7 @@ public class PebbleSupportTest {
             """);
 
     templates
-        .evaluateThat("{{GET(\"/library/books\") | request | parameters('query') | table }}")
+        .evaluateThat("{{GET(\"/library/books\") | request | parameters(query) | table }}")
         .isEqualTo(
             """
             [cols="1,1,3", options="header"]
@@ -552,6 +662,21 @@ public class PebbleSupportTest {
             |`+size+`
             |`+int32+`
             |How many books to show per page (defaults to 20).
+
+            |===\
+            """);
+
+    templates
+        .evaluateThat(
+            "{{GET(\"/library/books\") | request | parameters(query, ['title']) | table }}")
+        .isEqualTo(
+            """
+            [cols="1,1,3", options="header"]
+            |===
+            |Name|Type|Description
+            |`+title+`
+            |`+string+`
+            |The exact book title to filter by.
 
             |===\
             """);
@@ -577,7 +702,7 @@ public class PebbleSupportTest {
             """);
 
     templates
-        .evaluateThat("{{GET(\"/library/books\") | cookies | table }}")
+        .evaluateThat("{{GET(\"/library/books\") | parameters(cookie) | table }}")
         .isEqualTo(
             """
             [cols="1,3", options="header"]
@@ -630,7 +755,7 @@ public class PebbleSupportTest {
             """);
 
     templates
-        .evaluateThat("{{POST(\"/library/books\") | request | headers | table }}")
+        .evaluateThat("{{POST(\"/library/books\") | request | parameters(header) | table }}")
         .isEqualTo(
             """
             [cols="1,3", options="header"]
@@ -641,6 +766,21 @@ public class PebbleSupportTest {
 
             |`+Content-Type+`
             |
+
+            |===\
+            """);
+
+    templates
+        .evaluateThat(
+            "{{POST(\"/library/books\") | request | parameters(header) | table(['name']) }}")
+        .isEqualTo(
+            """
+            [cols="1", options="header"]
+            |===
+            |Name
+            |`+Accept+`
+
+            |`+Content-Type+`
 
             |===\
             """);

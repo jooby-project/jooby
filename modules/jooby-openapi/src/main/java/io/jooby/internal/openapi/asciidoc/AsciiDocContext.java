@@ -7,11 +7,17 @@ package io.jooby.internal.openapi.asciidoc;
 
 import static java.util.Optional.ofNullable;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.asciidoctor.Asciidoctor;
+import org.asciidoctor.Options;
+import org.asciidoctor.SafeMode;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +30,10 @@ import io.pebbletemplates.pebble.extension.AbstractExtension;
 import io.pebbletemplates.pebble.extension.Filter;
 import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.lexer.Syntax;
+import io.pebbletemplates.pebble.loader.ClasspathLoader;
+import io.pebbletemplates.pebble.loader.DelegatingLoader;
+import io.pebbletemplates.pebble.loader.FileLoader;
+import io.pebbletemplates.pebble.loader.Loader;
 import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.Schema;
@@ -31,8 +41,6 @@ import io.swagger.v3.oas.models.media.Schema;
 public class AsciiDocContext {
   public static final BiConsumer<String, Schema<?>> NOOP = (name, schema) -> {};
   public static final Schema EMPTY_SCHEMA = new Schema<>();
-
-  private ClassLoader classLoader;
 
   private ObjectMapper json;
 
@@ -44,29 +52,41 @@ public class AsciiDocContext {
 
   private OpenAPIExt openapi;
 
-  private Path baseDir;
-
-  private Path outputDir;
-
   private final AutoDataFakerMapper faker = new AutoDataFakerMapper();
 
   private final Map<Schema<?>, Map<String, Object>> examples = new HashMap<>();
 
-  public AsciiDocContext(
-      ClassLoader classLoader,
-      ObjectMapper json,
-      ObjectMapper yaml,
-      OpenAPIExt openapi,
-      Path baseDir,
-      Path outputDir) {
-    this.classLoader = classLoader;
+  public AsciiDocContext(Path baseDir, ObjectMapper json, ObjectMapper yaml, OpenAPIExt openapi) {
     this.json = json;
     this.yamlOpenApi = yaml;
     this.yamlOutput = newYamlOutput();
-    this.engine = createEngine(json, openapi, this);
+    this.engine = createEngine(baseDir, json, openapi, this);
     this.openapi = openapi;
-    this.baseDir = baseDir;
-    this.outputDir = outputDir;
+  }
+
+  public String generate(Path index) throws IOException {
+    var template = engine.getTemplate(index.getFileName().toString());
+    var writer = new StringWriter();
+    var context = new HashMap<String, Object>();
+    template.evaluate(writer, context);
+    return writer.toString().trim();
+  }
+
+  public void export(Path input, Path outputDir) {
+    try (var asciidoctor = Asciidoctor.Factory.create()) {
+
+      var options =
+          Options.builder()
+              .backend("html5")
+              .baseDir(input.getParent().toFile())
+              .toDir(outputDir.toFile())
+              .mkDirs(true)
+              .safe(SafeMode.UNSAFE)
+              .build();
+
+      // Perform the conversion
+      asciidoctor.convertFile(input.toFile(), options);
+    }
   }
 
   private ObjectMapper newYamlOutput() {
@@ -77,15 +97,25 @@ public class AsciiDocContext {
   }
 
   private static PebbleEngine createEngine(
-      ObjectMapper json, OpenAPI openapi, AsciiDocContext context) {
+      Path baseDir, ObjectMapper json, OpenAPI openapi, AsciiDocContext context) {
+    List<Loader<?>> loaders =
+        List.of(new FileLoader(baseDir.toAbsolutePath().toString()), new ClasspathLoader());
     return new PebbleEngine.Builder()
         .autoEscaping(false)
+        .loader(new DelegatingLoader(loaders))
         .extension(
             new AbstractExtension() {
               @Override
               public Map<String, Object> getGlobalVariables() {
                 Map<String, Object> openapiRoot = json.convertValue(openapi, Map.class);
                 openapiRoot.put("openapi", openapi);
+
+                // make in to work without literal
+                openapiRoot.put("query", "query");
+                openapiRoot.put("path", "path");
+                openapiRoot.put("header", "header");
+                openapiRoot.put("cookie", "cookie");
+
                 openapiRoot.put("_asciidocContext", context);
                 return openapiRoot;
               }
@@ -109,13 +139,18 @@ public class AsciiDocContext {
 
   public String schemaType(Schema<?> schema) {
     var resolved = resolveSchema(schema);
-    return Optional.ofNullable(resolved.getFormat()).orElse(resolved.getType());
+    return Optional.ofNullable(resolved.getFormat()).orElse(resolveType(resolved));
+  }
+
+  private String resolveType(Schema<?> schema) {
+    var resolved = resolveSchema(schema);
+    if (resolved.getType() == null) {
+      return resolved.getTypes().iterator().next();
+    }
+    return resolved.getType();
   }
 
   public Schema<?> resolveSchema(Schema<?> schema) {
-    if (schema == EMPTY_SCHEMA) {
-      return schema;
-    }
     if (schema.get$ref() != null) {
       return resolveSchemaInternal(schema.get$ref())
           .orElseThrow(() -> new NoSuchElementException("Schema not found: " + schema.get$ref()));
@@ -134,7 +169,7 @@ public class AsciiDocContext {
     traverse(
         schema,
         (name, value) -> {
-          var type = value.getType();
+          var type = resolveType(value);
           if ("object".equals(type)) {
             var object = new Schema<>();
             object.setType(type);
@@ -154,7 +189,7 @@ public class AsciiDocContext {
 
   public Schema<?> emptySchema(Schema<?> schema) {
     var empty = new Schema<>();
-    empty.setType(schema.getType());
+    empty.setType(resolveType(schema));
     empty.setName(schema.getName());
     return empty;
   }
@@ -164,6 +199,7 @@ public class AsciiDocContext {
         schema,
         s ->
             traverse(
+                new HashSet<>(),
                 s,
                 (parent, property) -> {
                   var enumItems = property.getEnum();
@@ -183,10 +219,6 @@ public class AsciiDocContext {
     traverse(schema, consumer);
   }
 
-  public void traverseGraph(Schema<?> schema, BiConsumer<String, Schema<?>> consumer) {
-    traverse(schema, consumer, consumer);
-  }
-
   private Map<String, Object> traverse(Schema<?> schema, BiConsumer<String, Schema<?>> consumer) {
     return traverse(schema, consumer, NOOP);
   }
@@ -195,36 +227,46 @@ public class AsciiDocContext {
       Schema<?> schema,
       BiConsumer<String, Schema<?>> consumer,
       BiConsumer<String, Schema<?>> inner) {
-    return traverse(schema, (parent, property) -> schemaType(property), consumer, inner);
+    return traverse(
+        new HashSet<>(), schema, (parent, property) -> schemaType(property), consumer, inner);
   }
 
   private Map<String, Object> traverse(
+      Set<Object> visited,
       Schema<?> schema,
       SneakyThrows.Function2<Schema<?>, Schema<?>, String> valueMapper,
       BiConsumer<String, Schema<?>> consumer,
       BiConsumer<String, Schema<?>> inner) {
+    if (schema == EMPTY_SCHEMA) {
+      return Map.of();
+    }
     var resolved = resolveSchema(schema);
-    var properties = resolved.getProperties();
-    if (properties != null) {
-      Map<String, Object> result = new LinkedHashMap<>();
-      properties.forEach(
-          (name, value) -> {
-            value = resolveSchema(value);
-            consumer.accept(name, value);
-            if (value.getType().equals("object")) {
-              result.put(name, traverse(value, valueMapper, inner, inner));
-            } else if (value.getType().equals("array")) {
-              var array =
-                  ofNullable(value.getItems())
-                      .map(items -> traverse(items, valueMapper, inner, inner))
-                      .map(List::of)
-                      .orElse(List.of());
-              result.put(name, array);
-            } else {
-              result.put(name, valueMapper.apply(resolved, value));
-            }
-          });
-      return result;
+    if (visited.add(resolved)) {
+      var properties = resolved.getProperties();
+      if (properties != null) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        properties.forEach(
+            (name, value) -> {
+              var resolvedValue = resolveSchema(value);
+              var valueType = resolveType(resolvedValue);
+              consumer.accept(name, resolvedValue);
+              if ("object".equals(valueType)) {
+                result.put(name, traverse(visited, resolvedValue, valueMapper, inner, inner));
+              } else if ("array".equals(valueType)) {
+                var array =
+                    ofNullable(resolvedValue.getItems())
+                        .map(
+                            items ->
+                                traverse(visited, resolveSchema(items), valueMapper, inner, inner))
+                        .map(List::of)
+                        .orElse(List.of());
+                result.put(name, array);
+              } else {
+                result.put(name, valueMapper.apply(resolved, resolvedValue));
+              }
+            });
+        return result;
+      }
     }
     return Map.of();
   }
@@ -248,7 +290,6 @@ public class AsciiDocContext {
       }
       schema = inner;
     }
-
     return schema;
   }
 
@@ -265,18 +306,6 @@ public class AsciiDocContext {
 
   public PebbleEngine getEngine() {
     return engine;
-  }
-
-  public Path getBaseDir() {
-    return baseDir;
-  }
-
-  public Path getOutputDir() {
-    return outputDir;
-  }
-
-  public ClassLoader getClassLoader() {
-    return classLoader;
   }
 
   public String toJson(Object input, boolean pretty) {

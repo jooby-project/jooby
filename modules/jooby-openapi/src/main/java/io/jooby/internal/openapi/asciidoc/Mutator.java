@@ -82,30 +82,6 @@ public enum Mutator implements Filter {
           args);
     }
   },
-  headers {
-    @Override
-    public Object apply(
-        Object input,
-        Map<String, Object> args,
-        PebbleTemplate self,
-        EvaluationContext context,
-        int lineNumber)
-        throws PebbleException {
-      return toHttpMessage(context, input, args).getHeaders();
-    }
-  },
-  cookies {
-    @Override
-    public Object apply(
-        Object input,
-        Map<String, Object> args,
-        PebbleTemplate self,
-        EvaluationContext context,
-        int lineNumber)
-        throws PebbleException {
-      return toHttpMessage(context, input, args).getCookies();
-    }
-  },
   parameters {
     @Override
     public Object apply(
@@ -115,13 +91,22 @@ public enum Mutator implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      if (args.containsKey("query") || args.containsValue("query")) {
-        return toHttpRequest(context, input, args).getQueryParameters();
-      } else if (args.containsKey("path") || args.containsValue("path")) {
-        return toHttpRequest(context, input, args).getPathParameters();
-      } else {
-        return toHttpRequest(context, input, args).getParameters();
+      var in = normalizeList(args.getOrDefault("in", "*"));
+      var includes = normalizeList(args.getOrDefault("includes", List.of()));
+      return toHttpRequest(context, input, args).getParameters(in, includes);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private List<String> normalizeList(Object value) {
+      if (value instanceof List valueList) {
+        return valueList;
       }
+      return value == null ? List.of() : List.of(value.toString());
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("in", "includes");
     }
   },
   body {

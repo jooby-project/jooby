@@ -12,9 +12,9 @@ import io.swagger.v3.oas.models.media.Schema;
 
 public interface HttpMessage {
 
-  HttpParamList getHeaders();
+  ParameterList getHeaders();
 
-  HttpParamList getCookies();
+  ParameterList getCookies();
 
   Schema<?> getBody();
 

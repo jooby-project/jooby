@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import com.google.common.base.CaseFormat;
 import io.jooby.internal.openapi.EnumSchema;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
-import io.jooby.internal.openapi.asciidoc.HttpParamList;
+import io.jooby.internal.openapi.asciidoc.ParameterList;
 import io.swagger.v3.oas.models.media.Schema;
 
 public record ToAsciiDoc(
@@ -34,14 +34,14 @@ public record ToAsciiDoc(
     return new ToAsciiDoc(context, properties, columns, Map.of());
   }
 
-  public static ToAsciiDoc parameters(AsciiDocContext context, HttpParamList parameters) {
+  public static ToAsciiDoc parameters(AsciiDocContext context, ParameterList parameters) {
     var properties = new LinkedHashMap<String, Schema<?>>();
-    parameters.forEach(p -> properties.put(p.name(), p.schema()));
+    parameters.forEach(p -> properties.put(p.getName(), p.getSchema()));
     Map<String, Object> additionalProperties = new LinkedHashMap<>();
     parameters.forEach(
         p -> {
-          additionalProperties.put(p.name() + ".in", p.in());
-          additionalProperties.put(p.name() + ".description", p.get("description"));
+          additionalProperties.put(p.getName() + ".in", p.getIn());
+          additionalProperties.put(p.getName() + ".description", p.getDescription());
         });
     return new ToAsciiDoc(context, properties, parameters.includes(), additionalProperties);
   }
@@ -108,8 +108,10 @@ public record ToAsciiDoc(
     return sb.toString();
   }
 
+  @SuppressWarnings({"unchecked"})
   public String table(Map<String, Object> options) {
     var isEnum = properties.get(ROOT) instanceof EnumSchema;
+    var columns = (List<String>) options.getOrDefault("columns", this.columns);
     var colList = colList(columns);
     var sb = new StringBuilder();
     sb.append("|===").append('\n');
@@ -176,17 +178,23 @@ public record ToAsciiDoc(
     return value == null || value.trim().isEmpty() ? "" : "*" + value + "*";
   }
 
+  private String nullSafe(String value) {
+    return value == null || value.trim().isEmpty() ? "" : value;
+  }
+
   private String row(String col, String property, Schema<?> schema) {
-    return switch (col) {
-      case "name" -> monospaceCell(property);
-      case "type" -> monospaceCell(context.schemaType(schema));
-      case "in" -> monospaceCell((String) additionalProperties.get(property + "." + col));
-      case "description" ->
-          (schema instanceof EnumSchema enumSchema
-              ? enumSchema.getSummary()
-              : (String)
-                  additionalProperties.getOrDefault(property + "." + col, schema.getDescription()));
-      default -> (String) additionalProperties.get(property + "." + col);
-    };
+    return nullSafe(
+        switch (col) {
+          case "name" -> monospaceCell(property);
+          case "type" -> monospaceCell(context.schemaType(schema));
+          case "in" -> monospaceCell((String) additionalProperties.get(property + "." + col));
+          case "description" ->
+              (schema instanceof EnumSchema enumSchema
+                  ? enumSchema.getSummary()
+                  : (String)
+                      additionalProperties.getOrDefault(
+                          property + "." + col, schema.getDescription()));
+          default -> throw new IllegalArgumentException("Unknown property: " + col);
+        });
   }
 }

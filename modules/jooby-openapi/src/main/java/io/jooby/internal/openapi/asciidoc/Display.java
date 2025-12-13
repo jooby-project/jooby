@@ -33,7 +33,16 @@ public enum Display implements Filter {
         throws PebbleException {
       var asciidoc = InternalContext.asciidoc(context);
       var pretty = args.getOrDefault("pretty", true) == Boolean.TRUE;
-      return new SafeString(asciidoc.toJson(toJson(asciidoc, input), pretty));
+      return wrap(
+          asciidoc.toJson(toJson(asciidoc, input), pretty),
+          args.getOrDefault("wrap", Boolean.TRUE) == Boolean.TRUE,
+          "[source, json]\n----\n",
+          "\n----");
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("wrap");
     }
   },
   yaml {
@@ -46,7 +55,16 @@ public enum Display implements Filter {
         int lineNumber)
         throws PebbleException {
       var asciidoc = InternalContext.asciidoc(context);
-      return new SafeString(asciidoc.toYaml(toJson(asciidoc, input)));
+      return wrap(
+          asciidoc.toYaml(toJson(asciidoc, input)),
+          args.getOrDefault("wrap", Boolean.TRUE) == Boolean.TRUE,
+          "[source, yaml]\n----\n",
+          "\n----");
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("wrap");
     }
   },
   table {
@@ -60,6 +78,11 @@ public enum Display implements Filter {
         throws PebbleException {
       var asciidoc = InternalContext.asciidoc(context);
       return new SafeString(toAsciidoc(asciidoc, input).table(args));
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("columns");
     }
   },
   list {
@@ -95,6 +118,36 @@ public enum Display implements Filter {
       return curl.render(args);
     }
   },
+  path {
+    @Override
+    public Object apply(
+        Object input,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws PebbleException {
+      var asciidoc = InternalContext.asciidoc(context);
+      var request =
+          switch (input) {
+            case OperationExt op -> new HttpRequest(asciidoc, op, args);
+            case HttpRequest req -> req;
+            default -> throw new IllegalArgumentException("Can't render: " + input);
+          };
+      var pathParams = new HashMap<String, Object>();
+      request
+          .getParameters(List.of("path"), List.of())
+          .forEach(
+              p -> {
+                pathParams.put(
+                    p.getName(), args.getOrDefault(p.getName(), "{" + p.getName() + "}"));
+              });
+      // QueryString
+      pathParams.keySet().forEach(args::remove);
+      var queryString = request.getQueryString(args);
+      return request.operation().getPath(pathParams) + queryString;
+    }
+  },
   http {
     @Override
     public Object apply(
@@ -123,7 +176,7 @@ public enum Display implements Filter {
       case HttpRequest req -> ToAsciiDoc.parameters(context, req.getAllParameters());
       case HttpResponse rsp -> ToAsciiDoc.schema(context, rsp.getBody());
       case Schema<?> schema -> ToAsciiDoc.schema(context, schema);
-      case HttpParamList paramList -> ToAsciiDoc.parameters(context, paramList);
+      case ParameterList paramList -> ToAsciiDoc.parameters(context, paramList);
       default -> throw new IllegalArgumentException("Can't render: " + input);
     };
   }
@@ -133,6 +186,10 @@ public enum Display implements Filter {
       case Schema<?> schema -> context.schemaProperties(schema);
       default -> input;
     };
+  }
+
+  protected SafeString wrap(String content, boolean wrap, String prefix, String suffix) {
+    return new SafeString(wrap ? prefix + content + suffix : content);
   }
 
   @Override

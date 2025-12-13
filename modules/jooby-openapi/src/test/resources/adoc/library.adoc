@@ -1,4 +1,4 @@
-= ${info.title}
+= {{ info.title }}
 Jooby Doc;
 :doctype: book
 :icons: font
@@ -9,35 +9,38 @@ Jooby Doc;
 
 == Introduction
 
-${info.description}
+{{ info.description }}
 
 == Support
 
-Write your questions at ${info.contact.email}
+Write your questions at {{ info.contact.email }}
 
 [[overview_operations]]
 == Operations
 
 === List Books
 {% set listBooks = operation("GET", "/api/library") %}
-${listBooks.summary} ${listBooks.description}
+{{ listBooks.summary }} {{ listBooks.description }}
 
-Example: `${ listBooks | path("title", "...") }`
+Example: `{{ listBooks | path(title="...") }}`
 
 ==== Request Fields
 
-${ listBooks | queryParameters }
+{{ listBooks | parameters(query) | table }}
 
 === Find a book by ISBN
 {% set bookByISBN = operation("GET", "/api/library/{isbn}") %}
-${ bookByISBN | curl("-i") }
+{{ bookByISBN | curl("-i") }}
 
-${ bookByISBN | statusCode(200) }
+.{{ bookByISBN | response(200) }}
+{{ bookByISBN | response(200) | body | json }}
 
-${ bookByISBN | statusCode(400) }
+.{{ bookByISBN | response(400) }}
+{{ bookByISBN | response(400) | body | json }}
 
-${ bookByISBN | statusCode(404) }
+.{{ bookByISBN | response(404) }}
+{{ bookByISBN | response(404) | body | json }}
 
 ==== Response Fields
 
-${ bookByISBN | responseFields }
+{{ bookByISBN | response | table  }}

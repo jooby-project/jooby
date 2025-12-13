@@ -9,12 +9,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OperationExt;
+import io.jooby.internal.openapi.ParameterExt;
 import io.jooby.internal.openapi.ResponseExt;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 
+@JsonIgnoreProperties({"context", "operation", "options"})
 public record HttpResponse(
     AsciiDocContext context,
     OperationExt operation,
@@ -22,17 +25,17 @@ public record HttpResponse(
     Map<String, Object> options)
     implements HttpMessage {
   @Override
-  public HttpParamList getHeaders() {
-    return new HttpParamList(
+  public ParameterList getHeaders() {
+    return new ParameterList(
         operation.getProduces().stream()
-            .map(value -> new HttpParam("Content-Type", new StringSchema(), value, "header", null))
+            .map(value -> ParameterExt.header("Content-Type", value))
             .toList(),
-        HttpParamList.NAME_DESC);
+        ParameterList.NAME_DESC);
   }
 
   @Override
-  public HttpParamList getCookies() {
-    return new HttpParamList(List.of(), HttpParamList.NAME_DESC);
+  public ParameterList getCookies() {
+    return new ParameterList(List.of(), ParameterList.NAME_DESC);
   }
 
   @Override
@@ -70,5 +73,10 @@ public record HttpResponse(
         .map(it -> toSchema(it.getContent(), List.of()))
         .map(context::resolveSchema)
         .orElse(AsciiDocContext.EMPTY_SCHEMA);
+  }
+
+  @NonNull @Override
+  public String toString() {
+    return operation.getMethod() + " " + operation.getPath();
   }
 }

@@ -123,7 +123,7 @@ public class ParserContext {
   }
 
   private void jacksonModules(ClassLoader classLoader, List<ObjectMapper> mappers) {
-    /** Kotlin module? */
+    /* Kotlin module? */
     List<Module> modules = new ArrayList<>(2);
     try {
       var kotlinModuleClass =
@@ -138,7 +138,7 @@ public class ParserContext {
         | InvocationTargetException x) {
       // Sshhhhh
     }
-    /** Ignore some conflictive setter in Jooby API: */
+    /* Ignore some conflictive setter in Jooby API: */
     modules.add(
         new SimpleModule("jooby-openapi") {
           @Override
