@@ -29,7 +29,7 @@ public enum Mutator implements Filter {
         int lineNumber)
         throws PebbleException {
       if (input instanceof Schema<?> schema) {
-        var asciidoc = InternalContext.asciidoc(context);
+        var asciidoc = AsciiDocContext.from(context);
         return asciidoc.schemaExample(schema);
       }
       return input;
@@ -45,7 +45,7 @@ public enum Mutator implements Filter {
         int lineNumber)
         throws PebbleException {
       if (input instanceof Schema<?> schema) {
-        var asciidoc = InternalContext.asciidoc(context);
+        var asciidoc = AsciiDocContext.from(context);
         return asciidoc.reduceSchema(schema);
       }
       return input;
@@ -60,7 +60,7 @@ public enum Mutator implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      return new HttpRequest(InternalContext.asciidoc(context), toOperation(input), args);
+      return new HttpRequest(AsciiDocContext.from(context), toOperation(input), args);
     }
   },
   response {
@@ -73,7 +73,7 @@ public enum Mutator implements Filter {
         int lineNumber)
         throws PebbleException {
       return new HttpResponse(
-          InternalContext.asciidoc(context),
+          AsciiDocContext.from(context),
           toOperation(input),
           Optional.ofNullable(args.get("code"))
               .map(Number.class::cast)
@@ -148,7 +148,7 @@ public enum Mutator implements Filter {
     return switch (input) {
       case null -> throw new NullPointerException(name() + ": requires a request/response input");
       // default to http request
-      case OperationExt op -> new HttpRequest(InternalContext.asciidoc(context), op, options);
+      case OperationExt op -> new HttpRequest(AsciiDocContext.from(context), op, options);
       case HttpMessage msg -> msg;
       default ->
           throw new ClassCastException(
@@ -161,7 +161,7 @@ public enum Mutator implements Filter {
     return switch (input) {
       case null -> throw new NullPointerException(name() + ": requires a request/response input");
       // default to http request
-      case OperationExt op -> new HttpRequest(InternalContext.asciidoc(context), op, options);
+      case OperationExt op -> new HttpRequest(AsciiDocContext.from(context), op, options);
       case HttpRequest msg -> msg;
       default ->
           throw new ClassCastException(

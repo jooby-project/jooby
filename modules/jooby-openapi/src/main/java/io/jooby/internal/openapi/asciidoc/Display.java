@@ -31,7 +31,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       var pretty = args.getOrDefault("pretty", true) == Boolean.TRUE;
       return wrap(
           asciidoc.toJson(toJson(asciidoc, input), pretty),
@@ -54,7 +54,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return wrap(
           asciidoc.toYaml(toJson(asciidoc, input)),
           args.getOrDefault("wrap", Boolean.TRUE) == Boolean.TRUE,
@@ -76,7 +76,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return new SafeString(toAsciidoc(asciidoc, input).table(args));
     }
 
@@ -94,7 +94,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return new SafeString(toAsciidoc(asciidoc, input).list(args));
     }
   },
@@ -107,7 +107,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       var curl =
           switch (input) {
             case OperationExt op ->
@@ -127,7 +127,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       var request =
           switch (input) {
             case OperationExt op -> new HttpRequest(asciidoc, op, args);
@@ -157,7 +157,7 @@ public enum Display implements Filter {
         EvaluationContext context,
         int lineNumber)
         throws PebbleException {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return toHttp(asciidoc, input, args).render(args);
     }
 

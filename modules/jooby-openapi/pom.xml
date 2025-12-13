@@ -57,11 +57,6 @@
       <version>3.0.1</version>
     </dependency>
     <dependency>
-      <groupId>org.asciidoctor</groupId>
-      <artifactId>asciidoctorj-pdf</artifactId>
-      <version>2.3.23</version>
-    </dependency>
-    <dependency>
       <groupId>io.pebbletemplates</groupId>
       <artifactId>pebble</artifactId>
     </dependency>

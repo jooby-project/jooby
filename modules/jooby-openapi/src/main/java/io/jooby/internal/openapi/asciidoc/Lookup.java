@@ -33,7 +33,7 @@ public enum Lookup implements Function {
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
       var method = args.get("method").toString();
       var path = args.get("path").toString();
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return asciidoc.getOpenApi().findOperation(method, path);
     }
 
@@ -103,7 +103,7 @@ public enum Lookup implements Function {
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
       var path = args.get("path").toString();
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       return asciidoc.resolveSchema(path);
     }
 
@@ -128,7 +128,7 @@ public enum Lookup implements Function {
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      var asciidoc = InternalContext.asciidoc(context);
+      var asciidoc = AsciiDocContext.from(context);
       var name = args.get("name").toString();
       return asciidoc.getOpenApi().getTags().stream()
           .filter(tag -> tag.getName().equalsIgnoreCase(name))
