@@ -235,10 +235,9 @@ public class PebbleModule implements Extension {
       cLoader.setSuffix(extension);
       loaders.add(cLoader);
 
-      FileLoader fLoader = new FileLoader();
       Path dir = Paths.get(System.getProperty("user.dir"), templatesPath);
       if (Files.exists(dir)) {
-        fLoader.setPrefix(dir.normalize().toString());
+        FileLoader fLoader = new FileLoader(dir.normalize().toString());
         fLoader.setSuffix(extension);
         loaders.add(fLoader);
       }
