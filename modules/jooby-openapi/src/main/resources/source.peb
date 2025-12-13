@@ -1,9 +1,0 @@
-{%- if display == "inline" -%}
-`{%- block code -%}{%- endblock -%}`
-{%- else -%}
-[source{% if language %}, ${language}{%endif%}]
-----
-{% block code %}
-{% endblock %}
-----
-{%- endif -%}

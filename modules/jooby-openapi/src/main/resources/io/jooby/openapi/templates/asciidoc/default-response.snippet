@@ -1,8 +1,0 @@
-[source,http,options="nowrap"]
-----
-HTTP/1.1 ${statusCode} ${statusReason}
-{% for h in headers -%}
-${h.name}: ${h.value}
-{% endfor -%}
-${responseBody -}
-----
