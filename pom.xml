@@ -74,11 +74,11 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>17.2.0</ebean.version>
-    <jdbi.version>3.50.0</jdbi.version>
+    <jdbi.version>3.51.0</jdbi.version>
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
-    <lettuce.version>7.1.0.RELEASE</lettuce.version>
-    <commons-pool2.version>2.12.1</commons-pool2.version>
+    <lettuce.version>7.2.0.RELEASE</lettuce.version>
+    <commons-pool2.version>2.13.0</commons-pool2.version>
     <kafka.version>4.1.1</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
 
@@ -88,7 +88,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.21</logback-classic.version>
+    <logback-classic.version>1.5.22</logback-classic.version>
     <log4j.version>2.25.2</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -106,22 +106,22 @@
 
     <!-- Server -->
     <undertow.version>2.3.20.Final</undertow.version>
-    <jetty.version>12.1.4</jetty.version>
-    <netty.version>4.2.7.Final</netty.version>
+    <jetty.version>12.1.5</jetty.version>
+    <netty.version>4.2.8.Final</netty.version>
     <vertx.version>5.0.5</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.40</swagger.version>
-    <swagger-parser.version>2.1.35</swagger-parser.version>
+    <swagger.version>2.2.41</swagger.version>
+    <swagger-parser.version>2.1.36</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>12.0</avaje.inject.version>
-    <avaje.jsonb.version>3.8</avaje.jsonb.version>
-    <avaje.validator.version>2.14</avaje.validator.version>
+    <avaje.inject.version>12.1</avaje.inject.version>
+    <avaje.jsonb.version>3.9</avaje.jsonb.version>
+    <avaje.validator.version>2.15</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
@@ -133,10 +133,10 @@
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.2.2</pac4j.version>
-    <quartz.version>2.5.1</quartz.version>
+    <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.15.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.793</aws-java-sdk.version>
+    <aws-java-sdk.version>1.12.795</aws-java-sdk.version>
     <camel.version>4.15.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -150,9 +150,9 @@
     <!-- Test dependencies -->
     <jacoco.version>0.8.14</jacoco.version>
     <junit.version>6.0.1</junit.version>
-    <rest-assured.version>5.5.6</rest-assured.version>
+    <rest-assured.version>6.0.0</rest-assured.version>
     <assertj-core.version>3.27.6</assertj-core.version>
-    <mockito.version>5.20.0</mockito.version>
+    <mockito.version>5.21.0</mockito.version>
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
     <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
@@ -170,7 +170,7 @@
     <jacoco-maven-plugin.version>${jacoco.version}</jacoco-maven-plugin.version>
     <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
-    <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+    <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.41</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-core.version>3.9.11</maven-core.version>
@@ -183,15 +183,15 @@
     <maven-plugin-api.version>3.9.11</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
-    <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+    <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
-    <versions-maven-plugin.version>2.20.0</versions-maven-plugin.version>
+    <versions-maven-plugin.version>2.20.1</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.6.2</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
@@ -1654,7 +1654,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>versions-maven-plugin</artifactId>
-            <version>2.20.0</version>
+            <version>2.20.1</version>
             <executions>
               <execution>
                 <goals>

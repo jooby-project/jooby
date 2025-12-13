@@ -61,7 +61,6 @@ sponsors
 
 | Logo                                                                                                                                   | Sponsor                                           |
 |----------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| <img src="https://github.com/user-attachments/assets/ac8c311c-1873-4024-9670-0e7599b1026b" alt="Mercedes Benz" width="32" height="32"> | [@mercedes-benz](https://github.com/mercedes-benz) |
 | <img src="https://github.com/user-attachments/assets/4a3f519e-0b2e-4bb4-b2eb-624b05720e31" alt="Premium Minds" width="32" height="32"> | [@premium-minds](https://github.com/premium-minds) |
 | <img src="https://avatars.githubusercontent.com/u/567706?v=4" alt="Adam Gent" width="32" height="32">     | [@agentgt](https://github.com/agentgt)                     |
 | <img src="https://github.com/user-attachments/assets/51073649-6cba-4e7b-8eee-8c05f4b9648e" alt="David" width="32" height="32">         | [@tipsy](https://github.com/tipsy)                |
