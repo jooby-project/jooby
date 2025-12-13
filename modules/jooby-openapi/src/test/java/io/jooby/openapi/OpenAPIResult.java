@@ -37,6 +37,10 @@ public class OpenAPIResult {
     return new RouteIterator(openAPI == null ? List.of() : openAPI.getOperations(), ignoreArgs);
   }
 
+  public OpenAPIExt getOpenAPI() {
+    return openAPI;
+  }
+
   public String toYaml() {
     return toYaml(true);
   }

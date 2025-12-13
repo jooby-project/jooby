@@ -9,9 +9,9 @@ import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
 
 import io.jooby.Jooby;
 
-public class AppLibrary2 extends Jooby {
+public class AppDemoLibrary extends Jooby {
 
   {
-    mvc(toMvcExtension(LibraryApi2.class));
+    mvc(toMvcExtension(LibraryDemoApi.class));
   }
 }

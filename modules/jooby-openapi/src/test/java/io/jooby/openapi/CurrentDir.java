@@ -26,6 +26,12 @@ public class CurrentDir {
     return baseDir;
   }
 
+  public static Path testClass(Class<?> clazz) {
+    var packageDir = clazz.getPackage().getName().split("\\.");
+    return basedir(
+        Stream.concat(Stream.of("src", "test", "resources"), Stream.of(packageDir)).toList());
+  }
+
   public static Path testClass(Class<?> clazz, String file) {
     var packageDir = clazz.getPackage().getName().split("\\.");
     return basedir(

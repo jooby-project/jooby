@@ -3,39 +3,38 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package issues.i3729.api;
+package issues.i3820.app;
 
 import java.util.List;
 
 import io.jooby.annotation.*;
 import io.jooby.exception.NotFoundException;
+import issues.i3820.model.Author;
+import issues.i3820.model.Book;
 import jakarta.data.page.Page;
 import jakarta.data.page.PageRequest;
 import jakarta.inject.Inject;
 
-/**
- * The Public Front Desk of the library.
- *
- * @tag Library. Available library operations.
- */
+/** The Public Front Desk of the library. */
 @Path("/library")
-public class LibraryApi2 {
+public class LibApi {
 
-  private final LibraryRepo library;
+  private final Library library;
 
   @Inject
-  public LibraryApi2(LibraryRepo library) {
+  public LibApi(Library library) {
     this.library = library;
   }
 
   /**
-   * Get Book Details.
+   * Get Specific Book Details
    *
-   * <p>Call this to show the details page of a specific book.
+   * <p>View the full information for a single specific book using its unique ISBN.
    *
    * @param isbn The unique ID from the URL (e.g., /books/978-3-16-148410-0)
    * @return The book data
    * @throws NotFoundException <code>404</code> error if it doesn't exist.
+   * @tag Library
    */
   @GET
   @Path("/books/{isbn}")
@@ -44,12 +43,14 @@ public class LibraryApi2 {
   }
 
   /**
-   * Search Books.
+   * Quick Search
    *
-   * <p>A general search bar. Users type a word, and we find matches.
+   * <p>Find books by a partial title (e.g., searching "Harry" finds "Harry Potter").
    *
-   * @param q The search term typed by the user.
+   * @param q The word or phrase to search for.
    * @return A list of books matching that term.
+   * @x-badges [{name:Beta, position:before, color:purple}]
+   * @tag Library
    */
   @GET
   @Path("/search")
@@ -60,15 +61,20 @@ public class LibraryApi2 {
   }
 
   /**
-   * Browse Books (Paginated).
+   * Browse Books (Paginated)
+   *
+   * <p>Look up a specific book title where there might be many editions or copies, splitting the
+   * results into manageable pages.
    *
    * @param title The exact book title to filter by.
    * @param page Which page number to load (defaults to 1).
    * @param size How many books to show per page (defaults to 20).
    * @return A "Page" object containing the books and info like "Total Pages: 5".
+   * @tag Library
    */
   @GET
   @Path("/books")
+  @Produces("application/json")
   public Page<Book> getBooksByTitle(
       @QueryParam String title, @QueryParam int page, @QueryParam int size) {
     // Ensure we have sensible defaults if the user sends nothing
@@ -80,15 +86,34 @@ public class LibraryApi2 {
   }
 
   /**
-   * Add New Book. Usage: Send a JSON packet to this URL to create a new book entry in the system.
+   * Add New Book
+   *
+   * <p>Register a new book in the system.
    *
    * @param book New book to add.
    * @return A text message confirming success.
+   * @tag Inventory
    */
   @POST
   @Path("/books")
+  @Consumes("application/json")
+  @Produces("application/json")
   public Book addBook(Book book) {
     // Save it
     return library.add(book);
+  }
+
+  /**
+   * Add New Author
+   *
+   * @param author New author to add.
+   * @return Created author.
+   * @tag Inventory
+   */
+  @POST
+  @Path("/authors")
+  public Author addAuthor(@FormParam Author author) {
+    // Save it
+    return author;
   }
 }

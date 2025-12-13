@@ -19,27 +19,25 @@ public class ApiDocTest {
     checkResult(result);
   }
 
-  @OpenAPITest(value = AppLibrary2.class)
+  @OpenAPITest(value = AppDemoLibrary.class)
   public void shouldGenerateGoodDoc(OpenAPIResult result) {
     assertThat(result.toYaml())
         .isEqualToIgnoringNewLines(
             """
             openapi: 3.0.1
             info:
-              title: Library2 API
-              description: Library2 API description
+              title: DemoLibrary API
+              description: DemoLibrary API description
               version: "1.0"
-            tags:
-            - name: Library
-              description: Available library operations.
             paths:
               /library/books/{isbn}:
                 summary: The Public Front Desk of the library.
                 get:
                   tags:
                   - Library
-                  summary: Get Book Details.
-                  description: Call this to show the details page of a specific book.
+                  summary: Get Specific Book Details
+                  description: View the full information for a single specific book using its
+                    unique ISBN.
                   operationId: getBook
                   parameters:
                   - name: isbn
@@ -62,13 +60,14 @@ public class ApiDocTest {
                 get:
                   tags:
                   - Library
-                  summary: Search Books.
-                  description: "A general search bar. Users type a word, and we find matches."
+                  summary: Quick Search
+                  description: "Find books by a partial title (e.g., searching \\"Harry\\" finds\\
+                    \\ \\"Harry Potter\\")."
                   operationId: searchBooks
                   parameters:
                   - name: q
                     in: query
-                    description: The search term typed by the user.
+                    description: The word or phrase to search for.
                     schema:
                       type: string
                   responses:
@@ -80,12 +79,18 @@ public class ApiDocTest {
                             type: array
                             items:
                               $ref: "#/components/schemas/Book"
+                  x-badges:
+                  - name: Beta
+                    position: before
+                    color: purple
               /library/books:
                 summary: The Public Front Desk of the library.
                 get:
                   tags:
                   - Library
-                  summary: Browse Books (Paginated).
+                  summary: Browse Books (Paginated)
+                  description: "Look up a specific book title where there might be many editions\\
+                    \\ or copies, splitting the results into manageable pages."
                   operationId: getBooksByTitle
                   parameters:
                   - name: title
@@ -137,10 +142,9 @@ public class ApiDocTest {
                                 $ref: "#/components/schemas/PageRequest"
                 post:
                   tags:
-                  - Library
-                  summary: Add New Book.
-                  description: "Usage: Send a JSON packet to this URL to create a new book entry\\
-                    \\ in the system."
+                  - Inventory
+                  summary: Add New Book
+                  description: Register a new book in the system.
                   operationId: addBook
                   requestBody:
                     description: New book to add.

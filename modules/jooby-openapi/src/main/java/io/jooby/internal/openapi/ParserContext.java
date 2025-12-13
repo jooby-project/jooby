@@ -346,6 +346,7 @@ public class ParserContext {
                                             enumSchema.setDescription(field, enumItemDesc);
                                           }
                                         }
+                                        enumSchema.setSummary(enumDoc.getSummary());
                                         enumSchema.setDescription(enumDesc);
                                       }
                                     });

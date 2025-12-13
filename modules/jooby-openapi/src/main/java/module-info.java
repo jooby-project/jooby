@@ -25,4 +25,6 @@ module io.jooby.openapi {
   requires jakarta.data;
   requires io.swagger.annotations;
   requires org.jruby;
+  requires net.datafaker;
+  requires com.fasterxml.jackson.dataformat.yaml;
 }

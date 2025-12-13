@@ -27,6 +27,10 @@ public class InternalContext {
     return (OpenAPIExt) context.getVariable("openapi");
   }
 
+  public static AsciiDocContext asciidoc(EvaluationContext context) {
+    return (AsciiDocContext) context.getVariable("_asciidocContext");
+  }
+
   public static SnippetResolver resolver(EvaluationContext context) {
     return internal(context, "resolver");
   }

@@ -244,15 +244,11 @@ public class OpenAPIExt extends OpenAPI {
 
   public OperationExt findOperation(String method, String pattern) {
     Predicate<OperationExt> filter = op -> op.getPath().equals(pattern);
-    if (method != null) {
-      filter = filter.and(op -> op.getMethod().equals(method));
-    }
+    filter = filter.and(op -> op.getMethod().equals(method));
     return getOperations().stream()
         .filter(filter)
         .findFirst()
         .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    "Operation not found: " + (method == null ? "" : method + " ") + pattern));
+            () -> new IllegalArgumentException("Operation not found: " + method + " " + pattern));
   }
 }

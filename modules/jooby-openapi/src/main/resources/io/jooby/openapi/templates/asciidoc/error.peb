@@ -1,0 +1,5 @@
+{
+ "message": "{{ message }}",
+ "statusCode": "{{ statusCode }}",
+ "reason": "{{ statusCodeReason }}"
+}
