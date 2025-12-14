@@ -17,6 +17,8 @@ public class Issue3820 {
     assertThat(result.toAsciiDoc(CurrentDir.testClass(getClass(), "schema.adoc")))
         .isEqualToIgnoringNewLines(
             """
+            [source, json]
+            ----
             {
               "isbn" : "string",
               "title" : "string",
@@ -36,7 +38,8 @@ public class Issue3820 {
                   "zip" : "string"
                 }
               } ]
-            }\
+            }
+            ----\
             """);
   }
 }
