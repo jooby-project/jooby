@@ -181,6 +181,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
     addTagsItem(tag.getName());
   }
 
+  public boolean isOnTag(String tag) {
+    return globalTags.stream().map(Tag::getName).anyMatch(tag::equals);
+  }
+
   public List<Tag> getGlobalTags() {
     return globalTags;
   }

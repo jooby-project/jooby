@@ -30,6 +30,13 @@ public record MapToAsciiDoc(List<Map<String, Object>> rows) implements ToAsciiDo
 
   public String table(Map<String, Object> options) {
     var sb = new StringBuilder();
+    if (!options.isEmpty()) {
+      sb.append(
+              options.entrySet().stream()
+                  .map(it -> it.getKey() + "=\"" + it.getValue() + "\"")
+                  .collect(Collectors.joining(", ", "[", "]")))
+          .append('\n');
+    }
     sb.append("|===").append('\n');
     if (!rows.isEmpty()) {
       sb.append(rows.getFirst().keySet().stream().collect(Collectors.joining("|", "|", "")))

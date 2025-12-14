@@ -8,6 +8,7 @@ package io.jooby.internal.openapi.asciidoc;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.asciidoc.display.*;
@@ -74,12 +75,7 @@ public enum Display implements Filter {
         int lineNumber)
         throws PebbleException {
       var asciidoc = AsciiDocContext.from(context);
-      return new SafeString(toAsciidoc(asciidoc, input).table(args));
-    }
-
-    @Override
-    public List<String> getArgumentNames() {
-      return List.of("columns");
+      return new SafeString(toAsciidoc(asciidoc, input).table(new TreeMap<>(args)));
     }
   },
   list {
@@ -92,7 +88,7 @@ public enum Display implements Filter {
         int lineNumber)
         throws PebbleException {
       var asciidoc = AsciiDocContext.from(context);
-      return new SafeString(toAsciidoc(asciidoc, input).list(args));
+      return new SafeString(toAsciidoc(asciidoc, input).list(new TreeMap<>(args)));
     }
   },
   curl {
@@ -183,6 +179,7 @@ public enum Display implements Filter {
   protected Object toJson(AsciiDocContext context, Object input) {
     return switch (input) {
       case Schema<?> schema -> context.schemaProperties(schema);
+      case HttpResponse rsp -> toJson(context, rsp.getSucessOrError());
       case StatusCodeList codeList ->
           codeList.codes().size() == 1 ? codeList.codes().getFirst() : codeList.codes();
       default -> input;

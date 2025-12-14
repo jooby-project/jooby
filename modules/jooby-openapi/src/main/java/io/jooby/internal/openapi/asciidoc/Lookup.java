@@ -129,6 +129,13 @@ public enum Lookup implements Function {
       return asciidoc.getOpenApi().getTags().stream()
           .filter(tag -> tag.getName().equalsIgnoreCase(name))
           .findFirst()
+          .map(
+              it ->
+                  new TagExt(
+                      it,
+                      asciidoc.getOpenApi().findOperationByTag(it.getName()).stream()
+                          .map(op -> new HttpRequest(asciidoc, op, Map.of()))
+                          .toList()))
           .orElseThrow(() -> new NoSuchElementException("Tag not found: " + name));
     }
 

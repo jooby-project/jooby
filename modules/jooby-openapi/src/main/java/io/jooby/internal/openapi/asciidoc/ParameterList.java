@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
-import java.util.Iterator;
+import java.util.AbstractList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,23 +14,38 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 @JsonIgnoreProperties({"includes"})
-public record ParameterList(List<Parameter> parameters, List<String> includes)
-    implements Iterable<Parameter> {
+public class ParameterList extends AbstractList<Parameter> {
   public static final List<String> NAME_DESC = List.of("name", "description");
   public static final List<String> NAME_TYPE_DESC = List.of("name", "type", "description");
   public static final List<String> PARAM = List.of("name", "type", "in", "description");
+  private final List<Parameter> parameters;
+  private final List<String> includes;
 
-  @NonNull @Override
-  public Iterator<Parameter> iterator() {
-    return parameters.iterator();
+  public ParameterList(List<Parameter> parameters, List<String> includes) {
+    this.parameters = parameters;
+    this.includes = includes;
   }
 
-  public boolean isEmpty() {
-    return parameters.isEmpty();
+  public List<Parameter> parameters() {
+    return parameters;
+  }
+
+  public List<String> includes() {
+    return includes;
+  }
+
+  @Override
+  public int size() {
+    return parameters.size();
   }
 
   @NonNull @Override
   public String toString() {
     return parameters.stream().map(Parameter::getName).collect(Collectors.joining(", "));
+  }
+
+  @Override
+  public Parameter get(int index) {
+    return parameters.get(index);
   }
 }

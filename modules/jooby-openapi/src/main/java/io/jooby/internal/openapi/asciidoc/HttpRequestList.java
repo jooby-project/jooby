@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -46,7 +47,15 @@ public record HttpRequestList(AsciiDocContext context, List<HttpRequest> operati
   @Override
   public String table(Map<String, Object> options) {
     var sb = new StringBuilder();
-    sb.append("[cols=\"1,1,3a\", options=\"header\"]").append('\n');
+    if (options.isEmpty()) {
+      options.put("options", "header");
+    }
+    options.putIfAbsent("cols", "1,1,3a");
+    sb.append(
+            options.entrySet().stream()
+                .map(it -> it.getKey() + "=\"" + it.getValue() + "\"")
+                .collect(Collectors.joining(", ", "[", "]")))
+        .append('\n');
     sb.append("|===").append('\n');
     sb.append("|").append("Method|Path|Summary").append("\n\n");
     operations.forEach(

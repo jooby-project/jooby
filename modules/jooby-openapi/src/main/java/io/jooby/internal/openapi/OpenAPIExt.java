@@ -235,13 +235,6 @@ public class OpenAPIExt extends OpenAPI {
     }
   }
 
-  public OperationExt findOperationById(String operationId) {
-    return getOperations().stream()
-        .filter(it -> it.getOperationId().equals(operationId))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Operation not found: " + operationId));
-  }
-
   public OperationExt findOperation(String method, String pattern) {
     Predicate<OperationExt> filter = op -> op.getPath().equals(pattern);
     filter = filter.and(op -> op.getMethod().equals(method));
@@ -250,5 +243,9 @@ public class OpenAPIExt extends OpenAPI {
         .findFirst()
         .orElseThrow(
             () -> new IllegalArgumentException("Operation not found: " + method + " " + pattern));
+  }
+
+  public List<OperationExt> findOperationByTag(String tag) {
+    return getOperations().stream().filter(it -> it.isOnTag(tag)).toList();
   }
 }

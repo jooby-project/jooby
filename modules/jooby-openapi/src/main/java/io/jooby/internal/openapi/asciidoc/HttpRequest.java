@@ -57,6 +57,14 @@ public record HttpRequest(
     return operation.getPath();
   }
 
+  public String getDescription() {
+    return operation.getDescription();
+  }
+
+  public String getSummary() {
+    return operation.getSummary();
+  }
+
   public List<String> getProduces() {
     return operation.getProduces();
   }
@@ -261,9 +269,5 @@ public record HttpRequest(
   @NonNull @Override
   public String toString() {
     return getMethod() + " " + getPath();
-  }
-
-  public String getSummary() {
-    return operation.getSummary();
   }
 }

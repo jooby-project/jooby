@@ -5,21 +5,23 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.ParameterExt;
 import io.jooby.internal.openapi.ResponseExt;
+import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.swagger.v3.oas.models.media.Schema;
 
-@JsonIgnoreProperties({"context", "operation", "options"})
+@JsonIncludeProperties({"method", "path"})
 public record HttpResponse(
-    AsciiDocContext context,
+    EvaluationContext evaluationContext,
     OperationExt operation,
     Integer statusCode,
     Map<String, Object> options)
@@ -39,11 +41,46 @@ public record HttpResponse(
   }
 
   @Override
-  public Schema<?> getBody() {
-    return selectBody(getBody(getResponse()), options.getOrDefault("body", "full").toString());
+  public AsciiDocContext context() {
+    return AsciiDocContext.from(evaluationContext);
   }
 
-  private ResponseExt getResponse() {
+  public String getMethod() {
+    return operation.getMethod();
+  }
+
+  public String getPath() {
+    return operation.getPath();
+  }
+
+  @Override
+  public Schema<?> getBody() {
+    return selectBody(getBody(response()), options.getOrDefault("body", "full").toString());
+  }
+
+  public boolean isSuccess() {
+    return statusCode != null && statusCode >= 200 && statusCode < 300;
+  }
+
+  public Object getSucessOrError() {
+    var response = response();
+    if (response == operation.getDefaultResponse()) {
+      return getBody();
+    }
+    // massage error apply global error format
+    var rsp = operation.getResponses().get(Integer.toString(statusCode));
+
+    if (rsp == null) {
+      // default output
+      return context().error(evaluationContext, Map.of("code", statusCode));
+    }
+    var errorContext = new LinkedHashMap<String, Object>();
+    errorContext.put("code", statusCode);
+    errorContext.put("message", rsp.getDescription());
+    return context().error(evaluationContext, errorContext);
+  }
+
+  private ResponseExt response() {
     if (statusCode == null) {
       return operation.getDefaultResponse();
     } else {
@@ -60,7 +97,7 @@ public record HttpResponse(
 
   public StatusCode getStatusCode() {
     if (statusCode == null) {
-      return Optional.ofNullable(getResponse())
+      return Optional.ofNullable(response())
           .map(it -> StatusCode.valueOf(Integer.parseInt(it.getCode())))
           .orElse(StatusCode.OK);
     }
@@ -71,7 +108,7 @@ public record HttpResponse(
   private Schema<?> getBody(ResponseExt response) {
     return Optional.ofNullable(response)
         .map(it -> toSchema(it.getContent(), List.of()))
-        .map(context::resolveSchema)
+        .map(context()::resolveSchema)
         .orElse(AsciiDocContext.EMPTY_SCHEMA);
   }
 

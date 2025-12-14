@@ -24,6 +24,30 @@ public class PebbleSupportTest {
   @OpenAPITest(value = AppLib.class)
   public void routes(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates
+        .evaluateThat("{{ routes(\"/library/books/?.*\") | table(grid=\"rows\") }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [cols="1,1,3a", grid="rows"]
+            |===
+            |Method|Path|Summary
+
+            |`+GET+`
+            |`+/library/books/{isbn}+`
+            |Get Specific Book Details
+
+            |`+GET+`
+            |`+/library/books+`
+            |Browse Books (Paginated)
+
+            |`+POST+`
+            |`+/library/books+`
+            |Add New Book
+
+            |===\
+            """);
+
     // default error map
     templates
         .evaluateThat("{{ routes }}")
@@ -323,6 +347,38 @@ public class PebbleSupportTest {
             "Outlines the available actions in the Library System API. The system is designed to"
                 + " allow users to search for books, view details, and manage the library"
                 + " inventory.");
+
+    templates
+        .evaluateThat(
+            """
+            {% for tag in tags %}
+            == {{ tag.name }}
+            {{ tag.description }}
+
+            // 2. Loop through all routes associated with this tag
+            {% for route in tag.routes %}
+            === {{ route.summary }}
+            {{ route.description }}
+
+            *URL:* `{{ route.path }}` ({{ route.method }})
+            {% if route.parameters is not empty %}
+            *Parameters:*
+            {{ route | parameters | table }}
+            {% endif %}
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+            {% if route.body %}
+            *Data Payload:*
+            {{ route | request | body | example | json }}
+            {% endif %}
+            // Example response for success
+            .Response
+            {{ route | response(200) | json }}
+            {% endfor %}
+            {% endfor %}
+            """)
+        .isEqualToIgnoringNewLines(
+            """
+            """);
   }
 
   @OpenAPITest(value = AppLib.class)
@@ -583,6 +639,20 @@ public class PebbleSupportTest {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
     /* Error response code: */
+    templates
+        .evaluateThat("{{GET(\"/library/books/{isbn}\") | response(code=404) | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            {
+              "message" : "Not Found: error if it doesn't exist.",
+              "reason" : "Not Found",
+              "statusCode" : 404
+            }
+            ----\
+            """);
+
     templates
         .evaluateThat("{{GET(\"/library/books/{isbn}\") | response(code=404) | http }}")
         .isEqualToIgnoringNewLines(
@@ -988,7 +1058,8 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat(
-            "{{POST(\"/library/books\") | request | parameters(header) | table(['name']) }}")
+            "{{POST(\"/library/books\") | request | parameters(header) | table(columns=['name'])"
+                + " }}")
         .isEqualToIgnoringNewLines(
             """
             [cols="1", options="header"]

@@ -330,23 +330,9 @@ public class ApiDocTest {
             [source, json]
             ----
             {
-              "isbn" : "string",
-              "title" : "string",
-              "publicationDate" : "date",
-              "text" : "string",
-              "type" : "string",
-              "authors" : [ {
-                "ssn" : "string",
-                "name" : "string",
-                "address" : {
-                  "street" : "string",
-                  "city" : "string",
-                  "state" : "string",
-                  "country" : "string"
-                },
-                "books" : [ { } ]
-              } ],
-              "image" : "binary"
+              "message" : "Bad Request: For bad ISBN code.",
+              "reason" : "Bad Request",
+              "statusCode" : 400
             }
             ----
 
@@ -354,23 +340,9 @@ public class ApiDocTest {
             [source, json]
             ----
             {
-              "isbn" : "string",
-              "title" : "string",
-              "publicationDate" : "date",
-              "text" : "string",
-              "type" : "string",
-              "authors" : [ {
-                "ssn" : "string",
-                "name" : "string",
-                "address" : {
-                  "street" : "string",
-                  "city" : "string",
-                  "state" : "string",
-                  "country" : "string"
-                },
-                "books" : [ { } ]
-              } ],
-              "image" : "binary"
+              "message" : "Not Found: If a book doesn't exist.",
+              "reason" : "Not Found",
+              "statusCode" : 404
             }
             ----
 

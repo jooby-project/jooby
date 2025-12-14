@@ -58,7 +58,7 @@ public class AsciiDocContext {
 
   private final AutoDataFakerMapper faker = new AutoDataFakerMapper();
 
-  private final Map<Schema<?>, Map<String, Object>> examples = new HashMap<>();
+  private final Map<Object, Map<String, Object>> examples = new HashMap<>();
 
   private final Instant now = Instant.now();
 
@@ -139,6 +139,19 @@ public class AsciiDocContext {
                 // so we can print routes without calling function: routes() vs routes
                 openapiRoot.put("routes", operations);
                 openapiRoot.put("operations", operations);
+
+                // Tags
+                var tags =
+                    context.openapi.getTags().stream()
+                        .map(
+                            tag ->
+                                new TagExt(
+                                    tag,
+                                    context.openapi.findOperationByTag(tag.getName()).stream()
+                                        .map(op -> new HttpRequest(context, op, Map.of()))
+                                        .toList()))
+                        .toList();
+                openapiRoot.put("tags", tags);
 
                 // make in to work without literal
                 openapiRoot.put("query", "query");
@@ -259,7 +272,9 @@ public class AsciiDocContext {
                     "reason" ->
                     statusCode.reason();
                 case "status.code", "statusCode.code", "statusCode", "code" -> statusCode.value();
-                default -> Optional.ofNullable(context.getVariable(variable)).orElse(template);
+                default ->
+                    Optional.ofNullable(args.getOrDefault(variable, context.getVariable(variable)))
+                        .orElse(template);
               };
           mutableMap.put((String) entry.getKey(), value);
         }
@@ -332,7 +347,7 @@ public class AsciiDocContext {
         s ->
             traverse(
                 new HashSet<>(),
-                s,
+                schema,
                 (parent, property) -> {
                   var enumItems = property.getEnum();
                   if (enumItems == null || enumItems.isEmpty()) {

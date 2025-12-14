@@ -114,6 +114,7 @@ public record OpenApiToAsciiDoc(
   public String table(Map<String, Object> options) {
     var isEnum = properties.get(ROOT) instanceof EnumSchema;
     var columns = (List<String>) options.getOrDefault("columns", this.columns);
+    options.remove("columns");
     var colList = colList(columns);
     var sb = new StringBuilder();
     sb.append("|===").append('\n');
@@ -153,11 +154,19 @@ public record OpenApiToAsciiDoc(
           });
     }
     sb.append("|===");
-    return colsToString(colList) + "\n" + sb;
+    options.putIfAbsent("cols", colsToString(colList));
+    if (options.size() == 1) {
+      options.put("options", "header");
+    }
+    return options.entrySet().stream()
+            .map(e -> e.getKey() + "=\"" + e.getValue() + "\"")
+            .collect(Collectors.joining(", ", "[", "]"))
+        + "\n"
+        + sb;
   }
 
   private String colsToString(List<String> cols) {
-    return cols.stream().collect(Collectors.joining(",", "[cols=\"", "\", options=\"header\"]"));
+    return String.join(",", cols);
   }
 
   private List<String> colList(List<String> names) {
