@@ -34,6 +34,10 @@ public class PebbleTemplateSupport {
     consumer.accept(evaluate(input));
   }
 
+  public AsciiDocContext getContext() {
+    return context;
+  }
+
   public String evaluate(String input) throws IOException {
     var template = context.getEngine().getLiteralTemplate(input);
     var writer = new StringWriter();

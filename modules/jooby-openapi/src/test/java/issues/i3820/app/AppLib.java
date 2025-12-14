@@ -22,6 +22,7 @@ import io.jooby.Jooby;
  * @contact.url https://jooby.io
  * @contact.email support@jooby.io
  * @server.url https://library.jooby.io
+ * @server.description Production
  * @x-logo.url https://redoredocly.github.io/redoc/museum-logo.png
  * @tag Library. Outlines the available actions in the Library System API. The system is designed to
  *     allow users to search for books, view details, and manage the library inventory.

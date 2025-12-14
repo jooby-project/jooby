@@ -10,6 +10,8 @@ import static java.util.Optional.ofNullable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.pebbletemplates.pebble.PebbleEngine;
+import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.AbstractExtension;
 import io.pebbletemplates.pebble.extension.Filter;
 import io.pebbletemplates.pebble.extension.Function;
@@ -35,7 +38,7 @@ import io.pebbletemplates.pebble.loader.DelegatingLoader;
 import io.pebbletemplates.pebble.loader.FileLoader;
 import io.pebbletemplates.pebble.loader.Loader;
 import io.pebbletemplates.pebble.template.EvaluationContext;
-import io.swagger.v3.oas.models.OpenAPI;
+import io.pebbletemplates.pebble.template.PebbleTemplate;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class AsciiDocContext {
@@ -56,12 +59,14 @@ public class AsciiDocContext {
 
   private final Map<Schema<?>, Map<String, Object>> examples = new HashMap<>();
 
+  private final Instant now = Instant.now();
+
   public AsciiDocContext(Path baseDir, ObjectMapper json, ObjectMapper yaml, OpenAPIExt openapi) {
     this.json = json;
     this.yamlOpenApi = yaml;
     this.yamlOutput = newYamlOutput();
-    this.engine = createEngine(baseDir, json, openapi, this);
     this.openapi = openapi;
+    this.engine = createEngine(baseDir, json, this);
   }
 
   public String generate(Path index) throws IOException {
@@ -89,6 +94,10 @@ public class AsciiDocContext {
     }
   }
 
+  public Instant getNow() {
+    return now;
+  }
+
   private ObjectMapper newYamlOutput() {
     var factory = new YAMLFactory();
     factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
@@ -97,7 +106,7 @@ public class AsciiDocContext {
   }
 
   private static PebbleEngine createEngine(
-      Path baseDir, ObjectMapper json, OpenAPI openapi, AsciiDocContext context) {
+      Path baseDir, ObjectMapper json, AsciiDocContext context) {
     List<Loader<?>> loaders =
         List.of(new FileLoader(baseDir.toAbsolutePath().toString()), new ClasspathLoader());
     return new PebbleEngine.Builder()
@@ -107,8 +116,9 @@ public class AsciiDocContext {
             new AbstractExtension() {
               @Override
               public Map<String, Object> getGlobalVariables() {
-                Map<String, Object> openapiRoot = json.convertValue(openapi, Map.class);
-                openapiRoot.put("openapi", openapi);
+                Map<String, Object> openapiRoot = json.convertValue(context.openapi, Map.class);
+                openapiRoot.put("openapi", context.openapi);
+                openapiRoot.put("now", context.now);
 
                 // make in to work without literal
                 openapiRoot.put("query", "query");
@@ -122,15 +132,74 @@ public class AsciiDocContext {
 
               @Override
               public Map<String, Function> getFunctions() {
-                return Lookup.lookup();
+                return Stream.of(Lookup.values())
+                    .collect(Collectors.toMap(Enum::name, it -> wrapFn(it)));
+              }
+
+              private static Function wrapFn(Lookup lookup) {
+                return new Function() {
+                  @Override
+                  public List<String> getArgumentNames() {
+                    return lookup.getArgumentNames();
+                  }
+
+                  @Override
+                  public Object execute(
+                      Map<String, Object> args,
+                      PebbleTemplate self,
+                      EvaluationContext context,
+                      int lineNumber) {
+                    try {
+                      return lookup.execute(args, self, context, lineNumber);
+                    } catch (PebbleException rethrow) {
+                      throw rethrow;
+                    } catch (Throwable cause) {
+                      var path = Paths.get(self.getName());
+                      throw new PebbleException(
+                          cause,
+                          "execution of `" + lookup.name() + "()` resulted in exception:",
+                          lineNumber,
+                          path.getFileName().toString().trim());
+                    }
+                  }
+                };
+              }
+
+              private static Filter wrapFilter(String filterName, Filter filter) {
+                return new Filter() {
+                  @Override
+                  public List<String> getArgumentNames() {
+                    return filter.getArgumentNames();
+                  }
+
+                  @Override
+                  public Object apply(
+                      Object input,
+                      Map<String, Object> args,
+                      PebbleTemplate self,
+                      EvaluationContext context,
+                      int lineNumber)
+                      throws PebbleException {
+                    try {
+                      return filter.apply(input, args, self, context, lineNumber);
+                    } catch (PebbleException rethrow) {
+                      throw rethrow;
+                    } catch (Throwable cause) {
+                      var path = Paths.get(self.getName());
+                      throw new PebbleException(
+                          cause,
+                          "execution of `" + filterName + "()` resulted in exception:",
+                          lineNumber,
+                          path.getFileName().toString().trim());
+                    }
+                  }
+                };
               }
 
               @Override
               public Map<String, Filter> getFilters() {
-                Map<String, Filter> filters = new HashMap<>();
-                filters.putAll(Mutator.seek());
-                filters.putAll(Display.display());
-                return filters;
+                return Stream.concat(Stream.of(Mutator.values()), Stream.of(Display.values()))
+                    .collect(Collectors.toMap(Enum::name, it -> wrapFilter(it.name(), it)));
               }
             })
         .syntax(new Syntax.Builder().setEnableNewLineTrimming(false).build())

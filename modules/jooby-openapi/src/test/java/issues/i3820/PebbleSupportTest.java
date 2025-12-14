@@ -81,6 +81,48 @@ public class PebbleSupportTest {
   }
 
   @OpenAPITest(value = AppLib.class)
+  public void errorMap(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    // default error map
+    templates
+        .evaluateThat(
+            """
+            {{ error(code=400) | json }}
+            """)
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            {
+              "message" : "...",
+              "reason" : "Bad Request",
+              "statusCode" : 400
+            }
+            ----\
+            """);
+
+    templates
+        .evaluateThat(
+            """
+            {%- set error = {"code": 500, "message": "{{code.reason}}", "time": now } -%}
+            {{ error(code=402) | json }}
+            """)
+        .isEqualToIgnoringNewLines(
+            String.format(
+                """
+                [source, json]
+                ----
+                {
+                  "code" : 402,
+                  "message" : "Payment Required",
+                  "time" : "%s"
+                }
+                ----\
+                """,
+                templates.getContext().getNow()));
+  }
+
+  @OpenAPITest(value = AppLib.class)
   public void openApi(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
     templates.evaluate(
@@ -117,6 +159,16 @@ public class PebbleSupportTest {
             "Outlines the available actions in the Library System API. The system is designed to"
                 + " allow users to search for books, view details, and manage the library"
                 + " inventory.");
+  }
+
+  @OpenAPITest(value = AppLib.class)
+  public void server(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    templates.evaluateThat("{{ server(0).url }}").isEqualTo("https://library.jooby.io");
+
+    templates
+        .evaluateThat("{{ server(\"Production\").url }}")
+        .isEqualTo("https://library.jooby.io");
   }
 
   @OpenAPITest(value = AppLib.class)

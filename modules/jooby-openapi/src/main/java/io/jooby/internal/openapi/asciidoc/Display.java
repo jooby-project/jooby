@@ -196,12 +196,4 @@ public enum Display implements Filter {
   public List<String> getArgumentNames() {
     return List.of();
   }
-
-  public static Map<String, Filter> display() {
-    Map<String, Filter> result = new HashMap<>();
-    for (var value : values()) {
-      result.put(value.name(), value);
-    }
-    return result;
-  }
 }

@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -172,13 +171,5 @@ public enum Mutator implements Filter {
   @Override
   public List<String> getArgumentNames() {
     return List.of();
-  }
-
-  public static Map<String, Filter> seek() {
-    Map<String, Filter> result = new HashMap<>();
-    for (var value : values()) {
-      result.put(value.name(), value);
-    }
-    return result;
   }
 }
