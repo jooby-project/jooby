@@ -183,7 +183,8 @@ public enum Display implements Filter {
   protected Object toJson(AsciiDocContext context, Object input) {
     return switch (input) {
       case Schema<?> schema -> context.schemaProperties(schema);
-      case StatusCodeList codeList -> codeList.codes();
+      case StatusCodeList codeList ->
+          codeList.codes().size() == 1 ? codeList.codes().getFirst() : codeList.codes();
       default -> input;
     };
   }

@@ -121,6 +121,7 @@ public class AsciiDocContext {
                 openapiRoot.put("openapi", context.openapi);
                 openapiRoot.put("now", context.now);
 
+                // Global/Default values:
                 openapiRoot.put(
                     "error",
                     Map.of(
@@ -130,6 +131,14 @@ public class AsciiDocContext {
                         "{{statusCode.reason}}",
                         "message",
                         "..."));
+                // Routes
+                var operations =
+                    context.openapi.getOperations().stream()
+                        .map(op -> new HttpRequest(context, op, Map.of()))
+                        .toList();
+                // so we can print routes without calling function: routes() vs routes
+                openapiRoot.put("routes", operations);
+                openapiRoot.put("operations", operations);
 
                 // make in to work without literal
                 openapiRoot.put("query", "query");
@@ -144,7 +153,8 @@ public class AsciiDocContext {
               @Override
               public Map<String, Function> getFunctions() {
                 return Stream.of(Lookup.values())
-                    .collect(Collectors.toMap(Enum::name, it -> wrapFn(it)));
+                    .flatMap(it -> it.alias().stream().map(name -> Map.entry(name, it)))
+                    .collect(Collectors.toMap(Map.Entry::getKey, it -> wrapFn(it.getValue())));
               }
 
               private static Function wrapFn(Lookup lookup) {

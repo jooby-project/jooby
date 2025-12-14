@@ -114,17 +114,10 @@ public enum Lookup implements Function {
     public List<String> getArgumentNames() {
       return List.of("path");
     }
-  },
-  model {
-    @Override
-    public Object execute(
-        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      return schema.execute(args, self, context, lineNumber);
-    }
 
     @Override
-    public List<String> getArgumentNames() {
-      return schema.getArgumentNames();
+    public List<String> alias() {
+      return List.of("schema", "model");
     }
   },
   tag {
@@ -154,7 +147,35 @@ public enum Lookup implements Function {
 
     @Override
     public List<String> getArgumentNames() {
-      return List.of();
+      return List.of("code");
+    }
+  },
+  routes {
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      var asciidoc = AsciiDocContext.from(context);
+      var operations = asciidoc.getOpenApi().getOperations();
+      var list =
+          operations.stream()
+              .filter(
+                  it -> {
+                    var includes = (String) args.get("includes");
+                    return includes == null || it.getPath().matches(includes);
+                  })
+              .map(it -> new HttpRequest(asciidoc, it, args))
+              .toList();
+      return new HttpRequestList(asciidoc, list);
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("includes");
+    }
+
+    @Override
+    public List<String> alias() {
+      return List.of("routes", "operations");
     }
   },
   statusCode {
@@ -176,7 +197,7 @@ public enum Lookup implements Function {
         return Stream.of(map);
       } else if (candidate instanceof Map<?, ?> codeMap) {
         var codes = new ArrayList<Map<String, Object>>();
-        for (var entry : codeMap.entrySet()) {
+        for (var entry : new TreeMap<>(codeMap).entrySet()) {
           var value = entry.getKey();
           if (value instanceof Number code) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -226,6 +247,10 @@ public enum Lookup implements Function {
       return List.of("name");
     }
   };
+
+  public List<String> alias() {
+    return List.of(name());
+  }
 
   protected Map<String, Object> appendMethod(Map<String, Object> args) {
     Map<String, Object> result = new LinkedHashMap<>(args);

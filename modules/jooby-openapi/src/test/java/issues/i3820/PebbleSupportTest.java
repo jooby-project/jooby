@@ -22,21 +22,81 @@ import issues.i3820.app.AppLib;
 public class PebbleSupportTest {
 
   @OpenAPITest(value = AppLib.class)
+  public void routes(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    // default error map
+    templates
+        .evaluateThat("{{ routes }}")
+        .isEqualTo(
+            "[GET /library/books/{isbn}, GET /library/search, GET /library/books, POST"
+                + " /library/books, POST /library/authors]");
+    templates
+        .evaluateThat("{{ routes(\"/library/books/?.*\") }}")
+        .isEqualTo("[GET /library/books/{isbn}, GET /library/books, POST /library/books]");
+    templates.evaluate("{{ routes | json(false) }}", output -> Json31.mapper().readTree(output));
+
+    templates
+        .evaluateThat("{{ routes(\"/library/books/?.*\") | table }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [cols="1,1,3a", options="header"]
+            |===
+            |Method|Path|Summary
+
+            |`+GET+`
+            |`+/library/books/{isbn}+`
+            |Get Specific Book Details
+
+            |`+GET+`
+            |`+/library/books+`
+            |Browse Books (Paginated)
+
+            |`+POST+`
+            |`+/library/books+`
+            |Add New Book
+
+            |===\
+            """);
+
+    templates
+        .evaluateThat("{{ routes(\"/library/books/?.*\") | list }}")
+        .isEqualToIgnoringNewLines(
+            """
+            * `+GET /library/books/{isbn}+`: Get Specific Book Details
+            * `+GET /library/books+`: Browse Books (Paginated)
+            * `+POST /library/books+`: Add New Book\
+            """);
+  }
+
+  @OpenAPITest(value = AppLib.class)
   public void statusCode(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
     // default error map
     templates.evaluateThat("{{ statusCode(200) }}").isEqualTo("[{code=200, reason=Success}]");
 
     templates
+        .evaluateThat("{{ statusCode(200) | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            {
+              "code" : 200,
+              "reason" : "Success"
+            }
+            ----\
+            """);
+
+    templates
         .evaluateThat("{{ statusCode(200) | list }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             * `+200+`: Success\
             """);
 
     templates
         .evaluateThat("{{ statusCode(200) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             |===
             |code|reason
@@ -49,7 +109,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{ statusCode([200, 201]) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             |===
             |code|reason
@@ -65,7 +125,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{ statusCode([200, 201]) | list }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             * `+200+`: Success
             * `+201+`: Created\
@@ -73,7 +133,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{ statusCode({200: \"OK\", 500: \"Internal Server Error\"}) | list }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             * `+200+`: OK
             * `+500+`: Internal Server Error\
@@ -142,6 +202,22 @@ public class PebbleSupportTest {
   @OpenAPITest(value = AppLib.class)
   public void errorMap(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    templates
+        .evaluateThat(
+            """
+            {{ error(400) | json }}
+            """)
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            {
+              "message" : "...",
+              "reason" : "Bad Request",
+              "statusCode" : 400
+            }
+            ----\
+            """);
     // default error map
     templates
         .evaluateThat(

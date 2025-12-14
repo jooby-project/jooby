@@ -9,9 +9,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.openapi.asciidoc.display.MapToAsciiDoc;
 
+@JsonIncludeProperties({"codes"})
 public record StatusCodeList(List<Map<String, Object>> codes)
     implements Iterable<Map<String, Object>>, ToAsciiDoc {
   @NonNull @Override
