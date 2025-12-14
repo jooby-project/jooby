@@ -10,10 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.jooby.internal.openapi.OperationExt;
-import io.jooby.internal.openapi.asciidoc.http.RequestToCurl;
-import io.jooby.internal.openapi.asciidoc.http.RequestToHttp;
-import io.jooby.internal.openapi.asciidoc.http.ResponseToHttp;
-import io.jooby.internal.openapi.asciidoc.table.ToAsciiDoc;
+import io.jooby.internal.openapi.asciidoc.display.*;
 import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.Filter;
 import io.pebbletemplates.pebble.extension.escaper.SafeString;
@@ -173,10 +170,12 @@ public enum Display implements Filter {
 
   protected ToAsciiDoc toAsciidoc(AsciiDocContext context, Object input) {
     return switch (input) {
-      case HttpRequest req -> ToAsciiDoc.parameters(context, req.getAllParameters());
-      case HttpResponse rsp -> ToAsciiDoc.schema(context, rsp.getBody());
-      case Schema<?> schema -> ToAsciiDoc.schema(context, schema);
-      case ParameterList paramList -> ToAsciiDoc.parameters(context, paramList);
+      case HttpRequest req -> OpenApiToAsciiDoc.parameters(context, req.getAllParameters());
+      case HttpResponse rsp -> OpenApiToAsciiDoc.schema(context, rsp.getBody());
+      case Schema<?> schema -> OpenApiToAsciiDoc.schema(context, schema);
+      case ParameterList paramList -> OpenApiToAsciiDoc.parameters(context, paramList);
+      case ToAsciiDoc asciiDoc -> asciiDoc;
+      case Map map -> new MapToAsciiDoc(List.of(map));
       default -> throw new IllegalArgumentException("Can't render: " + input);
     };
   }
@@ -184,6 +183,7 @@ public enum Display implements Filter {
   protected Object toJson(AsciiDocContext context, Object input) {
     return switch (input) {
       case Schema<?> schema -> context.schemaProperties(schema);
+      case StatusCodeList codeList -> codeList.codes();
       default -> input;
     };
   }

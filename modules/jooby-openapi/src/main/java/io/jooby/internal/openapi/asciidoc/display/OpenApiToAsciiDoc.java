@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.openapi.asciidoc.table;
+package io.jooby.internal.openapi.asciidoc.display;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,27 +14,29 @@ import com.google.common.base.CaseFormat;
 import io.jooby.internal.openapi.EnumSchema;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.asciidoc.ParameterList;
+import io.jooby.internal.openapi.asciidoc.ToAsciiDoc;
 import io.swagger.v3.oas.models.media.Schema;
 
-public record ToAsciiDoc(
+public record OpenApiToAsciiDoc(
     AsciiDocContext context,
     Map<String, Schema<?>> properties,
     List<String> columns,
-    Map<String, Object> additionalProperties) {
+    Map<String, Object> additionalProperties)
+    implements ToAsciiDoc {
   private static final String ROOT = "___root__";
 
-  public static ToAsciiDoc schema(AsciiDocContext context, Schema<?> schema) {
+  public static OpenApiToAsciiDoc schema(AsciiDocContext context, Schema<?> schema) {
     var columns =
         schema instanceof EnumSchema
             ? List.of("name", "description")
             : List.of("name", "type", "description");
     var properties = new LinkedHashMap<String, Schema<?>>();
-    properties.put(ToAsciiDoc.ROOT, schema);
+    properties.put(OpenApiToAsciiDoc.ROOT, schema);
     context.traverseSchema(schema, properties::put);
-    return new ToAsciiDoc(context, properties, columns, Map.of());
+    return new OpenApiToAsciiDoc(context, properties, columns, Map.of());
   }
 
-  public static ToAsciiDoc parameters(AsciiDocContext context, ParameterList parameters) {
+  public static OpenApiToAsciiDoc parameters(AsciiDocContext context, ParameterList parameters) {
     var properties = new LinkedHashMap<String, Schema<?>>();
     parameters.forEach(p -> properties.put(p.getName(), p.getSchema()));
     Map<String, Object> additionalProperties = new LinkedHashMap<>();
@@ -43,7 +45,7 @@ public record ToAsciiDoc(
           additionalProperties.put(p.getName() + ".in", p.getIn());
           additionalProperties.put(p.getName() + ".description", p.getDescription());
         });
-    return new ToAsciiDoc(context, properties, parameters.includes(), additionalProperties);
+    return new OpenApiToAsciiDoc(context, properties, parameters.includes(), additionalProperties);
   }
 
   public String list(Map<String, Object> options) {

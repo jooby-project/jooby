@@ -6,7 +6,9 @@
 package io.jooby.internal.openapi.asciidoc;
 
 import java.util.*;
+import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.template.EvaluationContext;
@@ -143,67 +145,56 @@ public enum Lookup implements Function {
     }
   },
   error {
-    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Object execute(
         Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
-      var error = context.getVariable("error");
-      if (error == null) {
-        // mimic default error handler
-        Map<String, Object> defaultError = new TreeMap<>();
-        var statusCode =
-            StatusCode.valueOf(
-                ((Number)
-                        args.getOrDefault(
-                            "code",
-                            args.getOrDefault("statusCode", StatusCode.SERVER_ERROR.value())))
-                    .intValue());
-        defaultError.put("statusCode", statusCode.value());
-        defaultError.put(
-            "reason",
-            args.getOrDefault(
-                "reason", args.getOrDefault("statusCodeReason", statusCode.reason())));
-        defaultError.put("message", args.getOrDefault("message", "..."));
-        return defaultError;
-      } else if (error instanceof Map<?, ?> errorMap) {
-        var mutableMap = new TreeMap<String, Object>();
-        mutableMap.putAll((Map<? extends String, ?>) errorMap);
-        mutableMap.putAll(args);
-        for (var entry : errorMap.entrySet()) {
-          var value = entry.getValue();
-          var template = String.valueOf(value);
-          if (template.startsWith("{{") && template.endsWith("}}")) {
-            var variable = template.substring(2, template.length() - 2).trim();
-            value =
-                switch (variable) {
-                  case "status.reason",
-                      "statusCodeReason",
-                      "code.reason",
-                      "codeReason",
-                      "reason" -> {
-                    var statusCode =
-                        StatusCode.valueOf(
-                            ((Number)
-                                    args.getOrDefault(
-                                        "code",
-                                        args.getOrDefault(
-                                            "statusCode", StatusCode.SERVER_ERROR.value())))
-                                .intValue());
-                    yield statusCode.reason();
-                  }
-                  default -> Optional.ofNullable(context.getVariable(variable)).orElse(template);
-                };
-            mutableMap.put((String) entry.getKey(), value);
-          }
-        }
-        return mutableMap;
-      }
-      throw new ClassCastException("Global error must be a map: " + error);
+      var asciidoc = AsciiDocContext.from(context);
+      return asciidoc.error(context, args);
     }
 
     @Override
     public List<String> getArgumentNames() {
       return List.of();
+    }
+  },
+  statusCode {
+    @Override
+    public Object execute(
+        Map<String, Object> args, PebbleTemplate self, EvaluationContext context, int lineNumber) {
+      var code = args.get("code");
+      if (code instanceof List<?> codes) {
+        return new StatusCodeList(codes.stream().flatMap(this::toMap).toList());
+      }
+      return new StatusCodeList(toMap(code).toList());
+    }
+
+    @NonNull private Stream<Map<String, Object>> toMap(Object candidate) {
+      if (candidate instanceof Number code) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("code", code.intValue());
+        map.put("reason", StatusCode.valueOf(code.intValue()).reason());
+        return Stream.of(map);
+      } else if (candidate instanceof Map<?, ?> codeMap) {
+        var codes = new ArrayList<Map<String, Object>>();
+        for (var entry : codeMap.entrySet()) {
+          var value = entry.getKey();
+          if (value instanceof Number code) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            map.put("code", code.intValue());
+            map.put("reason", entry.getValue());
+            codes.add(map);
+          } else {
+            throw new ClassCastException("Must be Map<Number, String>: " + candidate);
+          }
+        }
+        return codes.stream();
+      }
+      throw new ClassCastException("Not a number: " + candidate);
+    }
+
+    @Override
+    public List<String> getArgumentNames() {
+      return List.of("code");
     }
   },
   server {

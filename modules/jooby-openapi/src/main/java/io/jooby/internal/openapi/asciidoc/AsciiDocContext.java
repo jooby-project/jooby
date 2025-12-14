@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.jooby.SneakyThrows;
+import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.pebbletemplates.pebble.PebbleEngine;
 import io.pebbletemplates.pebble.error.PebbleException;
@@ -120,6 +121,16 @@ public class AsciiDocContext {
                 openapiRoot.put("openapi", context.openapi);
                 openapiRoot.put("now", context.now);
 
+                openapiRoot.put(
+                    "error",
+                    Map.of(
+                        "statusCode",
+                        "{{statusCode.code}}",
+                        "reason",
+                        "{{statusCode.reason}}",
+                        "message",
+                        "..."));
+
                 // make in to work without literal
                 openapiRoot.put("query", "query");
                 openapiRoot.put("path", "path");
@@ -204,6 +215,48 @@ public class AsciiDocContext {
             })
         .syntax(new Syntax.Builder().setEnableNewLineTrimming(false).build())
         .build();
+  }
+
+  @SuppressWarnings("unchecked")
+  public Map<String, Object> error(EvaluationContext context, Map<String, Object> args) {
+    var error = context.getVariable("error");
+    if (error instanceof Map<?, ?> errorMap) {
+      var mutableMap = new TreeMap<String, Object>((Map<? extends String, ?>) errorMap);
+      args.forEach(
+          (key, value) -> {
+            if (mutableMap.containsKey(key)) {
+              mutableMap.put(key, value);
+            }
+          });
+      var statusCode =
+          StatusCode.valueOf(
+              ((Number)
+                      args.getOrDefault(
+                          "code", args.getOrDefault("statusCode", StatusCode.SERVER_ERROR.value())))
+                  .intValue());
+      for (var entry : errorMap.entrySet()) {
+        var value = entry.getValue();
+        var template = String.valueOf(value);
+        if (template.startsWith("{{") && template.endsWith("}}")) {
+          var variable = template.substring(2, template.length() - 2).trim();
+          value =
+              switch (variable) {
+                case "status.reason",
+                    "statusCodeReason",
+                    "statusCode.reason",
+                    "code.reason",
+                    "codeReason",
+                    "reason" ->
+                    statusCode.reason();
+                case "status.code", "statusCode.code", "statusCode", "code" -> statusCode.value();
+                default -> Optional.ofNullable(context.getVariable(variable)).orElse(template);
+              };
+          mutableMap.put((String) entry.getKey(), value);
+        }
+      }
+      return mutableMap;
+    }
+    throw new ClassCastException("Global error must be a map: " + error);
   }
 
   public String schemaType(Schema<?> schema) {

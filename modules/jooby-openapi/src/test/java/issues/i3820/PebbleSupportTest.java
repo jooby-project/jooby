@@ -21,6 +21,65 @@ import issues.i3820.app.AppLib;
 
 public class PebbleSupportTest {
 
+  @OpenAPITest(value = AppLib.class)
+  public void statusCode(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+    // default error map
+    templates.evaluateThat("{{ statusCode(200) }}").isEqualTo("[{code=200, reason=Success}]");
+
+    templates
+        .evaluateThat("{{ statusCode(200) | list }}")
+        .isEqualTo(
+            """
+            * `+200+`: Success\
+            """);
+
+    templates
+        .evaluateThat("{{ statusCode(200) | table }}")
+        .isEqualTo(
+            """
+            |===
+            |code|reason
+
+            |200
+            |Success
+
+            |===\
+            """);
+
+    templates
+        .evaluateThat("{{ statusCode([200, 201]) | table }}")
+        .isEqualTo(
+            """
+            |===
+            |code|reason
+
+            |200
+            |Success
+
+            |201
+            |Created
+
+            |===\
+            """);
+
+    templates
+        .evaluateThat("{{ statusCode([200, 201]) | list }}")
+        .isEqualTo(
+            """
+            * `+200+`: Success
+            * `+201+`: Created\
+            """);
+
+    templates
+        .evaluateThat("{{ statusCode({200: \"OK\", 500: \"Internal Server Error\"}) | list }}")
+        .isEqualTo(
+            """
+            * `+200+`: OK
+            * `+500+`: Internal Server Error\
+            """);
+  }
+
   @OpenAPITest(value = AppLibrary.class)
   public void bodyBug(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
@@ -99,6 +158,35 @@ public class PebbleSupportTest {
               "statusCode" : 400
             }
             ----\
+            """);
+
+    templates
+        .evaluateThat(
+            """
+            {{ error(code=400) | list }}
+            """)
+        .isEqualToIgnoringNewLines(
+            """
+            * message: ...
+            * reason: Bad Request
+            * statusCode: 400\
+            """);
+
+    templates
+        .evaluateThat(
+            """
+            {{ error(code=400) | table }}
+            """)
+        .isEqualToIgnoringNewLines(
+            """
+            |===
+            |message|reason|statusCode
+
+            |...
+            |Bad Request
+            |400
+
+            |===\
             """);
 
     templates
