@@ -361,15 +361,18 @@ public class PebbleSupportTest {
             {{ route.description }}
 
             *URL:* `{{ route.path }}` ({{ route.method }})
+
             {% if route.parameters is not empty %}
             *Parameters:*
             {{ route | parameters | table }}
             {% endif %}
+
             // Only show Request Body if it exists (e.g. for POST/PUT)
-            {% if route.body %}
+            {% if route.body is not null %}
             *Data Payload:*
-            {{ route | request | body | example | json }}
+            {{ route | request | body | json }}
             {% endif %}
+
             // Example response for success
             .Response
             {{ route | response(200) | json }}
@@ -378,6 +381,266 @@ public class PebbleSupportTest {
             """)
         .isEqualToIgnoringNewLines(
             """
+            == Library
+            Outlines the available actions in the Library System API. The system is designed to allow users to search for books, view details, and manage the library inventory.
+
+            // 2. Loop through all routes associated with this tag
+
+            === Get Specific Book Details
+            View the full information for a single specific book using its unique ISBN.
+
+            *URL:* `/library/books/{isbn}` (GET)
+
+            *Parameters:*
+            [cols="1,1,1,3", options="header"]
+            |===
+            |Name|Type|In|Description
+            |`+isbn+`
+            |`+string+`
+            |`+path+`
+            |The unique ID from the URL (e.g., /books/978-3-16-148410-0)
+
+            |===
+
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+
+            // Example response for success
+            .Response
+            [source, json]
+            ----
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            }
+            ----
+
+            === Quick Search
+            Find books by a partial title (e.g., searching "Harry" finds "Harry Potter").
+
+            *URL:* `/library/search` (GET)
+
+            *Parameters:*
+            [cols="1,1,1,3", options="header"]
+            |===
+            |Name|Type|In|Description
+            |`+q+`
+            |`+string+`
+            |`+query+`
+            |The word or phrase to search for.
+
+            |===
+
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+
+            // Example response for success
+            .Response
+            [source, json]
+            ----
+            { }
+            ----
+
+            === Browse Books (Paginated)
+            Look up a specific book title where there might be many editions or copies, splitting the results into manageable pages.
+
+            *URL:* `/library/books` (GET)
+
+            *Parameters:*
+            [cols="1,1,1,3", options="header"]
+            |===
+            |Name|Type|In|Description
+            |`+Accept+`
+            |`+string+`
+            |`+header+`
+            |
+
+            |`+title+`
+            |`+string+`
+            |`+query+`
+            |The exact book title to filter by.
+
+            |`+page+`
+            |`+int32+`
+            |`+query+`
+            |Which page number to load (defaults to 1).
+
+            |`+size+`
+            |`+int32+`
+            |`+query+`
+            |How many books to show per page (defaults to 20).
+
+            |===
+
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+
+            // Example response for success
+            .Response
+            [source, json]
+            ----
+            {
+              "content" : [ {
+                "isbn" : "string",
+                "title" : "string",
+                "publicationDate" : "date",
+                "text" : "string",
+                "type" : "string",
+                "publisher" : {
+                  "id" : "int64",
+                  "name" : "string"
+                },
+                "authors" : [ {
+                  "ssn" : "string",
+                  "name" : "string",
+                  "address" : {
+                    "street" : "string",
+                    "city" : "string",
+                    "zip" : "string"
+                  }
+                } ]
+              } ],
+              "numberOfElements" : "int32",
+              "totalElements" : "int64",
+              "totalPages" : "int64",
+              "pageRequest" : {
+                "page" : "int64",
+                "size" : "int32"
+              },
+              "nextPageRequest" : { },
+              "previousPageRequest" : { }
+            }
+            ----
+
+
+            == Inventory
+            Managing Inventory
+
+            // 2. Loop through all routes associated with this tag
+
+            === Add New Book
+            Register a new book in the system.
+
+            *URL:* `/library/books` (POST)
+
+            *Parameters:*
+            [cols="1,1,1,3", options="header"]
+            |===
+            |Name|Type|In|Description
+            |`+Accept+`
+            |`+string+`
+            |`+header+`
+            |
+
+            |`+Content-Type+`
+            |`+string+`
+            |`+header+`
+            |
+
+            |===
+
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+
+            *Data Payload:*
+            [source, json]
+            ----
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            }
+            ----
+
+            // Example response for success
+            .Response
+            [source, json]
+            ----
+            {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            }
+            ----
+
+            === Add New Author
+
+
+            *URL:* `/library/authors` (POST)
+
+            // Only show Request Body if it exists (e.g. for POST/PUT)
+
+            *Data Payload:*
+            [source, json]
+            ----
+            {
+              "ssn" : "string",
+              "name" : "string",
+              "address" : {
+                "street" : "string",
+                "city" : "string",
+                "zip" : "string"
+              }
+            }
+            ----
+
+            // Example response for success
+            .Response
+            [source, json]
+            ----
+            {
+              "ssn" : "string",
+              "name" : "string",
+              "address" : {
+                "street" : "string",
+                "city" : "string",
+                "zip" : "string"
+              }
+            }
+            ----
+            \
             """);
   }
 

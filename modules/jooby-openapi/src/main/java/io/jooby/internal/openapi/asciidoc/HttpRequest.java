@@ -151,13 +151,12 @@ public record HttpRequest(
     return "";
   }
 
-  @SuppressWarnings("unchecked")
   private Schema<?> getBody(List<String> contentType) {
     var body =
         Optional.ofNullable(operation.getRequestBody())
             .map(it -> toSchema(it.getContent(), contentType))
             .map(context::resolveSchema)
-            .orElse(AsciiDocContext.EMPTY_SCHEMA);
+            .orElse(null);
 
     return selectBody(body, options.getOrDefault("body", "full").toString());
   }
@@ -170,7 +169,7 @@ public record HttpRequest(
       BiFunction<Schema<?>, Map.Entry<String, String>, Map.Entry<String, String>> formatter) {
     var output = ArrayListMultimap.<String, String>create();
     var form = getForm();
-    if (form != AsciiDocContext.EMPTY_SCHEMA) {
+    if (form != null) {
       traverseSchema(null, form, formatter, output::put);
     }
     return output;
@@ -232,23 +231,21 @@ public record HttpRequest(
     var parameters = allParameters();
     var body = getForm();
     var bodyType = "form";
-    if (body == AsciiDocContext.EMPTY_SCHEMA) {
+    if (body == null) {
       body = getBody();
       bodyType = "body";
     }
     var paramType = bodyType;
-    if (body != AsciiDocContext.EMPTY_SCHEMA) {
-      context.traverseSchema(
-          body,
-          (propertyName, schema) -> {
-            var p = new Parameter();
-            p.setName(propertyName);
-            p.setSchema(schema);
-            p.setIn(paramType);
-            p.setDescription(schema.getDescription());
-            parameters.add(p);
-          });
-    }
+    context.traverseSchema(
+        body,
+        (propertyName, schema) -> {
+          var p = new Parameter();
+          p.setName(propertyName);
+          p.setSchema(schema);
+          p.setIn(paramType);
+          p.setDescription(schema.getDescription());
+          parameters.add(p);
+        });
     return new ParameterList(parameters, ParameterList.PARAM);
   }
 

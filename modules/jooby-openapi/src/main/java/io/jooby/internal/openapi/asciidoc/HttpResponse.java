@@ -104,12 +104,11 @@ public record HttpResponse(
     return StatusCode.valueOf(statusCode);
   }
 
-  @SuppressWarnings("unchecked")
   private Schema<?> getBody(ResponseExt response) {
     return Optional.ofNullable(response)
         .map(it -> toSchema(it.getContent(), List.of()))
         .map(context()::resolveSchema)
-        .orElse(AsciiDocContext.EMPTY_SCHEMA);
+        .orElse(null);
   }
 
   @NonNull @Override

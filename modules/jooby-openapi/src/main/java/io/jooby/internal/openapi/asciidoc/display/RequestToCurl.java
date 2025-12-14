@@ -60,7 +60,7 @@ public class RequestToCurl implements ToSnippet {
             });
     if (formUrlEncoded.isEmpty()) {
       var body = request.getBody();
-      if (body != AsciiDocContext.EMPTY_SCHEMA) {
+      if (body != null) {
         options.put("-d", "'" + context.toJson(context.schemaProperties(body), false) + "'");
       }
     } else {

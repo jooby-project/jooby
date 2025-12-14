@@ -33,7 +33,6 @@ import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.AbstractExtension;
 import io.pebbletemplates.pebble.extension.Filter;
 import io.pebbletemplates.pebble.extension.Function;
-import io.pebbletemplates.pebble.lexer.Syntax;
 import io.pebbletemplates.pebble.loader.ClasspathLoader;
 import io.pebbletemplates.pebble.loader.DelegatingLoader;
 import io.pebbletemplates.pebble.loader.FileLoader;
@@ -44,7 +43,6 @@ import io.swagger.v3.oas.models.media.Schema;
 
 public class AsciiDocContext {
   public static final BiConsumer<String, Schema<?>> NOOP = (name, schema) -> {};
-  public static final Schema EMPTY_SCHEMA = new Schema<>();
 
   private ObjectMapper json;
 
@@ -133,7 +131,7 @@ public class AsciiDocContext {
                         "..."));
                 // Routes
                 var operations =
-                    context.openapi.getOperations().stream()
+                    Optional.of(context.openapi.getOperations()).orElse(List.of()).stream()
                         .map(op -> new HttpRequest(context, op, Map.of()))
                         .toList();
                 // so we can print routes without calling function: routes() vs routes
@@ -142,7 +140,7 @@ public class AsciiDocContext {
 
                 // Tags
                 var tags =
-                    context.openapi.getTags().stream()
+                    Optional.ofNullable(context.openapi.getTags()).orElse(List.of()).stream()
                         .map(
                             tag ->
                                 new TagExt(
@@ -236,7 +234,6 @@ public class AsciiDocContext {
                     .collect(Collectors.toMap(Enum::name, it -> wrapFilter(it.name(), it)));
               }
             })
-        .syntax(new Syntax.Builder().setEnableNewLineTrimming(false).build())
         .build();
   }
 
@@ -384,7 +381,7 @@ public class AsciiDocContext {
       SneakyThrows.Function2<Schema<?>, Schema<?>, String> valueMapper,
       BiConsumer<String, Schema<?>> consumer,
       BiConsumer<String, Schema<?>> inner) {
-    if (schema == EMPTY_SCHEMA) {
+    if (schema == null) {
       return Map.of();
     }
     var resolved = resolveSchema(schema);

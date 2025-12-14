@@ -21,7 +21,7 @@ public interface HttpMessage {
   AsciiDocContext context();
 
   default Schema<?> selectBody(Schema<?> body, String modifier) {
-    if (body != AsciiDocContext.EMPTY_SCHEMA) {
+    if (body != null) {
       return switch (modifier) {
         case "full" -> body;
         case "simple" -> context().reduceSchema(body);

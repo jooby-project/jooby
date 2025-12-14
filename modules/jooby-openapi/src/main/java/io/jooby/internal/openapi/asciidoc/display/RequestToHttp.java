@@ -39,7 +39,7 @@ public record RequestToHttp(AsciiDocContext context, HttpRequest request) implem
             .append('\n');
       }
       var schema = request.getBody();
-      if (schema != AsciiDocContext.EMPTY_SCHEMA) {
+      if (schema != null) {
         sb.append(context.toJson(context.schemaProperties(schema), false)).append('\n');
       }
       return sb.append("----").toString();

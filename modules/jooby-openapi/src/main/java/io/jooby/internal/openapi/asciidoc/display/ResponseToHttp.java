@@ -28,7 +28,7 @@ public record ResponseToHttp(AsciiDocContext context, HttpResponse response) imp
         sb.append(header.getName()).append(": ").append(value).append('\n');
       }
       var schema = response.getBody();
-      if (schema != AsciiDocContext.EMPTY_SCHEMA) {
+      if (schema != null) {
         sb.append(context.getJson().writeValueAsString(context.schemaProperties(schema)))
             .append('\n');
       }
