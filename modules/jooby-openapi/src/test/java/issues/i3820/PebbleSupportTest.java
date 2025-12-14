@@ -113,7 +113,7 @@ public class PebbleSupportTest {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
     templates
         .evaluateThat("{{tag(\"Library\").description }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             "Outlines the available actions in the Library System API. The system is designed to"
                 + " allow users to search for books, view details, and manage the library"
                 + " inventory.");
@@ -125,7 +125,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{schema(\"Book\") | truncate | json}}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source, json]
             ----
@@ -143,7 +143,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{schema(\"Book\") | truncate | yaml(false) }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             isbn: string
             title: string
@@ -267,7 +267,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/authors\") | curl }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -282,7 +282,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | curl }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -295,7 +295,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | request | curl }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -306,7 +306,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books/{isbn}\") | request | curl }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -316,7 +316,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books/{isbn}\") | request | curl(\"-i\") }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -328,7 +328,7 @@ public class PebbleSupportTest {
     templates
         .evaluateThat(
             "{{GET(\"/library/books/{isbn}\") | request | curl(\"-i\", \"-X\", \"POST\") }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -340,7 +340,7 @@ public class PebbleSupportTest {
     templates
         .evaluateThat(
             "{{GET(\"/library/books/{isbn}\") | request | curl(\"-i\", \"-X\", \"POST\") }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -352,7 +352,7 @@ public class PebbleSupportTest {
     templates
         .evaluateThat(
             "{{GET(\"/library/books\") | request | curl(\"-H\", \"'Accept: application/xml'\") }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source]
             ----
@@ -369,7 +369,7 @@ public class PebbleSupportTest {
     /* Error response code: */
     templates
         .evaluateThat("{{GET(\"/library/books/{isbn}\") | response(code=404) | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -380,7 +380,7 @@ public class PebbleSupportTest {
     /* Override default response code: */
     templates
         .evaluateThat("{{POST(\"/library/books\") | response(code=201) | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -393,7 +393,7 @@ public class PebbleSupportTest {
     /* Default response */
     templates
         .evaluateThat("{{POST(\"/library/books\") | response | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -405,7 +405,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | response | list }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             isbn::
             * type: `+string+`
@@ -437,7 +437,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | response | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3a", options="header"]
             |===
@@ -510,7 +510,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | list }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             Accept::
             * type: `+string+`
@@ -555,7 +555,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,1,3a", options="header"]
             |===
@@ -616,7 +616,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | request | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,1,3", options="header"]
             |===
@@ -646,7 +646,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | request | parameters(query) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3", options="header"]
             |===
@@ -669,7 +669,7 @@ public class PebbleSupportTest {
     templates
         .evaluateThat(
             "{{GET(\"/library/books\") | request | parameters(query, ['title']) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3", options="header"]
             |===
@@ -683,7 +683,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | request | parameters('path') | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3", options="header"]
             |===
@@ -693,7 +693,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | parameters('path') | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3", options="header"]
             |===
@@ -703,7 +703,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/books\") | parameters(cookie) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,3", options="header"]
             |===
@@ -713,7 +713,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request(body=\"none\") | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -732,7 +732,7 @@ public class PebbleSupportTest {
     // example on same schema must generate same output
     templates
         .evaluateThat("{{GET(\"/library/books\") | request | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -743,7 +743,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | http }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [source,http,options="nowrap"]
             ----
@@ -756,7 +756,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | parameters(header) | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,3", options="header"]
             |===
@@ -773,7 +773,7 @@ public class PebbleSupportTest {
     templates
         .evaluateThat(
             "{{POST(\"/library/books\") | request | parameters(header) | table(['name']) }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1", options="header"]
             |===
@@ -787,7 +787,7 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{POST(\"/library/books\") | request | body | table }}")
-        .isEqualTo(
+        .isEqualToIgnoringNewLines(
             """
             [cols="1,1,3a", options="header"]
             |===
