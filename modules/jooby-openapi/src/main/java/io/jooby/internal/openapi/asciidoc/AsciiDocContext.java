@@ -41,6 +41,8 @@ import io.pebbletemplates.pebble.loader.FileLoader;
 import io.pebbletemplates.pebble.loader.Loader;
 import io.pebbletemplates.pebble.template.EvaluationContext;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
+import io.swagger.v3.oas.models.media.BooleanSchema;
+import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
 public class AsciiDocContext {
@@ -313,9 +315,24 @@ public class AsciiDocContext {
   public Object schemaProperties(Schema<?> schema) {
     var resolved = resolveSchema(schema);
     if ("array".equals(resolved.getType())) {
+      var items = resolveSchema(resolved.getItems());
+      if (items.getName() == null) {
+        return List.of(basicTypeSample(items));
+      }
       return List.of(traverse(resolved.getItems(), NOOP));
     }
+    if (resolved.getName() == null) {
+      return basicTypeSample(resolved);
+    }
     return traverse(schema, NOOP);
+  }
+
+  private Object basicTypeSample(Schema<?> items) {
+    return switch (items) {
+      case NumberSchema s -> 0;
+      case BooleanSchema s -> true;
+      default -> schemaType(items);
+    };
   }
 
   @SuppressWarnings("rawtypes")
@@ -348,6 +365,7 @@ public class AsciiDocContext {
     var empty = new Schema<>();
     empty.setType(resolved.getType());
     empty.setName(resolved.getName());
+    empty.setTypes(resolved.getTypes());
     return empty;
   }
 

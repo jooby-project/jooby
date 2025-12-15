@@ -18,5 +18,12 @@ public class App3820b extends Jooby {
           List<String> strings = new ArrayList<>();
           return strings;
         });
+
+    get(
+        "/string",
+        ctx -> {
+          String value = "";
+          return value;
+        });
   }
 }

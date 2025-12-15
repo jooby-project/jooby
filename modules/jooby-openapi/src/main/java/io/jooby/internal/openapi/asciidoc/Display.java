@@ -105,19 +105,23 @@ public enum Display implements Filter {
           };
       var asciidoc = AsciiDocContext.from(context);
       var resolved = asciidoc.resolveSchema(schema);
-      var target = resolved;
-      var prefix = "";
-      var suffix = "";
-      if (resolved.getItems() != null) {
-        target = asciidoc.resolveSchema(resolved.getItems());
-        prefix = Optional.ofNullable(resolved.getName()).orElse("") + "[";
-        suffix = "]";
+      if (resolved.getItems() == null) {
+        if (resolved.getName() == null) {
+          return resolved.getType();
+        }
+        return new SafeString("<<" + resolved.getName() + ">>");
+      } else {
+        var item = asciidoc.resolveSchema(resolved.getItems());
+        if (item.getName() == null) {
+          // primitives
+          return new SafeString(item.getType() + "[]");
+        } else {
+          if ("array".equals(resolved.getType())) {
+            return new SafeString("<<" + item.getName() + ">>[]");
+          }
+          return new SafeString(resolved.getName() + "[<<" + item.getName() + ">>]");
+        }
       }
-      if ("object".equals(target.getType())) {
-        return new SafeString(prefix + "<<" + target.getName() + ">>" + suffix);
-      }
-      // no link for basic types
-      return prefix + target.getName() + suffix;
     }
   },
   curl {

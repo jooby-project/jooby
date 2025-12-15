@@ -959,14 +959,34 @@ public class PebbleSupportTest {
 
     templates
         .evaluateThat("{{GET(\"/library/search\") | response | link }}")
-        .isEqualTo("[<<Book>>]");
+        .isEqualTo("<<Book>>[]");
   }
 
   @OpenAPITest(value = App3820b.class)
-  public void linkPrimitives(OpenAPIExt openapi) throws IOException {
+  public void checkPrimitives(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
-    templates.evaluateThat("{{GET(\"/strings\") | response | link }}").isEqualTo("Page[<<Book>>]");
+    templates.evaluateThat("{{GET(\"/strings\") | response | link }}").isEqualTo("string[]");
+
+    templates
+        .evaluateThat("{{GET(\"/strings\") | response | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            [ "string" ]
+            ----\
+            """);
+
+    templates
+        .evaluateThat("{{GET(\"/string\") | response | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            "string"
+            ----\
+            """);
   }
 
   @OpenAPITest(value = AppLib.class)
