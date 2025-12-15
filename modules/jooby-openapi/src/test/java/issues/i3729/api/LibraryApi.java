@@ -20,6 +20,7 @@ import io.jooby.exception.NotFoundException;
  * @tag.description Access to all books.
  */
 @Path("/api/library")
+@Produces("application/json")
 public class LibraryApi {
 
   /**
@@ -40,17 +41,17 @@ public class LibraryApi {
   /**
    * Author by Id.
    *
-   * @param id ID.
+   * @param id Author ID.
    * @return An author
    * @tag Author. Oxxx
    */
-  @GET("/{id}")
+  @GET("/author/{id}")
   public Author author(@PathParam String id) {
     return new Author();
   }
 
   /**
-   * Query books.
+   * Query books. By using advanced filters.
    *
    * @param query Book's param query.
    * @return Matching books.

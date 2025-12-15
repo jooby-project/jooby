@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.openapi.javadoc;
 
-import static io.jooby.internal.openapi.javadoc.JavaDocStream.*;
 import static io.jooby.internal.openapi.javadoc.JavaDocStream.javadocToken;
 
 import java.util.*;
@@ -55,29 +54,8 @@ public class JavaDocNode {
   }
 
   public String getSummary() {
-    var builder = new StringBuilder();
-    for (var node : forward(javadoc, JAVADOC_TAG).toList()) {
-      if (node.getType() == JavadocCommentsTokenTypes.TEXT) {
-        var text = node.getText();
-        var trimmed = text.trim();
-        if (trimmed.isEmpty()) {
-          if (!builder.isEmpty()) {
-            builder.append(text);
-          }
-        } else {
-          builder.append(text);
-        }
-      } else if (node.getType() == JavadocCommentsTokenTypes.NEWLINE && !builder.isEmpty()) {
-        break;
-      }
-      var index = builder.indexOf(".");
-      if (index > 0) {
-        builder.setLength(index + 1);
-        break;
-      }
-    }
-    var string = builder.toString().trim();
-    return string.isEmpty() ? null : string;
+    var summary = ContentSplitter.split(getText()).summary();
+    return summary.isEmpty() ? null : summary;
   }
 
   public List<Tag> getTags() {
@@ -85,12 +63,8 @@ public class JavaDocNode {
   }
 
   public String getDescription() {
-    var text = getText();
-    var summary = getSummary();
-    if (summary == null) {
-      return text;
-    }
-    return summary.equals(text) ? null : text.replaceAll(summary, "").trim();
+    var description = ContentSplitter.split(getText()).description();
+    return description.isEmpty() ? null : description;
   }
 
   public String getText() {
@@ -143,7 +117,12 @@ public class JavaDocNode {
           if (next != null && next.getType() != JavadocCommentsTokenTypes.LEADING_ASTERISK) {
             builder.append(next.getText());
             visited.add(next);
-            //            visited.add(next.getNextSibling());
+          }
+        } else if (node.getType() == JavadocCommentsTokenTypes.TAG_NAME) {
+          // <p>?
+          if (node.getText().equals("p")) {
+            // keep so we can split summary from description
+            builder.append("<p>");
           }
         }
       }

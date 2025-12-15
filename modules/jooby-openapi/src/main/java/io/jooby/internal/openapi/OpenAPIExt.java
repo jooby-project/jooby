@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.Router;
@@ -232,5 +233,19 @@ public class OpenAPIExt extends OpenAPI {
         setter.accept(target, value);
       }
     }
+  }
+
+  public OperationExt findOperation(String method, String pattern) {
+    Predicate<OperationExt> filter = op -> op.getPath().equals(pattern);
+    filter = filter.and(op -> op.getMethod().equals(method));
+    return getOperations().stream()
+        .filter(filter)
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalArgumentException("Operation not found: " + method + " " + pattern));
+  }
+
+  public List<OperationExt> findOperationByTag(String tag) {
+    return getOperations().stream().filter(it -> it.isOnTag(tag)).toList();
   }
 }

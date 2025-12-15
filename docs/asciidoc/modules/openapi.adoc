@@ -30,6 +30,12 @@ This library supports:
         <goals>
           <goal>openapi</goal>
         </goals>
+        <configuration>
+          <specVersion>...</specVersion>
+          <adoc>
+            <file>...</file>
+          </adoc>
+        </configuration>
       </execution>
     </executions>
   </plugin>
@@ -193,7 +199,9 @@ class Pets {
 The Maven plugin and Gradle task provide two filter properties `includes` and `excludes`. These
 properties filter routes by their path pattern. The filter is a regular expression.
 
-=== JavaDoc comments
+=== Documenting your API
+
+==== JavaDoc comments
 
 JavaDoc comments are supported on Java in script and MVC routes.
 
@@ -384,6 +392,49 @@ Whitespaces (including new lines) are ignored. To introduce a new line, you must
 |
 |
 
+|@securityScheme.name
+|[x]
+|
+|
+|
+
+|@securityScheme.in
+|[x]
+|
+|
+|
+
+|@securityScheme.paramName
+|[x]
+|
+|
+|
+
+|@securityScheme.flows.implicit.authorizationUrl
+|[x]
+|
+|
+|
+
+|@securityScheme.flows.implicit.scopes.name
+|[x]
+|
+|
+|
+
+|@securityScheme.flows.implicit.scopes.description
+|[x]
+|
+|
+|
+
+|@securityRequirement
+|
+|[x]
+|[x]
+|Name of the `securityScheme` and optionally scopes. Example: `myOauth2Security read:pets`
+
+ 
 |@server.description
 |[x]
 |
@@ -443,7 +494,56 @@ Whitespaces (including new lines) are ignored. To introduce a new line, you must
 This feature is only available for Java routes. Kotlin source code is not supported.
 
 
-=== Annotations
+==== Documentation Template
+
+The OpenAPI output generates some default values for `info` and `server` section. It generates
+the necessary to follow the specification and produces a valid output. These sections can be override
+with better information/metadata.
+
+To do so just write an `openapi.yaml` file inside the `conf` directory to use it as template.
+
+.conf/openapi.yaml
+[source, yaml]
+----
+openapi: 3.0.1
+info:
+  title: My Super API
+  description: |
+    Nunc commodo ipsum vitae dignissim congue. Quisque convallis malesuada tortor, non
+    lacinia quam malesuada id. Curabitur nisi mi, lobortis non tempus vel, vestibulum et neque.
+
+    ...
+  version: "1.0"
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  paths:
+    /api/pets:
+      get:
+        operationId: listPets
+        description: List and sort pets.
+        parameters:
+          name: page
+            descripton: Page number.
+          
+----
+
+All sections from template file are merged into the final output.
+
+The extension property: `x-merge-policy` controls how merge must be done:
+
+- ignore: Silently ignore a path or operation present in template but not found in generated output. This is the default value.
+- keep: Add a path or operation to final output. Must be valid path or operation.
+- fail: Throw an error when path or operation is present in template but not found in generated output.
+
+The extension property can be added at root/global level, paths, pathItem, operation or parameter level.
+
+[NOTE]
+====
+Keep in mind that any section found here in the template overrides existing metadata.
+====
+
+=== Swagger Annotations
 
 Optionally this plugin depends on some OpenAPI annotations. To use them, you need to add a dependency to your project:
 
@@ -679,56 +779,11 @@ You need the `ApiResponse` annotation:
 })
 ----
 
-=== Documentation Template
+=== Output/Display
 
-The OpenAPI output generates some default values for `info` and `server` section. It generates
-the necessary to follow the specification and produces a valid output. These sections can be override
-with better information/metadata.
+include::modules/openapi-ascii.adoc[]
 
-To do so just write an `openapi.yaml` file inside the `conf` directory to use it as template.
-
-.conf/openapi.yaml
-[source, yaml]
-----
-openapi: 3.0.1
-info:
-  title: My Super API
-  description: |
-    Nunc commodo ipsum vitae dignissim congue. Quisque convallis malesuada tortor, non
-    lacinia quam malesuada id. Curabitur nisi mi, lobortis non tempus vel, vestibulum et neque.
-
-    ...
-  version: "1.0"
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  paths:
-    /api/pets:
-      get:
-        operationId: listPets
-        description: List and sort pets.
-        parameters:
-          name: page
-            descripton: Page number.
-          
-----
-
-All sections from template file are merged into the final output.
-
-The extension property: `x-merge-policy` controls how merge must be done:
-
-- ignore: Silently ignore a path or operation present in template but not found in generated output. This is the default value.
-- keep: Add a path or operation to final output. Must be valid path or operation.
-- fail: Throw an error when path or operation is present in template but not found in generated output.
-
-The extension property can be added at root/global level, paths, pathItem, operation or parameter level.
-
-[NOTE]
-====
-Keep in mind that any section found here in the template overrides existing metadata.
-====
-
-=== Swagger UI
+==== Swagger UI
 
 To use swagger-ui just add the dependency to your project:
 
@@ -737,7 +792,7 @@ To use swagger-ui just add the dependency to your project:
 
 The swagger-ui application will be available at `/swagger`. To modify the default path, just call javadoc:OpenAPIModule[swaggerUI, java.lang.String]
 
-=== Redoc
+==== Redoc
 
 To use redoc just add the dependency to your project:
 

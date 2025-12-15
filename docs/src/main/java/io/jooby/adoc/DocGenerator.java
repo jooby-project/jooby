@@ -87,29 +87,29 @@ public class DocGenerator {
       pb.step();
 
       if (doAscii) {
-        Asciidoctor asciidoctor = Asciidoctor.Factory.create();
+        try (var asciidoctor = Asciidoctor.Factory.create()) {
+          asciidoctor.convertFile(
+              asciidoc.resolve("index.adoc").toFile(),
+              createOptions(asciidoc, outdir, version, null, asciidoc.resolve("index.adoc")));
+          var index = outdir.resolve("index.html");
+          Files.writeString(index, hljs(Files.readString(index)));
+          pb.step();
 
-        asciidoctor.convertFile(
-            asciidoc.resolve("index.adoc").toFile(),
-            createOptions(asciidoc, outdir, version, null, asciidoc.resolve("index.adoc")));
-        var index = outdir.resolve("index.html");
-        Files.writeString(index, hljs(Files.readString(index)));
-        pb.step();
-
-        Stream.of(treeDirs)
-            .forEach(
-                throwingConsumer(
-                    name -> {
-                      Path modules = outdir.resolve(name);
-                      Files.createDirectories(modules);
-                      Files.walk(asciidoc.resolve(name))
-                          .filter(Files::isRegularFile)
-                          .forEach(
-                              module -> {
-                                processModule(asciidoctor, asciidoc, module, outdir, name, version);
-                                pb.step();
-                              });
-                    }));
+          Stream.of(treeDirs)
+              .forEach(
+                  throwingConsumer(
+                      name -> {
+                        Path modules = outdir.resolve(name);
+                        Files.createDirectories(modules);
+                        Files.walk(asciidoc.resolve(name))
+                            .filter(Files::isRegularFile)
+                            .forEach(
+                                module -> {
+                                  processModule(asciidoctor, asciidoc, module, outdir, name, version);
+                                  pb.step();
+                                });
+                      }));
+        }
       }
 
       // LICENSE
@@ -280,7 +280,7 @@ public class DocGenerator {
     attributes.attribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
 
     OptionsBuilder options = Options.builder();
-    options.backend("html");
+    options.backend("html5");
 
     options.attributes(attributes.build());
     options.baseDir(basedir.toAbsolutePath().toFile());

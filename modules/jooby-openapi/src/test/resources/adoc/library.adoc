@@ -1,0 +1,46 @@
+= {{ info.title }}
+Jooby Doc;
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+== Introduction
+
+{{ info.description }}
+
+== Support
+
+Write your questions at {{ info.contact.email }}
+
+[[overview_operations]]
+== Operations
+
+=== List Books
+{% set listBooks = operation("GET", "/api/library") %}
+{{ listBooks.summary }} {{ listBooks.description }}
+
+Example: `{{ listBooks | path(title="...") }}`
+
+==== Request Fields
+
+{{ listBooks | parameters(query) | table }}
+
+=== Find a book by ISBN
+{% set bookByISBN = operation("GET", "/api/library/{isbn}") %}
+{{ bookByISBN | curl("-i") }}
+
+.{{ bookByISBN | response(200) }}
+{{ bookByISBN | response(200) | body | json }}
+
+.{{ bookByISBN | response(400) }}
+{{ bookByISBN | response(400) | body | json }}
+
+.{{ bookByISBN | response(404) }}
+{{ bookByISBN | response(404) | body | json }}
+
+==== Response Fields
+
+{{ bookByISBN | response | table  }}

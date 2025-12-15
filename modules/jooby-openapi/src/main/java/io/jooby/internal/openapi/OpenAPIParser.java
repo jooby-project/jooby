@@ -604,7 +604,7 @@ public class OpenAPIParser {
 
             String name = stringValue(value, "name");
             stringValue(value, "description", header::setDescription);
-            io.swagger.v3.oas.models.media.Schema schema =
+            var schema =
                 annotationValue(value, "schema")
                     .map(schemaMap -> toSchema(ctx, schemaMap).orElseGet(StringSchema::new))
                     .orElseGet(StringSchema::new);

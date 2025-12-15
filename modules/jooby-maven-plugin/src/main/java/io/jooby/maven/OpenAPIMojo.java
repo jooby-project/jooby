@@ -5,12 +5,15 @@
  */
 package io.jooby.maven;
 
+import static java.util.Optional.ofNullable;
 import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSES;
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.maven.plugins.annotations.Mojo;
@@ -20,7 +23,6 @@ import org.apache.maven.project.MavenProject;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.openapi.OpenAPIGenerator;
-import io.swagger.v3.oas.models.OpenAPI;
 
 /**
  * Generate an OpenAPI file from a jooby application.
@@ -46,6 +48,8 @@ public class OpenAPIMojo extends BaseMojo {
 
   @Parameter(property = "openAPI.specVersion")
   private String specVersion;
+
+  @Parameter private List<File> adoc;
 
   @Override
   protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
@@ -73,16 +77,17 @@ public class OpenAPIMojo extends BaseMojo {
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
 
-    OpenAPI result = tool.generate(mainClass);
+    var result = tool.generate(mainClass);
 
-    for (OpenAPIGenerator.Format format : OpenAPIGenerator.Format.values()) {
-      Path output = tool.export(result, format);
-      getLog().info("  writing: " + output);
+    var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
+    for (var format : OpenAPIGenerator.Format.values()) {
+      tool.export(result, format, Map.of("adoc", adocPath))
+          .forEach(output -> getLog().info("  writing: " + output));
     }
   }
 
   private Optional<String> trim(String value) {
-    if (value == null || value.trim().length() == 0) {
+    if (value == null || value.trim().isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(value.trim());
@@ -130,5 +135,13 @@ public class OpenAPIMojo extends BaseMojo {
 
   public void setSpecVersion(String specVersion) {
     this.specVersion = specVersion;
+  }
+
+  public List<File> getAdoc() {
+    return adoc;
+  }
+
+  public void setAdoc(List<File> adoc) {
+    this.adoc = adoc;
   }
 }

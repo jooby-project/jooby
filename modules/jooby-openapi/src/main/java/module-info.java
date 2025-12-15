@@ -17,4 +17,16 @@ module io.jooby.openapi {
   requires org.objectweb.asm;
   requires org.objectweb.asm.tree;
   requires org.objectweb.asm.util;
+  requires io.pebbletemplates;
+  requires jdk.jshell;
+  requires com.google.common;
+  requires org.checkerframework.checker.qual;
+  requires org.asciidoctor.asciidoctorj.api;
+  requires jakarta.data;
+  requires io.swagger.annotations;
+  requires org.jruby;
+  requires net.datafaker;
+  requires com.fasterxml.jackson.dataformat.yaml;
+  requires io.swagger.models;
+  requires com.fasterxml.jackson.annotation;
 }

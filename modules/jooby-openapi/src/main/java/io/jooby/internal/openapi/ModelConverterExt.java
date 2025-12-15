@@ -11,10 +11,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.FileUpload;
-import io.jooby.Jooby;
-import io.jooby.Router;
-import io.jooby.ServiceRegistry;
+import io.jooby.*;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;

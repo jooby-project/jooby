@@ -88,6 +88,16 @@ public class ClassDoc extends JavaDocNode {
     return text;
   }
 
+  public String getEnumItemDescription(String name) {
+    if (isEnum()) {
+      var field = fields.get(name);
+      if (field != null) {
+        return field.getText();
+      }
+    }
+    return null;
+  }
+
   private void defaultRecordMembers() {
     JavaDocTag.javaDocTag(
         javadoc,

@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
+import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -47,7 +48,10 @@ public class OpenAPIGenerator {
     /** JSON. */
     JSON {
       @Override
-      public String toString(OpenAPIGenerator tool, OpenAPI result) {
+      @NonNull protected String toString(
+          @NonNull OpenAPIGenerator tool,
+          @NonNull OpenAPI result,
+          @NonNull Map<String, Object> options) {
         return tool.toJson(result);
       }
     },
@@ -55,8 +59,48 @@ public class OpenAPIGenerator {
     /** YAML. */
     YAML {
       @Override
-      public String toString(OpenAPIGenerator tool, OpenAPI result) {
+      @NonNull protected String toString(
+          @NonNull OpenAPIGenerator tool,
+          @NonNull OpenAPI result,
+          @NonNull Map<String, Object> options) {
         return tool.toYaml(result);
+      }
+    },
+
+    ADOC {
+      @Override
+      @NonNull protected String toString(
+          @NonNull OpenAPIGenerator tool,
+          @NonNull OpenAPI result,
+          @NonNull Map<String, Object> options) {
+        return tool.toAdoc(result, options);
+      }
+
+      @SuppressWarnings("unchecked")
+      @NonNull @Override
+      public List<Path> write(
+          @NonNull OpenAPIGenerator tool,
+          @NonNull OpenAPI result,
+          @NonNull Map<String, Object> options)
+          throws IOException {
+        var files = (List<Path>) options.get("adoc");
+        if (files == null || files.isEmpty()) {
+          // adoc generation is optional
+          return List.of();
+        }
+        var outputDir = (Path) options.get("outputDir");
+        var outputList = new ArrayList<Path>();
+        var context = tool.createAsciidoc(files.getFirst().getParent(), (OpenAPIExt) result);
+        for (var file : files) {
+          var opts = new HashMap<>(options);
+          opts.put("adoc", file);
+          var content = toString(tool, result, opts);
+          var output = outputDir.resolve(file.getFileName());
+          Files.write(output, List.of(content));
+          context.export(output, outputDir);
+          outputList.add(output);
+        }
+        return outputList;
       }
     };
 
@@ -76,8 +120,28 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    public abstract @NonNull String toString(
-        @NonNull OpenAPIGenerator tool, @NonNull OpenAPI result);
+    protected abstract @NonNull String toString(
+        @NonNull OpenAPIGenerator tool,
+        @NonNull OpenAPI result,
+        @NonNull Map<String, Object> options);
+
+    /**
+     * Convert an {@link OpenAPI} model to the current format.
+     *
+     * @param tool Generator.
+     * @param result Model.
+     * @return String (json or yaml content).
+     */
+    public @NonNull List<Path> write(
+        @NonNull OpenAPIGenerator tool,
+        @NonNull OpenAPI result,
+        @NonNull Map<String, Object> options)
+        throws IOException {
+      var output = (Path) options.get("output");
+      var content = toString(tool, result, options);
+      Files.write(output, List.of(content));
+      return List.of(output);
+    }
   }
 
   private Logger log = LoggerFactory.getLogger(getClass());
@@ -100,6 +164,8 @@ public class OpenAPIGenerator {
 
   private SpecVersion specVersion = SpecVersion.V30;
 
+  private AsciiDocContext asciidoc;
+
   /** Default constructor. */
   public OpenAPIGenerator() {}
 
@@ -111,29 +177,31 @@ public class OpenAPIGenerator {
    * @return Output file.
    * @throws IOException If fails to process input.
    */
-  public @NonNull Path export(@NonNull OpenAPI openAPI, @NonNull Format format) throws IOException {
+  public @NonNull List<Path> export(
+      @NonNull OpenAPI openAPI, @NonNull Format format, @NonNull Map<String, Object> options)
+      throws IOException {
     Path output;
     if (openAPI instanceof OpenAPIExt) {
-      String source = ((OpenAPIExt) openAPI).getSource();
-      String[] names = source.split("\\.");
+      var source = ((OpenAPIExt) openAPI).getSource();
+      var names = source.split("\\.");
       output =
           Stream.of(names).limit(names.length - 1).reduce(outputDir, Path::resolve, Path::resolve);
-      String appname = names[names.length - 1];
+      var appname = names[names.length - 1];
       if (appname.endsWith("Kt")) {
         appname = appname.substring(0, appname.length() - 2);
       }
       output = output.resolve(appname + "." + format.extension());
     } else {
-      output = outputDir.resolve("openapi." + format.extension());
+      throw new ClassCastException(openAPI.getClass() + " is not a " + OpenAPIExt.class);
     }
 
     if (!Files.exists(output.getParent())) {
       Files.createDirectories(output.getParent());
     }
-
-    String content = format.toString(this, openAPI);
-    Files.write(output, Collections.singleton(content));
-    return output;
+    var allOptions = new HashMap<>(options);
+    allOptions.put("output", output);
+    allOptions.put("outputDir", output.getParent());
+    return format.write(this, openAPI, allOptions);
   }
 
   /**
@@ -177,6 +245,7 @@ public class OpenAPIGenerator {
                 doc.getServers().forEach(openapi::addServersItem);
                 doc.getContact().forEach(info::setContact);
                 doc.getLicense().forEach(info::setLicense);
+                doc.getTags().forEach(openapi::addTagsItem);
               });
     }
 
@@ -201,7 +270,7 @@ public class OpenAPIGenerator {
     Map<String, Tag> globalTags = new LinkedHashMap<>();
     Paths paths = new Paths();
     for (OperationExt operation : operations) {
-      String pattern = operation.getPattern();
+      String pattern = operation.getPath();
       if (!includes(pattern) || excludes(pattern)) {
         log.debug("skipping {}", pattern);
         continue;
@@ -311,6 +380,24 @@ public class OpenAPIGenerator {
   }
 
   /**
+   * Generates an adoc version of the given model.
+   *
+   * @param openAPI Model.
+   * @return YAML content.
+   */
+  public @NonNull String toAdoc(@NonNull OpenAPI openAPI, @NonNull Map<String, Object> options) {
+    try {
+      var file = (Path) options.get("adoc");
+      if (file == null) {
+        throw new IllegalArgumentException("'adoc' file is required: " + options);
+      }
+      return createAsciidoc(file.getParent(), (OpenAPIExt) openAPI).generate(file);
+    } catch (IOException x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  /**
    * Generates a JSON version of the given model.
    *
    * @param openAPI Model.
@@ -391,7 +478,7 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set output directory used by {@link #export(OpenAPI, Format)} operation.
+   * Set output directory used by {@link #export(OpenAPI, Format, Map)} operation.
    *
    * <p>Defaults to {@link #getBasedir()}.
    *
@@ -438,7 +525,7 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set output directory used by {@link #export(OpenAPI, Format)}.
+   * Set output directory used by {@link #export(OpenAPI, Format, Map)}.
    *
    * @param outputDir Output directory.
    */
@@ -451,7 +538,7 @@ public class OpenAPIGenerator {
    *
    * @param specVersion One of <code>3.0</code> or <code>3.1</code>.
    */
-  public void setSpecVersion(SpecVersion specVersion) {
+  private void setSpecVersion(SpecVersion specVersion) {
     this.specVersion = specVersion;
   }
 
@@ -461,17 +548,21 @@ public class OpenAPIGenerator {
    * @param version One of <code>3.0</code> or <code>3.1</code>.
    */
   public void setSpecVersion(String version) {
-    if (specVersion != null) {
-      switch (version) {
-        case "v3.1", "v3.1.0", "3.1", "3.1.0":
-          setSpecVersion(SpecVersion.V31);
-        case "v3.0", "v3.0.0", "3.0", "3.0.0", "v3.0.1", "3.0.1":
-          setSpecVersion(SpecVersion.V30);
-        default:
-          throw new IllegalArgumentException(
-              "Invalid spec version: " + version + ". Supported version: [3.0.1, 3.1.0]");
-      }
+    switch (version) {
+      case "v3.1", "v3.1.0", "3.1", "3.1.0", "V31":
+        setSpecVersion(SpecVersion.V31);
+        break;
+      case "v3.0", "v3.0.0", "3.0", "3.0.0", "v3.0.1", "3.0.1", "V30":
+        setSpecVersion(SpecVersion.V30);
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "Invalid spec version: " + version + ". Supported version: [3.0.1, 3.1.0]");
     }
+  }
+
+  protected AsciiDocContext createAsciidoc(Path basedir, OpenAPIExt openapi) {
+    return new AsciiDocContext(basedir, jsonMapper(), yamlMapper(), openapi);
   }
 
   private String appname(String classname) {

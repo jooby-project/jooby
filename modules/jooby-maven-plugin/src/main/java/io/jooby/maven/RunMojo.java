@@ -24,6 +24,8 @@ import org.apache.maven.plugins.annotations.Execute;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.jooby.run.JoobyRun;
 import io.jooby.run.JoobyRunOptions;
@@ -42,8 +44,10 @@ import io.jooby.run.JoobyRunOptions;
 @Execute(phase = PROCESS_CLASSES)
 public class RunMojo extends BaseMojo {
 
+  private static final Logger log = LoggerFactory.getLogger(RunMojo.class);
+
   static {
-    /** Turn off shutdown hook on Server. */
+    /* Turn off shutdown hook on Server. */
     System.setProperty("jooby.useShutdownHook", "false");
   }
 
@@ -97,7 +101,13 @@ public class RunMojo extends BaseMojo {
                   var error = result.hasExceptions();
                   // Success?
                   if (error) {
-                    getLog().debug("Compilation error found: " + path);
+                    var filename = path.getFileName().toFile().toString();
+                    var isSource = filename.endsWith(".java") || filename.endsWith(".kt");
+                    for (Throwable exception : result.getExceptions()) {
+                      if (!isSource) {
+                        getLog().error(exception);
+                      }
+                    }
                   }
                   return !error;
                 });
@@ -213,8 +223,7 @@ public class RunMojo extends BaseMojo {
    * @return Request.
    */
   private MavenExecutionRequest mavenRequest(String goal) {
-    return DefaultMavenExecutionRequest.copy(session.getRequest())
-        .setGoals(Collections.singletonList(goal));
+    return DefaultMavenExecutionRequest.copy(session.getRequest()).setGoals(List.of(goal));
   }
 
   private Set<Path> sourceDirectories(MavenProject project, boolean useTestScope) {

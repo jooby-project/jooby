@@ -5,6 +5,8 @@
  */
 package issues.i3729.api;
 
+import java.util.List;
+
 /**
  * Query books by complex filters.
  *
@@ -12,4 +14,4 @@ package issues.i3729.api;
  * @param author Book's author. Optional.
  * @param isbn Book's isbn. Optional.
  */
-public record BookQuery(String title, String author, String isbn) {}
+public record BookQuery(String title, String author, List<String> isbn) {}

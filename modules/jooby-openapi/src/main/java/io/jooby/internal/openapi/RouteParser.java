@@ -63,7 +63,6 @@ public class RouteParser {
     String applicationName =
         Optional.ofNullable(ctx.getMainClass()).orElse(ctx.getRouter().getClassName());
     ClassNode application = ctx.classNode(Type.getObjectType(applicationName.replace(".", "/")));
-
     // JavaDoc
     addJavaDoc(ctx, ctx.getRouter().getClassName(), "", operations);
 
@@ -75,7 +74,7 @@ public class RouteParser {
 
     List<OperationExt> result = new ArrayList<>();
     for (OperationExt operation : operations) {
-      List<String> patterns = Router.expandOptionalVariables(operation.getPattern());
+      List<String> patterns = Router.expandOptionalVariables(operation.getPath());
       if (patterns.size() == 1) {
         result.add(operation);
       } else {
@@ -112,8 +111,7 @@ public class RouteParser {
       if (operation.getController() == null) {
         javaDoc
             .flatMap(
-                doc ->
-                    doc.getScript(operation.getMethod(), operation.getPattern().substring(offset)))
+                doc -> doc.getScript(operation.getMethod(), operation.getPath().substring(offset)))
             .ifPresent(
                 scriptDoc -> {
                   if (scriptDoc.getPath() != null) {
@@ -164,12 +162,11 @@ public class RouteParser {
     if (requestBody != null) {
       if (requestBody.getContent() == null) {
         // default content
-        io.swagger.v3.oas.models.media.MediaType mediaType =
-            new io.swagger.v3.oas.models.media.MediaType();
+        var mediaType = new io.swagger.v3.oas.models.media.MediaType();
         mediaType.setSchema(ctx.schema(requestBody.getJavaType()));
         String mediaTypeName =
             operation.getConsumes().stream().findFirst().orElseGet(requestBody::getContentType);
-        Content content = new Content();
+        var content = new Content();
         content.addMediaType(mediaTypeName, mediaType);
         requestBody.setContent(content);
       }
@@ -250,8 +247,7 @@ public class RouteParser {
   private String operationId(OperationExt operation) {
     return Optional.ofNullable(operation.getOperationId())
         .orElseGet(
-            () ->
-                operation.getMethod().toLowerCase() + patternToOperationId(operation.getPattern()));
+            () -> operation.getMethod().toLowerCase() + patternToOperationId(operation.getPath()));
   }
 
   private String patternToOperationId(String pattern) {

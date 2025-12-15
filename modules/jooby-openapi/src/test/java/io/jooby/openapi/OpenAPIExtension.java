@@ -26,7 +26,9 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
       ParameterContext parameterContext, ExtensionContext extensionContext)
       throws ParameterResolutionException {
     Parameter parameter = parameterContext.getParameter();
-    return parameter.getType() == RouteIterator.class || parameter.getType() == OpenAPIResult.class;
+    return parameter.getType() == RouteIterator.class
+        || parameter.getType() == OpenAPIResult.class
+        || parameter.getType() == OpenAPIExt.class;
   }
 
   @Override
@@ -43,7 +45,7 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
             : EnumSet.copyOf(Arrays.asList(metadata.debug()));
 
     OpenAPIGenerator tool = newTool(debugOptions);
-    tool.setSpecVersion(metadata.version());
+    tool.setSpecVersion(metadata.version().name());
     String templateName = metadata.templateName();
     if (templateName.isEmpty()) {
       templateName = classname.replace(".", "/").toLowerCase() + ".yaml";
@@ -65,6 +67,9 @@ public class OpenAPIExtension implements ParameterResolver, AfterEachCallback {
     }
     if (parameter.getType() == OpenAPIResult.class) {
       return result;
+    }
+    if (parameter.getType() == OpenAPIExt.class) {
+      return result.getOpenAPI();
     }
     RouteIterator iterator = result.iterator(metadata.ignoreArguments());
     getStore(context).put("iterator", iterator);
