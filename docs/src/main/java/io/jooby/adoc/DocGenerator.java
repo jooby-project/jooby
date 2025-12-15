@@ -242,7 +242,6 @@ public class DocGenerator {
     var attributes = Attributes.builder();
 
     attributes.attribute("docfile", docfile.toString());
-    attributes.attribute("stylesheet", "js/styles/site.css");
     attributes.attribute("love", "&#9825;");
     attributes.attribute("docinfo", "shared");
     attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);

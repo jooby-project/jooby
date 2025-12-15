@@ -1,0 +1,445 @@
+==== Ascii Doc
+
+===== Setup
+
+1) create your template: `doc/library.adoc`
+
+[source, asciidoc]
+----
+= 📚 {{info.title}} Guide
+:source-highlighter: highlightjs
+
+{{ info.description }}
+
+== Base URL
+
+All requests start with: `{{ server(0).url }}/library`
+
+===  Summary
+
+{{ routes | table(grid="rows") }}
+----
+
+2) add to build process
+
+.pom.xml
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+...
+<plugins>
+  ...
+  <plugin>
+    <groupId>io.jooby</groupId>
+    <artifactId>jooby-maven-plugin</artifactId>
+    <version>{joobyVersion}</version>
+    <executions>
+      <execution>
+        <goals>
+          <goal>openapi</goal>
+        </goals>
+        <configuration>
+          <adoc>
+            <file>doc/library.adoc</file>
+          </adoc>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+</plugins>
+----
+
+.build.gradle
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+openAPI {
+  adoc = ["doc/library.adoc"]
+}
+----
+
+3) The output directory will have two files:
+  - library.adoc (final asciidoctor file)
+  - library.html (asciidoctor output)
+
+===== 1. Overview
+The **Jooby OpenAPI Template Engine** is a tool designed to generate comprehensive **AsciiDoc (`.adoc`)** documentation directly from your Jooby application's OpenAPI model.
+
+It uses https://pebbletemplates.io[pebble] as a pre-processor to automate redundant tasks. Instead of manually writing repetitive documentation for every endpoint, you write a single template that pulls live data from your code (routes, schemas, javadoc).
+
+====== Pebble Syntax Primer
+You mix standard AsciiDoc text with Pebble logic.
+
+* **`{{ expression }}`**: **Output.** Use this to print values to the file.
++
+_Example:_ `{{ info.title }}` prints the API title.
+
+* **`{% tag %}`**: **Logic.** Use this for control flow (loops, variables, if/else) without printing output.
++
+_Example:_ `{% for route in routes %} ... {% endfor %}` loops through your API routes.
+
+---
+
+===== 2. The Pipeline Concept
+
+Data generation follows a flexible pipeline architecture. You start with a source and can optionally transform it before rendering.
+
+[source, subs="verbatim,quotes"]
+----
+{{ *Source* | [*Mutator*] | *Display* }}
+----
+
+. **Source**: Finds an object in the OpenAPI model (e.g., a route or schema).
+. **Mutator** _(Optional)_: Transforms or filters the data (e.g., extracting just the body, or filtering parameters).
+. **Display**: Renders the final output (e.g., as JSON, a Table, or a cURL command).
+
+====== Examples
+* **Simple:** Source -> Display
++
+`{{ info.description }}`
+
+* **Chained:** Source -> Mutator -> Display
++
+`{{ GET("/users") | request | body | example | json }}`
+
+---
+
+===== 3. Data Sources (Lookups)
+These functions are your entry points to locate objects within the OpenAPI definition.
+
+[cols="2m,3,3"]
+|===
+|Function |Description |Example
+
+|operation(method, path)
+|Generic lookup for an API operation.
+|`{{ operation("GET", "/books") }}`
+
+|GET(path)
+|Shorthand for `operation("GET", path)`.
+|`{{ GET("/books") }}`
+
+|POST(path)
+|Shorthand for `operation("POST", path)`.
+|`{{ POST("/books") }}`
+
+|PUT / PATCH / DELETE
+|Shorthand for respective HTTP methods.
+|`{{ DELETE("/books/{id}") }}`
+
+|schema(name)
+|Looks up a Schema/Model definition by name.
+|`{{ schema("User") }}`
+
+|tag(name)
+|Selects a specific Tag group (containing name, description, and routes).
+|`{{ tag("Inventory") }}`
+
+|routes()
+|Returns a collection of all available routes in the API.
+|`{% for r in routes() %}...{% endfor %}`
+
+|server(index)
+|Selects a server definition from the OpenAPI spec by index.
+|`{{ server(0).url }}`
+
+|error(code)
+|Generates an error response object. +
+**Default:** `{statusCode, reason, message}`. +
+**Custom:** Looks for a global `error` variable map and interpolates values.
+|`{{ error(404) }}`
+
+|statusCode(input)
+|Generates status code descriptions. Accepts: +
+1. **Int:** Default reason. +
+2. **List:** `[200, 404]` +
+3. **Map:** `{200: "OK", 400: "Bad Syntax"}` (Overrides defaults).
+|`{{ statusCode(200) }}`
+
+`{{ statusCode([200, 400]) }}`
+
+`{{ statusCode( {200: "OK", 400: "Bad Syntax"} ) }}`
+
+|===
+
+---
+
+===== 4. Mutators (Transformers)
+Mutators modify the data stream. They are optional but powerful for drilling down into specific parts of an object.
+
+[cols="1m,2,2"]
+|===
+|Filter |Description |Input Context
+
+|request
+|Extracts the Request component from an operation.
+|Operation
+
+|response(code)
+|Extracts a specific Response component. +
+**Default:** `200` (OK).
+|Operation
+
+|body
+|Extracts the Body payload definition.
+|Operation / Request / Response
+
+|form
+|Extracts form-data parameters specifically.
+|Operation / Request
+
+|parameters(type)
+|Extracts parameters. +
+**Default:** Returns all parameters. +
+**Filter Arguments:** `query`, `header`, `path`, `cookie`.
+|Operation / Request
+
+|example
+|Populates a Schema with example data.
+|Schema / Body
+
+|truncate
+|Takes a complex Schema and returns a new Schema containing **only direct fields**. Removes nested objects and deep relationships.
+|Schema / Body
+|===
+
+---
+
+===== 5. Display (Renderers)
+The final step in the chain. These filters determine how the data is written to the AsciiDoc file.
+
+[cols="1m,3"]
+|===
+|Filter |Description
+
+|curl
+|Generates a ready-to-use **cURL** command. +
+Includes method, headers, and body.
+
+|http
+|Renders the raw **HTTP** Request/Response wire format. +
+(Status line, Headers, Body).
+
+|path(params...)
+|Renders the full relative URI. +
+**Arguments:** Pass `key=value` pairs to override path variables or query parameters in the output. +
+_Example:_ `path(id=123, sort="asc")`
+
+|json
+|Renders the input object as a formatted JSON block.
+
+|yaml
+|Renders the input object as a YAML block.
+
+|table
+|Renders a standard AsciiDoc/Markdown table. +
+Great for lists of parameters or schema fields.
+
+|list
+|Renders a simple bulleted list. +
+Used mostly for Status Codes or Enums.
+
+|link
+|Renders an ascii doc on schema. +
+Only for Schemas.
+
+|===
+
+---
+
+===== 6. Common Recipes
+
+====== A. Documenting a Route (The "Standard" Block)
+Use this pattern to document a specific endpoint, separating path parameters from query parameters.
+
+[source, asciidoc]
+----
+// 1. Define the route
+{% set route = GET("/library/books/{isbn}") %}
+
+=== {{ route.summary }}
+
+{{ route.description }}
+
+// 2. Render Path Params
+.Path Parameters
+{{ route | parameters(path) | table }}
+
+// 3. Render Query Params
+.Query Parameters
+{{ route | parameters(query) | table }}
+
+// 4. Render Response + example
+.Response
+{{ route | response | body | example | json }}
+
+// 5. Render Response and Override Status Code
+.Created(201) Response
+{{ route | response(201) | http }}
+
+// 6. Render Response 400
+.Bad Request Response
+{{ route | response(400) | http }}
+
+{{ route | response(400) | json }}
+----
+
+====== B. The "Try It" Button (cURL)
+Provide a copy-paste command for developers.
+
+[source]
+----
+{{ POST("/items") | curl }}
+----
+
+.Passing curl options
+[source]
+----
+{{ POST("/items") | curl("-i", "-H", "'Accept: application/xml'") }}
+----
+
+.Generate a bash source
+[source, bash]
+----
+{{ POST("/items") | curl(language="bash") }}
+----
+
+====== C. Simulating specific scenarios
+Use the `path` filter to inject specific values into the URL, making the documentation more realistic.
+
+[source, pebble]
+----
+// Scenario: Searching for Sci-Fi books on page 2
+GET {{ GET("/search") | path(q="Sci-Fi", page=2) }}
+----
+
+_Output:_ `GET /search?q=Sci-Fi&page=2`
+
+====== D. Simplifying Complex Objects
+If your database entities have deep nesting (e.g., Book -> Author -> Address -> Country), use `truncate` to show a summary view.
+
+[source, pebble]
+----
+// Full Graph (Huge JSON)
+{{ schema("Book") | example | json }}
+
+// Summary (Flat JSON)
+{{ schema("Book") | truncate | example | json }}
+----
+
+====== E. Error Response Reference
+You can generate error examples using the standard format or a custom structure.
+
+**1. Default Structure**
+Generates a JSON with `statusCode`, `reason`, and `message`.
+
+[source, pebble]
+----
+.404 Not Found
+{{ error(404) | json }}
+----
+
+**2. Custom Error Structure**
+Define a variable named `error` with a map containing your fields. Use `{{code}}`, `{{message}}`, and `{{reason}}` placeholders which the engine will automatically populate.
+
+[source, pebble]
+----
+// Define the custom error shape once
+{%- set error = {
+    "code": "{{code}}",
+    "message": "{{message}}",
+    "reason": "{{reason}}",
+    "timestamp": "2025-01-01T12:00:00Z",
+    "support": "help@example.com"
+} -%}
+
+// Now generate the error. It will use the map above.
+.400 Bad Request
+{{ error(400) | json }}
+----
+
+_Output:_
+[source, json]
+----
+{
+  "code": 400,
+  "message": "Bad Request",
+  "reason": "Bad Request",
+  "timestamp": "2025-01-01T12:00:00Z",
+  "support": "help@example.com"
+}
+----
+
+====== F. Dynamic Tag Loop
+Automatically document your API by iterating over tags defined in Java.
+
+[source, pebble]
+----
+{% for tag in tags %}
+== {{ tag.name }}
+  {% for route in tag.routes %}
+  === {{ route.summary }}
+  {{ route.method }} {{ route.path }}
+  {% endfor %}
+{% endfor %}
+----
+
+---
+
+===== 7. Advanced Patterns
+
+====== G. Reusable Macros (DRY)
+As your template grows, use macros to create reusable UI components (like warning blocks or deprecated notices) to keep the main logic clean.
+
+[source, pebble]
+----
+{# 1. Define the Macro at the top of your file #}
+{% macro deprecationWarning(since) %}
+[WARNING]
+====
+This endpoint is deprecated since version {{ since }}.
+Please use the newer version instead.
+====
+{% endmacro %}
+
+{# 2. Use it inside your route loop #}
+{% if route.deprecated %}
+    {{ deprecationWarning("v2.1") }}
+{% endif %}
+----
+
+====== H. Security & Permissions
+If your API uses authentication (OAuth2, API Keys), the `security` property on the route contains the requirements.
+
+[source, pebble]
+----
+{% if route.security %}
+.Required Permissions
+[cols="1,3"]
+|===
+|Type | Scopes
+
+{# Iterate through security schemes #}
+{% for scheme in route.security %}
+    {% for req in scheme %}
+| *{{ loop.key }}* | {{ req | join(", ") }}
+    {% endfor %}
+{% endfor %}
+|===
+{% endif %}
+----
+
+====== I. Linking to Schema Definitions
+AsciiDoc supports internal anchors. You can automatically link a route's return type to its full Schema definition elsewhere in the document.
+
+[source, pebble]
+----
+{# 1. Create Anchors in your Schema Loop #}
+{% for s in schemas %}
+[id="{{ s.name }}"]
+== {{ s.name }}
+{{ s | table }}
+{% endfor %}
+
+{# 2. Link to them in your Route Loop #}
+.Response Type
+Returns a {{ route | response | link }} object.
+----

@@ -28,9 +28,9 @@ public class RequestToCurl implements ToSnippet {
 
   @Override
   public String render(Map<String, Object> args) {
+    var language = (String) args.remove("language");
     var options = args(args);
     var method = removeOption(options, "-X", request.getMethod()).toUpperCase();
-    var language = removeOption(options, "language", null);
     /* Accept/Content-Type: */
     var addAccept = true;
     var addContentType = true;

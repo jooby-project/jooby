@@ -853,6 +853,22 @@ public class PebbleSupportTest {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
 
     templates
+        .evaluateThat("{{POST(\"/library/authors\") | curl(\"-i\", language=\"bash\") }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, bash]
+            ----
+            curl -i\\
+                 --data-urlencode "ssn=string"\\
+                 --data-urlencode "name=string"\\
+                 --data-urlencode "address.street=string"\\
+                 --data-urlencode "address.city=string"\\
+                 --data-urlencode "address.zip=string"\\
+                 -X POST '/library/authors'
+            ----\
+            """);
+
+    templates
         .evaluateThat("{{POST(\"/library/authors\") | curl }}")
         .isEqualToIgnoringNewLines(
             """
