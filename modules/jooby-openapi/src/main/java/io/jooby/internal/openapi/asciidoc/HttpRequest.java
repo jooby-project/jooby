@@ -74,6 +74,10 @@ public record HttpRequest(
     return operation.getConsumes();
   }
 
+  public Map<String, Object> getExtensions() {
+    return operation.getExtensions();
+  }
+
   @Override
   public ParameterList getHeaders() {
     return new ParameterList(
