@@ -42,6 +42,6 @@ public class PebbleTemplateSupport {
     var template = context.getEngine().getLiteralTemplate(input);
     var writer = new StringWriter();
     template.evaluate(writer);
-    return writer.toString();
+    return writer.toString().trim();
   }
 }

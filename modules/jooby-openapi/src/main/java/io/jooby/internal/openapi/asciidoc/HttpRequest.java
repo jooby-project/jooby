@@ -21,6 +21,7 @@ import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.ParameterExt;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 @JsonIncludeProperties({"path", "method"})
 public record HttpRequest(
@@ -220,6 +221,14 @@ public record HttpRequest(
                   name, String.format(value, (index.get() == 0 ? "" : index.getAndIncrement()))));
       consumer.accept(formattedPair.getKey(), formattedPair.getValue());
     }
+  }
+
+  public boolean isDeprecated() {
+    return operation.getDeprecated() == Boolean.TRUE;
+  }
+
+  public List<SecurityRequirement> getSecurity() {
+    return operation.getSecurity();
   }
 
   @Override

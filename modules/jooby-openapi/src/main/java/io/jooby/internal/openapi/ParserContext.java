@@ -450,15 +450,23 @@ public class ParserContext {
       // must be embedded it mimics a List<T>. This is bc it might have a different item type
       // per operation.
       var pageSchema = converters.read(type.getRawClass()).get("Page");
-      // force loading of PageRequest
-      schema(PageRequest.class);
+
+      var pageRequestSchema = converters.read(PageRequest.class).get("PageRequest");
+      pageSchema.getProperties().put("pageRequest", pageRequestSchema);
+      pageSchema.getProperties().put("nextPageRequest", pageRequestSchema);
+      pageSchema.getProperties().put("previousPageRequest", pageRequestSchema);
 
       var params = type.getBindings().getTypeParameters();
+      Schema<?> element;
       if (params != null && !params.isEmpty()) {
+        element = schema(params.getFirst());
         Schema<?> contentSchema = (Schema<?>) pageSchema.getProperties().get("content");
-        contentSchema.setItems(schema(params.getFirst()));
+        contentSchema.setItems(element);
+      } else {
+        element = new Schema<>();
+        element.setType("object");
       }
-      return pageSchema;
+      return ArrayLikeSchema.create(pageSchema, element);
     }
     return schema(type.getRawClass());
   }

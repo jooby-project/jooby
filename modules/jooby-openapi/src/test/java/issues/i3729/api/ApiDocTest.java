@@ -135,11 +135,32 @@ public class ApiDocTest {
                                 type: integer
                                 format: int64
                               pageRequest:
-                                $ref: "#/components/schemas/PageRequest"
+                                type: object
+                                properties:
+                                  page:
+                                    type: integer
+                                    format: int64
+                                  size:
+                                    type: integer
+                                    format: int32
                               nextPageRequest:
-                                $ref: "#/components/schemas/PageRequest"
+                                type: object
+                                properties:
+                                  page:
+                                    type: integer
+                                    format: int64
+                                  size:
+                                    type: integer
+                                    format: int32
                               previousPageRequest:
-                                $ref: "#/components/schemas/PageRequest"
+                                type: object
+                                properties:
+                                  page:
+                                    type: integer
+                                    format: int64
+                                  size:
+                                    type: integer
+                                    format: int32
                 post:
                   tags:
                   - Inventory
@@ -178,15 +199,6 @@ public class ApiDocTest {
                       type: string
                       description: Two digit country code.
                   description: Author address.
-                PageRequest:
-                  type: object
-                  properties:
-                    page:
-                      type: integer
-                      format: int64
-                    size:
-                      type: integer
-                      format: int32
                 Book:
                   type: object
                   properties:
@@ -237,7 +249,7 @@ public class ApiDocTest {
                       type: array
                       description: Published books.
                       items:
-                        $ref: "#/components/schemas/Book"
+                        $ref: "#/components/schemas/Book"\
             """);
   }
 

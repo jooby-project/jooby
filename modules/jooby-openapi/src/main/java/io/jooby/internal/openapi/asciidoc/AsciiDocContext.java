@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
+import static io.swagger.v3.oas.models.Components.COMPONENTS_SCHEMAS_REF;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.AbstractExtension;
 import io.pebbletemplates.pebble.extension.Filter;
 import io.pebbletemplates.pebble.extension.Function;
+import io.pebbletemplates.pebble.lexer.Syntax;
 import io.pebbletemplates.pebble.loader.ClasspathLoader;
 import io.pebbletemplates.pebble.loader.DelegatingLoader;
 import io.pebbletemplates.pebble.loader.FileLoader;
@@ -56,7 +58,7 @@ public class AsciiDocContext {
 
   private final AutoDataFakerMapper faker = new AutoDataFakerMapper();
 
-  private final Map<Object, Map<String, Object>> examples = new HashMap<>();
+  private final Map<Schema<?>, Map<String, Object>> examples = new HashMap<>();
 
   private final Instant now = Instant.now();
 
@@ -111,6 +113,7 @@ public class AsciiDocContext {
     return new PebbleEngine.Builder()
         .autoEscaping(false)
         .loader(new DelegatingLoader(loaders))
+        .syntax(new Syntax.Builder().setEnableNewLineTrimming(false).build())
         .extension(
             new AbstractExtension() {
               @Override
@@ -131,9 +134,11 @@ public class AsciiDocContext {
                         "..."));
                 // Routes
                 var operations =
-                    Optional.of(context.openapi.getOperations()).orElse(List.of()).stream()
-                        .map(op -> new HttpRequest(context, op, Map.of()))
-                        .toList();
+                    new HttpRequestList(
+                        context,
+                        Optional.of(context.openapi.getOperations()).orElse(List.of()).stream()
+                            .map(op -> new HttpRequest(context, op, Map.of()))
+                            .toList());
                 // so we can print routes without calling function: routes() vs routes
                 openapiRoot.put("routes", operations);
                 openapiRoot.put("operations", operations);
@@ -150,6 +155,12 @@ public class AsciiDocContext {
                                         .toList()))
                         .toList();
                 openapiRoot.put("tags", tags);
+                // Schemas
+                var components = context.openapi.getComponents();
+                if (components != null && components.getSchemas() != null) {
+                  var schemas = components.getSchemas();
+                  openapiRoot.put("schemas", schemas);
+                }
 
                 // make in to work without literal
                 openapiRoot.put("query", "query");
@@ -286,7 +297,7 @@ public class AsciiDocContext {
     return Optional.ofNullable(resolved.getFormat()).orElse(resolveType(resolved));
   }
 
-  private String resolveType(Schema<?> schema) {
+  public String resolveType(Schema<?> schema) {
     var resolved = resolveSchema(schema);
     if (resolved.getType() == null) {
       return resolved.getTypes().iterator().next();
@@ -302,7 +313,12 @@ public class AsciiDocContext {
     return schema;
   }
 
-  public Map<String, Object> schemaProperties(Schema<?> schema) {
+  public Object schemaProperties(Schema<?> schema) {
+    var resolved = resolveSchema(schema);
+    var resolvedType = resolveType(resolved);
+    if ("array".equals(resolvedType)) {
+      return List.of(traverse(resolved.getItems(), NOOP));
+    }
     return traverse(schema, NOOP);
   }
 
@@ -338,25 +354,33 @@ public class AsciiDocContext {
     return empty;
   }
 
-  public Map<String, Object> schemaExample(Schema<?> schema) {
-    return examples.computeIfAbsent(
-        schema,
-        s ->
-            traverse(
-                new HashSet<>(),
-                schema,
-                (parent, property) -> {
-                  var enumItems = property.getEnum();
-                  if (enumItems == null || enumItems.isEmpty()) {
-                    var type = schemaType(property);
-                    var gen = faker.getGenerator(parent.getName(), property.getName(), type, type);
-                    return gen.get();
-                  } else {
-                    return enumItems.get(new Random().nextInt(enumItems.size())).toString();
-                  }
-                },
-                NOOP,
-                NOOP));
+  public Object schemaExample(Schema<?> schema) {
+    var resolved = resolveSchema(schema);
+    var resolvedType = resolveType(resolved);
+    var target = resolved;
+    if ("array".equals(resolvedType)) {
+      target = resolveSchema(resolved.getItems());
+    }
+    var result =
+        examples.computeIfAbsent(
+            target,
+            key ->
+                traverse(
+                    new HashSet<>(),
+                    key,
+                    (parent, property) -> {
+                      var enumItems = property.getEnum();
+                      if (enumItems == null || enumItems.isEmpty()) {
+                        var type = schemaType(property);
+                        var gen =
+                            faker.getGenerator(parent.getName(), property.getName(), type, type);
+                        return gen.get();
+                      } else {
+                        return enumItems.get(new Random().nextInt(enumItems.size())).toString();
+                      }
+                    },
+                    NOOP));
+    return "array".equals(resolvedType) ? List.of(result) : result;
   }
 
   public void traverseSchema(Schema<?> schema, BiConsumer<String, Schema<?>> consumer) {
@@ -364,23 +388,14 @@ public class AsciiDocContext {
   }
 
   private Map<String, Object> traverse(Schema<?> schema, BiConsumer<String, Schema<?>> consumer) {
-    return traverse(schema, consumer, NOOP);
-  }
-
-  private Map<String, Object> traverse(
-      Schema<?> schema,
-      BiConsumer<String, Schema<?>> consumer,
-      BiConsumer<String, Schema<?>> inner) {
-    return traverse(
-        new HashSet<>(), schema, (parent, property) -> schemaType(property), consumer, inner);
+    return traverse(new HashSet<>(), schema, (parent, property) -> schemaType(property), consumer);
   }
 
   private Map<String, Object> traverse(
       Set<Object> visited,
       Schema<?> schema,
       SneakyThrows.Function2<Schema<?>, Schema<?>, String> valueMapper,
-      BiConsumer<String, Schema<?>> consumer,
-      BiConsumer<String, Schema<?>> inner) {
+      BiConsumer<String, Schema<?>> consumer) {
     if (schema == null) {
       return Map.of();
     }
@@ -395,13 +410,11 @@ public class AsciiDocContext {
               var valueType = resolveType(resolvedValue);
               consumer.accept(name, resolvedValue);
               if ("object".equals(valueType)) {
-                result.put(name, traverse(visited, resolvedValue, valueMapper, inner, inner));
+                result.put(name, traverse(visited, resolvedValue, valueMapper, NOOP));
               } else if ("array".equals(valueType)) {
                 var array =
                     ofNullable(resolvedValue.getItems())
-                        .map(
-                            items ->
-                                traverse(visited, resolveSchema(items), valueMapper, inner, inner))
+                        .map(items -> traverse(visited, resolveSchema(items), valueMapper, NOOP))
                         .map(List::of)
                         .orElse(List.of());
                 result.put(name, array);
@@ -442,8 +455,8 @@ public class AsciiDocContext {
     if (components == null || components.getSchemas() == null) {
       throw new NoSuchElementException("No schema found");
     }
-    if (name.startsWith("#/components/schemas/")) {
-      name = name.substring("#/components/schemas/".length());
+    if (name.startsWith(COMPONENTS_SCHEMAS_REF)) {
+      name = name.substring(COMPONENTS_SCHEMAS_REF.length());
     }
     return Optional.ofNullable((Schema<?>) components.getSchemas().get(name));
   }

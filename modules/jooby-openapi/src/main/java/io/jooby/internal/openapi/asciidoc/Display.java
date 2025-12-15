@@ -5,10 +5,7 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.asciidoc.display.*;
@@ -89,6 +86,38 @@ public enum Display implements Filter {
         throws PebbleException {
       var asciidoc = AsciiDocContext.from(context);
       return new SafeString(toAsciidoc(asciidoc, input).list(new TreeMap<>(args)));
+    }
+  },
+  link {
+    @Override
+    public Object apply(
+        Object input,
+        Map<String, Object> args,
+        PebbleTemplate self,
+        EvaluationContext context,
+        int lineNumber)
+        throws PebbleException {
+      var schema =
+          switch (input) {
+            case Schema<?> s -> s;
+            case HttpMessage msg -> msg.getBody();
+            default -> throw new IllegalArgumentException("Can't render: " + input);
+          };
+      var asciidoc = AsciiDocContext.from(context);
+      var resolved = asciidoc.resolveSchema(schema);
+      var target = resolved;
+      var prefix = "";
+      var suffix = "";
+      if (resolved.getItems() != null) {
+        target = asciidoc.resolveSchema(resolved.getItems());
+        prefix = Optional.ofNullable(resolved.getName()).orElse("") + "[";
+        suffix = "]";
+      }
+      if ("object".equals(asciidoc.resolveType(target))) {
+        return new SafeString(prefix + "<<" + target.getName() + ">>" + suffix);
+      }
+      // no link for basic types
+      return prefix + target.getName() + suffix;
     }
   },
   curl {

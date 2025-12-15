@@ -35,6 +35,7 @@ public class LibApi {
    * @return The book data
    * @throws NotFoundException <code>404</code> error if it doesn't exist.
    * @tag Library
+   * @securityRequirement librarySecurity read:books
    */
   @GET
   @Path("/books/{isbn}")
@@ -51,6 +52,7 @@ public class LibApi {
    * @return A list of books matching that term.
    * @x-badges [{name:Beta, position:before, color:purple}]
    * @tag Library
+   * @securityRequirement librarySecurity read:books
    */
   @GET
   @Path("/search")
@@ -71,6 +73,7 @@ public class LibApi {
    * @param size How many books to show per page (defaults to 20).
    * @return A "Page" object containing the books and info like "Total Pages: 5".
    * @tag Library
+   * @securityRequirement librarySecurity read:books
    */
   @GET
   @Path("/books")
@@ -93,6 +96,7 @@ public class LibApi {
    * @param book New book to add.
    * @return A text message confirming success.
    * @tag Inventory
+   * @securityRequirement librarySecurity write:books
    */
   @POST
   @Path("/books")
@@ -109,6 +113,7 @@ public class LibApi {
    * @param author New author to add.
    * @return Created author.
    * @tag Inventory
+   * @securityRequirement librarySecurity write:author
    */
   @POST
   @Path("/authors")

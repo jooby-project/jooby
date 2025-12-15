@@ -29,8 +29,6 @@ public enum Mutator implements Filter {
       if (input instanceof Schema<?> schema) {
         var asciidoc = AsciiDocContext.from(context);
         return asciidoc.schemaExample(schema);
-      } else if (input instanceof Map mapLike) {
-
       }
       return input;
     }

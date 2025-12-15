@@ -167,6 +167,8 @@ public class PebbleSupportTest {
   @OpenAPITest(value = AppLibrary.class)
   public void bodyBug(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates.evaluateThat("{{ GET(\"/api/library/{isbn}\") | response | body | json(false) }}");
     templates
         .evaluateThat("{{ GET(\"/api/library/{isbn}\") | response | body | json(false) }}")
         .isEqualToIgnoringNewLines(
@@ -353,11 +355,13 @@ public class PebbleSupportTest {
             """
             {% for tag in tags %}
             == {{ tag.name }}
+
             {{ tag.description }}
 
             // 2. Loop through all routes associated with this tag
             {% for route in tag.routes %}
             === {{ route.summary }}
+
             {{ route.description }}
 
             *URL:* `{{ route.path }}` ({{ route.method }})
@@ -376,6 +380,22 @@ public class PebbleSupportTest {
             // Example response for success
             .Response
             {{ route | response(200) | json }}
+
+            {% if route.security is not empty %}
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
+
+            {# Iterate through security schemes #}
+            {% for scheme in route.security %}
+            {% for req in scheme %}
+            | *{{ req.key }}* | {{ req.value | join(", ") }}
+            {% endfor %}
+            {% endfor %}
+            |===
+
+            {% endif %}
             {% endfor %}
             {% endfor %}
             """)
@@ -383,12 +403,9 @@ public class PebbleSupportTest {
             """
             == Library
             Outlines the available actions in the Library System API. The system is designed to allow users to search for books, view details, and manage the library inventory.
-
             // 2. Loop through all routes associated with this tag
-
             === Get Specific Book Details
             View the full information for a single specific book using its unique ISBN.
-
             *URL:* `/library/books/{isbn}` (GET)
 
             *Parameters:*
@@ -401,7 +418,6 @@ public class PebbleSupportTest {
             |The unique ID from the URL (e.g., /books/978-3-16-148410-0)
 
             |===
-
             // Only show Request Body if it exists (e.g. for POST/PUT)
 
             // Example response for success
@@ -429,10 +445,15 @@ public class PebbleSupportTest {
               } ]
             }
             ----
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
+
+            | *librarySecurity* | read:books|===
 
             === Quick Search
             Find books by a partial title (e.g., searching "Harry" finds "Harry Potter").
-
             *URL:* `/library/search` (GET)
 
             *Parameters:*
@@ -445,19 +466,42 @@ public class PebbleSupportTest {
             |The word or phrase to search for.
 
             |===
-
             // Only show Request Body if it exists (e.g. for POST/PUT)
 
             // Example response for success
             .Response
             [source, json]
             ----
-            { }
+            [ {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            } ]
             ----
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
+
+            | *librarySecurity* | read:books|===
 
             === Browse Books (Paginated)
             Look up a specific book title where there might be many editions or copies, splitting the results into manageable pages.
-
             *URL:* `/library/books` (GET)
 
             *Parameters:*
@@ -485,7 +529,6 @@ public class PebbleSupportTest {
             |How many books to show per page (defaults to 20).
 
             |===
-
             // Only show Request Body if it exists (e.g. for POST/PUT)
 
             // Example response for success
@@ -524,16 +567,18 @@ public class PebbleSupportTest {
               "previousPageRequest" : { }
             }
             ----
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
 
+            | *librarySecurity* | read:books|===
 
             == Inventory
             Managing Inventory
-
             // 2. Loop through all routes associated with this tag
-
             === Add New Book
             Register a new book in the system.
-
             *URL:* `/library/books` (POST)
 
             *Parameters:*
@@ -551,9 +596,7 @@ public class PebbleSupportTest {
             |
 
             |===
-
             // Only show Request Body if it exists (e.g. for POST/PUT)
-
             *Data Payload:*
             [source, json]
             ----
@@ -578,7 +621,6 @@ public class PebbleSupportTest {
               } ]
             }
             ----
-
             // Example response for success
             .Response
             [source, json]
@@ -604,14 +646,19 @@ public class PebbleSupportTest {
               } ]
             }
             ----
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
+
+            | *librarySecurity* | write:books|===
 
             === Add New Author
 
-
             *URL:* `/library/authors` (POST)
 
-            // Only show Request Body if it exists (e.g. for POST/PUT)
 
+            // Only show Request Body if it exists (e.g. for POST/PUT)
             *Data Payload:*
             [source, json]
             ----
@@ -625,7 +672,6 @@ public class PebbleSupportTest {
               }
             }
             ----
-
             // Example response for success
             .Response
             [source, json]
@@ -640,7 +686,13 @@ public class PebbleSupportTest {
               }
             }
             ----
-            \
+            .Required Permissions
+            [cols="1,3"]
+            |===
+            |Type | Scopes
+
+            | *librarySecurity* | write:author
+            |===\
             """);
   }
 
@@ -898,8 +950,97 @@ public class PebbleSupportTest {
   }
 
   @OpenAPITest(value = AppLib.class)
+  public void link(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | response | link }}")
+        .isEqualTo("Page[<<Book>>]");
+
+    templates
+        .evaluateThat("{{GET(\"/library/search\") | response | link }}")
+        .isEqualTo("[<<Book>>]");
+  }
+
+  @OpenAPITest(value = App3820b.class)
+  public void linkPrimitives(OpenAPIExt openapi) throws IOException {
+    var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates.evaluateThat("{{GET(\"/strings\") | response | link }}").isEqualTo("Page[<<Book>>]");
+  }
+
+  @OpenAPITest(value = AppLib.class)
   public void response(OpenAPIExt openapi) throws IOException {
     var templates = new PebbleTemplateSupport(CurrentDir.testClass(getClass(), "adoc"), openapi);
+
+    templates
+        .evaluateThat("{{GET(\"/library/books\") | response | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            {
+              "content" : [ {
+                "isbn" : "string",
+                "title" : "string",
+                "publicationDate" : "date",
+                "text" : "string",
+                "type" : "string",
+                "publisher" : {
+                  "id" : "int64",
+                  "name" : "string"
+                },
+                "authors" : [ {
+                  "ssn" : "string",
+                  "name" : "string",
+                  "address" : {
+                    "street" : "string",
+                    "city" : "string",
+                    "zip" : "string"
+                  }
+                } ]
+              } ],
+              "numberOfElements" : "int32",
+              "totalElements" : "int64",
+              "totalPages" : "int64",
+              "pageRequest" : {
+                "page" : "int64",
+                "size" : "int32"
+              },
+              "nextPageRequest" : { },
+              "previousPageRequest" : { }
+            }
+            ----\
+            """);
+
+    templates
+        .evaluateThat("{{GET(\"/library/search\") | response | json }}")
+        .isEqualToIgnoringNewLines(
+            """
+            [source, json]
+            ----
+            [ {
+              "isbn" : "string",
+              "title" : "string",
+              "publicationDate" : "date",
+              "text" : "string",
+              "type" : "string",
+              "publisher" : {
+                "id" : "int64",
+                "name" : "string"
+              },
+              "authors" : [ {
+                "ssn" : "string",
+                "name" : "string",
+                "address" : {
+                  "street" : "string",
+                  "city" : "string",
+                  "zip" : "string"
+                }
+              } ]
+            } ]
+            ----\
+            """);
 
     /* Error response code: */
     templates
