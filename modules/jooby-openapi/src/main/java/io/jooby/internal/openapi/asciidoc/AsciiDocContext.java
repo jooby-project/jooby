@@ -62,6 +62,11 @@ public class AsciiDocContext {
 
   private final Instant now = Instant.now();
 
+  static {
+    // type vs types difference in v30 vs v31
+    System.setProperty(Schema.BIND_TYPE_AND_TYPES, Boolean.TRUE.toString());
+  }
+
   public AsciiDocContext(Path baseDir, ObjectMapper json, ObjectMapper yaml, OpenAPIExt openapi) {
     this.json = json;
     this.yamlOpenApi = yaml;
@@ -294,15 +299,7 @@ public class AsciiDocContext {
 
   public String schemaType(Schema<?> schema) {
     var resolved = resolveSchema(schema);
-    return Optional.ofNullable(resolved.getFormat()).orElse(resolveType(resolved));
-  }
-
-  public String resolveType(Schema<?> schema) {
-    var resolved = resolveSchema(schema);
-    if (resolved.getType() == null) {
-      return resolved.getTypes().iterator().next();
-    }
-    return resolved.getType();
+    return Optional.ofNullable(resolved.getFormat()).orElse(resolved.getType());
   }
 
   public Schema<?> resolveSchema(Schema<?> schema) {
@@ -315,8 +312,7 @@ public class AsciiDocContext {
 
   public Object schemaProperties(Schema<?> schema) {
     var resolved = resolveSchema(schema);
-    var resolvedType = resolveType(resolved);
-    if ("array".equals(resolvedType)) {
+    if ("array".equals(resolved.getType())) {
       return List.of(traverse(resolved.getItems(), NOOP));
     }
     return traverse(schema, NOOP);
@@ -329,7 +325,7 @@ public class AsciiDocContext {
     traverse(
         schema,
         (name, value) -> {
-          var type = resolveType(value);
+          var type = value.getType();
           if ("object".equals(type)) {
             var object = new Schema<>();
             object.setType(type);
@@ -348,17 +344,17 @@ public class AsciiDocContext {
   }
 
   public Schema<?> emptySchema(Schema<?> schema) {
+    var resolved = resolveSchema(schema);
     var empty = new Schema<>();
-    empty.setType(resolveType(schema));
-    empty.setName(schema.getName());
+    empty.setType(resolved.getType());
+    empty.setName(resolved.getName());
     return empty;
   }
 
   public Object schemaExample(Schema<?> schema) {
     var resolved = resolveSchema(schema);
-    var resolvedType = resolveType(resolved);
     var target = resolved;
-    if ("array".equals(resolvedType)) {
+    if ("array".equals(resolved.getType())) {
       target = resolveSchema(resolved.getItems());
     }
     var result =
@@ -380,7 +376,7 @@ public class AsciiDocContext {
                       }
                     },
                     NOOP));
-    return "array".equals(resolvedType) ? List.of(result) : result;
+    return "array".equals(resolved.getType()) ? List.of(result) : result;
   }
 
   public void traverseSchema(Schema<?> schema, BiConsumer<String, Schema<?>> consumer) {
@@ -407,7 +403,7 @@ public class AsciiDocContext {
         properties.forEach(
             (name, value) -> {
               var resolvedValue = resolveSchema(value);
-              var valueType = resolveType(resolvedValue);
+              var valueType = resolvedValue.getType();
               consumer.accept(name, resolvedValue);
               if ("object".equals(valueType)) {
                 result.put(name, traverse(visited, resolvedValue, valueMapper, NOOP));

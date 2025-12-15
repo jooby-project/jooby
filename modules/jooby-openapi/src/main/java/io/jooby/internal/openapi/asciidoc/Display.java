@@ -113,7 +113,7 @@ public enum Display implements Filter {
         prefix = Optional.ofNullable(resolved.getName()).orElse("") + "[";
         suffix = "]";
       }
-      if ("object".equals(asciidoc.resolveType(target))) {
+      if ("object".equals(target.getType())) {
         return new SafeString(prefix + "<<" + target.getName() + ">>" + suffix);
       }
       // no link for basic types
