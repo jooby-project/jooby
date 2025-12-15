@@ -166,7 +166,7 @@ public class AsciiDocContext {
                 var components = context.openapi.getComponents();
                 if (components != null && components.getSchemas() != null) {
                   var schemas = components.getSchemas();
-                  openapiRoot.put("schemas", schemas);
+                  openapiRoot.put("schemas", new ArrayList<>(schemas.values()));
                 }
 
                 // make in to work without literal
