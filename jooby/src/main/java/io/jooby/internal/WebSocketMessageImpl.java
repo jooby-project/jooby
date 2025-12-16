@@ -6,6 +6,7 @@
 package io.jooby.internal;
 
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
@@ -72,5 +73,15 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
   @Nullable @Override
   public <T> T toNullable(@NonNull Type type) {
     return this.to(type);
+  }
+
+  @Override
+  @NonNull public byte[] bytes() {
+    return super.bytes();
+  }
+
+  @Override
+  public @NonNull ByteBuffer byteBuffer() {
+    return ByteBuffer.wrap(bytes());
   }
 }
