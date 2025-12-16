@@ -77,7 +77,7 @@
     <jdbi.version>3.51.0</jdbi.version>
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
-    <lettuce.version>7.2.0.RELEASE</lettuce.version>
+    <lettuce.version>7.2.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.0</commons-pool2.version>
     <kafka.version>4.1.1</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
@@ -107,8 +107,8 @@
     <!-- Server -->
     <undertow.version>2.3.20.Final</undertow.version>
     <jetty.version>12.1.5</jetty.version>
-    <netty.version>4.2.8.Final</netty.version>
-    <vertx.version>5.0.5</vertx.version>
+    <netty.version>4.2.9.Final</netty.version>
+    <vertx.version>5.0.6</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.41</swagger.version>
