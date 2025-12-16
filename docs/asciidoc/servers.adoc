@@ -30,7 +30,7 @@ To use Vertx, add the dependency:
 
 .
 
-The javadoc:vertx.VertxServer[] setup is fully described link:/modules/vertx#vertx-server-advanced[here].
+The javadoc:vertx.VertxServer[] setup is fully described link:{uiVersion}/modules/vertx#vertx-server-advanced[here].
 
 [IMPORTANT]
 ====

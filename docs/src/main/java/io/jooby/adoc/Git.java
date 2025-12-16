@@ -5,6 +5,9 @@
  */
 package io.jooby.adoc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +46,12 @@ public class Git {
     execute(cmd);
   }
 
+  public String currentBranch() throws Exception {
+    var out = new ByteArrayOutputStream();
+    execute(List.of("git", "branch", "--show-current"), out);
+    return out.toString(StandardCharsets.UTF_8);
+  }
+
   public void commit(String comment) throws Exception {
     execute(Arrays.asList("git", "add", "."));
     execute(Arrays.asList("git", "commit", "-m", "'" + comment + "'"));
@@ -50,11 +59,15 @@ public class Git {
   }
 
   private void execute(final List<String> args) throws Exception {
+    execute(args, System.out);
+  }
+
+  private void execute(final List<String> args, OutputStream out) throws Exception {
     System.out.println(args.stream().collect(Collectors.joining(" ")));
     int exit =
         new ProcessExecutor()
             .command(args.toArray(new String[0]))
-            .redirectOutput(System.out)
+            .redirectOutput(out)
             .directory(dir.toFile())
             .execute()
             .getExitValue();

@@ -14,61 +14,61 @@ configuration properties.
 Available modules are listed next.
 
 === Cloud
-  * link:/modules/awssdkv2[AWS-SDK v2]: Amazon Web Service module SDK 2.
-  * link:/modules/aws[AWS SDK v1]: Amazon Web Service module SDK 1.
+  * link:{uiVersion}/modules/awssdkv2[AWS-SDK v2]: Amazon Web Service module SDK 2.
+  * link:{uiVersion}/modules/aws[AWS SDK v1]: Amazon Web Service module SDK 1.
 
 === Data
-   * link:/modules/ebean[Ebean]: Ebean ORM module.
-   * link:/modules/flyway[Flyway]: Flyway migration module.
-   * link:/modules/graphql[GraphQL]: GraphQL Java module.
-   * link:/modules/hikari[HikariCP]: A high-performance JDBC connection pool.
-   * link:/modules/hibernate[Hibernate]: Hibernate ORM module.
-   * link:/modules/jdbi[Jdbi]: Jdbi module.
-   * link:/modules/kafka[Kafka]: Kafka module.
-   * link:/modules/redis[Redis]: Redis module.
-   * link:/modules/vertx-mysql-client[Vertx mySQL client]: Vertx reactive mySQL client module.
-   * link:/modules/vertx-pg-client[Vertx Postgres client]: Vertx reactive Postgres client module.
+   * link:{uiVersion}/modules/ebean[Ebean]: Ebean ORM module.
+   * link:{uiVersion}/modules/flyway[Flyway]: Flyway migration module.
+   * link:{uiVersion}/modules/graphql[GraphQL]: GraphQL Java module.
+   * link:{uiVersion}/modules/hikari[HikariCP]: A high-performance JDBC connection pool.
+   * link:{uiVersion}/modules/hibernate[Hibernate]: Hibernate ORM module.
+   * link:{uiVersion}/modules/jdbi[Jdbi]: Jdbi module.
+   * link:{uiVersion}/modules/kafka[Kafka]: Kafka module.
+   * link:{uiVersion}/modules/redis[Redis]: Redis module.
+   * link:{uiVersion}/modules/vertx-mysql-client[Vertx mySQL client]: Vertx reactive mySQL client module.
+   * link:{uiVersion}/modules/vertx-pg-client[Vertx Postgres client]: Vertx reactive Postgres client module.
 
 === Validation
-   * link:/modules/avaje-validator[Avaje Validator]: Avaje Validator module.
-   * link:/modules/hibernate-validator[Hibernate Validator]: Hibernate Validator module.
+   * link:{uiVersion}/modules/avaje-validator[Avaje Validator]: Avaje Validator module.
+   * link:{uiVersion}/modules/hibernate-validator[Hibernate Validator]: Hibernate Validator module.
 
 === Development Tools
-   * link:/#development[Jooby Run]: Run and hot reload your application. 
-   * link:/modules/whoops[Whoops]: Pretty page stacktrace reporter.
-   * link:/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
+   * link:{uiVersion}/#development[Jooby Run]: Run and hot reload your application. 
+   * link:{uiVersion}/modules/whoops[Whoops]: Pretty page stacktrace reporter.
+   * link:{uiVersion}/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
 
 === Event Bus
-  * link:/modules/camel[Camel]: Camel module for Jooby.
-  * link:/modules/vertx[Vertx]: Vertx module for Jooby.
+  * link:{uiVersion}/modules/camel[Camel]: Camel module for Jooby.
+  * link:{uiVersion}/modules/vertx[Vertx]: Vertx module for Jooby.
 
 === JSON
-   * link:/modules/gson[Gson]: Gson module for Jooby.
-   * link:/modules/jackson[Jackson]: Jackson module for Jooby.
-   * link:/modules/yasson[JSON-B]: JSON-B module for Jooby.
-   * link:/modules/avaje-jsonb[Avaje-JsonB]: Avaje-JsonB module for Jooby.
+   * link:{uiVersion}/modules/gson[Gson]: Gson module for Jooby.
+   * link:{uiVersion}/modules/jackson[Jackson]: Jackson module for Jooby.
+   * link:{uiVersion}/modules/yasson[JSON-B]: JSON-B module for Jooby.
+   * link:{uiVersion}/modules/avaje-jsonb[Avaje-JsonB]: Avaje-JsonB module for Jooby.
 
 === OpenAPI
-   * link:/modules/openapi[OpenAPI]: OpenAPI supports.
+   * link:{uiVersion}/modules/openapi[OpenAPI]: OpenAPI supports.
 
 === Template Engine
-   * link:/modules/handlebars[Handlebars]: Handlebars template engine.
-   * link:/modules/jstachio[JStachio]: JStachio template engine.
-   * link:/modules/jte[jte]: jte template engine.
-   * link:/modules/freemarker[Freemarker]: Freemarker template engine.
-   * link:/modules/pebble[Pebble]: Pebble template engine.
-   * link:/modules/rocker[Rocker]: Rocker template engine.
-   * link:/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
+   * link:{uiVersion}/modules/handlebars[Handlebars]: Handlebars template engine.
+   * link:{uiVersion}/modules/jstachio[JStachio]: JStachio template engine.
+   * link:{uiVersion}/modules/jte[jte]: jte template engine.
+   * link:{uiVersion}/modules/freemarker[Freemarker]: Freemarker template engine.
+   * link:{uiVersion}/modules/pebble[Pebble]: Pebble template engine.
+   * link:{uiVersion}/modules/rocker[Rocker]: Rocker template engine.
+   * link:{uiVersion}/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
 
 === Security
-   * link:/modules/jasypt[Jasypt]: Encrypted configuration files.
-   * link:/modules/pac4j[Pac4j]: Security engine module.
+   * link:{uiVersion}/modules/jasypt[Jasypt]: Encrypted configuration files.
+   * link:{uiVersion}/modules/pac4j[Pac4j]: Security engine module.
 
 === Session Store
-   * link:/modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
-   * link:/modules/jwt-session-store[JWT]: JSON Web Token session store.
-   * link:/modules/redis#redis-http-session[Redis]: Save session data on redis.
+   * link:{uiVersion}/modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
+   * link:{uiVersion}/modules/jwt-session-store[JWT]: JSON Web Token session store.
+   * link:{uiVersion}/modules/redis#redis-http-session[Redis]: Save session data on redis.
 
 === Scheduler
-   * link:/modules/db-scheduler[DbScheduler]: Db scheduler module.
-   * link:/modules/quartz[Quartz]: Quartz scheduler module.
+   * link:{uiVersion}/modules/db-scheduler[DbScheduler]: Db scheduler module.
+   * link:{uiVersion}/modules/quartz[Quartz]: Quartz scheduler module.

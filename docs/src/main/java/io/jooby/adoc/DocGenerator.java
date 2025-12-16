@@ -44,6 +44,13 @@ public class DocGenerator {
   public static void generate(Path basedir, boolean publish, boolean v1, boolean doAscii)
       throws Exception {
     String version = version();
+    // 2.x/3.x/main
+    var branch = new Git("jooby-project", "jooby", Paths.get(System.getProperty("user.dir"))).currentBranch();
+    var uiVersion = switch (branch) {
+      case "2.x" -> "/v2";
+      case "3.x" -> "/v3";
+      default ->  "main";
+    };
 
     Path asciidoc = basedir.resolve("asciidoc");
 
@@ -90,7 +97,7 @@ public class DocGenerator {
         try (var asciidoctor = Asciidoctor.Factory.create()) {
           asciidoctor.convertFile(
               asciidoc.resolve("index.adoc").toFile(),
-              createOptions(asciidoc, outdir, version, null, asciidoc.resolve("index.adoc")));
+              createOptions(asciidoc, outdir, version, uiVersion, null, asciidoc.resolve("index.adoc")));
           var index = outdir.resolve("index.html");
           Files.writeString(index, hljs(Files.readString(index)));
           pb.step();
@@ -105,7 +112,7 @@ public class DocGenerator {
                             .filter(Files::isRegularFile)
                             .forEach(
                                 module -> {
-                                  processModule(asciidoctor, asciidoc, module, outdir, name, version);
+                                  processModule(asciidoctor, asciidoc, module, outdir, name, version, uiVersion);
                                   pb.step();
                                 });
                       }));
@@ -199,7 +206,8 @@ public class DocGenerator {
       Path module,
       Path outdir,
       String name,
-      String version) {
+      String version,
+      String uiVersion) {
     try {
       String moduleName = module.getFileName().toString().replace(".adoc", "");
 
@@ -209,7 +217,7 @@ public class DocGenerator {
           && !moduleName.equals("packaging")) {
         title += " module";
       }
-      Options options = createOptions(basedir, outdir, version, title, module);
+      Options options = createOptions(basedir, outdir, version, uiVersion, title, module);
 
       asciidoctor.convertFile(module.toFile(), options);
 
@@ -237,11 +245,12 @@ public class DocGenerator {
         .replace("hljs.initHighlighting.called = true", "hljs.configure({ignoreUnescapedHTML: true});hljs.initHighlighting.called = true");
   }
 
-  private static Options createOptions(Path basedir, Path outdir, String version, String title, Path docfile)
+  private static Options createOptions(Path basedir, Path outdir, String version, String uiVersion, String title, Path docfile)
       throws IOException {
     var attributes = Attributes.builder();
 
     attributes.attribute("docfile", docfile.toString());
+    attributes.attribute("uiVersion", uiVersion);
     attributes.attribute("love", "&#9825;");
     attributes.attribute("docinfo", "shared");
     attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);

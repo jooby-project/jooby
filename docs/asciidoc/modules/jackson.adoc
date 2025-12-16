@@ -159,7 +159,7 @@ import io.jooby.json.JacksonModule
 
 === Provisioning Jackson Modules
 
-Jackson module can be provided by a link:/#extensions-and-services-dependency-injection[dependency injection] framework.
+Jackson module can be provided by a link:{uiVersion}/#extensions-and-services-dependency-injection[dependency injection] framework.
 
 .Provisioning Modules
 [source, java, role="primary"]

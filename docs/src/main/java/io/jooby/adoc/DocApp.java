@@ -7,8 +7,6 @@ package io.jooby.adoc;
 
 import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;

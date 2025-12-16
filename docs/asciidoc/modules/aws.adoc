@@ -11,7 +11,7 @@ Amazon Web Services module for https://github.com/aws/aws-sdk-java[aws-sdk-java 
 
 2) Add required service dependency (S3 here):
 
-[dependency, artifactId="aws-java-sdk-s3"]
+[dependency, artifactId="aws-java-sdk-s3", version="aws-java-sdk.version"]
 .
 
 3) Add the `aws.accessKeyId` and `aws.secretKey` properties: 

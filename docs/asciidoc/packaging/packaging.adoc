@@ -9,7 +9,7 @@ application.
 
 [TIP]
 ====
-The link:/#getting-started[jooby-cli] takes care of configures everything for single jar
+The link:{uiVersion}/#getting-started[jooby-cli] takes care of configures everything for single jar
 distribution. Next example shows how to do it in case you created your application manually.
 ====
 

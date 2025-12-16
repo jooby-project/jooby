@@ -120,4 +120,4 @@ Reactive libraries has been removed from core to his own module.
 |reactor|jooby-reactor
 |===
 
-All reactive libraries requires explicit handler while using script/lambda routes. More details on link:/#responses-nonblocking[NonBlocking] responses.
+All reactive libraries requires explicit handler while using script/lambda routes. More details on link:{uiVersion}/#responses-nonblocking[NonBlocking] responses.
