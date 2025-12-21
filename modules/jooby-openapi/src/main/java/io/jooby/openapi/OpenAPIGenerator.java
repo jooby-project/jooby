@@ -23,6 +23,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
+import io.jooby.internal.openapi.mcp.McpContext;
 import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -64,6 +65,16 @@ public class OpenAPIGenerator {
           @NonNull OpenAPI result,
           @NonNull Map<String, Object> options) {
         return tool.toYaml(result);
+      }
+    },
+
+    MCP {
+      @Override
+      @NonNull protected String toString(
+          @NonNull OpenAPIGenerator tool,
+          @NonNull OpenAPI result,
+          @NonNull Map<String, Object> options) {
+        return tool.toMcp(result);
       }
     },
 
@@ -376,6 +387,21 @@ public class OpenAPIGenerator {
       return yamlMapper().writeValueAsString(openAPI);
     } catch (IOException x) {
       throw SneakyThrows.propagate(x);
+    }
+  }
+
+  /**
+   * Generates a mcp version of the given model.
+   *
+   * @param openAPI Model.
+   * @return Mcp content.
+   */
+  public @NonNull String toMcp(@NonNull OpenAPI openAPI) {
+    try {
+      var mcp = new McpContext((OpenAPIExt) openAPI);
+      return mcp.generate();
+    } catch (IOException e) {
+      throw SneakyThrows.propagate(e);
     }
   }
 
