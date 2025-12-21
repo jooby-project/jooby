@@ -172,8 +172,8 @@ public class CreateCmd extends Cmd {
     model.put("serverClassName", serverClassName);
     model.put("serverPackageName", server);
     model.put("kotlin", kotlin);
-    model.put("dependencies", dependencies(dependencyMap, server, kotlin));
-    model.put("testDependencies", testDependencies(dependencyMap, kotlin));
+    model.put("dependencies", dependencies(server, kotlin));
+    model.put("testDependencies", testDependencies(dependencyMap));
     model.put("stork", stork);
     model.put("gradle", gradle);
     model.put("maven", !gradle);
@@ -321,21 +321,17 @@ public class CreateCmd extends Cmd {
         wrapperDir.resolve("gradle-wrapper.properties"));
   }
 
-  private List<Dependency> dependencies(
-      Map<String, String> dependencyMap, String server, boolean kotlin) {
+  private List<Dependency> dependencies(String server, boolean kotlin) {
     List<Dependency> dependencies = new ArrayList<>();
     dependencies.add(new Dependency("io.jooby", "jooby-" + server, null));
     if (kotlin) {
       dependencies.add(new Dependency("io.jooby", "jooby-kotlin", null));
-      dependencies.add(
-          new Dependency(
-              "org.jetbrains.kotlin", "kotlin-stdlib-jdk8", dependencyMap.get("kotlinVersion")));
     }
     dependencies.add(new Dependency("io.jooby", "jooby-logback", null));
     return dependencies;
   }
 
-  private List<Dependency> testDependencies(Map<String, String> dependencyMap, boolean kotlin) {
+  private List<Dependency> testDependencies(Map<String, String> dependencyMap) {
     List<Dependency> dependencies = new ArrayList<>();
     dependencies.add(
         new Dependency(
