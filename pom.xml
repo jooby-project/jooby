@@ -143,7 +143,7 @@
     <commons-io.version>2.21.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.2.21</kotlin.version>
+    <kotlin.version>2.3.0</kotlin.version>
     <kotlinx-coroutines-core.version>1.10.2</kotlinx-coroutines-core.version>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
 
