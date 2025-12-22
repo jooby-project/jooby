@@ -267,6 +267,7 @@ public class JettyServer extends io.jooby.Server.Base {
 
         var container = ServerWebSocketContainer.ensure(server, context);
         container.setMaxTextMessageSize(maxSize);
+        container.setMaxBinaryMessageSize(maxSize);
         container.setIdleTimeout(Duration.ofMillis(timeout));
       }
       server.setHandler(context);
