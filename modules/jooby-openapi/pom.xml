@@ -105,7 +105,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>12.1</version>
+      <version>12.2</version>
       <scope>test</scope>
     </dependency>
 
@@ -151,7 +151,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.18.2</version>
+      <version>1.18.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
