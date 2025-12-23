@@ -183,7 +183,12 @@ public class RouteParser {
     for (Parameter parameter : parameters) {
       String javaType = ((ParameterExt) parameter).getJavaType();
       if (parameter.getSchema() == null) {
-        Optional.ofNullable(ctx.schema(javaType)).ifPresent(parameter::setSchema);
+        Optional.ofNullable(ctx.schema(javaType))
+            .ifPresent(
+                schema -> {
+                  schema.setDefault(((ParameterExt) parameter).getDefaultValue());
+                  parameter.setSchema(schema);
+                });
       }
       if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
         parameter.getSchema().setFormat("password");
@@ -214,7 +219,6 @@ public class RouteParser {
                 p.setDescription(propertyDoc);
               }
             }
-
             params.add(p);
           }
         } else {
@@ -228,7 +232,9 @@ public class RouteParser {
   }
 
   private boolean isPassword(String name) {
-    return "password".equalsIgnoreCase(name) || "pass".equalsIgnoreCase(name);
+    return "password".equalsIgnoreCase(name)
+        || "pass".equalsIgnoreCase(name)
+        || "secret".equalsIgnoreCase(name);
   }
 
   private void uniqueOperationId(List<OperationExt> operations) {

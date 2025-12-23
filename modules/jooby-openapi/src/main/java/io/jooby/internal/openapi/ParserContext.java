@@ -161,6 +161,10 @@ public class ParserContext {
     return schemas.values().stream().map(ref -> ref.schema).collect(Collectors.toList());
   }
 
+  public ClassLoader classLoader() {
+    return source.getClassLoader();
+  }
+
   public JavaDocParser javadoc() {
     return javadocParser;
   }

@@ -5,7 +5,7 @@
  */
 package issues;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.jooby.openapi.OpenAPIResult;
 import io.jooby.openapi.OpenAPITest;
@@ -14,65 +14,68 @@ import issues.i1573.App1573;
 public class Issue1573 {
   @OpenAPITest(value = App1573.class)
   public void shouldGenerateExpandPaths(OpenAPIResult result) {
-    assertEquals(
-        "openapi: 3.0.1\n"
-            + "info:\n"
-            + "  title: 1573 API\n"
-            + "  description: 1573 API description\n"
-            + "  version: \"1.0\"\n"
-            + "paths:\n"
-            + "  /profile:\n"
-            + "    get:\n"
-            + "      operationId: getProfile\n"
-            + "      responses:\n"
-            + "        \"200\":\n"
-            + "          description: Success\n"
-            + "          content:\n"
-            + "            application/json:\n"
-            + "              schema:\n"
-            + "                type: string\n"
-            + "  /profile/{id}:\n"
-            + "    get:\n"
-            + "      operationId: getProfileId\n"
-            + "      parameters:\n"
-            + "      - name: id\n"
-            + "        in: path\n"
-            + "        required: true\n"
-            + "        schema:\n"
-            + "          type: string\n"
-            + "      responses:\n"
-            + "        \"200\":\n"
-            + "          description: Success\n"
-            + "          content:\n"
-            + "            application/json:\n"
-            + "              schema:\n"
-            + "                type: string\n"
-            + "  /c/profile:\n"
-            + "    get:\n"
-            + "      operationId: profile\n"
-            + "      responses:\n"
-            + "        \"200\":\n"
-            + "          description: Success\n"
-            + "          content:\n"
-            + "            application/json:\n"
-            + "              schema:\n"
-            + "                type: string\n"
-            + "  /c/profile/{id}:\n"
-            + "    get:\n"
-            + "      operationId: profile2\n"
-            + "      parameters:\n"
-            + "      - name: id\n"
-            + "        in: path\n"
-            + "        required: true\n"
-            + "        schema:\n"
-            + "          type: string\n"
-            + "      responses:\n"
-            + "        \"200\":\n"
-            + "          description: Success\n"
-            + "          content:\n"
-            + "            application/json:\n"
-            + "              schema:\n"
-            + "                type: string\n",
-        result.toYaml());
+    assertThat(result.toYaml())
+        .isEqualToIgnoringNewLines(
+            """
+            openapi: 3.0.1
+            info:
+              title: 1573 API
+              description: 1573 API description
+              version: "1.0"
+            paths:
+              /profile:
+                get:
+                  operationId: getProfile
+                  responses:
+                    "200":
+                      description: Success
+                      content:
+                        application/json:
+                          schema:
+                            type: string
+              /profile/{id}:
+                get:
+                  operationId: getProfileId
+                  parameters:
+                  - name: id
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                      default: self
+                  responses:
+                    "200":
+                      description: Success
+                      content:
+                        application/json:
+                          schema:
+                            type: string
+              /c/profile:
+                get:
+                  operationId: profile
+                  responses:
+                    "200":
+                      description: Success
+                      content:
+                        application/json:
+                          schema:
+                            type: string
+              /c/profile/{id}:
+                get:
+                  operationId: profile2
+                  parameters:
+                  - name: id
+                    in: path
+                    required: true
+                    schema:
+                      type: string
+                  responses:
+                    "200":
+                      description: Success
+                      content:
+                        application/json:
+                          schema:
+                            type: string\
+            """);
   }
 }

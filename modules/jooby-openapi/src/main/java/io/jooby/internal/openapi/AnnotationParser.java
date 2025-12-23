@@ -7,7 +7,6 @@ package io.jooby.internal.openapi;
 
 import static io.jooby.internal.openapi.AsmUtils.*;
 import static io.jooby.internal.openapi.TypeFactory.*;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 import java.util.*;
@@ -22,6 +21,8 @@ import org.objectweb.asm.tree.*;
 
 import io.jooby.*;
 import io.jooby.annotation.*;
+import io.jooby.value.Value;
+import io.jooby.value.ValueFactory;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -110,27 +111,52 @@ public class AnnotationParser {
 
     public void setIn(Parameter parameter) {}
 
-    public Optional<String> getHttpName(List<AnnotationNode> annotations) {
-      List<Class> names = new ArrayList<>(asList(annotations()));
-      names.add(Named.class);
-      return annotations.stream()
-          .filter(a -> names.stream().anyMatch(c -> Type.getDescriptor(c).equals(a.desc)))
-          .map(
-              a -> {
-                if (a.values != null) {
-                  for (int i = 0; i < a.values.size(); i++) {
-                    if (a.values.get(i).equals("value")) {
-                      Object value = a.values.get(i + 1);
-                      if (value != null && value.toString().trim().length() > 0) {
-                        return value.toString().trim();
-                      }
-                    }
-                  }
+    public Optional<String> getDefaultValue(List<AnnotationNode> annotations) {
+      List<Class> names =
+          Stream.of(annotations()).filter(it -> it.getName().startsWith("io.jooby")).toList();
+      for (var a : annotations) {
+        if (a.values != null) {
+          var matches = names.stream().anyMatch(it -> Type.getDescriptor(it).equals(a.desc));
+          if (matches) {
+            for (int i = 0; i < a.values.size(); i++) {
+              if (a.values.get(i).equals("value")) {
+                Object value = a.values.get(i + 1);
+                if (value != null && !value.toString().trim().isEmpty()) {
+                  return Optional.of(value.toString().trim());
                 }
-                return null;
-              })
-          .filter(Objects::nonNull)
-          .findFirst();
+              }
+            }
+          }
+        }
+      }
+      return Optional.empty();
+    }
+
+    public Optional<String> getHttpName(List<AnnotationNode> annotations) {
+      List<Map.Entry<Class, String>> names =
+          Stream.concat(Stream.of(annotations()), Stream.of(Named.class))
+              .map(it -> Map.entry(it, it.getName().startsWith("io.jooby") ? "name" : "value"))
+              .toList();
+      for (var a : annotations) {
+        if (a.values != null) {
+          var mapping =
+              names.stream()
+                  .filter(it -> Type.getDescriptor(it.getKey()).equals(a.desc))
+                  .findFirst()
+                  .orElse(null);
+          if (mapping != null) {
+            for (int i = 0; i < a.values.size(); i++) {
+              if (a.values.get(i).equals(mapping.getValue())) {
+                Object value = a.values.get(i + 1);
+                if (value != null && !value.toString().trim().isEmpty()) {
+                  return Optional.of(value.toString().trim());
+                }
+              }
+            }
+          }
+        }
+      }
+      return Optional.empty();
     }
 
     public static ParamType find(List<AnnotationNode> annotations) {
@@ -383,9 +409,9 @@ public class AnnotationParser {
         List<String> javaName;
         if ((parameter.name.equals("continuation") || parameter.name.equals("$completion"))
             && i == method.parameters.size() - 1) {
-          javaName = asList(parameter.name, "$continuation");
+          javaName = List.of(parameter.name, "$continuation");
         } else {
-          javaName = singletonList(parameter.name);
+          javaName = List.of(parameter.name);
         }
         /* Java Type: */
         LocalVariableNode variable =
@@ -435,11 +461,7 @@ public class AnnotationParser {
           body.setJavaType(javaType);
           requestBody.accept(body);
         } else if (paramType == ParamType.FORM) {
-          String field = paramType.getHttpName(annotations).orElse(parameter.name);
-          if (required) {
-            requiredFormFields.add(field);
-          }
-          Schema schemaProperty = ctx.schema(javaType);
+          var schemaProperty = ctx.schema(javaType);
           if (ctx.schemaRef(javaType).isPresent()) {
             // form bean (i.e. single body)
             RequestBodyExt body = new RequestBodyExt();
@@ -450,30 +472,45 @@ public class AnnotationParser {
             body.setJavaType(javaType);
             requestBody.accept(body);
           } else {
+            String field = paramType.getHttpName(annotations).orElse(parameter.name);
+            paramType
+                .getDefaultValue(annotations)
+                .flatMap(value -> convertValue(ctx, javaType, value))
+                .ifPresent(schemaProperty::setDefault);
+            if (schemaProperty.getDefault() == null) {
+              if (required) {
+                requiredFormFields.add(field);
+              }
+            }
             // single property
             form.put(field, schemaProperty);
           }
         } else {
           ParameterExt argument = new ParameterExt();
-          argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
           argument.setJavaType(javaType);
+          argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
+          paramType
+              .getDefaultValue(annotations)
+              .flatMap(value -> convertValue(ctx, javaType, value))
+              .ifPresent(argument::setDefaultValue);
           paramType.setIn(argument);
-          if (required) {
-            argument.setRequired(true);
+          if (argument.getDefaultValue() == null) {
+            if (required) {
+              argument.setRequired(true);
+            }
           }
           result.add(argument);
         }
       }
     }
-    if (form.size() > 0) {
-      Schema schema = new ObjectSchema();
+    if (!form.isEmpty()) {
+      var schema = new ObjectSchema();
       schema.setProperties(form);
-      if (requiredFormFields.size() > 0) {
+      if (!requiredFormFields.isEmpty()) {
         schema.setRequired(requiredFormFields);
       }
 
-      io.swagger.v3.oas.models.media.MediaType mediaType =
-          new io.swagger.v3.oas.models.media.MediaType();
+      var mediaType = new io.swagger.v3.oas.models.media.MediaType();
       mediaType.setSchema(schema);
 
       Content content = new Content();
@@ -485,6 +522,40 @@ public class AnnotationParser {
       requestBody.accept(body);
     }
     return result;
+  }
+
+  private static Optional<?> convertValue(ParserContext ctx, String javaType, String value) {
+    try {
+      switch (javaType) {
+        case "boolean":
+          return Optional.of(Boolean.parseBoolean(value));
+        case "int":
+          return Optional.of(Integer.parseInt(value));
+        case "long":
+          return Optional.of(Long.parseLong(value));
+        case "double":
+          return Optional.of(Double.parseDouble(value));
+        case "float":
+          return Optional.of(Float.parseFloat(value));
+        case "byte":
+          return Optional.of(Byte.parseByte(value));
+        case "short":
+          return Optional.of(Short.parseShort(value));
+        case "char":
+          return Optional.of(value.charAt(0));
+        case "java.lang.String":
+          return Optional.of(value);
+        default:
+          {
+            var realType = ctx.classLoader().loadClass(javaType);
+            ValueFactory factory = new ValueFactory();
+            return Optional.ofNullable(
+                factory.convert(realType, Value.value(factory, "value", value)));
+          }
+      }
+    } catch (Exception ignored) {
+      return Optional.empty();
+    }
   }
 
   private static boolean isNullable(MethodNode method, int paramIndex) {
@@ -604,7 +675,7 @@ public class AnnotationParser {
       List<String> annotationTypes =
           httpMethods().stream()
               .map(classname -> Type.getObjectType(classname.replace(".", "/")).getDescriptor())
-              .collect(Collectors.toList());
+              .toList();
 
       return node.visibleAnnotations.stream().anyMatch(a -> annotationTypes.contains(a.desc));
     }

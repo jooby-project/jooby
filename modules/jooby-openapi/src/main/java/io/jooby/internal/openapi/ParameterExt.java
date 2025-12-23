@@ -10,6 +10,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
@@ -35,6 +36,11 @@ public class ParameterExt extends Parameter {
       }
     }
     return defaultValue;
+  }
+
+  @Override
+  public void setSchema(Schema schema) {
+    super.setSchema(schema);
   }
 
   public boolean isSingle() {
