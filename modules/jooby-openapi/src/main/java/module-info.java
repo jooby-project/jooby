@@ -29,4 +29,5 @@ module io.jooby.openapi {
   requires com.fasterxml.jackson.dataformat.yaml;
   requires io.swagger.models;
   requires com.fasterxml.jackson.annotation;
+  requires jakarta.validation;
 }

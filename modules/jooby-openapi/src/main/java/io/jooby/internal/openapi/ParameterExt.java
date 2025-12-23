@@ -5,7 +5,10 @@
  */
 package io.jooby.internal.openapi;
 
+import java.util.List;
 import java.util.Objects;
+
+import org.objectweb.asm.tree.AnnotationNode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import edu.umd.cs.findbugs.annotations.NonNull;
@@ -20,6 +23,8 @@ public class ParameterExt extends Parameter {
   @JsonIgnore private Object defaultValue;
 
   @JsonIgnore private boolean single = true;
+
+  @JsonIgnore private List<AnnotationNode> annotations = List.of();
 
   public void setJavaType(String javaType) {
     this.javaType = javaType;
@@ -69,8 +74,20 @@ public class ParameterExt extends Parameter {
     return basic(name, "header", value);
   }
 
-  public static Parameter cookie(@NonNull String name, @Nullable String value) {
-    return basic(name, "cookie", value);
+  @JsonIgnore
+  public boolean isPassword() {
+    return getSchema() instanceof StringSchema
+        && ("password".equalsIgnoreCase(getName())
+            || "pass".equalsIgnoreCase(getName())
+            || "secret".equalsIgnoreCase(getName()));
+  }
+
+  public List<AnnotationNode> getAnnotations() {
+    return annotations;
+  }
+
+  public void setAnnotations(List<AnnotationNode> annotations) {
+    this.annotations = annotations;
   }
 
   public static Parameter basic(@NonNull String name, @NonNull String in, @Nullable String value) {
@@ -81,5 +98,9 @@ public class ParameterExt extends Parameter {
     param.setSchema(new StringSchema());
     param.setJavaType(String.class.getName());
     return param;
+  }
+
+  public void processConstraints() {
+    JakartaConstraints.apply(getSchema(), annotations);
   }
 }

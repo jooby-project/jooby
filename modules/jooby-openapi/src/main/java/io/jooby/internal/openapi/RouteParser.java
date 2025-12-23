@@ -49,7 +49,6 @@ import io.jooby.annotation.OpenApiRegister;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.Schema;
-import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 
@@ -170,6 +169,15 @@ public class RouteParser {
         content.addMediaType(mediaTypeName, mediaType);
         requestBody.setContent(content);
       }
+      if (requestBody.getJavaType() != null) {
+        ctx.schemaRef(requestBody.getJavaType())
+            .map(ref -> ref.schema)
+            .ifPresent(
+                schema -> {
+                  JakartaConstraints.apply(
+                      ctx.classNode(TypeFactory.fromJavaName(requestBody.getJavaType())), schema);
+                });
+      }
       if (requestBody.getExamples() != null) {
         requestBody
             .getContent()
@@ -181,26 +189,34 @@ public class RouteParser {
   private List<Parameter> checkParameters(ParserContext ctx, List<Parameter> parameters) {
     List<Parameter> params = new ArrayList<>();
     for (Parameter parameter : parameters) {
-      String javaType = ((ParameterExt) parameter).getJavaType();
+      var paramExt = (ParameterExt) parameter;
+      String javaType = paramExt.getJavaType();
       if (parameter.getSchema() == null) {
         Optional.ofNullable(ctx.schema(javaType))
             .ifPresent(
                 schema -> {
-                  schema.setDefault(((ParameterExt) parameter).getDefaultValue());
+                  schema.setDefault(paramExt.getDefaultValue());
                   parameter.setSchema(schema);
                 });
       }
-      if (parameter.getSchema() instanceof StringSchema && isPassword(parameter.getName())) {
+      if (paramExt.isPassword()) {
         parameter.getSchema().setFormat("password");
       }
+      JakartaConstraints.apply(parameter.getSchema(), ((ParameterExt) parameter).getAnnotations());
+
       if (parameter.getIn().equals("query")) {
         boolean expand =
             ctx.schemaRef(javaType)
-                .filter(ref -> "object".equals(ref.schema.getType()))
+                .filter(
+                    ref ->
+                        "object".equals(ref.schema.getType())
+                            || (ref.schema.getTypes() != null
+                                && ref.schema.getTypes().contains("object")))
                 .isPresent();
         if (expand) {
           SchemaRef ref = ctx.schemaRef(javaType).get();
           var doc = ctx.javadoc().parse(javaType).orElse(null);
+          JakartaConstraints.apply(ctx.classNode(TypeFactory.fromJavaName(javaType)), ref.schema);
           for (Object e : ref.schema.getProperties().entrySet()) {
             String name = (String) ((Map.Entry) e).getKey();
             Schema s = (Schema) ((Map.Entry) e).getValue();
@@ -229,12 +245,6 @@ public class RouteParser {
       }
     }
     return params;
-  }
-
-  private boolean isPassword(String name) {
-    return "password".equalsIgnoreCase(name)
-        || "pass".equalsIgnoreCase(name)
-        || "secret".equalsIgnoreCase(name);
   }
 
   private void uniqueOperationId(List<OperationExt> operations) {

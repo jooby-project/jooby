@@ -118,14 +118,7 @@ public class AnnotationParser {
         if (a.values != null) {
           var matches = names.stream().anyMatch(it -> Type.getDescriptor(it).equals(a.desc));
           if (matches) {
-            for (int i = 0; i < a.values.size(); i++) {
-              if (a.values.get(i).equals("value")) {
-                Object value = a.values.get(i + 1);
-                if (value != null && !value.toString().trim().isEmpty()) {
-                  return Optional.of(value.toString().trim());
-                }
-              }
-            }
+            return AnnotationUtils.findAnnotationValue(a, "value").map(Objects::toString);
           }
         }
       }
@@ -145,14 +138,8 @@ public class AnnotationParser {
                   .findFirst()
                   .orElse(null);
           if (mapping != null) {
-            for (int i = 0; i < a.values.size(); i++) {
-              if (a.values.get(i).equals(mapping.getValue())) {
-                Object value = a.values.get(i + 1);
-                if (value != null && !value.toString().trim().isEmpty()) {
-                  return Optional.of(value.toString().trim());
-                }
-              }
-            }
+            return AnnotationUtils.findAnnotationValue(a, mapping.getValue())
+                .map(Objects::toString);
           }
         }
       }
@@ -489,6 +476,7 @@ public class AnnotationParser {
           ParameterExt argument = new ParameterExt();
           argument.setJavaType(javaType);
           argument.setName(paramType.getHttpName(annotations).orElse(parameter.name));
+          argument.setAnnotations(annotations);
           paramType
               .getDefaultValue(annotations)
               .flatMap(value -> convertValue(ctx, javaType, value))
