@@ -9,6 +9,9 @@ This library supports:
 - https://swagger.io/specification[OpenAPI 3] (json and yaml)
 - https://swagger.io/tools/swagger-ui[Swagger UI] (Optional)
 - https://github.com/Redocly/redoc[Redoc] (Optional)
+- AsciiDoc Output (Optional)
+
+Checkout the [demo project](https://github.com/jooby-project/library-demo)
 
 === Configuration
 
@@ -200,6 +203,8 @@ The Maven plugin and Gradle task provide two filter properties `includes` and `e
 properties filter routes by their path pattern. The filter is a regular expression.
 
 === Documenting your API
+
+Full/complete example available [here](https://github.com/jooby-project/library-demo)
 
 ==== JavaDoc comments
 
