@@ -49,7 +49,7 @@ public class Git {
   public String currentBranch() throws Exception {
     var out = new ByteArrayOutputStream();
     execute(List.of("git", "branch", "--show-current"), out);
-    return out.toString(StandardCharsets.UTF_8);
+    return out.toString(StandardCharsets.UTF_8).trim();
   }
 
   public void commit(String comment) throws Exception {

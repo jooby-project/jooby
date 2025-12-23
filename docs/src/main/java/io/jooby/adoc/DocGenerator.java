@@ -46,11 +46,7 @@ public class DocGenerator {
     String version = version();
     // 2.x/3.x/main
     var branch = new Git("jooby-project", "jooby", Paths.get(System.getProperty("user.dir"))).currentBranch();
-    var uiVersion = switch (branch) {
-      case "2.x" -> "/v2";
-      case "3.x" -> "/v3";
-      default ->  "main";
-    };
+    var uiVersion = branch.equals("main") ? "" : "/v" + branch.replace(".x", "");
 
     Path asciidoc = basedir.resolve("asciidoc");
 
