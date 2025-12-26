@@ -12,6 +12,7 @@ import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +50,9 @@ public class OpenAPIMojo extends BaseMojo {
   @Parameter(property = "openAPI.specVersion")
   private String specVersion;
 
+  @Parameter(property = "openAPI.mcp")
+  private Boolean mcp;
+
   @Parameter private List<File> adoc;
 
   @Override
@@ -80,6 +84,10 @@ public class OpenAPIMojo extends BaseMojo {
     var result = tool.generate(mainClass);
 
     var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
+    var formats = EnumSet.allOf(OpenAPIGenerator.Format.class);
+    if (mcp != Boolean.TRUE) {
+      formats.remove(OpenAPIGenerator.Format.MCP);
+    }
     for (var format : OpenAPIGenerator.Format.values()) {
       tool.export(result, format, Map.of("adoc", adocPath))
           .forEach(output -> getLog().info("  writing: " + output));
@@ -143,5 +151,13 @@ public class OpenAPIMojo extends BaseMojo {
 
   public void setAdoc(List<File> adoc) {
     this.adoc = adoc;
+  }
+
+  public Boolean getMcp() {
+    return mcp;
+  }
+
+  public void setMcp(Boolean mcp) {
+    this.mcp = mcp;
   }
 }

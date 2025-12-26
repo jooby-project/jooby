@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.openapi.asciidoc;
 
-import static io.swagger.v3.oas.models.Components.COMPONENTS_SCHEMAS_REF;
 import static java.util.Optional.ofNullable;
 
 import java.io.IOException;
@@ -29,6 +28,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OpenAPIExt;
+import io.jooby.internal.openapi.OpenApiSupport;
 import io.pebbletemplates.pebble.PebbleEngine;
 import io.pebbletemplates.pebble.error.PebbleException;
 import io.pebbletemplates.pebble.extension.AbstractExtension;
@@ -45,7 +45,7 @@ import io.swagger.v3.oas.models.media.BooleanSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
-public class AsciiDocContext {
+public class AsciiDocContext extends OpenApiSupport {
   public static final BiConsumer<String, Schema<?>> NOOP = (name, schema) -> {};
 
   private ObjectMapper json;
@@ -70,6 +70,7 @@ public class AsciiDocContext {
   }
 
   public AsciiDocContext(Path baseDir, ObjectMapper json, ObjectMapper yaml, OpenAPIExt openapi) {
+    super(openapi);
     this.json = json;
     this.yamlOpenApi = yaml;
     this.yamlOutput = newYamlOutput();
@@ -304,14 +305,6 @@ public class AsciiDocContext {
     return Optional.ofNullable(resolved.getFormat()).orElse(resolved.getType());
   }
 
-  public Schema<?> resolveSchema(Schema<?> schema) {
-    if (schema.get$ref() != null) {
-      return resolveSchemaInternal(schema.get$ref())
-          .orElseThrow(() -> new NoSuchElementException("Schema not found: " + schema.get$ref()));
-    }
-    return schema;
-  }
-
   public Object schemaProperties(Schema<?> schema) {
     var resolved = resolveSchema(schema);
     if ("array".equals(resolved.getType())) {
@@ -462,17 +455,6 @@ public class AsciiDocContext {
       schema = inner;
     }
     return schema;
-  }
-
-  private Optional<Schema<?>> resolveSchemaInternal(String name) {
-    var components = openapi.getComponents();
-    if (components == null || components.getSchemas() == null) {
-      throw new NoSuchElementException("No schema found");
-    }
-    if (name.startsWith(COMPONENTS_SCHEMAS_REF)) {
-      name = name.substring(COMPONENTS_SCHEMAS_REF.length());
-    }
-    return Optional.ofNullable((Schema<?>) components.getSchemas().get(name));
   }
 
   public PebbleEngine getEngine() {

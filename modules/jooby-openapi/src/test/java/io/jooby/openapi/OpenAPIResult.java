@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
+import io.jooby.internal.openapi.mcp.McpContext;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.parser.OpenAPIV3Parser;
@@ -76,6 +77,10 @@ public class OpenAPIResult {
     if (failure != null) {
       throw failure;
     }
+    return json(validate);
+  }
+
+  private String json(boolean validate) {
     try {
       String json = this.json.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
       if (validate) {
@@ -104,20 +109,26 @@ public class OpenAPIResult {
       throw failure;
     }
     try {
-      String json = this.json.writerWithDefaultPrettyPrinter().writeValueAsString(openAPI);
-      if (validate) {
-        SwaggerParseResult result = new OpenAPIV3Parser().readContents(json);
-        if (result.getMessages().isEmpty()) {
-          return json;
-        }
-        throw new IllegalStateException(
-            "Invalid OpenAPI specification:\n\t- "
-                + String.join("\n\t- ", result.getMessages()).trim()
-                + "\n\n"
-                + json);
-      }
+      json(validate);
       var asciiDoc = new AsciiDocContext(index.getParent(), this.json, this.yaml, openAPI);
       return asciiDoc.generate(index);
+    } catch (Exception x) {
+      throw SneakyThrows.propagate(x);
+    }
+  }
+
+  public String toMcp() {
+    return toMcp(false);
+  }
+
+  public String toMcp(boolean validate) {
+    if (failure != null) {
+      throw failure;
+    }
+    try {
+      json(validate);
+      var mcp = new McpContext(openAPI);
+      return mcp.generate();
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }

@@ -7,6 +7,7 @@ package issues.i3820.app;
 
 import java.util.List;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.*;
 import io.jooby.exception.NotFoundException;
 import issues.i3820.model.Author;
@@ -79,10 +80,10 @@ public class LibApi {
   @Path("/books")
   @Produces("application/json")
   public Page<Book> getBooksByTitle(
-      @QueryParam String title, @QueryParam int page, @QueryParam int size) {
+      @NonNull @QueryParam String title, @QueryParam Integer page, @QueryParam Integer size) {
     // Ensure we have sensible defaults if the user sends nothing
-    int pageNum = page > 0 ? page : 1;
-    int pageSize = size > 0 ? size : 20;
+    int pageNum = page != null ? page : 1;
+    int pageSize = size != null ? size : 20;
 
     // Ask the database for just this specific slice of data
     return library.findBooksByTitle(title, PageRequest.ofPage(pageNum).size(pageSize));

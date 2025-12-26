@@ -16,6 +16,7 @@ import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +42,8 @@ public class OpenAPITask extends BaseTask {
   private String specVersion;
 
   private List<File> adoc;
+
+  private Boolean mcp;
 
   /**
    * Creates an OpenAPI task.
@@ -89,7 +92,11 @@ public class OpenAPITask extends BaseTask {
     OpenAPI result = tool.generate(mainClass);
 
     var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
-    for (var format : OpenAPIGenerator.Format.values()) {
+    var formats = EnumSet.allOf(OpenAPIGenerator.Format.class);
+    if (mcp != Boolean.TRUE) {
+      formats.remove(OpenAPIGenerator.Format.MCP);
+    }
+    for (var format : formats) {
       tool.export(result, format, Map.of("adoc", adocPath))
           .forEach(output -> getLogger().info("  writing: " + output));
     }
@@ -152,6 +159,21 @@ public class OpenAPITask extends BaseTask {
    */
   public void setIncludes(@Nullable String includes) {
     this.includes = includes;
+  }
+
+  /**
+   * Beta generate a mcp like file format. Disabled by default.
+   *
+   * @return Mcp.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public Boolean getMcp() {
+    return mcp;
+  }
+
+  public void setMcp(Boolean mcp) {
+    this.mcp = mcp;
   }
 
   /**
