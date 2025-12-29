@@ -12,7 +12,7 @@
   <name>jooby-awssdk-v2</name>
 
   <properties>
-    <awssdk.version>2.40.13</awssdk.version>
+    <awssdk.version>2.40.16</awssdk.version>
   </properties>
 
   <dependencyManagement>
