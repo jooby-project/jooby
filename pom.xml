@@ -135,7 +135,7 @@
     <pac4j.version>6.2.2</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.15.0</bucket4j-core.version>
+    <bucket4j-core.version>8.16.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.796</aws-java-sdk.version>
     <camel.version>4.15.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
