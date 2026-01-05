@@ -78,7 +78,7 @@
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
     <lettuce.version>7.2.1.RELEASE</lettuce.version>
-    <commons-pool2.version>2.13.0</commons-pool2.version>
+    <commons-pool2.version>2.13.1</commons-pool2.version>
     <kafka.version>4.1.1</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
 
@@ -135,8 +135,8 @@
     <pac4j.version>6.2.2</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.15.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.796</aws-java-sdk.version>
+    <bucket4j-core.version>8.16.0</bucket4j-core.version>
+    <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.15.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
