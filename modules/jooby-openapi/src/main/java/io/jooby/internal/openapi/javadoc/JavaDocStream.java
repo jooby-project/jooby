@@ -145,7 +145,7 @@ public final class JavaDocStream {
 
       @Override
       public boolean hasNext() {
-        return it.getParent() != null;
+        return it.getNode() != null && it.getParent() != null;
       }
 
       @Override
@@ -163,14 +163,15 @@ public final class JavaDocStream {
 
       @Override
       public boolean hasNext() {
-        return it != null;
+        return it != null && it.getNode() != null;
       }
 
       @Override
       public T next() {
-        if (it.getNextSibling() != null) {
+        var sibling = it.getNextSibling();
+        if (sibling != null) {
           if (full || it != node) {
-            stack.push(it.getNextSibling());
+            stack.push(sibling);
           }
         }
         var current = it;
@@ -210,22 +211,26 @@ public final class JavaDocStream {
     static <N> ASTNode<N> ast(
         N node, Function<N, N> parent, Function<N, N> child, Function<N, N> sibling) {
       return new ASTNode<>() {
-        @Override
-        public ASTNode<N> getParent() {
-          var parentNode = parent.apply(node);
-          if (parentNode == null) {
+
+        private ASTNode<N> apply(Function<N, N> fn) {
+          if (node == null) {
             return null;
           }
-          return ast(parentNode, parent, child, sibling);
+          var result = fn.apply(node);
+          if (result == null) {
+            return null;
+          }
+          return ast(result, parent, child, sibling);
+        }
+
+        @Override
+        public ASTNode<N> getParent() {
+          return apply(parent);
         }
 
         @Override
         public ASTNode<N> getFirstChild() {
-          var childNode = child.apply(node);
-          if (childNode == null) {
-            return null;
-          }
-          return ast(childNode, parent, child, sibling);
+          return apply(child);
         }
 
         @Override
@@ -235,11 +240,7 @@ public final class JavaDocStream {
 
         @Override
         public ASTNode<N> getNextSibling() {
-          var siblingNode = sibling.apply(node);
-          if (siblingNode == null) {
-            return null;
-          }
-          return ast(siblingNode, parent, child, sibling);
+          return apply(sibling);
         }
       };
     }
