@@ -7,6 +7,7 @@ package io.jooby.internal.undertow;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.function.Function;
 
 import io.jooby.*;
 import io.undertow.io.Receiver;
@@ -19,6 +20,7 @@ import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.Headers;
 import io.undertow.util.ParameterLimitException;
+import io.undertow.util.Protocols;
 
 public class UndertowHandler implements HttpHandler {
   private final long maxRequestSize;
@@ -54,9 +56,20 @@ public class UndertowHandler implements HttpHandler {
     } else {
       // possibly  HTTP body
       HeaderMap headers = exchange.getRequestHeaders();
+      if (exchange
+          .getRequestHeaders()
+          .get(Headers.CONTENT_TYPE)
+          .getFirst()
+          .contains("application/grpc")) {
+        //        var route = router.match(context);
+        //          context.setRoute(route.route());
+        var subscriber = router.require(ServiceKey.key(Function.class, "gRPC"));
+        new UndertowGrpcHandler(this, router, bufferSize, subscriber).handleRequest(exchange);
+        return;
+      }
       long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
       String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);
-      if (len > 0 || chunked != null) {
+      if (len > 0 || chunked != null || exchange.getProtocol().equals(Protocols.HTTP_2_0)) {
         if (len > maxRequestSize) {
           Router.Match route = router.match(context);
           if (route.matches()) {
@@ -88,7 +101,11 @@ public class UndertowHandler implements HttpHandler {
           if (len > 0 && len <= bufferSize) {
             receiver.receiveFullBytes(reader);
           } else {
-            receiver.receivePartialBytes(reader);
+            if (exchange.getProtocol().equals(Protocols.HTTP_2_0)) {
+              receiver.receiveFullBytes(reader);
+            } else {
+              receiver.receivePartialBytes(reader);
+            }
           }
         } else {
           try {

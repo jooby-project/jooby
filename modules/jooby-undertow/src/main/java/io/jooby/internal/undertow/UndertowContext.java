@@ -46,12 +46,14 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.RenegotiationRequiredException;
 import io.undertow.server.SSLSessionInfo;
 import io.undertow.server.handlers.form.FormData;
+import io.undertow.server.protocol.http.HttpAttachments;
 import io.undertow.util.*;
 
 public class UndertowContext implements DefaultContext, IoCallback {
   private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
   private Route route;
   HttpServerExchange exchange;
+  HeaderMap trailers;
   private Router router;
   private QueryString query;
   private Formdata formdata;
@@ -331,6 +333,16 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
+  @Override
+  public Context setResponseTrailer(@NonNull String name, @NonNull String value) {
+    if (trailers == null) {
+      trailers = new HeaderMap();
+      exchange.putAttachment(HttpAttachments.RESPONSE_TRAILERS, trailers);
+    }
+    trailers.put(HttpString.tryFromString(name), value);
+    return this;
+  }
+
   @NonNull @Override
   public Context removeResponseHeader(@NonNull String name) {
     exchange.getResponseHeaders().remove(name);
@@ -412,8 +424,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
   }
 
   @NonNull @Override
-  public io.jooby.Sender responseSender() {
-    return new UndertowSender(this, exchange);
+  public io.jooby.Sender responseSender(boolean startResponse) {
+    return new UndertowSender(this);
   }
 
   @NonNull @Override

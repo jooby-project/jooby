@@ -49,7 +49,7 @@ public class NettyHttp2Configurer {
         new InboundHttp2ToHttpAdapterBuilder(connection)
             .propagateSettings(false)
             .validateHttpHeaders(true)
-            .maxContentLength(maxRequestSize)
+            .maxContentLength(-1)
             .build();
 
     return new HttpToHttp2ConnectionHandlerBuilder()

@@ -154,7 +154,7 @@ public class UndertowServer extends Server.Base {
         builder.addHttpListener(options.getPort(), options.getHost());
       }
 
-      // HTTP @
+      // HTTP/2
       builder.setServerOption(ENABLE_HTTP2, options.isHttp2() == Boolean.TRUE);
       var classLoader = this.applications.get(0).getClassLoader();
       SSLContext sslContext = options.getSSLContext(classLoader);

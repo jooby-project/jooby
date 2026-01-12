@@ -62,6 +62,8 @@
     <module>jooby-thymeleaf</module>
     <module>jooby-camel</module>
 
+    <module>jooby-grpc</module>
+
     <!-- validation -->
     <module>jooby-avaje-validator</module>
     <module>jooby-hibernate-validator</module>

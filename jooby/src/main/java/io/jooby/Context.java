@@ -1089,6 +1089,15 @@ public interface Context extends Registry {
   Context setResponseHeader(@NonNull String name, @NonNull String value);
 
   /**
+   * Set response trailer header.
+   *
+   * @param name Header name.
+   * @param value Header value.
+   * @return This context.
+   */
+  Context setResponseTrailer(@NonNull String name, @NonNull String value);
+
+  /**
    * Remove a response header.
    *
    * @param name Header's name.
@@ -1235,6 +1244,13 @@ public interface Context extends Registry {
 
   /**
    * HTTP response channel as chunker.
+   *
+   * @return HTTP channel as chunker. Usually for chunked response.
+   */
+  Sender responseSender(boolean startResponse);
+
+  /**
+   * HTTP response channel as chunker. Mark the response as started.
    *
    * @return HTTP channel as chunker. Usually for chunked response.
    */

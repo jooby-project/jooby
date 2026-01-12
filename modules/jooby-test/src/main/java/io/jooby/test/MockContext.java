@@ -87,6 +87,8 @@ public class MockContext implements DefaultContext {
 
   private Map<String, Object> responseHeaders = new HashMap<>();
 
+  private Map<String, Object> responseTrailers = new HashMap<>();
+
   private Map<String, Object> attributes = new HashMap<>();
 
   private MockResponse response = new MockResponse();
@@ -498,6 +500,12 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
+  public MockContext setResponseTrailer(@NonNull String name, @NonNull String value) {
+    responseTrailers.put(name, value);
+    return this;
+  }
+
+  @Override
   public MockContext setResponseLength(long length) {
     response.setContentLength(length);
     return this;
@@ -557,13 +565,18 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Sender responseSender() {
-    responseStarted = true;
+  public Sender responseSender(boolean startResponse) {
+    responseStarted = startResponse;
     return new Sender() {
       @Override
       public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
         response.setResult(data);
         callback.onComplete(MockContext.this, null);
+        return this;
+      }
+
+      @Override
+      public Sender setTrailer(@NonNull String name, @NonNull String value) {
         return this;
       }
 

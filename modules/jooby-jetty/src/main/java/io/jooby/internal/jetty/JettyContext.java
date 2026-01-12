@@ -81,6 +81,7 @@ public class JettyContext implements DefaultContext, Callback {
   private final long maxRequestSize;
   Request request;
   Response response;
+  HttpFields.Mutable trailers;
 
   private QueryString query;
   private Formdata formdata;
@@ -439,6 +440,16 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
+  @Override
+  public Context setResponseTrailer(@NonNull String name, @NonNull String value) {
+    if (trailers == null) {
+      trailers = HttpFields.build();
+      response.setTrailersSupplier(() -> trailers);
+    }
+    trailers.put(name, value);
+    return this;
+  }
+
   @NonNull @Override
   public Context removeResponseHeader(@NonNull String name) {
     response.getHeaders().remove(name);
@@ -480,11 +491,13 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
-  public Sender responseSender() {
-    responseStarted = true;
-    ifSetChunked();
-    return new JettySender(this, response);
+  @Override
+  public Sender responseSender(boolean startResponse) {
+    responseStarted = startResponse;
+    if (startResponse) {
+      ifSetChunked();
+    }
+    return new JettySender(this);
   }
 
   @NonNull @Override

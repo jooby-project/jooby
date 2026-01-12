@@ -1,0 +1,11 @@
+INFO  [2026-01-07 18:40:39,944] [worker-91] JettySubscription read data started
+INFO  [2026-01-07 18:40:39,945] [worker-91] JettySubscription byte read: 00000000033a012a
+INFO  [2026-01-07 18:40:39,945] [worker-91] GrpcRequestBridge deframe 3a012a
+INFO  [2026-01-07 18:40:39,946] [worker-91] GrpcRequestBridge asking for more request(1)
+INFO  [2026-01-07 18:40:39,984] [grpc-default-executor-1] UnifiedGrpcBridge onNext Send 12033a012a32460a120a10746573742e43686174536572766963650a250a23677270632e7265666c656374696f6e2e76312e5365727665725265666c656374696f6e0a090a0747726565746572
+INFO  [2026-01-07 18:40:44,114] [grpc-default-executor-0] UnifiedGrpcBridge  error io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+
+INFO  [2026-01-07 18:40:44,114] [Thread-0] GrpcServer Stopped GrpcServer
+INFO  [2026-01-07 18:40:44,117] [worker-88] JettySubscription read data started
+INFO  [2026-01-07 18:40:44,117] [worker-88] JettySubscription last reach
+INFO  [2026-01-07 18:40:44,117] [worker-88] JettySubscription handle complete

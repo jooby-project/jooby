@@ -191,6 +191,11 @@ public class HeadContext extends ForwardingContext {
     }
 
     @Override
+    public Sender setTrailer(@NonNull String name, @NonNull String value) {
+      return this;
+    }
+
+    @Override
     public void close() {}
   }
 }

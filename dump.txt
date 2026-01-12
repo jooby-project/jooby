@@ -1,0 +1,423 @@
+2026-01-02 19:02:09
+Full thread dump OpenJDK 64-Bit Server VM (24.0.2+12 mixed mode, sharing):
+
+Threads class SMR info:
+_java_thread_list=0x0000600001982ce0, length=31, elements={
+0x000000014a00e200, 0x000000014a012000, 0x000000014a012800, 0x000000014a013000,
+0x000000014a013800, 0x000000014a014000, 0x000000014a01c800, 0x000000014981d600,
+0x000000014a122e00, 0x000000014a123600, 0x000000014a9e8800, 0x000000014aa54e00,
+0x000000014aa55600, 0x000000014a9e9000, 0x00000001038d6000, 0x000000014c059c00,
+0x000000014c057800, 0x000000014c058000, 0x000000012fb59200, 0x000000014a1f7000,
+0x000000012fb5bc00, 0x000000013f810200, 0x000000013f819400, 0x000000012f1d5800,
+0x000000012f1d6000, 0x000000013e998400, 0x000000014a1f7800, 0x000000014aa71e00,
+0x000000012e03be00, 0x000000013e875000, 0x000000012e045800
+}
+
+"Reference Handler" #15 [29443] daemon prio=10 os_prio=31 cpu=0.26ms elapsed=24.14s tid=0x000000014a00e200 nid=29443 waiting on condition  [0x000000016e5c2000]
+   java.lang.Thread.State: RUNNABLE
+	at java.lang.ref.Reference.waitForReferencePendingList(java.base@24.0.2/Native Method)
+	at java.lang.ref.Reference.processPendingReferences(java.base@24.0.2/Reference.java:246)
+	at java.lang.ref.Reference$ReferenceHandler.run(java.base@24.0.2/Reference.java:208)
+
+   Locked ownable synchronizers:
+	- None
+
+"Finalizer" #16 [24835] daemon prio=8 os_prio=31 cpu=0.05ms elapsed=24.14s tid=0x000000014a012000 nid=24835 in Object.wait()  [0x000000016e7ce000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@24.0.2/Native Method)
+	- waiting on <0x000000052b00cd30> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@24.0.2/Object.java:389)
+	at java.lang.Object.wait(java.base@24.0.2/Object.java:351)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@24.0.2/ReferenceQueue.java:138)
+	at java.lang.ref.ReferenceQueue.remove(java.base@24.0.2/ReferenceQueue.java:229)
+	- locked <0x000000052b00cd30> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.Finalizer$FinalizerThread.run(java.base@24.0.2/Finalizer.java:165)
+
+   Locked ownable synchronizers:
+	- None
+
+"Signal Dispatcher" #17 [29187] daemon prio=9 os_prio=31 cpu=0.12ms elapsed=24.14s tid=0x000000014a012800 nid=29187 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"Service Thread" #18 [25603] daemon prio=9 os_prio=31 cpu=0.84ms elapsed=24.14s tid=0x000000014a013000 nid=25603 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"Monitor Deflation Thread" #19 [26115] daemon prio=9 os_prio=31 cpu=2.54ms elapsed=24.14s tid=0x000000014a013800 nid=26115 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"C2 CompilerThread0" #20 [28931] daemon prio=9 os_prio=31 cpu=208.92ms elapsed=24.14s tid=0x000000014a014000 nid=28931 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+   Locked ownable synchronizers:
+	- None
+
+"C1 CompilerThread0" #28 [26627] daemon prio=9 os_prio=31 cpu=100.30ms elapsed=24.14s tid=0x000000014a01c800 nid=26627 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+   No compile task
+
+   Locked ownable synchronizers:
+	- None
+
+"Common-Cleaner" #32 [27395] daemon prio=8 os_prio=31 cpu=0.04ms elapsed=24.12s tid=0x000000014981d600 nid=27395 in Object.wait()  [0x000000016f82e000]
+   java.lang.Thread.State: TIMED_WAITING (on object monitor)
+	at java.lang.Object.wait0(java.base@24.0.2/Native Method)
+	- waiting on <0x000000052b0199e8> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.Object.wait(java.base@24.0.2/Object.java:389)
+	at java.lang.ref.ReferenceQueue.remove0(java.base@24.0.2/ReferenceQueue.java:124)
+	at java.lang.ref.ReferenceQueue.remove(java.base@24.0.2/ReferenceQueue.java:215)
+	- locked <0x000000052b0199e8> (a java.lang.ref.ReferenceQueue$Lock)
+	at jdk.internal.ref.CleanerImpl.run(java.base@24.0.2/CleanerImpl.java:140)
+	at java.lang.Thread.runWith(java.base@24.0.2/Thread.java:1460)
+	at java.lang.Thread.run(java.base@24.0.2/Thread.java:1447)
+	at jdk.internal.misc.InnocuousThread.run(java.base@24.0.2/InnocuousThread.java:148)
+
+   Locked ownable synchronizers:
+	- None
+
+"Monitor Ctrl-Break" #33 [43011] daemon prio=5 os_prio=31 cpu=8.19ms elapsed=24.08s tid=0x000000014a122e00 nid=43011 runnable  [0x000000016fc46000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.SocketDispatcher.read0(java.base@24.0.2/Native Method)
+	at sun.nio.ch.SocketDispatcher.read(java.base@24.0.2/SocketDispatcher.java:47)
+	at sun.nio.ch.NioSocketImpl.tryRead(java.base@24.0.2/NioSocketImpl.java:255)
+	at sun.nio.ch.NioSocketImpl.implRead(java.base@24.0.2/NioSocketImpl.java:306)
+	at sun.nio.ch.NioSocketImpl.read(java.base@24.0.2/NioSocketImpl.java:345)
+	at sun.nio.ch.NioSocketImpl$1.read(java.base@24.0.2/NioSocketImpl.java:790)
+	at java.net.Socket$SocketInputStream.implRead(java.base@24.0.2/Socket.java:983)
+	at java.net.Socket$SocketInputStream.read(java.base@24.0.2/Socket.java:970)
+	at sun.nio.cs.StreamDecoder.readBytes(java.base@24.0.2/StreamDecoder.java:279)
+	at sun.nio.cs.StreamDecoder.implRead(java.base@24.0.2/StreamDecoder.java:322)
+	at sun.nio.cs.StreamDecoder.read(java.base@24.0.2/StreamDecoder.java:186)
+	- locked <0x000000052b0266a0> (a java.io.InputStreamReader)
+	at java.io.InputStreamReader.read(java.base@24.0.2/InputStreamReader.java:175)
+	at java.io.BufferedReader.fill(java.base@24.0.2/BufferedReader.java:166)
+	at java.io.BufferedReader.readLine(java.base@24.0.2/BufferedReader.java:333)
+	- locked <0x000000052b0266a0> (a java.io.InputStreamReader)
+	at java.io.BufferedReader.readLine(java.base@24.0.2/BufferedReader.java:400)
+	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:31)
+
+   Locked ownable synchronizers:
+	- <0x000000052b3d2888> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+
+"Notification Thread" #34 [42499] daemon prio=9 os_prio=31 cpu=0.01ms elapsed=24.08s tid=0x000000014a123600 nid=42499 runnable  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-1" #49 [38915] prio=5 os_prio=31 cpu=0.35ms elapsed=23.78s tid=0x000000014a9e8800 nid=38915 runnable  [0x00000003220ba000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b0333c8> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b033370> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-2" #50 [38403] prio=5 os_prio=31 cpu=0.29ms elapsed=23.78s tid=0x000000014aa54e00 nid=38403 runnable  [0x00000003222c6000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b040080> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b040028> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-3" #51 [37891] prio=5 os_prio=31 cpu=0.29ms elapsed=23.78s tid=0x000000014aa55600 nid=37891 runnable  [0x00000003224d2000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b04cd38> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b04cce0> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-4" #52 [43523] prio=5 os_prio=31 cpu=0.24ms elapsed=23.78s tid=0x000000014a9e9000 nid=43523 runnable  [0x00000003226de000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b0599f0> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b059998> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-5" #53 [44035] prio=5 os_prio=31 cpu=0.29ms elapsed=23.78s tid=0x00000001038d6000 nid=44035 runnable  [0x00000003228ea000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b073360> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b073308> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-6" #54 [44291] prio=5 os_prio=31 cpu=0.25ms elapsed=23.78s tid=0x000000014c059c00 nid=44291 runnable  [0x0000000322af6000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b0666a8> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b066650> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-7" #55 [64771] prio=5 os_prio=31 cpu=0.23ms elapsed=23.78s tid=0x000000014c057800 nid=64771 runnable  [0x0000000322d02000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b000158> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b000100> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-8" #56 [44803] prio=5 os_prio=31 cpu=28.09ms elapsed=23.78s tid=0x000000014c058000 nid=44803 runnable  [0x0000000322f0e000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b080018> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b07ffc0> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:142)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:563)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-9" #57 [64515] prio=5 os_prio=31 cpu=0.04ms elapsed=23.78s tid=0x000000012fb59200 nid=64515 runnable  [0x000000032311a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b08ccd0> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b08cc78> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-10" #58 [45571] prio=5 os_prio=31 cpu=0.05ms elapsed=23.78s tid=0x000000014a1f7000 nid=45571 runnable  [0x0000000323326000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b019b18> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b019ac0> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-11" #59 [64003] prio=5 os_prio=31 cpu=0.12ms elapsed=23.78s tid=0x000000012fb5bc00 nid=64003 runnable  [0x0000000323532000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b00ce58> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b00ce00> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-12" #60 [46083] prio=5 os_prio=31 cpu=0.06ms elapsed=23.78s tid=0x000000013f810200 nid=46083 runnable  [0x000000032373e000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b02cd58> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b02cd00> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-13" #61 [46339] prio=5 os_prio=31 cpu=0.03ms elapsed=23.78s tid=0x000000013f819400 nid=46339 runnable  [0x000000032394a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b099988> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b099930> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-14" #62 [63235] prio=5 os_prio=31 cpu=0.03ms elapsed=23.78s tid=0x000000012f1d5800 nid=63235 runnable  [0x0000000323b56000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b059b70> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b059b18> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-15" #63 [46595] prio=5 os_prio=31 cpu=0.03ms elapsed=23.78s tid=0x000000012f1d6000 nid=46595 runnable  [0x0000000323d62000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b033548> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b0334f0> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker I/O-16" #64 [47107] prio=5 os_prio=31 cpu=0.04ms elapsed=23.78s tid=0x000000013e998400 nid=47107 runnable  [0x0000000323f6e000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b02ced8> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b02ce80> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"worker Accept" #65 [62467] prio=5 os_prio=31 cpu=4.29ms elapsed=23.78s tid=0x000000014a1f7800 nid=62467 runnable  [0x000000032417a000]
+   java.lang.Thread.State: RUNNABLE
+	at sun.nio.ch.KQueue.poll(java.base@24.0.2/Native Method)
+	at sun.nio.ch.KQueueSelectorImpl.doSelect(java.base@24.0.2/KQueueSelectorImpl.java:121)
+	at sun.nio.ch.SelectorImpl.lockAndDoSelect(java.base@24.0.2/SelectorImpl.java:130)
+	- locked <0x000000052b019d30> (a sun.nio.ch.Util$2)
+	- locked <0x000000052b019cd8> (a sun.nio.ch.KQueueSelectorImpl)
+	at sun.nio.ch.SelectorImpl.select(java.base@24.0.2/SelectorImpl.java:147)
+	at org.xnio.nio.WorkerThread.run(WorkerThread.java:544)
+
+   Locked ownable synchronizers:
+	- None
+
+"DestroyJavaVM" #67 [5635] prio=5 os_prio=31 cpu=510.86ms elapsed=23.63s tid=0x000000014aa71e00 nid=5635 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"worker task-1" #68 [27911] prio=5 os_prio=31 cpu=70.58ms elapsed=16.81s tid=0x000000012e03be00 nid=27911 waiting on condition  [0x000000016f622000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@24.0.2/Native Method)
+	- parking to wait for  <0x000000052b3de1c8> (a org.jboss.threads.EnhancedQueueExecutor)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@24.0.2/LockSupport.java:271)
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1421)
+	at org.xnio.XnioWorker$WorkerThreadFactory$1$1.run(XnioWorker.java:1282)
+	at java.lang.Thread.runWith(java.base@24.0.2/Thread.java:1460)
+	at java.lang.Thread.run(java.base@24.0.2/Thread.java:1447)
+
+   Locked ownable synchronizers:
+	- None
+
+"grpc-timer-0" #69 [27143] daemon prio=5 os_prio=31 cpu=0.12ms elapsed=16.81s tid=0x000000013e875000 nid=27143 waiting on condition  [0x000000016fa3a000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at jdk.internal.misc.Unsafe.park(java.base@24.0.2/Native Method)
+	- parking to wait for  <0x000000052b059c88> (a java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject)
+	at java.util.concurrent.locks.LockSupport.parkNanos(java.base@24.0.2/LockSupport.java:271)
+	at java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(java.base@24.0.2/AbstractQueuedSynchronizer.java:1802)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(java.base@24.0.2/ScheduledThreadPoolExecutor.java:1166)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$DelayedWorkQueue.take(java.base@24.0.2/ScheduledThreadPoolExecutor.java:883)
+	at java.util.concurrent.ThreadPoolExecutor.getTask(java.base@24.0.2/ThreadPoolExecutor.java:1021)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(java.base@24.0.2/ThreadPoolExecutor.java:1081)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(java.base@24.0.2/ThreadPoolExecutor.java:619)
+	at java.lang.Thread.runWith(java.base@24.0.2/Thread.java:1460)
+	at java.lang.Thread.run(java.base@24.0.2/Thread.java:1447)
+
+   Locked ownable synchronizers:
+	- None
+
+"Attach Listener" #72 [41995] daemon prio=9 os_prio=31 cpu=0.34ms elapsed=0.11s tid=0x000000012e045800 nid=41995 waiting on condition  [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+   Locked ownable synchronizers:
+	- None
+
+"G1 Conc#2" os_prio=31 cpu=0.96ms elapsed=16.77s tid=0x000000014b1148c0 nid=34055 runnable  
+
+"G1 Conc#1" os_prio=31 cpu=2.36ms elapsed=16.77s tid=0x0000000103616eb0 nid=33799 runnable  
+
+"GC Thread#12" os_prio=31 cpu=2.93ms elapsed=23.83s tid=0x000000014971c4b0 nid=37379 runnable  
+
+"GC Thread#11" os_prio=31 cpu=3.12ms elapsed=23.83s tid=0x000000014971bf30 nid=36867 runnable  
+
+"GC Thread#10" os_prio=31 cpu=2.92ms elapsed=23.83s tid=0x000000014971b9b0 nid=36611 runnable  
+
+"GC Thread#9" os_prio=31 cpu=2.97ms elapsed=23.83s tid=0x000000014971b430 nid=36355 runnable  
+
+"GC Thread#8" os_prio=31 cpu=3.12ms elapsed=23.83s tid=0x000000014971aeb0 nid=36099 runnable  
+
+"GC Thread#7" os_prio=31 cpu=3.09ms elapsed=23.83s tid=0x000000014971a930 nid=40451 runnable  
+
+"GC Thread#6" os_prio=31 cpu=3.04ms elapsed=23.83s tid=0x000000014971a3b0 nid=35587 runnable  
+
+"GC Thread#5" os_prio=31 cpu=2.95ms elapsed=23.83s tid=0x0000000149719e30 nid=35075 runnable  
+
+"GC Thread#4" os_prio=31 cpu=2.86ms elapsed=23.83s tid=0x00000001497198b0 nid=34819 runnable  
+
+"GC Thread#3" os_prio=31 cpu=3.13ms elapsed=23.83s tid=0x000000014b01c6a0 nid=41219 runnable  
+
+"GC Thread#2" os_prio=31 cpu=3.11ms elapsed=23.83s tid=0x0000000149719330 nid=41731 runnable  
+
+"GC Thread#1" os_prio=31 cpu=3.06ms elapsed=23.83s tid=0x000000012e812cd0 nid=34307 runnable  
+
+"VM Thread" os_prio=31 cpu=5.25ms elapsed=24.15s tid=0x000000012df04560 nid=19715 runnable  
+
+"VM Periodic Task Thread" os_prio=31 cpu=13.48ms elapsed=24.15s tid=0x00000001497086d0 nid=20743 waiting on condition  
+
+"G1 Service" os_prio=31 cpu=1.69ms elapsed=24.15s tid=0x00000001497065d0 nid=21251 runnable  
+
+"G1 Refine#0" os_prio=31 cpu=0.02ms elapsed=24.15s tid=0x000000014b860600 nid=16643 runnable  
+
+"G1 Conc#0" os_prio=31 cpu=1.46ms elapsed=24.15s tid=0x0000000149705e30 nid=13827 runnable  
+
+"G1 Main Marker" os_prio=31 cpu=0.12ms elapsed=24.15s tid=0x000000014b107a60 nid=13315 runnable  
+
+"GC Thread#0" os_prio=31 cpu=3.00ms elapsed=24.15s tid=0x000000014b1072b0 nid=13059 runnable  
+
+JNI global refs: 23, weak refs: 0
+

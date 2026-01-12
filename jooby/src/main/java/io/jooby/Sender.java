@@ -74,6 +74,15 @@ public interface Sender {
   }
 
   /**
+   * Set response trailer header.
+   *
+   * @param name Header name.
+   * @param value Header value.
+   * @return This context.
+   */
+  Sender setTrailer(@NonNull String name, @NonNull String value);
+
+  /**
    * Write a string chunk. Chunk is flushed immediately.
    *
    * @param data String chunk.
