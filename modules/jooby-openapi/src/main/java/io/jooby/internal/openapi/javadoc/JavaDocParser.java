@@ -30,6 +30,9 @@ import io.jooby.Context;
 import io.jooby.Router;
 
 public class JavaDocParser {
+
+  public static final JavaDocParser NOOP = new JavaDocParser(List.of());
+
   private record ScriptRef(String operationId, DetailAST comment) {}
 
   private final List<Path> baseDir;
@@ -45,6 +48,19 @@ public class JavaDocParser {
 
   public Optional<ClassDoc> parse(String typeName) {
     return ofNullable(traverse(resolveType(typeName)).get(typeName));
+  }
+
+  public DetailAST resolve(Path path) {
+    return lookup(path)
+        .map(
+            it ->
+                cache.computeIfAbsent(
+                    it,
+                    throwingFunction(
+                        filePath -> {
+                          return parseFile(filePath.toFile(), JavaParser.Options.WITH_COMMENTS);
+                        })))
+        .orElse(JavaDocNode.EMPTY_AST);
   }
 
   private Map<String, ClassDoc> traverse(DetailAST tree) {
@@ -307,26 +323,13 @@ public class JavaDocParser {
     return Router.noTrailingSlash(Router.normalizePath(prefix + pattern));
   }
 
-  public DetailAST resolve(Path path) {
-    return lookup(path)
-        .map(
-            it ->
-                cache.computeIfAbsent(
-                    it,
-                    throwingFunction(
-                        filePath -> {
-                          return parseFile(filePath.toFile(), JavaParser.Options.WITH_COMMENTS);
-                        })))
-        .orElse(JavaDocNode.EMPTY_AST);
-  }
-
   private DetailAST resolveType(String typeName) {
     var segments = typeName.split("\\.");
     segments[segments.length - 1] = segments[segments.length - 1] + ".java";
     return resolve(Paths.get(String.join(File.separator, segments)));
   }
 
-  protected Optional<Path> lookup(Path path) {
+  private Optional<Path> lookup(Path path) {
     return baseDir.stream()
         .map(parentDir -> parentDir.resolve(path))
         .filter(Files::exists)

@@ -164,7 +164,7 @@ public class OpenAPIGenerator {
 
   private SpecVersion specVersion = SpecVersion.V30;
 
-  private AsciiDocContext asciidoc;
+  private boolean javadoc = true;
 
   /** Default constructor. */
   public OpenAPIGenerator() {}
@@ -216,17 +216,15 @@ public class OpenAPIGenerator {
    * @return Model.
    */
   public @NonNull OpenAPI generate(@NonNull String classname) {
-    ClassLoader classLoader =
-        Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
+    var classLoader = Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
 
-    ClassSource source = new ClassSource(classLoader);
+    var source = new ClassSource(classLoader);
 
     /* Create OpenAPI from template and make sure min required information is present: */
-    OpenAPIExt openapi =
-        new OpenApiTemplate(specVersion).fromTemplate(basedir, classLoader, templateName);
+    var openapi = new OpenApiTemplate(specVersion).fromTemplate(basedir, classLoader, templateName);
 
     var mainType = TypeFactory.fromJavaName(classname);
-    var javadoc = new JavaDocParser(sources);
+    var javadoc = this.javadoc ? new JavaDocParser(sources) : JavaDocParser.NOOP;
 
     if (openapi.getInfo() == null) {
       var info = new Info();
@@ -249,14 +247,13 @@ public class OpenAPIGenerator {
               });
     }
 
-    RouteParser routes = new RouteParser();
+    var routes = new RouteParser();
     var json = jsonMapper();
     var yaml = yamlMapper();
-    ParserContext ctx =
-        new ParserContext(specVersion, json, yaml, source, mainType, javadoc, debug);
-    List<OperationExt> operations = routes.parse(ctx, openapi);
+    var ctx = new ParserContext(specVersion, json, yaml, source, mainType, javadoc, debug);
+    var operations = routes.parse(ctx, openapi);
 
-    String contextPath = ContextPathParser.parse(ctx);
+    var contextPath = ContextPathParser.parse(ctx);
 
     openapi.setSource(Optional.ofNullable(ctx.getMainClass()).orElse(classname));
 
@@ -268,20 +265,20 @@ public class OpenAPIGenerator {
     ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
 
     Map<String, Tag> globalTags = new LinkedHashMap<>();
-    Paths paths = new Paths();
-    for (OperationExt operation : operations) {
-      String pattern = operation.getPath();
+    var paths = new Paths();
+    for (var operation : operations) {
+      var pattern = operation.getPath();
       if (!includes(pattern) || excludes(pattern)) {
         log.debug("skipping {}", pattern);
         continue;
       }
-      Map<String, String> regexMap = new HashMap<>();
+      var regexMap = new HashMap<String, String>();
       Router.pathKeys(
           pattern, (key, value) -> Optional.ofNullable(value).ifPresent(v -> regexMap.put(key, v)));
       if (!regexMap.isEmpty()) {
-        for (Map.Entry<String, String> e : regexMap.entrySet()) {
-          String name = e.getKey();
-          String regex = e.getValue();
+        for (var e : regexMap.entrySet()) {
+          var name = e.getKey();
+          var regex = e.getValue();
           operation
               .getParameter(name)
               .ifPresent(parameter -> parameter.getSchema().setPattern(regex));
@@ -296,7 +293,7 @@ public class OpenAPIGenerator {
           }
         }
       }
-      PathItem pathItem = paths.computeIfAbsent(pattern, k -> new PathItem());
+      var pathItem = paths.computeIfAbsent(pattern, k -> new PathItem());
       pathItem.operation(PathItem.HttpMethod.valueOf(operation.getMethod()), operation);
       Optional.ofNullable(operation.getPathSummary()).ifPresent(pathItem::setSummary);
       Optional.ofNullable(operation.getPathDescription()).ifPresent(pathItem::setDescription);
@@ -345,12 +342,12 @@ public class OpenAPIGenerator {
   }
 
   private void defaults(String classname, String contextPath, OpenAPIExt openapi) {
-    Info info = openapi.getInfo();
+    var info = openapi.getInfo();
     if (info == null) {
       info = new Info();
       openapi.info(info);
     }
-    String appname = appname(classname);
+    var appname = appname(classname);
     info.setTitle(Optional.ofNullable(info.getTitle()).orElse(appname + " API"));
     info.setDescription(
         Optional.ofNullable(info.getDescription()).orElse(appname + " API description"));
@@ -561,7 +558,25 @@ public class OpenAPIGenerator {
     }
   }
 
-  protected AsciiDocContext createAsciidoc(Path basedir, OpenAPIExt openapi) {
+  /**
+   * True/On to enabled.
+   *
+   * @param javadoc True/On to enabled.
+   */
+  public void setJavadoc(String javadoc) {
+    this.javadoc = Boolean.parseBoolean(javadoc) || "on".equalsIgnoreCase(javadoc);
+  }
+
+  /**
+   * True/On to enabled.
+   *
+   * @return True/On to enabled.
+   */
+  public boolean getJavadoc() {
+    return javadoc;
+  }
+
+  private AsciiDocContext createAsciidoc(Path basedir, OpenAPIExt openapi) {
     return new AsciiDocContext(basedir, jsonMapper(), yamlMapper(), openapi);
   }
 

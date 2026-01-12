@@ -11,7 +11,7 @@ This library supports:
 - https://github.com/Redocly/redoc[Redoc] (Optional)
 - AsciiDoc Output (Optional)
 
-Checkout the [demo project](https://github.com/jooby-project/library-demo)
+Checkout the https://github.com/jooby-project/library-demo[demo project]
 
 === Configuration
 
@@ -34,10 +34,7 @@ Checkout the [demo project](https://github.com/jooby-project/library-demo)
           <goal>openapi</goal>
         </goals>
         <configuration>
-          <specVersion>...</specVersion>
-          <adoc>
-            <file>...</file>
-          </adoc>
+          ...
         </configuration>
       </execution>
     </executions>
@@ -66,6 +63,12 @@ plugins {
 mainClassName = "myapp.App"
 ...
 
+// Configuration
+
+openAPI {
+  ....
+}
+
 // Run openAPI task on joobyRun
 joobyRun.dependsOn openAPI
 
@@ -79,6 +82,49 @@ The default phase of the plugin execution is `process-classes` which means it wi
 It may slow down `hot reload` process in case of large projects with a lot of code to process.
 To avoid this behaviour you can specify maven build phase which suits your needs better (e.g. `prepare-package`).
 ====
+
+==== Options
+
+[cols="1,1,4a"]
+|===
+| Option | Default Value | Description
+
+|`adoc`
+| 
+|List of asciidoc files used as template to generate documentation:
+
+.Maven:
+
+    <adoc>
+      <file>guide.adoc</file>
+     </adoc>
+
+.Gradle:
+    {
+      adoc = ["guide.adoc"]
+    }
+
+|`basedir`
+| `${project.dir}`
+|Set base directory used it for loading openAPI template file name.
+
+|`includes`
+| 
+|Regular expression used to includes/keep route. Example: `/api/.*`.
+
+|`excludes`
+|
+|Regular expression used to excludes route. Example: `/web`.
+
+|`specVersion`
+|`3.0`
+|Set the desired spec output
+
+|`templateName`
+|`openapi.yaml`
+|Set openAPI template file name.
+
+|===
 
 === Usage
 
@@ -204,7 +250,7 @@ properties filter routes by their path pattern. The filter is a regular expressi
 
 === Documenting your API
 
-Full/complete example available [here](https://github.com/jooby-project/library-demo)
+Full/complete example available https://github.com/jooby-project/library-demo[here]
 
 ==== JavaDoc comments
 
