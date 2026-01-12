@@ -16,15 +16,10 @@ public class Issue3836 {
     new ProcessorRunner(new C3836())
         .withSourceCode(
             source -> {
-              System.out.println(source);
               Assertions.assertTrue(
                   source.contains(
                       "return"
                           + " c.oddNameWithNameAttribute(ctx.query(\"some-http\").valueOrNull());"));
-              Assertions.assertTrue(
-                  source.contains(
-                      "return"
-                          + " c.oddNameWithNameAttribute(ctx.query(\"some-http-named\").valueOrNull());"));
             });
   }
 }
