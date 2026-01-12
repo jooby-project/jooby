@@ -267,7 +267,7 @@ public class DocGenerator {
     attributes.imagesDir("images");
     attributes.sourceHighlighter("highlightjs");
     attributes.attribute("highlightjsdir", "js");
-    // agate, tom-one-dark, tomorrow-night-bright, tokyo-night-dark
+    // agate, atom-one-dark, tomorrow-night-bright, tokyo-night-dark
     attributes.attribute("highlightjs-theme", "agate");
     attributes.attribute("favicon", "images/favicon96.png");
 

@@ -4,7 +4,7 @@
 
 1) create your template: `doc/library.adoc`
 
-[source, asciidoc]
+[source, twig]
 ----
 = 📚 {{info.title}} Guide
 :source-highlighter: highlightjs
@@ -250,7 +250,7 @@ Only for Schemas.
 ====== A. Documenting a Route (The "Standard" Block)
 Use this pattern to document a specific endpoint, separating path parameters from query parameters.
 
-[source, asciidoc]
+[source, twig]
 ----
 // 1. Define the route
 {% set route = GET("/library/books/{isbn}") %}
