@@ -78,7 +78,7 @@
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
     <lettuce.version>7.2.1.RELEASE</lettuce.version>
-    <commons-pool2.version>2.13.0</commons-pool2.version>
+    <commons-pool2.version>2.13.1</commons-pool2.version>
     <kafka.version>4.1.1</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
 
@@ -88,7 +88,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.23</logback-classic.version>
+    <logback-classic.version>1.5.24</logback-classic.version>
     <log4j.version>2.25.3</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -121,7 +121,7 @@
     <!-- avaje -->
     <avaje.inject.version>12.2</avaje.inject.version>
     <avaje.jsonb.version>3.9</avaje.jsonb.version>
-    <avaje.validator.version>2.15</avaje.validator.version>
+    <avaje.validator.version>2.16</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
@@ -135,8 +135,8 @@
     <pac4j.version>6.2.2</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.15.0</bucket4j-core.version>
-    <aws-java-sdk.version>1.12.796</aws-java-sdk.version>
+    <bucket4j-core.version>8.16.0</bucket4j-core.version>
+    <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.15.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
 
@@ -149,7 +149,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.14</jacoco.version>
-    <junit.version>6.0.1</junit.version>
+    <junit.version>6.0.2</junit.version>
     <rest-assured.version>6.0.0</rest-assured.version>
     <assertj-core.version>3.27.6</assertj-core.version>
     <mockito.version>5.21.0</mockito.version>
@@ -171,7 +171,7 @@
     <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
-    <maven-tiles-plugin.version>2.41</maven-tiles-plugin.version>
+    <maven-tiles-plugin.version>2.42</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-core.version>3.9.12</maven-core.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
@@ -1780,7 +1780,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.9.0</version>
+            <version>0.10.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
