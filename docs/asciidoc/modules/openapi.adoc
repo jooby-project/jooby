@@ -108,21 +108,25 @@ To avoid this behaviour you can specify maven build phase which suits your needs
 | `${project.dir}`
 |Set base directory used it for loading openAPI template file name.
 
-|`includes`
-| 
-|Regular expression used to includes/keep route. Example: `/api/.*`.
-
 |`excludes`
 |
 |Regular expression used to excludes route. Example: `/web`.
 
+|`includes`
+| 
+|Regular expression used to includes/keep route. Example: `/api/.*`.
+
+|`javadoc`
+|`on/true`
+|Turn on/off javadoc generation from Java source files. Set to `off` or `false` to turn it off.
+
 |`specVersion`
 |`3.0`
-|Set the desired spec output
+|Set the desired spec output. Possible values: `3.0` or `3.1`
 
 |`templateName`
 |`openapi.yaml`
-|Set openAPI template file name.
+|Set openAPI template file path.
 
 |===
 
@@ -191,7 +195,7 @@ You will find the files in the output build directory. If your application is `b
 This is the main difference with previous version. We moved from runtime to build time generation. This way we:
 
 - Are able to get our OpenAPI files at build time (of course)
-- At runtime we don't waste resources (CPU, memory) while analyze and build the OpenAPI model
+- At runtime, we don't waste resources (CPU, memory) while analyze and build the OpenAPI model
 - We keep bootstrap as fast as possible
 ====
 
@@ -254,7 +258,7 @@ Full/complete example available https://github.com/jooby-project/library-demo[he
 
 ==== JavaDoc comments
 
-JavaDoc comments are supported on Java in script and MVC routes.
+JavaDoc comments are supported for script and MVC routes on Java code base. They are enable by default, to turn them off set `javadoc: off` or `javadoc: false` in your maven/gradle plugin.
 
 .Script routes
 [source,java, role="primary"]

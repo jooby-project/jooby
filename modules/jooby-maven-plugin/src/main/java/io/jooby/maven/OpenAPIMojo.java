@@ -49,6 +49,9 @@ public class OpenAPIMojo extends BaseMojo {
   @Parameter(property = "openAPI.specVersion")
   private String specVersion;
 
+  @Parameter(property = "openAPI.javadoc")
+  private String javadoc;
+
   @Parameter private List<File> adoc;
 
   @Override
@@ -76,6 +79,9 @@ public class OpenAPIMojo extends BaseMojo {
     tool.setSources(sources);
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
+    if (javadoc != null && !javadoc.trim().isEmpty()) {
+      tool.setJavadoc(javadoc.trim());
+    }
 
     var result = tool.generate(mainClass);
 
@@ -129,19 +135,57 @@ public class OpenAPIMojo extends BaseMojo {
     this.excludes = excludes;
   }
 
+  /**
+   * Spec version. Default is <code>3.0</code>.
+   *
+   * @return Spec version. Default is <code>3.0</code>.
+   */
   public String getSpecVersion() {
     return specVersion;
   }
 
+  /**
+   * Set the desired spec output. Default is <code>3.0</code>.
+   *
+   * @param specVersion One of <code>3.0</code> or <code>3.0</code>.
+   */
   public void setSpecVersion(String specVersion) {
     this.specVersion = specVersion;
   }
 
+  /**
+   * List of asciidoc files to generate documentation.
+   *
+   * @return List of asciidoc files to generate documentation.
+   */
   public List<File> getAdoc() {
     return adoc;
   }
 
+  /**
+   * List of asciidoc files to generate documentation.
+   *
+   * @param adoc List of asciidoc files to generate documentation.
+   */
   public void setAdoc(List<File> adoc) {
     this.adoc = adoc;
+  }
+
+  /**
+   * True/On to enabled. By default is: <code>on</code>.
+   *
+   * @param javadoc True/On to enabled.
+   */
+  public void setJavadoc(String javadoc) {
+    this.javadoc = javadoc;
+  }
+
+  /**
+   * True/On to enabled.
+   *
+   * @return True/On to enabled.
+   */
+  public String getJavadoc() {
+    return javadoc;
   }
 }

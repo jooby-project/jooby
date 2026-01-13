@@ -531,9 +531,9 @@ public class OpenAPIGenerator {
   }
 
   /**
-   * Set the desired spec output. Default is <code>3.1</code>.
+   * Set the desired spec output. Default is <code>3.0</code>.
    *
-   * @param specVersion One of <code>3.0</code> or <code>3.1</code>.
+   * @param specVersion One of <code>3.0</code> or <code>3.0</code>.
    */
   private void setSpecVersion(SpecVersion specVersion) {
     this.specVersion = specVersion;
