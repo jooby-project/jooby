@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>3.11.5</version>
+    <version>3.11.6</version>
   </parent>
   <artifactId>jooby-redis</artifactId>
   <name>jooby-redis</name>
