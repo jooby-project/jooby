@@ -5,24 +5,30 @@
  */
 package tests.i3761;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import io.jooby.apt.ProcessorRunner;
 import org.junit.jupiter.api.Test;
 
-import io.jooby.apt.ProcessorRunner;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class Issue3761 {
   @Test
   public void shouldGenerateDefaultValues() throws Exception {
     new ProcessorRunner(new C3761())
-        .withSourceCode(
-            (source) -> {
-              assertTrue(source.contains("return c.number(ctx.query(\"num\", \"5\").intValue());"));
-              assertTrue(source.contains("return c.unset(ctx.query(\"unset\").valueOrNull());"));
-              assertTrue(
-                  source.contains("return c.emptySet(ctx.query(\"emptySet\", \"\").value());"));
-              assertTrue(
-                  source.contains("return c.string(ctx.query(\"stringVal\", \"Hello\").value());"));
-            });
+        .withSourceCode(Issue3761::assertSourceCodeRespectDefaultValues);
+  }
+
+  @Test
+  public void shouldGenerateJakartaDefaultValues() throws Exception {
+    new ProcessorRunner(new C3761Jakarta())
+        .withSourceCode(Issue3761::assertSourceCodeRespectDefaultValues);
+  }
+
+  private static void assertSourceCodeRespectDefaultValues(String source) {
+    assertTrue(source.contains("return c.number(ctx.query(\"num\", \"5\").intValue());"));
+    assertTrue(source.contains("return c.unset(ctx.query(\"unset\").valueOrNull());"));
+    assertTrue(
+        source.contains("return c.emptySet(ctx.query(\"emptySet\", \"\").value());"));
+    assertTrue(
+        source.contains("return c.string(ctx.query(\"stringVal\", \"Hello\").value());"));
   }
 }
