@@ -48,29 +48,31 @@ public class UndertowSender implements Sender {
   }
 
   private Sender write(@NonNull ByteBuffer buffer, @NonNull Callback callback) {
-    exchange.getResponseSender().send(buffer, newIoCallback(ctx, callback));
+    if (trailers != null) {
+      var copy = new HeaderMap();
+      copy.putAll(trailers);
+      trailers = null;
+      exchange.putAttachment(HttpAttachments.RESPONSE_TRAILERS, copy);
+    }
+    exchange
+        .getResponseSender()
+        .send(
+            buffer,
+            new IoCallback() {
+              @Override
+              public void onComplete(HttpServerExchange exchange, io.undertow.io.Sender sender) {}
+
+              @Override
+              public void onException(
+                  HttpServerExchange exchange,
+                  io.undertow.io.Sender sender,
+                  IOException exception) {}
+            });
     return this;
   }
 
   @Override
   public void close() {
-    if (trailers != null) {
-      exchange.putAttachment(HttpAttachments.RESPONSE_TRAILERS, this.trailers);
-      exchange
-          .getResponseSender()
-          .send(
-              "",
-              new IoCallback() {
-                @Override
-                public void onComplete(HttpServerExchange exchange, io.undertow.io.Sender sender) {}
-
-                @Override
-                public void onException(
-                    HttpServerExchange exchange,
-                    io.undertow.io.Sender sender,
-                    IOException exception) {}
-              });
-    }
     ctx.destroy(null);
   }
 

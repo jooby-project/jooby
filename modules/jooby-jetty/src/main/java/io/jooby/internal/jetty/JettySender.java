@@ -48,7 +48,25 @@ public class JettySender implements Sender {
   }
 
   public Sender write(@NonNull ByteBuffer buffer, @NonNull Callback callback) {
-    response.write(false, buffer, toJettyCallback(ctx, callback));
+    if (trailers != null) {
+      var copy = HttpFields.build(trailers);
+      response.setTrailersSupplier(() -> copy);
+      this.trailers = null;
+    }
+    response.write(
+        false,
+        buffer,
+        new org.eclipse.jetty.util.Callback() {
+          @Override
+          public void succeeded() {
+            org.eclipse.jetty.util.Callback.super.succeeded();
+          }
+
+          @Override
+          public void failed(Throwable x) {
+            org.eclipse.jetty.util.Callback.super.failed(x);
+          }
+        });
     //    if (trailers == null) {
     //      response.write(false, buffer, toJettyCallback(ctx, callback));
     //    } else {
@@ -63,10 +81,23 @@ public class JettySender implements Sender {
 
   @Override
   public void close() {
-    if (trailers != null) {
-      response.setTrailersSupplier(() -> trailers);
-      response.write(true, null, ctx);
-    }
+    //    if (trailers != null) {
+    //      response.setTrailersSupplier(() -> trailers);
+    //      response.write(true, null, new org.eclipse.jetty.util.Callback() {
+    //        @Override
+    //        public void succeeded() {
+    //          System.out.println("Succeed");
+    //        }
+    //
+    //        @Override
+    //        public void failed(Throwable throwable) {
+    //          System.out.println("Failed");
+    //          throwable.printStackTrace();
+    //        }
+    //      });
+    //    } else {
+    response.write(true, null, ctx);
+    //    }
     //    if (pending != null) {
     //      response.setTrailersSupplier(() -> trailers);
     //      response.write(true, pending, ctx);

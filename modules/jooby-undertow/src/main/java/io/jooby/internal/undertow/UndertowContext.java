@@ -487,7 +487,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
   public Context send(@NonNull ByteBuffer data) {
     ifUnDispatch(data);
     exchange.setResponseContentLength(data.remaining());
-    exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
+    // exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
     exchange.getResponseSender().send(data, this);
     return this;
   }

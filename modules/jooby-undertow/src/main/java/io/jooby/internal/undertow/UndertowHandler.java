@@ -61,8 +61,6 @@ public class UndertowHandler implements HttpHandler {
           .get(Headers.CONTENT_TYPE)
           .getFirst()
           .contains("application/grpc")) {
-        //        var route = router.match(context);
-        //          context.setRoute(route.route());
         var subscriber = router.require(ServiceKey.key(Function.class, "gRPC"));
         new UndertowGrpcHandler(this, router, bufferSize, subscriber).handleRequest(exchange);
         return;

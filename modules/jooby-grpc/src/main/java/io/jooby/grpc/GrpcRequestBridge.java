@@ -55,6 +55,7 @@ public class GrpcRequestBridge implements Subscriber<byte[]> {
 
       log.info("asking for more request(1)");
       internalObserver.request(1);
+      //      subscription.request(1);
     } catch (Throwable t) {
       subscription.cancel();
       internalObserver.onError(t);

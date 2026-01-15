@@ -87,7 +87,6 @@ class JettySubscription implements Flow.Subscription {
           buffer.get(bytes);
 
           log.info("{}- byte read: {}", call, HexFormat.of().formatHex(bytes));
-          //          demand.decrementAndGet();
           subscriber.onNext(bytes);
         }
         chunk.release();

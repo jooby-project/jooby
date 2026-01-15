@@ -71,7 +71,7 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
     var descriptor = methodRegistry.get(path.substring(1));
     if (descriptor == null) {
       terminateWithStatus(
-          null,
+          ctx,
           Status.UNIMPLEMENTED.withDescription("Method not found in bridge registry: " + path));
       return null;
     }
@@ -90,94 +90,55 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
 
     ClientResponseObserver<byte[], byte[]> responseObserver;
     log.info("method type: {}", method.getType());
-    if (method.getType() == MethodDescriptor.MethodType.UNARY) {
-      // Atomic guard to prevent multiple terminal calls
-      var isFinished = new AtomicBoolean(false);
-      // 3. Unified Response Observer (Handles data coming BACK from the server)
-      responseObserver =
-          new ClientResponseObserver<>() {
-            @Override
-            public void beforeStart(ClientCallStreamObserver<byte[]> requestStream) {
-              requestStream.disableAutoInboundFlowControl();
-            }
+    var sender = ctx.responseSender(false);
+    // Atomic guard to prevent multiple terminal calls
+    var isFinished = new AtomicBoolean(false);
+    sender.setTrailer("grpc-status", "0");
+    // 3. Unified Response Observer (Handles data coming BACK from the server)
+    responseObserver =
+        new ClientResponseObserver<>() {
+          @Override
+          public void beforeStart(ClientCallStreamObserver<byte[]> requestStream) {
+            requestStream.disableAutoInboundFlowControl();
+          }
 
-            @Override
-            public void onNext(byte[] value) {
-              if (isFinished.get()) return;
-              log.info("onNext Send {}", HexFormat.of().formatHex(value));
+          @Override
+          public void onNext(byte[] value) {
+            if (isFinished.get()) return;
+            log.info("onNext Send {}", HexFormat.of().formatHex(value));
 
-              // Professional Framing: 5-byte header + payload
-              ctx.setResponseTrailer("grpc-status", "0");
-              byte[] framed = addGrpcHeader(value);
-              ctx.send(framed);
-            }
+            // Professional Framing: 5-byte header + payload
 
-            @Override
-            public void onError(Throwable t) {
-              if (isFinished.compareAndSet(false, true)) {
-                log.info(" error", t);
-                terminateWithStatus(ctx, Status.fromThrowable(t));
-              }
-            }
-
-            @Override
-            public void onCompleted() {
-              if (isFinished.compareAndSet(false, true)) {
-                log.info("onCompleted");
-                terminateWithStatus(ctx, Status.OK);
-              }
-            }
-          };
-    } else {
-      var sender = ctx.responseSender(false);
-      // Atomic guard to prevent multiple terminal calls
-      var isFinished = new AtomicBoolean(false);
-      // 3. Unified Response Observer (Handles data coming BACK from the server)
-      responseObserver =
-          new ClientResponseObserver<>() {
-            @Override
-            public void beforeStart(ClientCallStreamObserver<byte[]> requestStream) {
-              requestStream.disableAutoInboundFlowControl();
-            }
-
-            @Override
-            public void onNext(byte[] value) {
-              if (isFinished.get()) return;
-              log.info("onNext Send {}", HexFormat.of().formatHex(value));
-
-              // Professional Framing: 5-byte header + payload
-              sender.setTrailer("grpc-status", "0");
-              byte[] framed = addGrpcHeader(value);
-              sender.write(
-                  framed,
-                  new Sender.Callback() {
-                    @Override
-                    public void onComplete(@NonNull Context ctx, @Nullable Throwable cause) {
-                      log.info("onNext Sent {}", ctx);
-                      if (cause != null) {
-                        onError(cause);
-                      }
+            byte[] framed = addGrpcHeader(value);
+            sender.write(
+                framed,
+                new Sender.Callback() {
+                  @Override
+                  public void onComplete(@NonNull Context ctx, @Nullable Throwable cause) {
+                    log.info("onNext Sent {}", ctx);
+                    if (cause != null) {
+                      onError(cause);
                     }
-                  });
-            }
+                  }
+                });
+          }
 
-            @Override
-            public void onError(Throwable t) {
-              if (isFinished.compareAndSet(false, true)) {
-                log.info(" error", t);
-                terminateWithStatus(ctx, Status.fromThrowable(t));
-              }
+          @Override
+          public void onError(Throwable t) {
+            if (isFinished.compareAndSet(false, true)) {
+              log.info(" error", t);
+              terminateWithStatus(sender, Status.fromThrowable(t));
             }
+          }
 
-            @Override
-            public void onCompleted() {
-              if (isFinished.compareAndSet(false, true)) {
-                log.info("onCompleted");
-                terminateWithStatus(ctx, Status.OK);
-              }
+          @Override
+          public void onCompleted() {
+            if (isFinished.compareAndSet(false, true)) {
+              log.info("onCompleted");
+              terminateWithStatus(sender, Status.OK);
             }
-          };
-    }
+          }
+        };
 
     // 4. Map gRPC Method Type to the correct ClientCalls utility
     return switch (method.getType()) {
@@ -226,6 +187,14 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
         /* Server side handles completion */
       }
     };
+  }
+
+  private void terminateWithStatus(Sender ctx, Status status) {
+    ctx.setTrailer("grpc-status", String.valueOf(status.getCode().value()));
+    if (status.getDescription() != null) {
+      ctx.setTrailer("grpc-message", status.getDescription());
+    }
+    ctx.close();
   }
 
   /**
