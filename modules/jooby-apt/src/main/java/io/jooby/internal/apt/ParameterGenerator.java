@@ -5,15 +5,14 @@
  */
 package io.jooby.internal.apt;
 
-import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
-import static io.jooby.internal.apt.Types.BUILT_IN;
-import static java.util.stream.Collectors.joining;
-
+import javax.lang.model.element.*;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import javax.lang.model.element.*;
+import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
+import static io.jooby.internal.apt.Types.BUILT_IN;
+import static java.util.stream.Collectors.joining;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
@@ -23,6 +22,7 @@ public enum ParameterGenerator {
         MvcRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
+        VariableElement parameter,
         String name,
         boolean nullable) {
       if (type.is(Map.class)) {
@@ -70,6 +70,7 @@ public enum ParameterGenerator {
         MvcRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
+        VariableElement parameter,
         String name,
         boolean nullable) {
       var rawType = type.getRawType().toString();
@@ -107,6 +108,7 @@ public enum ParameterGenerator {
         MvcRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
+        VariableElement parameter,
         String name,
         boolean nullable) {
       List<Element> converters = new ArrayList<>();
@@ -200,10 +202,11 @@ public enum ParameterGenerator {
       MvcRoute route,
       AnnotationMirror annotation,
       TypeDefinition type,
+      VariableElement parameter,
       String name,
       boolean nullable) {
     var paramSource = source(annotation);
-    var builtin = builtinType(kt, annotation, type, name, nullable);
+    var builtin = builtinType(kt, annotation, type, parameter, name, nullable);
     if (builtin == null) {
       // List, Set,
       var toValue =
@@ -323,10 +326,15 @@ public enum ParameterGenerator {
   }
 
   protected String builtinType(
-      boolean kt, AnnotationMirror annotation, TypeDefinition type, String name, boolean nullable) {
+      boolean kt,
+      AnnotationMirror annotation,
+      TypeDefinition type,
+      VariableElement parameter,
+      String name,
+      boolean nullable) {
     if (BUILT_IN.stream().anyMatch(type::is)) {
       var paramSource = source(annotation);
-      var defaultValue = defaultValue(annotation);
+      var defaultValue = defaultValue(parameter, annotation);
       // look at named parameter
       if (type.isPrimitive()) {
         // like: .intValue
@@ -425,10 +433,19 @@ public enum ParameterGenerator {
     return "";
   }
 
-  protected String defaultValue(AnnotationMirror annotation) {
-    if (annotation.getAnnotationType().toString().startsWith("io.jooby.annotation")) {
+  protected String defaultValue(VariableElement parameter, AnnotationMirror annotation) {
+    var annotationType = annotation.getAnnotationType().toString();
+
+    if (annotationType.startsWith("io.jooby.annotation")) {
       var sources = findAnnotationValue(annotation, AnnotationSupport.VALUE);
       return sources.isEmpty() ? "" : CodeBlock.of(", ", CodeBlock.string(sources.getFirst()));
+    } else if (annotationType.startsWith("jakarta.ws.rs")) {
+      var defaultValueAnnotation = AnnotationSupport.findAnnotationByName(
+          parameter, "jakarta.ws.rs.DefaultValue");
+      if (defaultValueAnnotation != null) {
+        var defaultValue = findAnnotationValue(defaultValueAnnotation, AnnotationSupport.VALUE);
+        return defaultValue.isEmpty() ? "" : CodeBlock.of(", ", CodeBlock.string(defaultValue.getFirst()));
+      }
     }
     return "";
   }

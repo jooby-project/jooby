@@ -98,13 +98,13 @@ public class MvcParameter {
         if (strategy.isEmpty()) {
           // must be body
           yield ParameterGenerator.BodyParam.toSourceCode(
-              kt, route, null, type, parameterName, isNullable(kt));
+              kt, route, null, type, parameter, parameterName, isNullable(kt));
         } else {
           var paramGenerator = strategy.get().getKey();
           paramGenerator.verifyType(parameterType, parameterName, route);
 
           yield paramGenerator.toSourceCode(
-              kt, route, strategy.get().getValue(), type, parameterName, isNullable(kt));
+              kt, route, strategy.get().getValue(), type, parameter, parameterName, isNullable(kt));
         }
       }
     };
