@@ -7,8 +7,24 @@
 
 # &infin; do more, more easily
 
-[Jooby](https://jooby.io) is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
-favorite web server.
+[Jooby](https://jooby.io) is a modern, high-performance web framework for Java and Kotlin, designed to run seamlessly atop your preferred web server.
+
+## 🚀 Built for Speed
+- **High Performance**: Consistently ranks among the fastest Java frameworks in TechEmpower benchmarks.
+- **Lightweight Footprint**: Low memory usage and fast startup times make it ideal for microservices and serverless environments.
+- **Choose Your Engine**: Built to run on your favorite high-performance servers: Netty, Jetty, or Undertow.
+
+## 🛠️ Developer Productivity
+- **Instant Hot-Reload**: Save your code and see changes immediately without restarting the entire JVM.
+- **Modular by Design**: Only use what you need. Jooby offers over 50 "thin" modules for database access (Hibernate, JDBI, Flyway), security (Pac4j), and more.
+- **OpenAPI & Swagger**: Automatically generate interactive documentation for your APIs with built-in OpenAPI 3 support.
+
+## 🧩 Unrivaled Flexibility
+- **The Power of Choice**: Use the Script API (fluent, lambda-based routes) for simple apps, or the MVC API (annotation-based) for complex enterprise projects.
+- **Reactive & Non-Blocking**: Full support for modern async patterns, including Kotlin Coroutines, RxJava, Reactor, and CompletableFutures.
+- **First-Class Kotlin Support**: Native DSLs and features designed specifically to make Kotlin development feel intuitive and type-safe.
+
+## Quick Start
 
 Java:
 
@@ -71,11 +87,6 @@ Previous version
 - v3: [Documentation](https://jooby.io/v3) and [source code](https://github.com/jooby-project/jooby/tree/3.x)
 - v2: [Documentation](https://jooby.io/v2) and [source code](https://github.com/jooby-project/jooby/tree/2.x)
 - v1: [Documentation](https://jooby.io/v1) and [source code](https://github.com/jooby-project/jooby/tree/1.x)
-
-author
-=====
-
- [Edgar Espina](https://twitter.com/edgarespina)
 
 license
 =====
