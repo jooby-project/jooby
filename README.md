@@ -11,7 +11,7 @@
 
 ## 🚀 Built for Speed
 - **High Performance**: Consistently ranks among the fastest Java frameworks in TechEmpower benchmarks.
-- **Lightweight Footprint**: Low memory usage and fast startup times make it ideal for microservices and serverless environments.
+- **Lightweight Footprint**: Low memory usage and fast startup times make it ideal for microservices environments.
 - **Choose Your Engine**: Built to run on your favorite high-performance servers: Netty, Jetty, or Undertow.
 
 ## 🛠️ Developer Productivity
