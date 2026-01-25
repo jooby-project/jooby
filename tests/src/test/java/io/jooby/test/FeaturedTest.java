@@ -272,7 +272,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.get("/{code}", ctx -> ctx.getRequestPath());
+              app.get("/{code}", Context::getRequestPath);
             })
         .ready(
             client -> {
