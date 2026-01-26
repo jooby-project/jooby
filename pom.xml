@@ -88,7 +88,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.25</logback-classic.version>
+    <logback-classic.version>1.5.26</logback-classic.version>
     <log4j.version>2.25.3</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -96,7 +96,7 @@
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.37</metrics.version>
+    <metrics.version>4.2.38</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.3.0</jboss-modules.version>
@@ -119,8 +119,8 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>12.2</avaje.inject.version>
-    <avaje.jsonb.version>3.9</avaje.jsonb.version>
+    <avaje.inject.version>12.3</avaje.inject.version>
+    <avaje.jsonb.version>3.10</avaje.jsonb.version>
     <avaje.validator.version>2.16</avaje.validator.version>
 
     <!-- jakarta -->
@@ -151,7 +151,7 @@
     <jacoco.version>0.8.14</jacoco.version>
     <junit.version>6.0.2</junit.version>
     <rest-assured.version>6.0.0</rest-assured.version>
-    <assertj-core.version>3.27.6</assertj-core.version>
+    <assertj-core.version>3.27.7</assertj-core.version>
     <mockito.version>5.21.0</mockito.version>
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
@@ -1519,7 +1519,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>3.2.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>

@@ -110,7 +110,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>12.2</version>
+      <version>12.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.27.6</version>
+      <version>3.27.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
