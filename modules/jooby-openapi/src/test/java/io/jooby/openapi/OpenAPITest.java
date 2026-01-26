@@ -34,4 +34,6 @@ public @interface OpenAPITest {
   String templateName() default "";
 
   SpecVersion version() default SpecVersion.V30;
+
+  String javadoc() default "ON";
 }

@@ -156,11 +156,6 @@ public class JavaDocNode {
           return 0;
         }
 
-        //        @Override
-        //        public DetailNode[] getChildren() {
-        //          return new DetailNode[0];
-        //        }
-
         @Override
         public DetailNode getParent() {
           return null;

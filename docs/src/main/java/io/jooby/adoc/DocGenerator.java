@@ -46,7 +46,7 @@ public class DocGenerator {
     String version = version();
     // 2.x/3.x/main
     var branch = new Git("jooby-project", "jooby", Paths.get(System.getProperty("user.dir"))).currentBranch();
-    var uiVersion = branch.equals("main") ? "" : "/v" + branch.replace(".x", "");
+    var uiVersion = branch.endsWith(".x") ? "/v" + branch.replace(".x", "") : "";
 
     Path asciidoc = basedir.resolve("asciidoc");
 
@@ -267,7 +267,7 @@ public class DocGenerator {
     attributes.imagesDir("images");
     attributes.sourceHighlighter("highlightjs");
     attributes.attribute("highlightjsdir", "js");
-    // agate, tom-one-dark, tomorrow-night-bright, tokyo-night-dark
+    // agate, atom-one-dark, tomorrow-night-bright, tokyo-night-dark
     attributes.attribute("highlightjs-theme", "agate");
     attributes.attribute("favicon", "images/favicon96.png");
 

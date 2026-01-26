@@ -46,12 +46,7 @@ import io.jooby.output.Output;
 import io.jooby.value.Value;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.DefaultFileRegion;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.*;
@@ -321,7 +316,7 @@ public class NettyContext implements DefaultContext {
 
   @NonNull @Override
   public List<Certificate> getClientCertificates() {
-    SslHandler sslHandler = (SslHandler) ctx.channel().pipeline().get("ssl");
+    var sslHandler = ssl();
     if (sslHandler != null) {
       try {
         return List.of(sslHandler.engine().getSession().getPeerCertificates());
@@ -335,9 +330,20 @@ public class NettyContext implements DefaultContext {
   @NonNull @Override
   public String getScheme() {
     if (scheme == null) {
-      scheme = ctx.pipeline().get("ssl") == null ? "http" : "https";
+      scheme = ssl() == null ? "http" : "https";
     }
     return scheme;
+  }
+
+  private SslHandler ssl() {
+    return (SslHandler)
+        Stream.of(ctx.channel(), ctx.channel().parent())
+            .filter(Objects::nonNull)
+            .map(Channel::pipeline)
+            .map(it -> it.get("ssl"))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
   }
 
   @NonNull @Override
@@ -419,7 +425,7 @@ public class NettyContext implements DefaultContext {
               ? conf.getBytes("websocket.maxSize").intValue()
               : WebSocket.MAX_BUFFER_SIZE;
       String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
-      WebSocketDecoderConfig config =
+      var config =
           WebSocketDecoderConfig.newBuilder()
               .allowExtensions(true)
               .allowMaskMismatch(false)
@@ -428,7 +434,7 @@ public class NettyContext implements DefaultContext {
               .build();
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
-      FullHttpRequest webSocketRequest =
+      var webSocketRequest =
           new DefaultFullHttpRequest(
               HTTP_1_1,
               req.method(),
@@ -436,6 +442,8 @@ public class NettyContext implements DefaultContext {
               Unpooled.EMPTY_BUFFER,
               req.headers(),
               EmptyHttpHeaders.INSTANCE);
+      var codec = ctx.pipeline().get(NettyServerCodec.class);
+      codec.webSocketHandshake(ctx);
       WebSocketServerHandshakerFactory factory =
           new WebSocketServerHandshakerFactory(webSocketURL, null, config);
       WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
@@ -872,15 +880,9 @@ public class NettyContext implements DefaultContext {
   private void prepareChunked() {
     responseStarted = true;
     // remove flusher, doesn't play well with streaming/chunked responses
-    ChannelPipeline pipeline = ctx.pipeline();
+    var pipeline = ctx.pipeline();
     if (pipeline.get("chunker") == null) {
-      String base =
-          Stream.of("compressor", "encoder", "codec", "http2")
-              .filter(name -> pipeline.get(name) != null)
-              .findFirst()
-              .orElseThrow(
-                  () -> new IllegalStateException("No available handler for chunk writer"));
-      pipeline.addAfter(base, "chunker", new ChunkedWriteHandler());
+      pipeline.addBefore("handler", "chunker", new ChunkedWriteHandler());
     }
     if (!setHeaders.contains(CONTENT_LENGTH)) {
       setHeaders.set(TRANSFER_ENCODING, CHUNKED);

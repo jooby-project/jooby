@@ -5,9 +5,13 @@
  */
 package io.jooby.test;
 
+import static io.jooby.test.TestUtil._19kb;
+import static okhttp3.RequestBody.create;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Phaser;
 
@@ -26,18 +30,61 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import com.google.common.collect.ImmutableMap;
-import io.jooby.ServerOptions;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
+import io.jooby.*;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import okhttp3.*;
 import okhttp3.MediaType;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 public class Http2Test {
+
+  @ServerTest
+  public void h2body(ServerTestRunner runner) {
+    runner
+        .options(new ServerOptions().setHttp2(true).setSecurePort(8443))
+        .define(
+            app -> {
+              app.install(new JacksonModule());
+              app.post(
+                  "/h2/multipart",
+                  ctx -> {
+                    try (var f = ctx.file("f")) {
+                      return ctx.getScheme()
+                          + ":"
+                          + ctx.getProtocol()
+                          + ":"
+                          + new String(f.bytes(), StandardCharsets.UTF_8);
+                    }
+                  });
+
+              app.post(
+                  "/h2/body",
+                  ctx -> {
+                    return ctx.getScheme() + ":" + ctx.getProtocol() + ":" + ctx.body(Map.class);
+                  });
+            })
+        .ready(
+            (http, https) -> {
+              https.post(
+                  "/h2/multipart",
+                  new MultipartBody.Builder()
+                      .setType(MultipartBody.FORM)
+                      .addFormDataPart(
+                          "f", "19kb.txt", create(_19kb, MediaType.parse("text/plain")))
+                      .build(),
+                  rsp -> {
+                    assertEquals("https:HTTP/2.0:" + _19kb, rsp.body().string());
+                  });
+
+              https.post(
+                  "/h2/body",
+                  create("{\"foo\": \"bar\"}", MediaType.parse("application/json")),
+                  rsp -> {
+                    assertEquals("https:HTTP/2.0:" + "{foo=bar}", rsp.body().string());
+                  });
+            });
+  }
 
   @ServerTest
   public void http2(ServerTestRunner runner) {

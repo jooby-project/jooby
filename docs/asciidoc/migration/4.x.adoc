@@ -10,6 +10,23 @@ This is a **work in progress** document, if something is wrong or missing please
 
 - Java 21 as minimum
 
+==== Special HTTP names
+
+Starting from 4.0.7 `@XXXParam` the default annotation `value` attribute is actually that: *the default value*
+of the parameter. In previous version this was used it for `invalid/special HTTP names`.
+
+In 3.x:
+
+    @QuerParam("some-http-name") String name
+
+In 4.x
+
+    @QuerParam(name = "some-http-name") String name
+
+The `value` is now reserved for default values:
+
+    @QueryParam("20") int pageSize
+
 ==== Buffer API
 
 The package `io.jooby.buffer` is gone. It was replaced by `io.jooby.output` these classes

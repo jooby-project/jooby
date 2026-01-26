@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.14-SNAPSHOT</version>
+    <version>4.0.16-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-openapi</artifactId>
   <name>jooby-openapi</name>
@@ -53,7 +53,7 @@
     <dependency>
       <groupId>com.puppycrawl.tools</groupId>
       <artifactId>checkstyle</artifactId>
-      <version>12.3.0</version>
+      <version>13.0.0</version>
     </dependency>
 
     <dependency>
@@ -110,7 +110,7 @@
     <dependency>
       <groupId>io.avaje</groupId>
       <artifactId>avaje-inject</artifactId>
-      <version>12.2</version>
+      <version>12.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -156,7 +156,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.18.3</version>
+      <version>1.18.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.27.6</version>
+      <version>3.27.7</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -180,12 +180,7 @@
         <executions>
           <execution>
             <id>compile</id>
-            <configuration>
-              <sourceDirs>
-                <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
-                <sourceDir>${project.basedir}/src/main/java</sourceDir>
-              </sourceDirs>
-            </configuration>
+            <phase>none</phase>
           </execution>
           <execution>
             <id>test-compile</id>
@@ -208,20 +203,16 @@
         </configuration>
         <executions>
           <execution>
-            <id>default-compile</id>
-            <phase>none</phase>
-          </execution>
-          <execution>
             <id>default-testCompile</id>
             <phase>none</phase>
           </execution>
-          <execution>
-            <id>java-compile</id>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <phase>compile</phase>
-          </execution>
+<!--          <execution>-->
+<!--            <id>java-compile</id>-->
+<!--            <goals>-->
+<!--              <goal>compile</goal>-->
+<!--            </goals>-->
+<!--            <phase>compile</phase>-->
+<!--          </execution>-->
           <execution>
             <id>java-test-compile</id>
             <goals>
@@ -231,35 +222,6 @@
           </execution>
         </executions>
       </plugin>
-
-<!--      <plugin>-->
-<!--        <groupId>org.apache.maven.plugins</groupId>-->
-<!--        <artifactId>maven-shade-plugin</artifactId>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <id>fat-jar</id>-->
-<!--            <goals>-->
-<!--              <goal>shade</goal>-->
-<!--            </goals>-->
-<!--            <phase>package</phase>-->
-<!--            <configuration>-->
-<!--              <minimizeJar>true</minimizeJar>-->
-<!--              <artifactSet>-->
-<!--                <includes>-->
-<!--                  <include>org.ow2.asm:*</include>-->
-<!--                </includes>-->
-<!--              </artifactSet>-->
-<!--              <relocations>-->
-<!--                <relocation>-->
-<!--                  <pattern>org.objectweb.asm</pattern>-->
-<!--                  <shadedPattern>io.jooby.internal.openapi.asm</shadedPattern>-->
-<!--                </relocation>-->
-<!--              </relocations>-->
-<!--            </configuration>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
-
     </plugins>
   </build>
 </project>

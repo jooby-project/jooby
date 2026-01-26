@@ -42,6 +42,8 @@ public class OpenAPITask extends BaseTask {
 
   private List<File> adoc;
 
+  private String javadoc;
+
   /**
    * Creates an OpenAPI task.
    */
@@ -85,6 +87,9 @@ public class OpenAPITask extends BaseTask {
     }
     trim(includes).ifPresent(tool::setIncludes);
     trim(excludes).ifPresent(tool::setExcludes);
+    if (javadoc != null && !javadoc.trim().isEmpty()) {
+      tool.setJavadoc(javadoc.trim());
+    }
 
     OpenAPI result = tool.generate(mainClass);
 
@@ -193,6 +198,29 @@ public class OpenAPITask extends BaseTask {
    */
   public void setSpecVersion(String specVersion) {
     this.specVersion = specVersion;
+  }
+
+  /**
+   * True/On to enabled javadoc output. Default is: <code>on</code>.
+   *
+   * @return True/On to enabled javadoc output. Default is: <code>on</code>.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public String getJavadoc() {
+    return javadoc;
+  }
+
+
+  /**
+   * Enabled or disabled javadoc generation. Set to off/false to turn it off.
+   * Default is: <code>on</code>.
+   *
+   * @param javadoc Enabled or disabled javadoc generation. Set to off/false to turn it off.
+   *                Default is: <code>on</code>.
+   */
+  public void setJavadoc(String javadoc) {
+    this.javadoc = javadoc;
   }
 
   /**
