@@ -30,5 +30,7 @@ public class Issue3761 {
         source.contains("return c.emptySet(ctx.query(\"emptySet\", \"\").value());"));
     assertTrue(
         source.contains("return c.string(ctx.query(\"stringVal\", \"Hello\").value());"));
+    assertTrue(
+        source.contains("return c.bool(ctx.form(\"boolVal\", \"false\").booleanValue());"));
   }
 }

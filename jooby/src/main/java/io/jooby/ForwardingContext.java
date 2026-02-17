@@ -1002,6 +1002,11 @@ public class ForwardingContext implements Context {
   }
 
   @Override
+  public Value form(@NonNull String name, @NonNull String defaultValue) {
+    return ctx.form(name, defaultValue);
+  }
+
+  @Override
   public <T> T form(@NonNull Class<T> type) {
     return ctx.form(type);
   }

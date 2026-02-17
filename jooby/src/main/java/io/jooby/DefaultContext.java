@@ -453,6 +453,11 @@ public interface DefaultContext extends Context {
   }
 
   @Override
+  default Value form(@NonNull String name, @NonNull String defaultValue) {
+    return form().getOrDefault(name, defaultValue);
+  }
+
+  @Override
   default <T> T form(@NonNull Class<T> type) {
     return form().to(type);
   }

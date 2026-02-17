@@ -5,6 +5,7 @@
  */
 package tests.i3761;
 
+import io.jooby.annotation.FormParam;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
@@ -30,5 +31,10 @@ public class C3761 {
   @GET("/stringVal")
   public String string(@QueryParam("Hello") String stringVal) {
     return stringVal;
+  }
+
+  @GET("/boolVal")
+  public boolean bool(@FormParam("false") boolean boolVal) {
+    return boolVal;
   }
 }

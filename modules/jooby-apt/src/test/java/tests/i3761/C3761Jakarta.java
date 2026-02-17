@@ -9,6 +9,7 @@ import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.FormParam;
 
 @Path("/3761")
 public class C3761Jakarta {
@@ -31,5 +32,10 @@ public class C3761Jakarta {
   @GET("/stringVal")
   public String string(@QueryParam("stringVal") @DefaultValue("Hello") String stringVal) {
     return stringVal;
+  }
+
+  @GET("/boolVal")
+  public boolean bool(@FormParam("boolVal") @DefaultValue("false") boolean boolVal) {
+    return boolVal;
   }
 }
