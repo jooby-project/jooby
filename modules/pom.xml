@@ -48,6 +48,7 @@
     <module>jooby-caffeine</module>
 
     <module>jooby-jackson</module>
+    <module>jooby-jackson3</module>
     <module>jooby-gson</module>
     <module>jooby-avaje-jsonb</module>
     <module>jooby-yasson</module>
