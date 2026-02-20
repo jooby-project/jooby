@@ -320,6 +320,12 @@
 
       <dependency>
         <groupId>io.jooby</groupId>
+        <artifactId>jooby-jackson3</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.jooby</groupId>
         <artifactId>jooby-gson</artifactId>
         <version>${jooby.version}</version>
       </dependency>

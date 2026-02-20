@@ -35,7 +35,7 @@ import io.jooby.StatusCode;
 import io.jooby.output.Output;
 
 /**
- * JSON module using Jackson: https://jooby.io/modules/jackson.
+ * JSON module using Jackson: https://jooby.io/modules/jackson2.
  *
  * <p>Usage:
  *
@@ -72,7 +72,7 @@ import io.jooby.output.Output;
  * }
  * }</pre>
  *
- * Complete documentation is available at: https://jooby.io/modules/jackson.
+ * Complete documentation is available at: https://jooby.io/modules/jackson2.
  *
  * @author edgar
  * @since 2.0.0

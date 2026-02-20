@@ -44,7 +44,8 @@ Available modules are listed next.
 
 === JSON
    * link:{uiVersion}/modules/gson[Gson]: Gson module for Jooby.
-   * link:{uiVersion}/modules/jackson[Jackson]: Jackson module for Jooby.
+   * link:{uiVersion}/modules/jackson2[Jackson2]: Jackson2 module for Jooby.
+   * link:{uiVersion}/modules/jackson3[Jackson3]: Jackson3 module for Jooby.
    * link:{uiVersion}/modules/yasson[JSON-B]: JSON-B module for Jooby.
    * link:{uiVersion}/modules/avaje-jsonb[Avaje-JsonB]: Avaje-JsonB module for Jooby.
 

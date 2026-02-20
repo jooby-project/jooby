@@ -1,0 +1,183 @@
+== Jackson 3
+
+JSON support using https://github.com/FasterXML/jackson[Jackson 3] library.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-jackson3"]
+.
+
+2) Install and encode/decode JSON
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(new Jackson3Module());                     <1>
+
+  get("/", ctx -> {
+    MyObject myObject = ...;
+    return myObject;                                <2>
+  });
+
+  post("/", ctx -> {
+    MyObject myObject = ctx.body(MyObject.class);   <3>
+    ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(Jackson3Module())                          <1>
+
+  get("/") {
+    val myObject = ...;
+    myObject                                        <2>
+  }
+
+  post("/") {
+    val myObject = ctx.body<MyObject>()             <3>
+    ...
+  }
+}
+----
+
+<1> Install Jackson
+<2> Use Jackson to encode arbitrary object as JSON
+<3> Use Jackson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+
+=== Working with ObjectMapper
+
+Access to default object mapper is available via require call:
+
+.Default object mapper
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(new Jackson3Module());
+
+  ObjectMapper mapper = require(ObjectMapper.class);
+  ...
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+
+{
+  install(Jackson3Module())
+
+  val mapper = require<ObjectMapper>()
+}
+----
+
+You can provide your own `ObjectMapper`:
+
+.Custom ObjectMapper
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  ObjectMapper mapper = new ObjectMapper();
+
+  install(new Jackson3Module(mapper));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+
+{
+  val mapper = ObjectMapper()
+
+  install(Jackson3Module(mapper))
+}
+----
+
+This allows to configure `Jackson3Module` for doing `xml` processing:
+
+.XmlMapper
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(new Jackson3Module(new XmlMapper()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+
+{
+  install(Jackson3Module(XmlMapper()))
+}
+----
+
+If you want `json` and `xml` processing then install twice:
+
+.XmlMapper+JsonMapper
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(new Jackson3Module(new JsonMapper()));
+  install(new Jackson3Module(new XmlMapper()));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+
+{
+  install(Jackson3Module(JsonMapper()))
+  install(Jackson3Module(XmlMapper()))
+}
+----
+
+=== Provisioning Jackson Modules
+
+Jackson module can be provided by a link:{uiVersion}/#extensions-and-services-dependency-injection[dependency injection] framework.
+
+.Provisioning Modules
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+
+{
+  install(new Jackson3Module().module(MyModule.class);
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+
+{
+  install(Jackson3Module().module(MyModule::class.java)
+}
+----
+
+At startup time Jooby asks dependency injection framework to provide a `MyModule` instance.
