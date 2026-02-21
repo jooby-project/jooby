@@ -3,7 +3,17 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.jackson;
+package io.jooby.jackson3;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.*;
+import io.jooby.output.Output;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -13,36 +23,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
-import io.jooby.StatusCode;
-import io.jooby.output.Output;
-
 /**
- * JSON module using Jackson: https://jooby.io/modules/jackson2.
+ * JSON module using Jackson3: https://jooby.io/modules/jackson3.
  *
  * <p>Usage:
  *
  * <pre>{@code
  * {
  *
- *   install(new JacksonModule());
+ *   install(new Jackson3Module());
  *
  *   get("/", ctx -> {
  *     MyObject myObject = ...;
@@ -58,7 +47,7 @@ import io.jooby.output.Output;
  *   });
  * }
  * }</pre>
- *
+ * <p>
  * For body decoding the client must specify the <code>Content-Type</code> header set to <code>
  * application/json</code>.
  *
@@ -72,19 +61,17 @@ import io.jooby.output.Output;
  * }
  * }</pre>
  *
- * Complete documentation is available at: https://jooby.io/modules/jackson2.
- *
- * @author edgar
- * @since 2.0.0
+ * @author edgar, kliushnichenko
+ * @since 4.1.0
  */
-public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
+public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder {
   private final MediaType mediaType;
 
   private final ObjectMapper mapper;
 
   private final TypeFactory typeFactory;
 
-  private final Set<Class<? extends Module>> modules = new HashSet<>();
+  private final Set<Class<? extends JacksonModule>> modules = new HashSet<>();
 
   private static final Map<String, MediaType> defaultTypes = new HashMap<>();
 
@@ -95,10 +82,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   /**
    * Creates a Jackson module.
    *
-   * @param mapper Object mapper to use.
+   * @param mapper      Object mapper to use.
    * @param contentType Content type.
    */
-  public JacksonModule(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
+  public Jackson3Module(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
     this.mapper = mapper;
     this.typeFactory = mapper.getTypeFactory();
     this.mediaType = contentType;
@@ -109,12 +96,14 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    *
    * @param mapper Object mapper to use.
    */
-  public JacksonModule(@NonNull ObjectMapper mapper) {
+  public Jackson3Module(@NonNull ObjectMapper mapper) {
     this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
-  /** Creates a Jackson module using the default object mapper from {@link #create(Module...)}. */
-  public JacksonModule() {
+  /**
+   * Creates a Jackson module using the default object mapper from {@link #create(JacksonModule...)}.
+   */
+  public Jackson3Module() {
     this(create());
   }
 
@@ -125,12 +114,13 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param module Module type.
    * @return This module.
    */
-  public JacksonModule module(Class<? extends Module> module) {
+  public Jackson3Module module(Class<? extends JacksonModule> module) {
     modules.add(module);
     return this;
   }
 
   @Override
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void install(@NonNull Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
@@ -141,19 +131,27 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     services.put(ObjectMapper.class, mapper);
 
     // Parsing exception as 400
-    application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
 
-    application.onStarting(
-        () -> {
-          for (Class<? extends Module> type : modules) {
-            Module module = application.require(type);
-            mapper.registerModule(module);
-          }
-        });
+    application.onStarting(() -> onStarting(application, services, mapperType));
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private void onStarting(Jooby application, ServiceRegistry services, Class mapperType) {
+    if (!modules.isEmpty()) {
+      var builder = mapper.rebuild();
+      for (Class<? extends JacksonModule> type : modules) {
+        JacksonModule module = application.require(type);
+        builder.addModule(module);
+      }
+      var newMapper = builder.build();
+      services.put(mapperType, newMapper);
+      services.put(ObjectMapper.class, newMapper);
+    }
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(@NonNull Context ctx, @NonNull Object value) {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
     // let jackson uses his own cache, so wrap the bytes
@@ -179,18 +177,13 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   }
 
   /**
-   * Default object mapper. Install {@link Jdk8Module}, {@link JavaTimeModule}, {@link
-   * ParameterNamesModule}.
+   * Default object mapper.
    *
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static @NonNull ObjectMapper create(Module... modules) {
-    JsonMapper.Builder builder =
-        JsonMapper.builder()
-            .addModule(new ParameterNamesModule())
-            .addModule(new Jdk8Module())
-            .addModule(new JavaTimeModule());
+  public static ObjectMapper create(JacksonModule... modules) {
+    JsonMapper.Builder builder = JsonMapper.builder();
 
     Stream.of(modules).forEach(builder::addModule);
 
