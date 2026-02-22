@@ -7,17 +7,14 @@ package io.jooby.avaje.jsonb;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
+import io.jooby.*;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
 import io.jooby.output.Output;
 
@@ -67,6 +64,8 @@ import io.jooby.output.Output;
  */
 public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncoder {
 
+  private final ConcurrentMap<String, JsonView<?>> viewCache = new ConcurrentHashMap<>();
+
   private final Jsonb jsonb;
 
   /**
@@ -104,14 +103,33 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     }
   }
 
-  @NonNull @Override
+  @Override
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
     var buffer = factory.allocate();
     try (var writer = jsonb.writer(new BufferedJsonOutput(buffer))) {
-      jsonb.toJson(value, writer);
+      if (value instanceof Projected<?> projected) {
+        encodeProjection(writer, projected);
+      } else {
+        jsonb.toJson(value, writer);
+      }
       return buffer;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void encodeProjection(JsonWriter writer, Projected<?> projected) {
+    // Generate the Avaje-compatible view string (e.g., "(id,name,address(city))")
+    var value = projected.getValue();
+    var projection = projected.getProjection();
+    var viewString = projection.toView();
+    var type = projection.getType();
+    var view =
+        (JsonView<Object>)
+            viewCache.computeIfAbsent(
+                type.getName() + viewString, k -> jsonb.type(type).view(viewString));
+
+    view.toJson(value, writer);
   }
 }

@@ -5,6 +5,16 @@
  */
 package io.jooby.jackson3;
 
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.annotation.JsonFilter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.output.Output;
@@ -12,16 +22,10 @@ import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.type.TypeFactory;
-
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * JSON module using Jackson3: https://jooby.io/modules/jackson3.
@@ -47,8 +51,8 @@ import java.util.stream.Stream;
  *   });
  * }
  * }</pre>
- * <p>
- * For body decoding the client must specify the <code>Content-Type</code> header set to <code>
+ *
+ * <p>For body decoding the client must specify the <code>Content-Type</code> header set to <code>
  * application/json</code>.
  *
  * <p>You can retrieve the {@link ObjectMapper} via require call:
@@ -65,9 +69,16 @@ import java.util.stream.Stream;
  * @since 4.1.0
  */
 public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder {
+  // A hardcoded ID for our filter
+  public static final String FILTER_ID = "jooby.projection";
+
+  // Cache for ObjectWriters tied to specific projection strings
+  private final Map<String, ObjectWriter> writerCache = new ConcurrentHashMap<>();
+
   private final MediaType mediaType;
 
   private final ObjectMapper mapper;
+  private ObjectMapper projectionMapper;
 
   private final TypeFactory typeFactory;
 
@@ -82,7 +93,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   /**
    * Creates a Jackson module.
    *
-   * @param mapper      Object mapper to use.
+   * @param mapper Object mapper to use.
    * @param contentType Content type.
    */
   public Jackson3Module(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
@@ -101,7 +112,8 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   /**
-   * Creates a Jackson module using the default object mapper from {@link #create(JacksonModule...)}.
+   * Creates a Jackson module using the default object mapper from {@link
+   * #create(JacksonModule...)}.
    */
   public Jackson3Module() {
     this(create());
@@ -134,6 +146,11 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
 
     application.onStarting(() -> onStarting(application, services, mapperType));
+
+    // 2. Branch off a specialized mapper JUST for Projections.
+    // .rebuild() copies the user's configuration, and we add our global MixIn
+    // strictly to this specialized instance.
+    projectionMapper = mapper.rebuild().addMixIn(Object.class, ProjectionMixIn.class).build();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
@@ -154,6 +171,20 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
+    if (value instanceof Projected<?> projected) {
+      var p = projected.getProjection();
+
+      var writer =
+          writerCache.computeIfAbsent(
+              p.getType().getName() + p.toView(),
+              k -> {
+                // Build the filter and writer only once per unique projection string
+                var filters =
+                    new SimpleFilterProvider().addFilter(FILTER_ID, new JacksonProjectionFilter(p));
+                return projectionMapper.writer(filters);
+              });
+      return factory.wrap(writer.writeValueAsBytes(projected.getValue()));
+    }
     // let jackson uses his own cache, so wrap the bytes
     return factory.wrap(mapper.writeValueAsBytes(value));
   }
@@ -189,4 +220,8 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
 
     return builder.build();
   }
+
+  /** Global MixIn to force Jackson to apply our filter to ALL outgoing objects. */
+  @JsonFilter(FILTER_ID)
+  private interface ProjectionMixIn {}
 }

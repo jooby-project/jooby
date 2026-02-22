@@ -69,7 +69,10 @@ public class MvcRoute {
     var processingEnv = context.getProcessingEnvironment();
     var types = processingEnv.getTypeUtils();
     var elements = processingEnv.getElementUtils();
-    if (returnType.isVoid()) {
+    var project = AnnotationSupport.findAnnotationByName(method, Types.PROJECT);
+    if (project != null) {
+      return new TypeDefinition(types, elements.getTypeElement(Types.PROJECTED).asType());
+    } else if (returnType.isVoid()) {
       return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());
     } else if (isSuspendFun()) {
       var continuation = parameters.get(parameters.size() - 1).getType();
@@ -220,6 +223,7 @@ public class MvcRoute {
     var returnTypeGenerics =
         getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
     var returnTypeString = type(kt, getReturnType().toString());
+
     boolean nullable = false;
     if (kt) {
       nullable =
