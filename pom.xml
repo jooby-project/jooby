@@ -74,13 +74,13 @@
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
-    <ebean.version>17.2.1</ebean.version>
+    <ebean.version>17.3.0</ebean.version>
     <jdbi.version>3.51.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
     <lettuce.version>7.4.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
-    <kafka.version>4.1.1</kafka.version>
+    <kafka.version>4.2.0</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
 
     <config.version>1.4.5</config.version>
@@ -89,7 +89,7 @@
     <guice.version>7.0.0</guice.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.31</logback-classic.version>
+    <logback-classic.version>1.5.32</logback-classic.version>
     <log4j.version>2.25.3</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
@@ -109,11 +109,11 @@
     <undertow.version>2.3.23.Final</undertow.version>
     <jetty.version>12.1.6</jetty.version>
     <netty.version>4.2.10.Final</netty.version>
-    <vertx.version>5.0.7</vertx.version>
+    <vertx.version>5.0.8</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.42</swagger.version>
-    <swagger-parser.version>2.1.37</swagger-parser.version>
+    <swagger.version>2.2.43</swagger.version>
+    <swagger-parser.version>2.1.38</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -188,7 +188,7 @@
     <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <plexus-utils.version>4.0.2</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
