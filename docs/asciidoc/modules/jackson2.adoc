@@ -1,6 +1,6 @@
-== Jackson 2
+== Jackson
 
-JSON support using https://github.com/FasterXML/jackson[Jackson] library.
+JSON support using https://github.com/FasterXML/jackson[Jackson 2] library.
 
 === Usage
 
@@ -52,8 +52,8 @@ import io.jooby.jackson.JacksonModule;
 ----
 
 <1> Install Jackson
-<2> Use Jackson to encode arbitrary object as JSON
-<3> Use Jackson to decode JSON to Java object. Client must specify the `Content-Type: application/json` header
+<2> Use Jackson to encode an arbitrary object as JSON
+<3> Use Jackson to decode JSON to a Java object. Client must specify the `Content-Type: application/json` header
 
 === Working with ObjectMapper
 
@@ -159,7 +159,7 @@ import io.jooby.jackson.JacksonModule
 
 === Provisioning Jackson Modules
 
-Jackson module can be provided by a link:{uiVersion}/#extensions-and-services-dependency-injection[dependency injection] framework.
+Jackson module can be provided by a link:{uiVersion}/#ecosystem-services-and-the-registry-dependency-injection-di-bridge[dependency injection] framework.
 
 .Provisioning Modules
 [source, java, role="primary"]

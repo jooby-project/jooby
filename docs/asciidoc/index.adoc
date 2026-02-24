@@ -16,24 +16,17 @@ Style guidelines:
 
 ////
 
-= Welcome to Jooby!
-{joobyVersion}
-
 [discrete]
 == &infin; do more, more easily
 
-== Introduction
+Jooby is a modern, fast, and easy-to-use web framework for Java and Kotlin, built on top of your favorite web server.
 
-Jooby is a modern, performant and easy to use web framework for Java and Kotlin built on top of your
-favorite web server.
-
-.Welcome!!
+.Welcome!
 [source,java,role="primary"]
 ----
 import io.jooby.Jooby;
 
 public class App extends Jooby {
-
   {
     get("/", ctx -> "Welcome to Jooby!");
   }
@@ -51,10 +44,22 @@ import io.jooby.kt.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
-    get ("/") { "Welcome to Jooby!" }
+    get("/") { "Welcome to Jooby!" }
   }
 }
 ----
+
+[discrete]
+=== Features
+
+* **Lightweight and Fast:** See the https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=composite&l=xan9tr-1r[TechEmpower Benchmark].
+* **High Productivity:** Built-in <<tooling-and-operations-development-compilation-and-restart, hot-reload for development>>.
+* **Flexible Routing:** Use the fluent Script/Lambda API or <<web-mvc-api, MVC annotations>> (Jooby or JAX-RS).
+* **Modern Tooling:** Full link:modules/openapi[OpenAPI 3] support.
+* **Execution Options:** Choose between <<core-execution-model, Event Loop or worker threads>>.
+* **Reactive Ready:** Support for <<core-responses, reactive responses>> (CompletableFuture, RxJava, Reactor, Mutiny, and Kotlin Coroutines).
+* **Server Choice:** Run on https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], https://vertx.io[Vert.x], or http://undertow.io[Undertow].
+* **Extensible:** Scale to a full-stack framework using extensions and link:modules[modules].
 
 [TIP]
 ====
@@ -62,202 +67,20 @@ Latest Release: https://github.com/jooby-project/jooby/releases/tag/v{joobyVersi
 
 Looking for a previous version?
 
-* Access to link:v3[3.x] documentation. link:{uiVersion}/migration/4.x[Migrating from 3.x to 4.x]
-* Access to link:v2[2.x] documentation. link:{uiVersion}/migration/3.x[Migrating from 2.x to 3.x]
-* Access to link:v1[1.x] documentation.
+* Access link:v3[3.x] documentation. link:{uiVersion}/migration/4.x[Migrating from 3.x to 4.x]
+* Access link:v2[2.x] documentation. link:{uiVersion}/migration/3.x[Migrating from 2.x to 3.x]
+* Access link:v1[1.x] documentation.
 ====
-
-=== Features
-
-* Lightweight and Fast. See https://www.techempower.com/benchmarks/#section=data-r19&hw=ph&test=composite&l=xan9tr-1r[Tech Empower Benchmark]
-* Increase productivity with <<development-compilation-restart, Hot-Reload for development>>
-* Script/lambda routes using fluent API
-* <<mvc-api, MVC routes>> using Jooby or JAX-RS annotations
-* link:modules/openapi[OpenAPI 3] support
-* <<execution-model, Event Loop and blocking execution modes>>
-* <<responses, Reactive responses>> (Completable Futures, RxJava, Reactor, SmallRye types and Kotlin Coroutines)
-* <<server, Multi-server>> including https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], https://vertx.io[Vertx] and http://undertow.io[Undertow]
-* Make the jump to full-stack framework with the extension/plugin mechanism and a variety of link:modules[]
-
-=== Script API
-
-Script API (a.k.a. script routes) provides a fluent DSL based on `lambda` functions, free of
-reflection and annotations.
-
-We usually extend `Jooby` and define routes in the instance initializer:
-
-.Script with sub-class:
-[source,java,role="primary"]
-----
-import io.jooby.Jooby;
-
-public class App extends Jooby {
-
-  {
-    get("/", ctx -> "Hello Jooby!"); 
-  }
-
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-import io.jooby.kt.Kooby
-import io.jooby.kt.runApp
-
-class App : Kooby({
-
-  get("/") { "Hello Jooby!" }
-
-})
-
-fun main(args: Array<String>) {
-  runApp(args, ::App)
-}
-----
-
-For Java applications we favor extending `Jooby` because the DSL looks better (no need
-to prefix the `get` method with a variable).
-
-This is not strictly necessary (of course); you may prefer to do it without extending `Jooby`:
-
-.Script without subclass:
-[source,java,role="primary"]
-----
-import io.jooby.Jooby;
-
-public class App {
-
-  public static void main(String[] args) {
-    runApp(args, app -> {
-
-      app.get("/", ctx -> "Hello Jooby!");
-
-    });
-  }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-import io.jooby.kt.runApp
-
-fun main(args: Array<String>) {
-  runApp(args) {
-
-    get("/") { "Hello Jooby!" }
-
-  }
-}
-----
-
-For Kotlin, it doesn't matter which one you choose. The DSL looks great with or without extending
-`Kooby`.
-
-=== MVC API
-
-The MVC API (a.k.a. MVC routes) uses annotation to define routes and byte code generation to execute
-them.
-
-.MVC API:
-[source,java,role="primary"]
-----
-
-import io.jooby.annotation.*;
-
-public class MyController {
-
-  @GET
-  public String sayHi() {
-    return "Hello Jooby!";
-  }
-}
-
-public class App {
-
-  public static void main(String[] args) {
-    runApp(args, app -> {
-
-      app.use(new MyController_());
-
-    });
-  }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-import io.jooby.annotation.*;
-
-class MyController {
-
-  @GET
-  fun sayHi() : String {
-    return "Hello Jooby!"
-  }
-}
-
-fun main(args: Array<String>) {
-  runApp(args) {
-
-    use(MyController_())
-
-  }
-}
-----
-
-Read more about MVC and JAX-RS support in the <<mvc-api, MVC API>> chapter.
-
 
 include::getting-started.adoc[]
 
-include::routing.adoc[]
+include::core.adoc[]
 
-include::context.adoc[]
+include::web.adoc[]
 
-include::mvc-api.adoc[]
+include::ecosystem.adoc[]
 
-include::static-files.adoc[]
-
-include::templates.adoc[]
-
-include::session.adoc[]
-
-include::websocket.adoc[]
-
-include::server-sent-event.adoc[]
-
-include::execution-model.adoc[]
-
-include::responses.adoc[]
-
-include::error-handler.adoc[]
-
-include::problem-details.adoc[]
-
-include::configuration.adoc[]
-
-include::extension.adoc[]
-
-include::dependency-injection.adoc[]
-
-include::testing.adoc[]
-
-include::dev-tools.adoc[]
-
-include::handlers.adoc[]
-
-include::packaging/packaging.adoc[]
-
-include::servers.adoc[]
-
-include::modules.adoc[]
+include::tooling.adoc[]
 
 == Appendix
 

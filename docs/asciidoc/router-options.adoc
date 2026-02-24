@@ -1,6 +1,6 @@
-==== Routing
+===== Routing
 
-The javadoc:Router[setRouterOptions, io.jooby.RouterOptions] control routing options.
+The javadoc:Router[setRouterOptions, io.jooby.RouterOptions] method controls routing behavior.
 
 .Usage
 [source, java, role = "primary"]
@@ -8,15 +8,14 @@ The javadoc:Router[setRouterOptions, io.jooby.RouterOptions] control routing opt
 import io.jooby.Jooby;
 ...
 {
-  
   setRouterOptions(new RouterOptions()
-        .setIgnoreCase(true)
-        .setFailOnDuplicateRoutes(true)
-        .setIgnoreTrailingSlash(true)
-        .setNormalizeSlash(true)
-        .setResetHeadersOnError(false)
-        .setTrustProxy(true)
-        .setContextAsService(true)
+      .setIgnoreCase(true)
+      .setFailOnDuplicateRoutes(true)
+      .setIgnoreTrailingSlash(true)
+      .setNormalizeSlash(true)
+      .setResetHeadersOnError(false)
+      .setTrustProxy(true)
+      .setContextAsService(true)
   );
 }
 ----
@@ -29,8 +28,8 @@ import io.jooby.Jooby
 {
   routerOptions = RouterOptions().apply {
     ignoreCase = true
-    ignoreTrailingSlash = true
     failOnDuplicateRoutes = true
+    ignoreTrailingSlash = true
     normalizeSlash = true
     resetHeadersOnError = false
     trustProxy = true
@@ -39,50 +38,47 @@ import io.jooby.Jooby
 }
 ----
 
-[cols="1,1,1,1"]
+[cols="2,1,1,4"]
 |===
-| Option | Value | Default Value| Description
+| Option | Type | Default | Description
 
-|contextAsService
-|boolean
-|false
-|If enabled, allows to retrieve the javadoc:Context[] object associated with the current request via the service registry while the request is being processed.
+| `contextAsService`
+| boolean
+| false
+| If enabled, allows you to retrieve the javadoc:Context[] object associated with the current request via the service registry while the request is being processed.
 
-|ignoreCase
-|boolean
-|false
-|Indicates whenever routing algorithm does case-sensitive matching on an incoming request path.
+| `ignoreCase`
+| boolean
+| false
+| Indicates whether the routing algorithm uses case-sensitive matching for incoming request paths.
 
-|ignoreTrailingSlash
-|boolean
-|false
-|Indicates whenever a trailing slash is ignored on an incoming request path.
+| `ignoreTrailingSlash`
+| boolean
+| false
+| Indicates whether trailing slashes are ignored on incoming request paths.
 
-|failOnDuplicateRoutes
-|boolean
-|false
-|Indicates whenever a trailing slash is ignored on an incoming request path.
+| `failOnDuplicateRoutes`
+| boolean
+| false
+| Throws an exception if multiple routes are registered with the same HTTP method and path pattern.
 
-|normalizeSlash
-|boolean
-|false
-|Normalize an incoming request path by removing multiple slash sequences.
+| `normalizeSlash`
+| boolean
+| false
+| Normalizes incoming request paths by replacing multiple consecutive slashes with a single slash.
 
-|resetHeadersOnError
-|boolean
-|true
-|Indicates whenever response headers are clear/reset in case of exception.
+| `resetHeadersOnError`
+| boolean
+| true
+| Indicates whether response headers should be cleared/reset when an exception occurs.
 
-|trustProxy
-|boolean
-|false
-|When true handles `X-Forwarded-*` headers by updating the values on the current context to match what was sent in the header(s).
-
+| `trustProxy`
+| boolean
+| false
+| When true, parses `X-Forwarded-*` headers and updates the current context to reflect the values sent by the proxy.
 |===
 
 [IMPORTANT]
 ====
-trustProxy: This should only be installed behind a reverse proxy that has been configured to send the
-`X-Forwarded-*` header, otherwise a remote user can spoof their address by sending a header with
-bogus values.
+**trustProxy:** This should only be enabled if your application is running behind a reverse proxy configured to send `X-Forwarded-*` headers. Otherwise, remote users can spoof their IP addresses and protocols by sending malicious headers.
 ====

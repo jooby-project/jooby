@@ -1,20 +1,16 @@
-=== AccessLogHandler
+==== AccessLogHandler
 
-The javadoc:handler.AccessLogHandler[] logs incoming requests using the https://en.wikipedia.org/wiki/Common_Log_Format[NCSA format] (a.k.a common log format).
+The javadoc:handler.AccessLogHandler[] logs all incoming requests using the https://en.wikipedia.org/wiki/Common_Log_Format[NCSA format] (also known as the Common Log Format).
 
 .Usage
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
 import io.jooby.handler.AccessLogHandler;
-...
+
 {
+  use(new AccessLogHandler()); // <1>
   
-  use(new AccessLogHandler()); <1>
-  
-  get("/", ctx -> {
-    ...
-  });
+  get("/", ctx -> "Logging...");
 }
 ----
 
@@ -22,39 +18,38 @@ import io.jooby.handler.AccessLogHandler;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.handler.AccessLogHandler
-...
+
 {
-  use(AccessLogHandler())      <1>
+  use(AccessLogHandler())      // <1>
   
-  get("/") {
-    ...
-  }
+  get("/") { "Logging..." }
 }
 ----
 
-<1> Install AccessLogHandler
+<1> Install the `AccessLogHandler` as a global decorator.
 
-Prints a message like:
+Once installed, it prints a message to your log similar to this:
 
     127.0.0.1 - - [04/Oct/2016:17:51:42 +0000] "GET / HTTP/1.1" 200 2 3
 
-Message is represented by:
+The message components are:
 
-- Remote Address.
-- User ID (or dash when missing)
-- Date and time
-- HTTP method, requestPath and protocol
-- Response Status Code
-- Response Content-Length (or dash when missing)
-- Time took to process the request in milliseconds
+* **Remote Address:** The IP address of the client.
+* **User ID:** Usually a dash (`-`) unless specified.
+* **Date and Time:** The timestamp of the request.
+* **Request Line:** The HTTP method, request path, and protocol.
+* **Status Code:** The HTTP response status code.
+* **Content-Length:** The size of the response in bytes (or `-` if missing).
+* **Latency:** The total time taken to process the request in milliseconds.
 
-Extra request or response headers can be appended at the end using the available methods:
+===== Custom Headers
 
-- javadoc:handler.AccessLogHandler[requestHeader, java.lang.String...]
-- javadoc:handler.AccessLogHandler[responseHeader, java.lang.String...]
+You can append specific request or response headers to the log entry using the following methods:
+
+* javadoc:handler.AccessLogHandler[requestHeader, java.lang.String...]: Appends request headers to the log line.
+* javadoc:handler.AccessLogHandler[responseHeader, java.lang.String...]: Appends response headers to the log line.
 
 [TIP]
 ====
-If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-please consider to use <<router-options-routing, trust proxy>> option.
+If your application runs behind a reverse proxy (like Nginx or AWS ALB) that sends `X-Forwarded-*` headers, remember to enable the <<core-router-options-routing, trust proxy>> option to ensure the correct remote IP address is logged.
 ====

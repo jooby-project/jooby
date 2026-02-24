@@ -1,18 +1,18 @@
-=== GracefulShutdown
+==== GracefulShutdownHandler
 
-The javadoc:GracefulShutdown[] extension waits for existing requests to finish.
+The javadoc:GracefulShutdown[] extension allows the application to finish processing active requests before the JVM exits.
 
-.Example
+Once a shutdown is initiated, the extension interceptor ensures that all new incoming requests are rejected with a `Service Unavailable (503)` status code, while existing requests are allowed to complete within a specified grace period.
+
+.Usage
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
 import io.jooby.GracefulShutdown;
-...
-{
-  
-  install(new GracefulShutdown()); <1>
 
-  // other routes go here
+{
+  install(new GracefulShutdown()); // <1>
+
+  get("/", ctx -> "Hello!");
 }
 ----
 
@@ -20,22 +20,26 @@ import io.jooby.GracefulShutdown;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.GracefulShutdown
-...
+
 {
-  install(GracefulShutdown())      <1>
+  install(GracefulShutdown())      // <1>
   
-  // other routes go here
+  get("/") { "Hello!" }
 }
 ----
 
-<1> Install GracefulShutdown.
+<1> Install the `GracefulShutdown` extension.
 
-Incoming request are resolved as `Service Unavailable(503)`. Optionally you can specify a max
-amount of time to wait before shutdown:
+===== Timeout
 
-    install(new GracefulShutdown(Duration.ofMinutes(1)));
+By default, the extension waits for all requests to finish. You can optionally specify a maximum duration to wait before forcing the application to stop:
 
-[INFO]
+[source, java]
+----
+install(new GracefulShutdown(Duration.ofMinutes(1)));
+----
+
+[IMPORTANT]
 ====
-This extension must be installed at very beginning of your route pipeline.
+This extension must be installed at the **very beginning** of your route pipeline to ensure it can intercept and manage all incoming traffic during the shutdown phase.
 ====

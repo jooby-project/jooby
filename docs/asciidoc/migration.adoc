@@ -102,4 +102,4 @@ The routing matching algorithm in 2.x is more efficient and fast, because:
 - Uses a radix tree, not regular expression like in 1.x
 - It never executes a decorator if there isn't a matching handler
 
-More detailed explanation of route pipeline is available in the <<router-pipeline, router pipeline documentation>>.
+More detailed explanation of route pipeline is available in the <<core-router-pipeline, router pipeline documentation>>.

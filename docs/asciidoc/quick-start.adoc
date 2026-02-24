@@ -1,0 +1,133 @@
+=== Quick Start
+
+The fastest way to start building is with the `jooby` console. This lightweight CLI generates configured Jooby projects instantly.
+
+**CLI Features:**
+
+* Scaffolds Maven or Gradle builds.
+* Generates Java or Kotlin applications.
+* Configures Script or MVC routes.
+* Selects Jetty, Netty, or Undertow as the underlying server.
+* Prepares Uber/Fat jars or https://github.com/fizzed/stork[Stork native launchers].
+* Generates a ready-to-use Dockerfile.
+
+==== Installing the CLI
+
+1. Download https://repo1.maven.org/maven2/io/jooby/jooby-cli/{joobyVersion}/jooby-cli-{joobyVersion}.zip[jooby-cli.zip].
+2. Unzip the file into a preferred directory.
+3. Locate the native launchers in the `bin` folder.
+
+[TIP]
+====
+Add the launcher (`bin/jooby` on Linux/macOS, or `bin/jooby.bat` on Windows) to your system's PATH to run it from any directory.
+====
+
+[NOTE]
+====
+The `jooby` CLI requires Java 17 or higher. Windows users should use `jooby.bat`.
+====
+
+==== Creating a Project
+
+First, set your workspace directory where new projects will be saved:
+
+[source, bash]
+----
+jooby set -w ~/Source
+----
+
+Next, open the console by typing `jooby` and pressing ENTER.
+
+To see all available options, type `help create`:
+
+[source, bash]
+----
+jooby> help create
+Usage: jooby create [-dgikms] [--server=<server>] <name>
+Creates a new application
+      <name>              Application name or coordinates (groupId:artifactId:version)
+  -d, --docker            Generates a Dockerfile
+  -g, --gradle            Generates a Gradle project
+  -i                      Start interactive mode
+  -k, --kotlin            Generates a Kotlin application
+  -m, --mvc               Generates an MVC application
+  -s, --stork             Add Stork Maven plugin to build (Maven only)
+      --server=<server>   Choose a server: jetty, netty, or undertow
+----
+
+**Examples:**
+
+.Create a default Maven Java project:
+[source, bash]
+----
+jooby> create myapp
+----
+
+.Create a Kotlin project:
+[source, bash]
+----
+jooby> create myapp --kotlin
+----
+
+[NOTE]
+.Kotlin Dependency
+====
+Since version 3.x, Kotlin is no longer included in the core. The CLI will automatically add the required dependency:
+[dependency, artifactId="jooby-kotlin"]
+====
+
+.Create a Gradle project (Java or Kotlin):
+[source, bash]
+----
+jooby> create myapp --gradle
+jooby> create myapp --gradle --kotlin
+----
+
+.Create an MVC-based project:
+[source, bash]
+----
+jooby> create myapp --mvc
+----
+
+.Specify the server (default is Netty):
+[source, bash]
+----
+jooby> create myapp --server undertow
+----
+
+.Include Dockerfile and Stork launcher configurations:
+[source, bash]
+----
+jooby> create myapp --docker --stork
+----
+
+For full control over the `groupId`, package structure, and versioning, use interactive mode:
+
+[source, bash]
+----
+jooby> create myapp -i
+----
+
+==== Understanding Code Snippets
+
+Throughout this documentation, we prioritize brevity. Unless strictly necessary, code examples will omit the `main` method and class definitions.
+
+When you see a snippet like this:
+
+.Snippet
+[source, java, role = "primary"]
+----
+{
+  get("/", ctx -> "Snippet");
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+{
+  get("/") { "Snippet" }
+}
+----
+
+Assume it is taking place inside the `Jooby` initializer block or the `runApp` function.

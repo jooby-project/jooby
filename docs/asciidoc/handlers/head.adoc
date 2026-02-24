@@ -1,45 +1,38 @@
-=== HeadHandler
+==== HeadHandler
 
-Jooby doesn't support `HTTP HEAD` requests by default. To support them you have two options:
+By default, Jooby does not automatically handle `HTTP HEAD` requests. To support them without manually defining `head(...)` routes for every resource, you can use the javadoc:handler.HeadHandler[].
 
-- Use the built-in `HeadHandler`
-- Write your own head handler
+The javadoc:handler.HeadHandler[] automatically routes `HEAD` requests to your existing `GET` handlers.
 
-The javadoc:handler.HeadHandler[] supports `HEAD` requests over existing `GET` handlers.
-
-.Head Example
+.Usage
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
 import io.jooby.handler.HeadHandler;
-...
+
 {
+  use(new HeadHandler()); // <1>
   
-  use(new HeadHandler()); <1>
-  
-  get("/", ctx -> {
-    ...
-  });
+  get("/", ctx -> "Full response body");
 }
 ----
 
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.HeadHandler
-...
+import io.jooby.handler.HeadHandler
+
 {
-  use(HeadHandler())      <1>
+  use(HeadHandler())      // <1>
   
-  get("/") {
-    ...
-  }
+  get("/") { "Full response body" }
 }
 ----
 
-<1> Install HeadHandler
+<1> Install the `HeadHandler`.
 
-`HEAD /` produces an empty response with a `Content-Length` header (when possible) and any other
-header produce it by the `GET` handler.
+When a `HEAD` request is received, the corresponding `GET` handler is executed to compute response metadata (like `Content-Length` and other headers), but the actual response body is stripped before being sent to the client.
 
-The `GET` handler is executed but produces an empty response.
+[NOTE]
+====
+This handler is a convenient way to support `HEAD` requests globally, but keep in mind that the `GET` handler logic still runs. If your `GET` handler performs expensive operations to generate a body, you might prefer a custom implementation that skips body generation for `HEAD` requests.
+====

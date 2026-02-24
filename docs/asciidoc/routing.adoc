@@ -1,14 +1,14 @@
-== Router
+=== Router
 
-The javadoc:Router[] is the heart of Jooby and consist of:
+The javadoc:Router[] is the heart of Jooby and consists of:
 
-- Routing algorithm (radix tree)
-- One or more javadoc:Route[text="routes"]
-- Collection of operator over javadoc:Route[text="routes"]
+* A routing algorithm (radix tree)
+* One or more javadoc:Route[text="routes"]
+* A collection of operators over javadoc:Route[text="routes"]
 
-=== Route
+==== Route
 
-A javadoc:Route[] consists of three part:
+A javadoc:Route[] consists of three parts:
 
 .Routes:
 [source, java, role="primary"]
@@ -54,16 +54,15 @@ A javadoc:Route[] consists of three part:
 }
 ----
 
-<1> HTTP method/verb, like: `GET`, `POST`, etc...
-<2> Path pattern, like: `/foo`, `/foo/{id}`, etc...
+<1> HTTP method/verb (e.g., `GET`, `POST`)
+<2> Path pattern (e.g., `/foo`, `/foo/{id}`)
 <3> Handler function
 
-The javadoc:Route.Handler[text="handler"] function always produces a result, which is send it back
-to the client.
+The javadoc:Route.Handler[text="handler"] function always produces a result, which is sent back to the client.
 
-==== Attributes
+===== Attributes
 
-Attributes let you annotate a route at application bootstrap time. It functions like static metadata available at runtime:
+Attributes allow you to annotate a route at application bootstrap time. They function as static metadata available at runtime:
 
 .Java
 [source, java, role="primary"]
@@ -84,8 +83,7 @@ Attributes let you annotate a route at application bootstrap time. It functions 
 }
 ----
 
-An attribute consist of a name and value. Values can be any object.
-Attributes can be accessed at runtime in a request/response cycle. For example, a security module might check for a role attribute.
+An attribute consists of a name and a value. Values can be any object. Attributes can be accessed during the request/response cycle. For example, a security module might check for a role attribute.
 
 .Java
 [source, java, role="primary"]
@@ -108,20 +106,20 @@ Attributes can be accessed at runtime in a request/response cycle. For example, 
 [source, kotlin, role="secondary"]
 ----
 {
-use(
-  val user = ...
-  val role = ctx.route.getAttribute("Role")
+  use {
+    val user = ...
+    val role = ctx.route.getAttribute("Role")
 
-  if (user.hasRole(role)) {
-    return next.apply(ctx)
-  } else {      
-    throw StatusCodeException(StatusCode.FORBIDDEN)
+    if (user.hasRole(role)) {
+      next.apply(ctx)
+    } else {      
+      throw StatusCodeException(StatusCode.FORBIDDEN)
+    }
   }
 }
 ----
 
-
-In MVC routes you can set attributes via annotations:
+In MVC routes, you can set attributes via annotations:
 
 .Java
 [source, java, role="primary"]
@@ -173,17 +171,16 @@ class AdminResource {
 }
 ----
 
-The previous example will print: admin.
-You can retrieve all the attributes of the route by calling `ctx.getRoute().getAttributes()`.
+The previous example prints `admin`. You can retrieve all attributes of a route by calling `ctx.getRoute().getAttributes()`.
 
-Any runtime annotation is automatically added as route attributes following these rules:
-- If the annotation has a value method, then we use the annotation’s name as the attribute name.
-- Otherwise, we use the method name as the attribute name.
+Any runtime annotation is automatically added as a route attribute following these rules:
 
+* If the annotation has a `value` method, the annotation’s name becomes the attribute name.
+* Otherwise, the method name is used as the attribute name.
 
-=== Path Pattern
+==== Path Pattern
 
-==== Static
+===== Static
 
 .Java
 [source, java, role="primary"]
@@ -201,7 +198,7 @@ Any runtime annotation is automatically added as route attributes following thes
 }
 ----
 
-==== Variable
+===== Variable
 
 .Single path variable:
 [source, java, role="primary"]
@@ -227,8 +224,8 @@ Any runtime annotation is automatically added as route attributes following thes
 }
 ----
 
-<1> Defines a path variable `id`
-<2> Retrieve the variable `id` as `int`
+<1> Defines a path variable `id`.
+<2> Retrieves the variable `id` as an `int`.
 
 .Multiple path variables:
 [source, java,role="primary"]
@@ -256,9 +253,9 @@ Any runtime annotation is automatically added as route attributes following thes
 }
 ----
 
-<1> Defines two path variables: `file` and `ext`
-<2> Retrieve string variable: `file`
-<3> Retrieve string variable: `ext`
+<1> Defines two path variables: `file` and `ext`.
+<2> Retrieves the string variable `file`.
+<3> Retrieves the string variable `ext`.
 
 .Optional path variable:
 [source, java, role="primary"]
@@ -284,15 +281,15 @@ Any runtime annotation is automatically added as route attributes following thes
 }
 ----
 
-<1> Defines an optional path variable `id`. The trailing `?` make it optional.
-<2> Retrieve the variable `id` as `String` when present or use a default value: `self`.
+<1> Defines an optional path variable `id`. The trailing `?` makes it optional.
+<2> Retrieves the variable `id` as a `String` if present, or uses the default value: `self`.
 
-The trailing `?` makes the path variable optional. The route matches:
+The trailing `?` makes the path variable optional. The route matches both:
 
-- `/profile`
-- `/profile/eespina`
+* `/profile`
+* `/profile/eespina`
 
-==== Regex
+===== Regex
 
 .Regex path variable:
 [source, java, role="primary"]
@@ -318,17 +315,17 @@ The trailing `?` makes the path variable optional. The route matches:
 }`
 ----
 
-<1> Defines a path variable: `id`. Regex expression is everything after the first `:`, like: `[0-9]+`
-<2> Retrieve an int value
+<1> Defines a path variable `id`. The regex expression is everything after the first `:` (e.g., `[0-9]+`).
+<2> Retrieves the `int` value.
 
-Optional syntax is also supported for regex path variable: `/user/{id:[0-9]+}?`:
+The optional syntax is also supported for regex path variables (e.g., `/user/{id:[0-9]+}?`). This matches:
 
-- matches  `/user`
-- matches `/user/123`
+* `/user`
+* `/user/123`
 
-==== * Catchall
+===== * Catchall
 
-.catchall
+.Catchall:
 [source, java, role="primary"]
 ----
 {
@@ -362,29 +359,24 @@ Optional syntax is also supported for regex path variable: `/user/{id:[0-9]+}?`:
 }
 ----
 
-<1> The trailing `*` defines a `catchall` pattern
-<2> We access to the `catchall` value using the `*` character
-<3> Same example, but this time we named the `catchall` pattern and we access to it using `path` 
-variable name.
+<1> The trailing `*` defines a `catchall` pattern.
+<2> We access the `catchall` value using the `*` character.
+<3> In this example, we named the `catchall` pattern and access it using the `path` variable name.
 
 [NOTE]
 ====
 A `catchall` pattern must be defined at the end of the path pattern.
 ====
- 
-=== Handler
 
-Application logic goes inside a javadoc:Route.Handler[text=handler]. A 
-javadoc:Route.Handler[text=handler] is a function that accepts a javadoc:Context[text=context] 
-object and produces a `result`.
+==== Handler
 
-A javadoc:Context[text=context] allows you to interact with the `HTTP Request` and manipulate the 
-`HTTP Response`.
+Application logic belongs inside a javadoc:Route.Handler[text=handler]. A javadoc:Route.Handler[text=handler] is a function that accepts a javadoc:Context[text=context] object and produces a result.
+
+A javadoc:Context[text=context] allows you to interact with the HTTP request and manipulate the HTTP response.
 
 [NOTE]
 ====
-Incoming request matches exactly **ONE** route handler. If there is no handler, produces a `404`
-response.
+An incoming request matches exactly **ONE** route handler. If no handler matches, it produces a `404` response.
 ====
 
 .Java
@@ -419,16 +411,14 @@ Output:
 
 <1> `GET /user/ppicapiedra` => `ppicapiedra`
 <2> `GET /user/me` => `my profile`
-<3> Unreachable => override it by next route
-<4> `GET /users` => `new users` not `users`
+<3> Unreachable => overridden by the next route.
+<4> `GET /users` => `new users` (not `users`).
 
-Routes with most specific path pattern (`2` vs `1`) has more precedence. Also, is one or more routes
-result in the same path pattern, like `3` and `4`, last registered route hides/overrides previous route.
+Routes with a more specific path pattern (`2` vs `1`) have higher precedence. Also, if multiple routes share the same path pattern (like `3` and `4`), the last registered route overrides the previous ones.
 
-==== Filter
+===== Filter
 
-Cross cutting concerns such as response modification, verification, security, tracing, etc. is available
-via javadoc:Route.Filter[].
+Cross-cutting concerns such as response modification, verification, security, and tracing are available via javadoc:Route.Filter[].
 
 A `filter` takes the `next` handler in the pipeline and produces a `new` handler:
 
@@ -486,22 +476,21 @@ interface Filter {
 }
 ----
 
-<1> Saves start time
-<2> Proceed with execution (pipeline)
-<3> Compute and print latency
-<4> Returns a response
+<1> Saves the start time.
+<2> Proceeds with execution (the pipeline).
+<3> Computes and prints latency.
+<4> Returns a response.
 
 [NOTE]
 ====
-One or more filter on top of a handler produces a new handler.
+One or more filters applied on top of a handler produce a new handler.
 ====
 
-==== Before
+===== Before
 
 The javadoc:Route.Before[text=before] filter runs before a `handler`.
 
-A `before` filter takes a `context` as argument and don't produces a response. It expected to operates
-via side effects (usually modifying the HTTP response).
+A `before` filter takes a `context` as an argument and does not produce a response. It is expected to operate via side effects (usually modifying the HTTP request/response).
 
 [source,java]
 ----
@@ -538,16 +527,13 @@ interface Before {
 }
 ----
 
-==== After
+===== After
 
 The javadoc:Route.After[text=after] filter runs after a `handler`.
 
-An `after` filter takes three arguments. The first argument is the `HTTP context`, the second
-argument is the result/response from a **functional handler** or `null` for **side-effects** handler,
-the third and last argument is an exception generates from handler.
+An `after` filter takes three arguments. The first is the `HTTP context`, the second is the result from a **functional handler** (or `null` for a **side-effect** handler), and the third is any exception generated by the handler.
 
-It expected to operates via side effects, usually modifying the HTTP response (if possible) or
-for cleaning/trace execution.  
+It is expected to operate via side effects, usually modifying the HTTP response (if possible) or cleaning up/tracing execution.
 
 [source,java]
 ----
@@ -561,8 +547,8 @@ interface After {
 ----
 {
   after((ctx, result, failure) -> {
-    System.out.println(result);          <1>
-    ctx.setResponseHeader("foo", "bar"); <2>
+    System.out.println(result);          // <1>
+    ctx.setResponseHeader("foo", "bar"); // <2>
   });
 
   get("/", ctx -> {
@@ -576,8 +562,8 @@ interface After {
 ----
 {
   after {
-    println("Hello $result")             <1>
-    ctx.setResponseHeader("foo", "bar")  <2>
+    println("Hello $result")             // <1>
+    ctx.setResponseHeader("foo", "bar")  // <2>
   }
 
   get("/") {
@@ -586,20 +572,20 @@ interface After {
 }
 ----
 
-<1> Prints `Jooby`
-<2> Add a response header (modifies the HTTP response)
+<1> Prints `Jooby`.
+<2> Adds a response header (modifies the HTTP response).
 
-If the target handler is a **functional** handler modification of HTTP response is allowed it.
+If the target handler is a **functional** handler, modifying the HTTP response is allowed.
 
-For **side effects** handler the after filter is invoked with a `null` value and isn't allowed to modify the HTTP response.
+For **side-effect** handlers, the after filter is invoked with a `null` result and is not allowed to modify the HTTP response.
 
 .Side-Effect Handler:
 [source,java,role="primary"]
 ----
 {
   after((ctx, result, failure) -> {
-    System.out.println(result);          <1>
-    ctx.setResponseHeader("foo", "bar"); <2>
+    System.out.println(result);          // <1>
+    ctx.setResponseHeader("foo", "bar"); // <2>
   });
 
   get("/", ctx -> {
@@ -613,8 +599,8 @@ For **side effects** handler the after filter is invoked with a `null` value and
 ----
 {
   after {
-    println("Hello $result")             <1>
-    ctx.setResponseHeader("foo", "bar")  <2>
+    println("Hello $result")             // <1>
+    ctx.setResponseHeader("foo", "bar")  // <2>
   }
 
   get("/") {
@@ -623,14 +609,12 @@ For **side effects** handler the after filter is invoked with a `null` value and
 }
 ----
 
-<1> Prints `null` (no value)
-<2> Produces an error/exception
+<1> Prints `null` (no value).
+<2> Produces an error/exception.
 
-Exception occurs because response was already started and its impossible to alter/modify it.
+An exception occurs here because the response was already started, and it is impossible to alter it. Side-effect handlers are those that use the `send` methods, `responseOutputStream`, or `responseWriter`.
 
-Side-effects handler are all that make use of family of send methods, responseOutputStream and responseWriter.
-
-You can check whenever you can modify the response by checking the state of javadoc:Context[isResponseStarted]:
+You can check whether you can modify the response by checking the state of javadoc:Context[isResponseStarted]:
 
 .Safe After:
 [source,java,role="primary"]
@@ -638,7 +622,7 @@ You can check whenever you can modify the response by checking the state of java
 {
   after((ctx, result, failure) -> {
     if (ctx.isResponseStarted()) {
-      // Don't modify response
+      // Do not modify response
     } else {
       // Safe to modify response
     }
@@ -651,8 +635,8 @@ You can check whenever you can modify the response by checking the state of java
 ----
 {
   after {
-    if (ctx.responseStarted) {
-      // Don't modify response
+    if (ctx.isResponseStarted) {
+      // Do not modify response
     } else {
       // Safe to modify response
     }
@@ -662,22 +646,20 @@ You can check whenever you can modify the response by checking the state of java
 
 [NOTE]
 ====
-An after handler is always invoked.
+An `after` handler is always invoked.
 ====
 
-The next examples demonstrate some use cases for dealing with errored responses, but keep in mind
-that an after handler is not a mechanism for handling and reporting exceptions that's is a task
-for an <<error-handler, Error Handler>>.
+The next examples demonstrate some use cases for dealing with errored responses. Keep in mind that an `after` handler is not a mechanism for handling and reporting exceptions; that is the task of an <<core-error-handler, Error Handler>>.
 
-.Run code depending of success or failure responses:
+.Run code depending on success or failure responses:
 [source,java,role="primary"]
 ----
 {
   after((ctx, result, failure) -> {
     if (failure == null) {
-      db.commit();                   <1>
+      db.commit();                   // <1>
     } else {
-      db.rollback();                 <2>
+      db.rollback();                 // <2>
     }
   });
 }
@@ -689,23 +671,23 @@ for an <<error-handler, Error Handler>>.
 {
   after {
     if (failure == null) {
-      db.commit()                    <1>
+      db.commit()                    // <1>
     } else {
-      db.rollback()                  <2>
+      db.rollback()                  // <2>
     }
   }
 }
 ----
 
-Here the exception is still propagated given the chance to the <<error-handler, Error Handler>> to jump in.
+Here, the exception is still propagated, giving the <<core-error-handler, Error Handler>> a chance to jump in.
 
-.Recover fom exception and produces an alternative output:
+.Recover from an exception and produce an alternative output:
 [source,java,role="primary"]
 ----
 {
   after((ctx, result, failure) -> {
-    if (failure instanceOf MyBusinessException) {
-      ctx.send("Recovering from something");        <1>
+    if (failure instanceof MyBusinessException) {
+      ctx.send("Recovering from something");        // <1>
     }
   });
 }
@@ -717,35 +699,35 @@ Here the exception is still propagated given the chance to the <<error-handler, 
 {
   after {
     if (failure is MyBusinessException) {
-      ctx.send("Recovering from something")         <1>
+      ctx.send("Recovering from something")         // <1>
     }
   }
 }
 ----
 
-<1> Recover and produces an alternative output
+<1> Recovers and produces an alternative output.
 
-Here the exception wont be propagated due we produces a response, so error handler won't be execute it.
+Here, the exception won't be propagated because we produce a response, meaning the error handler will not execute.
 
-In case where the after handler produces a new exception, that exception will be add to the original exception as suppressed exception.
+If the `after` handler produces a new exception, that exception will be added to the original exception as a suppressed exception.
 
 .Suppressed exceptions:
 [source,java,role="primary"]
 ----
 {
   after((ctx, result, failure) -> {
-    ...
+    // ...
     throw new AnotherException();
   });
 
   get("/", ctx -> {
-    ...
+    // ...
     throw new OriginalException();
   });
 
   error((ctx, failure, code) -> {
-    Throwable originalException = failure;                       <1>
-    Throwable anotherException  = failure.getSuppressed()[0];    <2>
+    Throwable originalException = failure;                       // <1>
+    Throwable anotherException  = failure.getSuppressed()[0];    // <2>
   });
 }
 ----
@@ -755,43 +737,42 @@ In case where the after handler produces a new exception, that exception will be
 ----
 {
   after {
-    ...
-    throw AnotherException();
+    // ...
+    throw AnotherException()
   }
 
   get("/") { ctx ->
-    ...
+    // ...
     throw OriginalException()
   }
 
-  error { ctx, failure, code) ->
-    val originalException = failure                              <1>
-    val anotherException  = failure.getSuppressed()[0]           <2>
+  error { ctx, failure, code ->
+    val originalException = failure                              // <1>
+    val anotherException  = failure.suppressed[0]                // <2>
   }
 }
 ----
 
-<1> Will be `OriginalException`
-<2> Will be `AnotherException`
+<1> Will be `OriginalException`.
+<2> Will be `AnotherException`.
 
-==== Complete
+===== Complete
 
-The javadoc:Route.Complete[text=complete] listener run at the completion of a request/response cycle
-(i.e. when the request has been completely read, and the response has been fully written).
+The javadoc:Route.Complete[text=complete] listener runs at the completion of a request/response cycle (i.e., when the request has been completely read and the response fully written).
 
-At this point it is too late to modify the exchange further. They are attached to a running context
-(not like a filter/before/after filters).
+At this point, it is too late to modify the exchange. They are attached to a running context (unlike `before`/`after` filters).
 
 .Example
 [source, java, role="primary"]
 ----
 {
    use(next -> ctx -> {
-     long start = System.currentTimeInMillis();
-     ctx.onComplete(context -> {                      <1>
-       long end = System.currentTimeInMillis();       <2>
+     long start = System.currentTimeMillis();
+     ctx.onComplete(context -> {                      // <1>
+       long end = System.currentTimeMillis();         // <2>
        System.out.println("Took: " + (end - start));
      });
+     return next.apply(ctx);
    });
 }
 ----
@@ -802,22 +783,23 @@ At this point it is too late to modify the exchange further. They are attached t
 {
    use {
      val start = System.currentTimeMillis()
-     ctx.onComplete {                                 <1>
-       val end = System.currentTimeMillis()           <2>
+     ctx.onComplete {                                 // <1>
+       val end = System.currentTimeMillis()           // <2>
        println("Took: " + (end - start))
      }
+     next.apply(ctx)
    }
 }
 ----
 
-<1> Attach a completion listener
-<2> Run after response has been fully written
+<1> Attaches a completion listener.
+<2> Runs after the response has been fully written.
 
 Completion listeners are invoked in reverse order.
 
-=== Pipeline
+==== Pipeline
 
-Route pipeline (a.k.a route stack) is a composition of one or more use(s) tied to a single `handler`:
+The route pipeline (a.k.a. route stack) is a composition of one or more `use` statements tied to a single `handler`:
 
 .Java
 [source, java, role="primary"]
@@ -868,7 +850,7 @@ Output:
 <1> `/1` => `3`
 <2> `/2` => `4`
 
-Behind the scene, Jooby builds something like:
+Behind the scenes, Jooby builds something like this:
 
 [source, java]
 ----
@@ -892,17 +874,14 @@ Behind the scene, Jooby builds something like:
 }
 ----
 
-Any `filter` defined on top of the handler will be stacked/chained into a new handler.
+Any `filter` defined on top of the handler will be chained into a new handler.
 
 [NOTE]
 .Filter without path pattern
 ====
+This was a hard decision, but it is the right one. Jooby 1.x used a path pattern to define a `filter`.
 
-This was a hard decision to make, but we know is the right one. Jooby 1.x uses a path pattern to
-define `filter`.
-
-The `pipeline` in Jooby 1.x consists of multiple filters and handlers. They are match
-sequentially one by one. The following `filter` is always executed in Jooby 1.x
+In Jooby 1.x, the `pipeline` consisted of multiple filters and handlers matched sequentially. The following `filter` was always executed:
 
 .Jooby 1.x
 [source, java]
@@ -916,18 +895,14 @@ sequentially one by one. The following `filter` is always executed in Jooby 1.x
 }
 ----
 
-Suppose there is a bot trying to access and causing lot of `404` responses (path doesn't exist).
-In Jooby 1.x the `filter` is executed for every single request sent by the bot just to realize 
-there is NO matching route and all we need is a `404`.
+If a bot tried to access missing pages (causing `404`s), Jooby 1.x executed the filter for every single request before realizing there was no matching route.
 
-In Jooby 2.x this won't happen anymore. If there is a matching handler, the `pipeline` will be 
-executed. Otherwise, nothing will do!
-
+In Jooby 2.x+, this no longer happens. The `pipeline` is only executed if there is a matching handler. Otherwise, nothing is executed!
 ====
 
-==== Order
+===== Order
 
-Order follows the **what you see is what you get** approach. Routes are stacked in the way they were added/defined.
+Order follows a **what you see is what you get** approach. Routes are stacked in the order they are defined.
 
 .Order example:
 [source, java, role="primary"]
@@ -976,14 +951,13 @@ Order follows the **what you see is what you get** approach. Routes are stacked 
 Output:
 
 <1> `/1` => `2`
-<2> `/2` => `4` 
+<2> `/2` => `4`
 
-==== Scoped Filter
+===== Scoped Filter
 
-The javadoc:Router[routes, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators
-are used to group one or more routes.
-  
-A `scoped filter` looks like:
+The javadoc:Router[routes, java.lang.Runnable] and javadoc:Router[path, java.lang.String, java.lang.Runnable] operators group one or more routes.
+
+A `scoped filter` looks like this:
 
 .Scoped filter:
 [source, java, role="primary"]
@@ -1035,25 +1009,22 @@ A `scoped filter` looks like:
 
 Output:
 
-<1> Introduce a new scope via `routes` operator
+<1> Introduces a new scope via the `routes` operator.
 <2> `/4`  => `9`
 <3> `/1`  => `2`
 
-It is a normal `filter` inside of one of the group operators.
+It functions as a normal `filter` inside a group operator.
 
-=== Grouping routes
+==== Grouping Routes
 
-As showed previously, the javadoc:Router[routes, java.lang.Runnable] operator push a new route `scope`
-and allows you to selectively apply one or more routes.
+As shown previously, the javadoc:Router[routes, java.lang.Runnable] operator pushes a new route `scope` and allows you to selectively apply logic to one or more routes.
 
 .Route operator
 [source,java,role="primary"]
 ----
 {
   routes(() -> {   
-
     get("/", ctx -> "Hello");
-
   });
 }
 ----
@@ -1063,33 +1034,26 @@ and allows you to selectively apply one or more routes.
 ----
 {
   routes {
-
     get("/") {
       "Hello"
     }
-
   }
 }
 ----
 
-Route operator is for grouping one or more routes and apply cross cutting concerns to all them.
+The `routes` operator is for grouping routes and applying cross-cutting concerns to all of them.
 
-In similar fashion the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups
-one or more routes under a common path pattern.
+Similarly, the javadoc:Router[path, java.lang.String, java.lang.Runnable] operator groups routes under a common path pattern.
 
 .Routes with path prefix:
 [source,java,role="primary"]
 ----
 {
    path("/api/user", () -> {    // <1>
-   
      get("/{id}", ctx -> ...);  // <2>
-   
      get("/", ctx -> ...);      // <3>
-     
      post("/", ctx -> ...);     // <4>
-     
-     ...
+     // ...
    }); 
 }
 ----
@@ -1099,31 +1063,24 @@ one or more routes under a common path pattern.
 ----
 {
    path("/api/user") {     // <1>
-   
      get("/{id}") { ...}   // <2>
-   
      get("/") { ...}       // <3>
-     
      post("/") { ...}      // <4>
-     
-     ...
+     // ...
    }); 
 }
 ----
 
-<1> Set common prefix `/api/user`
+<1> Sets the common prefix `/api/user`.
 <2> `GET /api/user/{id}`
 <3> `GET /api/user`
 <4> `POST /api/user`
 
-=== Composing
+==== Composing
 
-==== Mount
+===== Mount
 
-Composition is a technique for building modular applications. You can compose one or more
-router into a new one.
-
-Composition is available through the javadoc:Router[mount, io.jooby.Router] operator:
+Composition is a technique for building modular applications. You can compose one or more routers into a new one using the javadoc:Router[mount, io.jooby.Router] operator:
 
 .Composing
 [source, java, role="primary"]
@@ -1143,9 +1100,7 @@ public class Bar extends Jooby {
 public class App extends Jooby {
   {
     mount(new Foo());                       // <1>
-
     mount(new Bar());                       // <2>
-
     get("/app", Context::getRequestPath);   // <3>
   }
 }
@@ -1155,32 +1110,23 @@ public class App extends Jooby {
 [source, kotlin,role="secondary"]
 ----
 class Foo: Kooby({
-   
   get("/foo") { ctx.getRequestPath() }
-
 })
 
 class Bar: Kooby({
-  
   get("/bar") { ctx.getRequestPath() }
-
 })
 
 class App: Kooby({
   mount(Foo())                         // <1>
-
   mount(Bar())                         // <2>
-
   get("/app") { ctx.getRequestPath() } // <3>
 })
 ----
 
 <1> Imports all routes from `Foo`. Output: `/foo` => `/foo`
-
 <2> Imports all routes from `Bar`. Output: `/bar` => `/bar`
-
-<3> Add more routes . Output `/app` => `/app`
-
+<3> Adds more routes. Output: `/app` => `/app`
 
 .Composing with path prefix
 [source,java,role="primary"]
@@ -1202,27 +1148,21 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 class Foo: Kooby({
-   
   get("/foo") { ctx.getRequestPath() }
-
 })
 
 class App: Kooby({
-
   mount("/prefix", Foo())  // <1>
-
 })
 ----
 
 <1> Now all routes from `Foo` will be prefixed with `/prefix`. Output: `/prefix/foo` => `/prefix/foo`
 
-The mount operator only import routes. Services, callbacks, etc... are not imported. Main application
-is responsible for assembly all the resources and services required by imported applications.
+The `mount` operator only imports routes. Services and callbacks are not imported. The main application is responsible for assembling all resources and services required by the imported applications.
 
-==== Install
+===== Install
 
-Alternatively, you can install a standalone application into another one using the
-javadoc:Jooby[install, io.jooby.SneakyThrows.Supplier] operator:
+Alternatively, you can install a standalone application into another one using the javadoc:Jooby[install, io.jooby.SneakyThrows.Supplier] operator:
 
 .Installing
 [source, java, role="primary"]
@@ -1242,7 +1182,6 @@ public class Bar extends Jooby {
 public class App extends Jooby {
   {
     install(Foo::new);                       // <1>
-
     install(Bar::new);                       // <2>
   }
 }
@@ -1252,31 +1191,25 @@ public class App extends Jooby {
 [source, kotlin,role="secondary"]
 ----
 class Foo: Kooby({
-   
   get("/foo") { ... }
-
 })
 
 class Bar: Kooby({
-  
   get("/bar") { ... }
-
 })
 
 class App: Kooby({
   install(::Foo)                         // <1>
-
   install(::Bar)                         // <2>
 })
 ----
 
-<1> Imports all routes, services, callbacks, etc... from `Foo`. Output: `/foo` => `/foo`
+<1> Imports all routes, services, callbacks, etc. from `Foo`. Output: `/foo` => `/foo`
+<2> Imports all routes, services, callbacks, etc. from `Bar`. Output: `/bar` => `/bar`
 
-<2> Imports all routes, services, callbacks, etc... from `Bar`. Output: `/bar` => `/bar`
+This operator lets you, for example, deploy `Foo` as a standalone application or integrate it into a main application.
 
-This operator lets you for example to deploy `Foo` as a standalone application or integrate it into a main one called `App3508`.
-The install operator shares the state of the main application, so lazy initialization (and therefore _instantiation_) of
-any child applications is *mandatory*.
+The `install` operator shares the state of the main application, so lazy initialization (and therefore _instantiation_) of any child applications is **mandatory**.
 
 For example, this won't work:
 
@@ -1289,7 +1222,7 @@ For example, this won't work:
 }
 ----
 
-The `Foo` application must be lazy initialized:
+The `Foo` application must be lazily initialized:
 
 .Java
 [source, java]
@@ -1299,13 +1232,11 @@ The `Foo` application must be lazy initialized:
 }
 ----
 
+==== Dynamic Routing
 
-=== Dynamic Routing
+Dynamic routing looks similar to <<core-router-composing, composition>> but enables/disables routes at runtime using a `predicate`.
 
-Dynamic routing looks similar to <<router-composing, composition>> but enables/disables routes at runtime
-using a `predicate`. 
-
-Suppose you own two versions of an `API` and for some time you need to support both the `old` and `new` APIs:
+Suppose you own two versions of an `API` and need to support both the `old` and `new` versions concurrently based on a header:
 
 .Dynamic Routing
 [source,java,role="primary"]
@@ -1325,7 +1256,6 @@ public class V2 extends Jooby {
 public class App extends Jooby {
   {
     mount(ctx -> ctx.header("version").value().equals("v1"), new V1()); // <1>
-
     mount(ctx -> ctx.header("version").value().equals("v2"), new V2()); // <2>
   }
 }
@@ -1335,23 +1265,16 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 class V1: Kooby({
-  
   get("/api") { "v1" }
-
 })
 
 class V2: Kooby({
-  
   get("/api") { "v2" }
-
 })
 
 class App: Kooby({
-
   mount(ctx -> ctx.header("version").value().equals("v1"), V1()); // <1>
-
   mount(ctx -> ctx.header("version").value().equals("v2"), V2()); // <2>
-
 })
 ----
 
@@ -1360,12 +1283,11 @@ Output:
 <1> `/api` => `v1`; when `version` header is `v1`
 <2> `/api` => `v2`; when `version` header is `v2`
 
-Done {love}!
+Done! {love}
 
-=== Multiple routers
+==== Multiple Routers
 
-This model let you `run` multiple applications on single server instance. Each application
-works like a standalone application, they don't share any kind of services.
+This model lets you run multiple applications on a single server instance. Each application works like a standalone application; they do not share any services.
 
 .Multiple routers
 [source, java,role="primary"]
@@ -1396,7 +1318,6 @@ public class MultiApp {
 .Kotlin
 [source, kotlin,role="secondary"]
 ----
-
 import io.jooby.kt.Kooby.runApp
 
 fun main(args: Array<String>) {
@@ -1404,15 +1325,14 @@ fun main(args: Array<String>) {
 }
 ----
 
-You write your application as always and them you deploy them using the `runApp` method.
+You write your application as usual and then deploy them using the `runApp` method.
 
 [IMPORTANT]
 ====
-Due to nature of logging framework (static loading and initialization) the logging bootstrap
-might not work as you expected. It is recommend to use just the `logback.xml` or `log4j.xml` file.
+Due to the nature of logging frameworks (static loading and initialization), logging bootstrap might not work as expected. It is recommended to just use the `logback.xml` or `log4j2.xml` file.
 ====
 
-=== Options
+==== Options
 
 include::router-options.adoc[]
 

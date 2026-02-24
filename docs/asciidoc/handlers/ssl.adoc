@@ -1,83 +1,60 @@
-=== SSLHandler
+==== SSLHandler
 
-The javadoc:handler.SSLHandler[] forces client to use HTTPS by redirecting non-HTTPS calls to the HTTPS version.
+The javadoc:handler.SSLHandler[] forces clients to use HTTPS by automatically redirecting all non-secure (HTTP) requests to their secure (HTTPS) version.
 
-Refer to <<server-https-support, configure ssl>> to see how to setup SSL in your project.
+Before using this handler, ensure you have followed the instructions in the <<tooling-and-operations-server-https-support, HTTPS Support>> section to enable SSL on your server.
 
-.Force SSL
+.Usage
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
 import io.jooby.handler.SSLHandler;
-...
+
 {
+  before(new SSLHandler()); // <1>
   
-  before(new SSLHandler()); <1>
-  
-  get("/", ctx -> {
-    return ctx.getScheme();
-  });
+  get("/", ctx -> "You are on: " + ctx.getScheme());
 }
 ----
 
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Jooby
-import io.jooby.handler.SSHandler
-...
+import io.jooby.handler.SSLHandler
+
 {
-  before(SSLHandler())      <1>
+  before(SSLHandler())      // <1>
   
-  get("/") {
-    ...
-  }
+  get("/") { "You are on: ${ctx.scheme}" }
 }
 ----
 
-<1> Install SSLHandler
+<1> Install the `SSLHandler` as a `before` filter.
 
-The SSL Handler recreates the HTTPs URL version using the `Host` header, if you are behind a proxy
-you will need to use the `X-Forwarded-Host` header. To do that set the <<router-options-routing, trust proxy>> option.
+The handler reconstructs the HTTPS URL using the `Host` header. If your application is running behind a load balancer or reverse proxy, you must enable the <<core-router-options-routing, trust proxy>> option to ensure the handler correctly identifies the client's original protocol and host.
 
-Optionally, you can specify the host to use:
+===== Customizing the Host
 
-.Force SSL
+By default, the handler redirects to the host provided in the request. You can explicitly specify a destination host if needed:
+
+.Explicit Host Redirect
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
-import io.jooby.handler.SSLHandler;
-...
 {
-  
-  before(new SSLHandler("myhost.org")); <1>
-  
-  get("/", ctx -> {
-    return ctx.getScheme();
-  });
+  // Redirects all traffic to https://myhost.org
+  before(new SSLHandler("myhost.org"));
 }
 ----
 
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Jooby
-import io.jooby.handler.SSHandler
-...
 {
-
-  before(SSLHandler("myhost.org"))      <1>
-  
-  get("/") {
-    ctx.scheme
-  }
+  // Redirects all traffic to https://myhost.org
+  before(SSLHandler("myhost.org"))
 }
 ----
-
-For more information about SSL, please check the <<server-https-support, configure SSL>> section.
 
 [TIP]
 ====
-If you run behind a reverse proxy that has been configured to send the X-Forwarded-* header,
-please consider adding the <<router-options-routing, trust proxy>> to your pipeline.
+For production environments behind a reverse proxy (like Nginx, HAProxy, or an AWS ALB) that terminates SSL, the `SSLHandler` relies on the `X-Forwarded-Proto` header. Make sure your proxy is configured to send it and that you have enabled `setTrustProxy(true)` in your Jooby configuration.
 ====

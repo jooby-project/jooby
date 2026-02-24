@@ -75,7 +75,7 @@ If there is no source code to shows, whoops does nothing.
 
 
 If you have custom error handler just add them before whoops (or after). Remember whoops works
-like any other link:../#error-handler[Error Handler].
+like any other link:../#core-error-handler[Error Handler].
 
 === Production deploy
 

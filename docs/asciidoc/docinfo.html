@@ -1,19 +1,5 @@
+<link rel="stylesheet" href="/js/styles/toc.css">
 <style>
-  /** ToC */
-  #tocbot a.toc-link.node-name--H1{ font-style: italic }
-  @media screen{
-    #tocbot > ul.toc-list{ margin-bottom: 0.5em; margin-left: 0.125em }
-    #tocbot ul.sectlevel0, #tocbot a.toc-link.node-name--H1 + ul{
-      padding-left: 0 }
-    #tocbot a.toc-link{ height:100% }
-    .is-collapsible{ max-height:3000px; overflow:hidden; }
-    .is-collapsed{ max-height:0 }
-    .is-active-link{ font-weight:700 }
-  }
-  @media print{
-    #tocbot a.toc-link.node-name--H4{ display:none }
-  }
-
   /** Tabs */
   .hidden {
     display: none;
@@ -45,79 +31,79 @@
   }
 
   .clipboard {
-      position: absolute;
-      bottom: .1rem;
-      right: .1rem;
-      display: inline-block;
-      padding: 4px 8px;
-      font-size: 13px;
-      font-weight: 700;
-      line-height: 20px;
-      color: #333;
-      white-space: nowrap;
-      vertical-align: middle;
-      cursor: pointer;
-      background-color: #eee;
-      background-image: linear-gradient(#fcfcfc,#eee);
-      border: 1px solid #d5d5d5;
-      border-radius: 3px;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      -webkit-appearance: none
+    position: absolute;
+    bottom: .1rem;
+    right: .1rem;
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 20px;
+    color: #333;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #eee;
+    background-image: linear-gradient(#fcfcfc, #eee);
+    border: 1px solid #d5d5d5;
+    border-radius: 3px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-appearance: none
   }
 
   .clipboard i {
-      font-style: normal;
-      font-weight: 500;
-      opacity: .6
+    font-style: normal;
+    font-weight: 500;
+    opacity: .6
   }
 
   .clipboard .octicon {
-      vertical-align: text-top
+    vertical-align: text-top
   }
 
   .clipboard .counter {
-      text-shadow: none;
-      background-color: #e5e5e5
+    text-shadow: none;
+    background-color: #e5e5e5
   }
 
   .clipboard:focus {
-      text-decoration: none;
-      border-color: #51a7e8;
-      outline: none;
-      box-shadow: 0 0 5px rgba(81,167,232,.5)
+    text-decoration: none;
+    border-color: #51a7e8;
+    outline: none;
+    box-shadow: 0 0 5px rgba(81, 167, 232, .5)
   }
 
-  .clipboard:focus:hover,.clipboard.selected:focus {
-      border-color: #51a7e8
+  .clipboard:focus:hover, .clipboard.selected:focus {
+    border-color: #51a7e8
   }
 
-  .clipboard:hover,.clipboard:active,.clipboard.zeroclipboard-is-hover,.clipboard.zeroclipboard-is-active {
-      text-decoration: none;
-      background-color: #ddd;
-      background-image: linear-gradient(#eee,#ddd);
-      border-color: #ccc
+  .clipboard:hover, .clipboard:active, .clipboard.zeroclipboard-is-hover, .clipboard.zeroclipboard-is-active {
+    text-decoration: none;
+    background-color: #ddd;
+    background-image: linear-gradient(#eee, #ddd);
+    border-color: #ccc
   }
 
-  .clipboard:active,.clipboard.selected,.clipboard.zeroclipboard-is-active {
-      background-color: #dcdcdc;
-      background-image: none;
-      border-color: #b5b5b5;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,.15)
+  .clipboard:active, .clipboard.selected, .clipboard.zeroclipboard-is-active {
+    background-color: #dcdcdc;
+    background-image: none;
+    border-color: #b5b5b5;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .15)
   }
 
   .clipboard.selected:hover {
-      background-color: #cfcfcf
+    background-color: #cfcfcf
   }
 
-  .clipboard:disabled,.clipboard:disabled:hover,.clipboard.disabled,.clipboard.disabled:hover {
-      color: rgba(102,102,102,.5);
-      cursor: default;
-      background-color: rgba(229,229,229,.5);
-      background-image: none;
-      border-color: rgba(197,197,197,.5);
-      box-shadow: none
+  .clipboard:disabled, .clipboard:disabled:hover, .clipboard.disabled, .clipboard.disabled:hover {
+    color: rgba(102, 102, 102, .5);
+    cursor: default;
+    background-color: rgba(229, 229, 229, .5);
+    background-image: none;
+    border-color: rgba(197, 197, 197, .5);
+    box-shadow: none
   }
 </style>
