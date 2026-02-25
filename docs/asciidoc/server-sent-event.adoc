@@ -1,10 +1,6 @@
-== Server-Sent Events
+=== Server-Sent Events
 
-https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events[Server-sent Events] (SSE) is a 
-mechanism that allows the server to push data to the client once the client-server connection 
-is established. After the connection has been established by the client, the server can send to 
-the client whenever a new chunk of data is available. In contrast with websockets, SSE can only 
-be used to send from the server to the client and not the other way round.
+https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events[Server-Sent Events] (SSE) is a mechanism that allows the server to push data to the client once a connection is established. Unlike WebSockets, SSE is strictly unidirectional: the server can send data to the client, but not the other way around.
 
 .Server-Sent Events
 [source,java,role="primary"]
@@ -26,14 +22,14 @@ be used to send from the server to the client and not the other way round.
 }
 ----
 
-<1> Connection established
-<2> Send a message
+<1> Connection established.
+<2> Send a message to the client.
 
-=== Message Options
+==== Message Options
 
-Additional message options are available via javadoc:ServerSentMessage[]:
+Additional message properties (like custom events, IDs, and retry timeouts) are available via the javadoc:ServerSentMessage[] class:
 
-.Server-Sent Events
+.Server-Sent Message
 [source,java,role="primary"]
 ----
 {
@@ -41,7 +37,7 @@ Additional message options are available via javadoc:ServerSentMessage[]:
     sse.send(
         new ServerSentMessage("...")
             .setEvent("myevent")
-            .setId(myId)
+            .setId("myId")
             .setRetry(1000)
     );
   });
@@ -53,22 +49,20 @@ Additional message options are available via javadoc:ServerSentMessage[]:
 ----
 {
   sse("/sse") {
-    sse.send(ServerSentMessaage("...").apply {
+    sse.send(ServerSentMessage("...").apply {
         event = "myevent"
-        id = myId
+        id = "myId"
         retry = 1000
     })
   }
 }
 ----
 
-Options are documented at https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format[Event stream format].
+For details on how these options are interpreted by the browser, see the MDN documentation on the https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format[Event stream format].
 
-=== Connection Lost
+==== Connection Lost
 
-The `sse.onClose(Runnable)` callback allows you to clean and release resources on connection close.
-A connection is closed when you call the sse.close() method or when the remote client closes the
-connection.
+The `sse.onClose(Runnable)` callback allows you to clean up and release resources when the connection ends. A connection is considered closed when you explicitly call `sse.close()` or when the remote client disconnects.
 
 .Connection Lost
 [source,java,role="primary"]
@@ -76,7 +70,7 @@ connection.
 {
   sse("/sse", sse -> {
     sse.onClose(() -> {
-      // clean up
+      // Clean up resources
     });
   });
 }
@@ -88,22 +82,22 @@ connection.
 {
   sse("/sse") {
     sse.onClose {
-      // clean up
+      // Clean up resources
     }
   }
 }
 ----
 
-=== Keep Alive
+==== Keep Alive
 
-The keep alive time feature can be used to prevent connections from timing out:
+You can use the keep-alive feature to prevent idle connections from timing out or being dropped by intermediate proxies:
 
 .Keep Alive
 [source,java,role="primary"]
 ----
 {
   sse("/sse", sse -> {
-    sse.keepAlive(15, TimeUnit.SECONDS)
+    sse.keepAlive(15, TimeUnit.SECONDS);
   });
 }
 ----
@@ -118,10 +112,6 @@ The keep alive time feature can be used to prevent connections from timing out:
 }
 ----
 
-The previous example will send a ':' message (empty comment) every 15 seconds to keep the 
-connection alive. If the client drops the connection, then the `sse.onClose(Runnable)` event will
-be fired.
+This example sends a `:` message (an empty SSE comment) every 15 seconds to keep the connection active. If the client drops the connection, the `sse.onClose` event will be fired.
 
-This feature is useful when you want to detect close events without waiting for the next time you 
-send an event. If on the other hand your application already generates events every 15 seconds, 
-the use of keep alive is unnecessary.
+This feature is especially useful for quickly detecting closed connections without having to wait until your application tries to send a real event. (However, if your application already pushes data frequently—e.g., every few seconds—enabling `keepAlive` is generally unnecessary).

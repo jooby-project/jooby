@@ -1,49 +1,35 @@
-== Development
+=== Development
 
-The `jooby run` tool allows to restart your application on code changes without exiting the JVM.
+The `jooby run` tool provides a "hot reload" experience by restarting your application automatically whenever code changes are detected, without exiting the JVM. This makes Java and Kotlin development feel as fast and iterative as a scripting language.
 
-This feature is also known as hot reload/swap. Makes you feel like coding against a script 
-language where you modify your code and changes are visible immediately.
-  
-The tool uses the https://jboss-modules.github.io/jboss-modules/manual[JBoss Modules] library
-that effectively reload application classes.
+The tool leverages https://jboss-modules.github.io/jboss-modules/manual[JBoss Modules] to efficiently reload application classes. It is available as both a Maven and a Gradle plugin.
 
-For now `jooby run` is available as Maven and Gradle plugins.
+==== Usage
 
-=== Usage
-
-1) Add build plugin:
+1) Add the build plugin:
 
 .pom.xml
 [source, xml, role = "primary", subs="verbatim,attributes"]
 ----
 <plugins>
-  ...
   <plugin>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-maven-plugin</artifactId>
     <version>{joobyVersion}</version>
   </plugin>
-  ...
 </plugins>
 ----
 
 .build.gradle
 [source, gradle, role = "secondary", subs="verbatim,attributes"]
 ----
-buildscript {
-  ext {
-    joobyVersion = "{joobyVersion}"
-  }
-}
-
 plugins {
   id "application"
   id "io.jooby.run" version "{joobyVersion}"
 }
 ----
 
-2) Set main class
+2) Configure the Main Class:
 
 .pom.xml
 [source, xml, role = "primary"]
@@ -59,7 +45,7 @@ plugins {
 mainClassName = "myapp.App"
 ----
 
-3) Run application
+3) Launch the Application:
 
 .Maven
 [source, bash, role = "primary"]
@@ -73,77 +59,57 @@ mvn jooby:run
 ./gradlew joobyRun
 ----
 
-=== Compilation & Restart
+==== Compilation and Restart
 
-Changing a `java` or `kt` file triggers a compilation request. Compilation is executed by
-Maven/Gradle using an incremental build process.
+* **Source Files (`.java`, `.kt`):** Changing a source file triggers an incremental compilation request. If the compilation succeeds, the application restarts automatically.
+* **Configuration Files (`.conf`, `.properties`):** Changes to these files trigger an immediate application restart without a compilation step.
+* **Compilation Errors:** Any errors during the build process are printed directly to the console by Maven or Gradle.
 
-If compilation succeed, application is restarted.
+[NOTE]
+====
+For **Eclipse** users: The plugin detects the `.classpath` file in your project directory. If found, the plugin's internal compiler is disabled, letting Eclipse handle the compilation while the plugin focuses on the restart logic.
+====
 
-Compilation errors are printed to the console by Maven/Gradle.
+==== Options
 
-Changing a `.conf`, `.properties` file triggers just an application restart request. They don't trigger
-a compilation request.
-
-Compiler is enabled by default, except for Eclipse users. Plugin checks for `.classpath` file in
-project directory, when found plugin compiler is OFF and let Eclipse compiles the code. 
-
-=== Options
-
-The next example shows all the available options with their default values:
+Below are the available configuration options with their default values:
 
 .pom.xml
 [source, xml, role = "primary", subs="verbatim,attributes"]
 ----
-<plugins>
-  ...
-  <plugin>
-    <groupId>io.jooby</groupId>
-    <artifactId>jooby-maven-plugin</artifactId>
-    <version>{joobyVersion}</version>
-    <configuration>
-      <mainClass>${application.class}</mainClass>                  <1>
-      <restartExtensions>conf,properties,class</restartExtensions> <2>
-      <compileExtensions>java,kt</compileExtensions>               <3>
-      <port>8080</port>                                            <4>
-      <waitTimeBeforeRestart>500</waitTimeBeforeRestart>           <5>
-      <useSingleClassLoader>false</useSingleClassLoader>           <6>
-    </configuration>
-  </plugin>
-  ...
-</plugins>
+<configuration>
+  <mainClass>${application.class}</mainClass>
+  <restartExtensions>conf,properties,class</restartExtensions>
+  <compileExtensions>java,kt</compileExtensions>
+  <port>8080</port>
+  <waitTimeBeforeRestart>500</waitTimeBeforeRestart>
+  <useSingleClassLoader>false</useSingleClassLoader>
+</configuration>
 ----
 
 .build.gradle
 [source, gradle, role = "secondary", subs="verbatim,attributes"]
 ----
-buildscript {
-  ext {
-    joobyVersion = "{joobyVersion}"
-  }
-}
-
-plugins {
-  id "application"
-  id "io.jooby.run" version "{joobyVersion}"
-}
-
 joobyRun {
-  mainClassName = "${mainClassName}"                               <1>
-  restartExtensions = ["conf", "properties", "class"]              <2>
-  compileExtensions = ["java", "kt"]                               <3>
-  port = 8080                                                      <4>
-  waitTimeBeforeRestart = 500                                      <5>
-  useSingleClassLoader = false                                     <6>
+  mainClassName = "${mainClassName}"                               // <1>
+  restartExtensions = ["conf", "properties", "class"]              // <2>
+  compileExtensions = ["java", "kt"]                               // <3>
+  port = 8080                                                      // <4>
+  waitTimeBeforeRestart = 500                                      // <5>
+  useSingleClassLoader = false                                     // <6>
 }
 ----
 
-<1> Application main class
-<2> Restart extensions. A change on these files trigger a restart request.
-<3> Source extensions. A change on these files trigger a compilation request, followed by a restart request.
-<4> Application port
-<5> How long to wait after last file change to restart. Default is: `500` milliseconds.
-<6> Use a single/fat class loader to run your application. This is required on complex project classpath where you start seeing weird reflection errors. This was the default mode in Jooby 2.x. The new model since 3.x uses a modular classloader which improves restart times and memory usage making it faster. Default is: `false`.
+<1> The application's entry point (Main class).
+<2> Extensions that trigger an immediate restart.
+<3> Extensions that trigger a compilation followed by a restart.
+<4> The local development port.
+<5> The delay (in milliseconds) to wait after the last file change before restarting. Default is `500ms`.
+<6> If `true`, Jooby uses a single "fat" classloader. Set this to `true` if you encounter strange reflection or class-loading errors in complex projects. Since 3.x, Jooby uses a modular classloader by default for faster restarts and lower memory usage.
 
-For Maven and Gradle there are two variant `mvn jooby:testRun` and `./gradlew joobyTestRun` they work
-by expanding the classpath to uses the `test` scope or source set.
+==== Testing with Classpath
+
+To run the application while including the `test` scope/source set in the classpath, use the following commands:
+
+* **Maven:** `mvn jooby:testRun`
+* **Gradle:** `./gradlew joobyTestRun`

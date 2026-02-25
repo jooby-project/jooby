@@ -1,0 +1,114 @@
+=== Introduction
+
+==== Script API
+
+The Script API (also known as script routes) provides a fluent, reflection-free DSL based on lambda functions.
+
+We typically extend `Jooby` and define routes in the instance initializer:
+
+.Extending Jooby (Recommended for Java):
+[source,java,role="primary"]
+----
+import io.jooby.Jooby;
+
+public class App extends Jooby {
+  {
+    get("/", ctx -> "Hello Jooby!"); 
+  }
+
+  public static void main(String[] args) {
+    runApp(args, App::new);
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.kt.Kooby
+import io.jooby.kt.runApp
+
+class App : Kooby({
+  get("/") { "Hello Jooby!" }
+})
+
+fun main(args: Array<String>) {
+  runApp(args, ::App)
+}
+----
+
+For Java applications, we favor extending `Jooby` to keep the DSL clean (avoiding the need to prefix methods like `get` with a variable name). However, you can also define routes without subclassing:
+
+.Without extending Jooby:
+[source,java,role="primary"]
+----
+import io.jooby.Jooby;
+
+public class App {
+  public static void main(String[] args) {
+    Jooby.runApp(args, app -> {
+      app.get("/", ctx -> "Hello Jooby!");
+    });
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.kt.runApp
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    get("/") { "Hello Jooby!" }
+  }
+}
+----
+
+*(Note: For Kotlin, the DSL remains clean whether you extend `Kooby` or not).*
+
+==== MVC API
+
+The MVC API uses annotations to define routes and bytecode generation to execute them quickly.
+
+.MVC Routing:
+[source,java,role="primary"]
+----
+import io.jooby.annotation.*;
+
+public class MyController {
+  @GET
+  public String sayHi() {
+    return "Hello Jooby!";
+  }
+}
+
+public class App {
+  public static void main(String[] args) {
+    Jooby.runApp(args, app -> {
+      app.use(new MyController_());
+    });
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.annotation.*
+
+class MyController {
+  @GET
+  fun sayHi(): String {
+    return "Hello Jooby!"
+  }
+}
+
+fun main(args: Array<String>) {
+  runApp(args) {
+    use(MyController_())
+  }
+}
+----
+
+Read more about MVC and JAX-RS support in the <<web-mvc-api, MVC API>> chapter.

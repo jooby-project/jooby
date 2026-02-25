@@ -1,0 +1,207 @@
+== Ecosystem
+
+The Jooby ecosystem is built on three core, interconnected concepts:
+
+1. **Services:** The objects and dependencies your application needs to run.
+2. **Extensions:** The mechanism for packaging and registering those services, along with routes and configuration.
+3. **Modules:** Pre-built extensions provided by Jooby to integrate popular third-party libraries.
+
+=== Services and the Registry
+
+At its core, Jooby uses a simple, built-in map called the `ServiceRegistry` to manage application state and dependencies.
+
+Services can be registered as immediate singletons, or their lifecycle can be customized by registering a `jakarta.inject.Provider`.
+
+You can explicitly put and retrieve services from the registry:
+
+.Basic Service Registry
+[source, java, role = "primary"]
+----
+import jakarta.inject.Provider;
+
+{
+  // 1. Put a singleton service into the registry
+  getServices().put(MyDatabase.class, new MyDatabase());
+  
+  // 2. Put a provider to customize lifecycle (e.g., prototype/lazy creation)
+  getServices().put(MyService.class, (Provider<MyService>) () -> new MyService());
+
+  get("/", ctx -> {
+    // 3. Require the service at runtime
+    MyDatabase db = require(MyDatabase.class);
+    MyService service = require(MyService.class);
+    
+    return db.query();
+  });
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import jakarta.inject.Provider
+
+{
+  // 1. Put a singleton service into the registry
+  services.put(MyDatabase::class.java, MyDatabase())
+  
+  // 2. Put a provider to customize lifecycle (e.g., prototype/lazy creation)
+  services.put(MyService::class.java, Provider { MyService() })
+
+  get("/") { ctx ->
+    // 3. Require the service at runtime
+    val db = require(MyDatabase::class.java)
+    val service = require(MyService::class.java)
+    
+    db.query()
+  }
+}
+----
+
+==== Collections of Services
+
+The registry also supports grouping multiple services of the same type using Lists, Sets, or Maps.
+
+.Collections
+[source,java,role="primary"]
+----
+import io.jooby.Reified;
+
+{
+  // Add to a List
+  getServices().listOf(Animal.class).add(new Cat());
+  getServices().listOf(Animal.class).add(new Dog());
+
+  // Add to a Map
+  getServices().mapOf(String.class, Animal.class).put("cat", new Cat());
+
+  get("/list", ctx -> {
+    // Retrieve the List using the Reified type helper
+    List<Animal> animals = ctx.require(Reified.list(Animal.class));
+    return animals;
+  });
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.Reified
+
+{
+  // Add to a List
+  services.listOf(Animal::class.java).add(Cat())
+  services.listOf(Animal::class.java).add(Dog())
+
+  // Add to a Map
+  services.mapOf(String::class.java, Animal::class.java).put("cat", Cat())
+
+  get("/list") { ctx ->
+    // Retrieve the List using the Reified type helper
+    val animals = ctx.require(Reified.list(Animal::class.java))
+    animals
+  }
+}
+----
+
+==== Dependency Injection (DI) Bridge
+
+While the `ServiceRegistry` acts as a simple service locator out-of-the-box, its true power lies in its ability to bridge to full Dependency Injection frameworks.
+
+When you install a DI module (like Guice, Dagger, or Avaje Inject), the `require()` method seamlessly delegates to the underlying DI container. This allows you to use standard `jakarta.inject.Inject` annotations on your controllers and services, while still falling back to the Jooby registry when needed.
+
+Checkout our <<ecosystem-modules-dependency-injection, dependency injection modules>>.
+
+=== Extensions
+
+The javadoc:Extension[] API is how you package and distribute configuration, infrastructure, and services. It is a simple way of reusing code and decoupling technical features from your business logic.
+
+==== Writing a Custom Extension
+
+Let's develop a custom extension that configures a `DataSource` service, registers it, and ensures it closes when the application shuts down.
+
+.Java
+[source, java, role = "primary"]
+----
+import io.jooby.Extension;
+import io.jooby.Jooby;
+
+public class MyExtension implements Extension {
+   @Override
+   public void install(Jooby app) {
+      DataSource dataSource = createDataSource();         // <1>
+
+      app.getServices().put(DataSource.class, dataSource); // <2>
+
+      app.onStop(dataSource::close);                      // <3>
+   }
+   
+   private DataSource createDataSource() {
+       // Initialization logic
+   }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.Extension
+import io.jooby.Jooby
+
+class MyExtension : Extension {
+  override fun install(app: Jooby) {
+    val dataSource = createDataSource()                   // <1>
+
+    app.services.put(DataSource::class.java, dataSource)  // <2>
+
+    app.onStop(dataSource::close)                         // <3>
+  }
+  
+  private fun createDataSource(): DataSource {
+      // Initialization logic
+  }
+}
+----
+
+<1> Create the service.
+<2> Save the service into the application's service registry.
+<3> Register a lifecycle hook to clean up the service when the application stops.
+
+Now, you can install the extension in your main application and use the service:
+
+.Java
+[source, java, role = "primary"]
+----
+public class App extends Jooby {
+   {
+     install(new MyExtension());                      // <1>
+     
+     get("/", ctx -> {
+       DataSource ds = require(DataSource.class);     // <2>
+       // Use the datasource...
+       return "Success";
+     });
+   }
+}
+----
+
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+class App : Kooby({
+  install(MyExtension())                              // <1>
+
+  get("/") {
+    val ds = require(DataSource::class.java)          // <2>
+    // Use the datasource...
+    "Success"
+  }
+})
+----
+
+<1> Install the custom extension.
+<2> Retrieve the service that the extension registered.
+
+Extensions are incredibly flexible. In addition to registering services, an extension can add standard routes, configure body decoders/encoders, or set up template engines.
+
+include::modules/modules.adoc[]

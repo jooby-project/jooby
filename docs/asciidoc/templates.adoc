@@ -1,138 +1,132 @@
-== Templates
+=== Templates
 
-Templates are available via javadoc:ModelAndView[] and requires a javadoc:TemplateEngine[] implementation.
+Templates are rendered using a javadoc:ModelAndView[] object and require a javadoc:TemplateEngine[] implementation to be installed.
 
-.Java
+.Basic Rendering
 [source, java, role = "primary"]
 ----
 {
-  install(new MyTemplateEngineModule());           <1>
+  install(new MyTemplateEngineModule());           // <1>
   
   get("/", ctx -> {
-    MyModel model = ...;                           <2>
-    return new ModelAndView("index.html", model);  <3>
+    MyModel model = new MyModel();                 // <2>
+    return new ModelAndView("index.html", model);  // <3>
   });
 }
 ----
 
 .Kotlin
-[source, kt, role = "secondary"]
+[source, kotlin, role = "secondary"]
 ----
 {
-  install(MyTemplateEngineModule())                 <1>
+  install(MyTemplateEngineModule())                 // <1>
   
   get("/") { ctx ->
-    val model = MyModel(...)                        <2>
-    ModelAndView("index.html", model)               <3>
+    val model = MyModel()                           // <2>
+    ModelAndView("index.html", model)               // <3>
   }
 }
 ----
 
-<1> Install a template engine
-<2> Build the view model
-<3> Returns a ModelAndView instance
+<1> Install a template engine module.
+<2> Build the view model.
+<3> Return a `ModelAndView` instance containing the template path and the model data.
 
-javadoc:ModelAndView[] allows you to specify the desired locale used for template rendering:
+You can explicitly set the desired locale for template rendering on the javadoc:ModelAndView[] object:
 
-.Java
+.Setting the Locale
 [source, java, role = "primary"]
 ----
 {
   install(new MyTemplateEngineModule());
 
   get("/", ctx -> {
-    MyModel model = ...;
+    MyModel model = new MyModel();
     return new ModelAndView("index.html", model)
-        .setLocale(Locale.GERMAN);                <1>
+        .setLocale(Locale.GERMAN);                // <1>
   });
 }
 ----
 
 .Kotlin
-[source, kt, role = "secondary"]
+[source, kotlin, role = "secondary"]
 ----
 {
   install(MyTemplateEngineModule())
 
   get("/") { ctx ->
-    val model = MyModel(...)
+    val model = MyModel()
     ModelAndView("index.html", model)
-        .setLocale(Locale.GERMAN)                <1>
+        .setLocale(Locale.GERMAN)                 // <1>
   }
 }
 ----
 
-<1> Set the preferred locale
+<1> Explicitly set the preferred locale.
 
-If no locale is specified explicitly, a locale matched by the `Accept-Language` header of the current
-request is used.
+If no locale is specified explicitly, Jooby falls back to the locale matched by the `Accept-Language` header of the current request.
 
 [NOTE]
 ====
-Not all template engines support setting and using a specific locale. If you use such a template
-engine, the above configuration does not have any effect.
+Not all template engines support localized rendering. If you use a template engine that doesn't support it, setting the locale will have no effect.
 ====
 
-=== Template Engine
+==== Template Engine
 
-Template engine does the view rendering/encoding. Template engine extends a javadoc:MessageEncoder[]
-by accepting a `ModelAndView` instance and produces a `String` result.
+A template engine handles the actual view rendering. A template engine extends the javadoc:MessageEncoder[] interface, accepting a `ModelAndView` instance and producing a `String` result.
 
-The javadoc:TemplateEngine[extensions] method list the number of file extension that a template engine
-supports. Default file extension is: `.html`.
+The javadoc:TemplateEngine[extensions] method lists the file extensions that the template engine supports. The default file extension is `.html`.
 
-The file extension is used to locate the template engine, when a file extension isn't supported
-an `IllegalArgumentException` is thrown.
+Jooby uses the file extension of the requested template to locate the correct template engine. If a template engine for the specified file extension isn't found, an `IllegalArgumentException` is thrown.
 
-The file extension allow us to use/mix multiple template engines too:
+This file-extension routing allows you to easily use multiple template engines side-by-side in the same application:
 
-.Multiple template engines
-.Java
+.Multiple Template Engines
 [source, java, role = "primary"]
 ----
 {
-  install(new HandlebarsModule());                 <1>
-  install(new FreemarkerModule());                 <2>
+  install(new HandlebarsModule());                 // <1>
+  install(new FreemarkerModule());                 // <2>
   
   get("/first", ctx -> {
-    return new ModelAndView("index.hbs", model);  <3>
+    return new ModelAndView("index.hbs", model);   // <3>
   });
   
   get("/second", ctx -> {
-    return new ModelAndView("index.ftl", model);  <4>
+    return new ModelAndView("index.ftl", model);   // <4>
   });
 }
 ----
 
 .Kotlin
-[source, kt, role = "secondary"]
+[source, kotlin, role = "secondary"]
 ----
 {
-  install(HandlebarsModule())                       <1>
-  install(FreemarkerModule())                       <2>
+  install(HandlebarsModule())                       // <1>
+  install(FreemarkerModule())                       // <2>
   
   get("/first") { ctx ->
-    ModelAndView("index.hbs", model)               <3>
+    ModelAndView("index.hbs", model)                // <3>
   }
   
   get("/second") { ctx ->
-    ModelAndView("index.ftl", model)               <4>
+    ModelAndView("index.ftl", model)                // <4>
   }
 }
 ----
 
-<1> Install Handlebars
-<2> Install Freemarker
-<3> Render using Handlebars, `.hbs` extension
-<4> Render using Freemarker, `.ftl` extension
+<1> Install Handlebars.
+<2> Install Freemarker.
+<3> Renders using Handlebars due to the `.hbs` extension.
+<4> Renders using Freemarker due to the `.ftl` extension.
 
-Checkout all the available <<modules-template-engine, template engines>> provided by Jooby.
+Check out the <<ecosystem-modules-template-engines, Modules>> section for a full list of supported template engines.
 
-=== View Model
+==== View Model
 
-Since Jooby `3.1.x` the model can be anything object you like, previous version requires to be always `map`. There
-are two implementations of `ModelAndView`:
+Since Jooby 3.1.x, the view model can be any custom Java object/POJO. (Previous versions strictly required the model to be a `Map`).
 
-- ModelAndView(String view, Object model)
-- MapModelAndView(String view, Map<String, Object> model)
+There are two primary ways to instantiate a `ModelAndView`:
 
+* `new ModelAndView(String view, Object model)` (For POJOs)
+* `new MapModelAndView(String view, Map<String, Object> model)` (For Maps)

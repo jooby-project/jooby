@@ -1,0 +1,104 @@
+html {
+  /* This tells the browser: "When scrolling to an anchor link (#id),
+     always leave 80px of space at the top so it isn't hidden by the top nav." */
+  scroll-padding-top: 80px;
+}
+
+/* 1. Root Container & Sticky Positioning */
+#toc {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 2rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  padding-right: 1.5rem;
+  font-family: inherit;
+}
+
+/* 2. List Structure Reset */
+#toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 3. INITIAL COLLAPSED STATE
+Hides all nested levels (sectlevel2, 3, etc.) by default.
+*/
+#toc ul ul {
+  display: none;
+  padding-left: 1.1rem;
+  border-left: 1px solid #eeeeee;
+  margin: 0.2rem 0;
+}
+
+/* 4. EXPANSION LOGIC
+  Only shows the direct child <ul> when the parent <li> is marked .expanded
+  */
+#toc li.expanded > ul {
+  display: block !important;
+}
+
+/* 5. Link Aesthetics */
+#toc a {
+  display: block;
+  padding: 0.3rem 0;
+  color: #555555;
+  text-decoration: none;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  border-left: 3px solid transparent; /* Base for the active indicator */
+  transition: all 0.15s ease-in-out;
+  word-break: break-word;
+}
+
+/* 6. HOVER & ACTIVE STATES (Jooby Blue) */
+#toc a:hover {
+  color: #2196f3;
+}
+
+#toc a.active {
+  color: #2196f3 !important;
+  font-weight: 600;
+  border-left-color: #2196f3;
+  padding-left: 0.8rem;
+  background-color: rgba(33, 150, 243, 0.04); /* Subtle highlight behind active link */
+}
+
+/* 7. Custom Scrollbar for the Sidebar (Modern Browsers) */
+#toc::-webkit-scrollbar {
+  width: 5px;
+}
+
+#toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#toc::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+#toc::-webkit-scrollbar-thumb:hover {
+  background: #cccccc;
+}
+
+/* 8. Mobile Hide (Optional)
+Hides the sidebar on screens smaller than 768px
+*/
+@media (max-width: 767px) {
+  #toc {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   NEW: Title Styling
+========================================================================== */
+#toctitle {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333333;
+  margin-bottom: 0.8rem;
+  padding-left: 0.2rem;
+}

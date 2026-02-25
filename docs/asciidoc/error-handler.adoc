@@ -1,17 +1,15 @@
-== Error Handler
+=== Error Handler
 
-Jooby catches application exception using the javadoc:ErrorHandler[] class. The
-javadoc:DefaultErrorHandler[] error handler produces simple HTML page or JSON based on the value
-of the `ACCEPT` header and log the exception.
+Jooby catches application exceptions using the javadoc:ErrorHandler[] class. By default, the javadoc:DefaultErrorHandler[] produces a simple HTML page or a JSON response based on the request's `Accept` header, and logs the exception.
 
-.HTML:
+.HTML output:
 ----
 Not Found
 message: Page not found
 status code: 404
 ----
 
-.JSON:
+.JSON output:
 ----
 {
   "message": "Page not found",
@@ -20,57 +18,51 @@ status code: 404
 }
 ----
 
-.Log:
+.Log output:
 ----
 GET /xx 404 Not Found
-io.jooby.StatusCodeException: Not found
-	at ...
-	at ...
-	at ...
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
-	at java.lang.Thread.run(Thread.java:748)
+io.jooby.exception.StatusCodeException: Not found
+  at ...
 ----
 
-The javadoc:exception.StatusCodeException[] works as generic exception that let you specify an status code.
+The javadoc:exception.StatusCodeException[] is a generic exception that lets you explicitly specify an HTTP status code:
 
+[source, java]
 ----
 throw new StatusCodeException(StatusCode.FORBIDDEN);
-
 throw new StatusCodeException(StatusCode.NOT_FOUND);
-
-...
 ----
 
-These exception types have a default status code:
+Several standard Java exceptions are automatically mapped to default status codes:
 
-- IllegalArgumentException: BAD_REQUEST(400) (or sub-classes of it)
-- NoSuchElementException: BAD_REQUEST(400) (or sub-classes of it)
-- FileNotFound: NOT_FOUND(404) (or sub-classes of it)
-- Exception: SERVER_ERROR(500) (or sub-classes of it)
+* `IllegalArgumentException` (and subclasses): `400 BAD_REQUEST`
+* `NoSuchElementException` (and subclasses): `400 BAD_REQUEST`
+* `FileNotFoundException` (and subclasses): `404 NOT_FOUND`
+* `Exception` (and all other subclasses): `500 SERVER_ERROR`
 
-To set a custom status code, an entry should be added it to the error code map:
+To map a custom exception to a specific status code, register it using the `errorCode` method:
 
 [source, java]
 ----
 {
-  errorCode(MyException.class, StatusCode.XXX);
+  errorCode(MyException.class, StatusCode.UNPROCESSABLE_ENTITY);
 }
 ----
 
-=== Custom Error Handler
+==== Custom Error Handler
 
-You can provide your own error handler using the javadoc:Router[error, io.jooby.ErrorHandler] method:
+You can override the default behavior and provide a custom global error handler using the javadoc:Router[error, io.jooby.ErrorHandler] method:
 
-.Error Handler
+.Global Error Handler
 [source, java, role = "primary"]
 ----
 {
-  error((ctx, cause, statusCode) -> {                                      <1>
+  error((ctx, cause, statusCode) -> {                                      // <1>
     Router router = ctx.getRouter();
-    router.getLog().error("found `{}` error", statusCode.value(), cause);  <2>
+    router.getLog().error("Found {} error", statusCode.value(), cause);    // <2>
+    
     ctx.setResponseCode(statusCode);
-    ctx.send("found `" + statusCode.value() + "` error");                  <3>
+    ctx.send("Encountered a " + statusCode.value() + " error");            // <3>
   });
 }
 ----
@@ -79,47 +71,42 @@ You can provide your own error handler using the javadoc:Router[error, io.jooby.
 [source, kotlin, role = "secondary"]
 ----
 {
-  error { ctx, cause, statusCode ->                                        <1>
+  error { ctx, cause, statusCode ->                                        // <1>
     val router = ctx.router
-    router.log.error("found `{}` error", statusCode.value(), cause)        <2>
+    router.log.error("Found {} error", statusCode.value(), cause)          // <2>
+    
     ctx.responseCode = statusCode
-    ctx.send("found `${statusCode.value()}` error")                        <3>
+    ctx.send("Encountered a ${statusCode.value()} error")                  // <3>
   }
 }
 ----
 
-<1> Add a global/catch-all exception handler
-<2> Log the error to logging system
-<3> Send an error response to the client 
+<1> Register a global (catch-all) exception handler.
+<2> Log the error.
+<3> Send a custom error response to the client.
 
-You can use the javadoc:Context[render, java.lang.Object] object which looks for a registered
-javadoc:MessageEncoder[] or javadoc:TemplateEngine[].
+You can use the javadoc:Context[render, java.lang.Object] method inside the error handler to delegate the response to a registered javadoc:MessageEncoder[] or javadoc:TemplateEngine[].
 
-The next example produces a HTML or JSON response based on the value of the `Accept` header.
+The next example produces an HTML or JSON response based on the client's `Accept` header using content negotiation:
 
-.Error with content negotiation
+.Error Handling with Content Negotiation
 [source, java, role = "primary"]
 ----
-
 import static io.jooby.MediaType.json;
-import static io.jooby.MediaType.html;
 
 {
-  install(new MyTemplateEngineModule());                      <1>
-  
-  install(new MyJsonModule());                                <2>
+  install(new MyTemplateEngineModule());                      // <1>
+  install(new MyJsonModule());                                // <2>
 
   error((ctx, cause, statusCode) -> {
-    Router router = ctx.getRouter();
-    router.getLog().error("found `{}` error", statusCode.value(), cause);
+    ctx.getRouter().getLog().error("Error: {}", statusCode.value(), cause);
     
-    if (ctx.accept(json)) {                                   <3>
-      Map error = ...;
-      ctx.render(error);                                      <4>
+    Map<String, Object> errorData = Map.of("message", cause.getMessage());
+
+    if (ctx.accept(json)) {                                   // <3>
+      ctx.render(errorData);                                  // <4>
     } else {
-      // fallback to html
-      Map error = ...;
-      ctx.render(new ModelAndView("error.template", error));  <5>
+      ctx.render(new ModelAndView("error.template", errorData)); // <5>
     }
   });
 }
@@ -129,46 +116,43 @@ import static io.jooby.MediaType.html;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.MediaType.json
-import io.jooby.MediaType.html
 
 {
-  install(MyTemplateEngineModule())                           <1>
-  
-  install(MyJsonModule())                                     <2>
+  install(MyTemplateEngineModule())                           // <1>
+  install(MyJsonModule())                                     // <2>
 
-  error {ctx, cause, statusCode ->
-    val router = ctx.router
-    router.log.error("found `{}` error", statusCode.value(), cause)
+  error { ctx, cause, statusCode ->
+    ctx.router.log.error("Error: {}", statusCode.value(), cause)
     
-    if (ctx.accept(json)) {                                   <3>
-      val error = mapOf(...)
-      ctx.render(error)                                       <4>
+    val errorData = mapOf("message" to cause.message)
+
+    if (ctx.accept(json)) {                                   // <3>
+      ctx.render(errorData)                                   // <4>
     } else {
-        // fallback to html
-        val error = mapOf(...)
-        ctx.render(ModelAndView("error.template", error))     <5>
+      ctx.render(ModelAndView("error.template", errorData))   // <5>
     }
   }
 }
 ----
 
-<1> Install one of the available <<modules-template-engine, template engines>>
-<2> Install one of the available <<modules-json, json modules>>
-<3> Test if the accept header matches the `application/json` content type
-<4> Render json if matches
-<5> Render html as fallback
+<1> Install a <<ecosystem-modules-template-engines, template engine>> module.
+<2> Install a <<ecosystem-modules-json, JSON module>>.
+<3> Check if the `Accept` header prefers `application/json`.
+<4> Render the JSON response if matched.
+<5> Fallback to rendering an HTML template.
 
-=== Catch by Code
+===== Catch by Code
 
-In addition to the generic/global error handler you can catch specific status code:
+In addition to the global error handler, you can register handlers for specific HTTP status codes:
 
-.Status Code Error Handler
+.Status Code Handler
 [source, java, role = "primary"]
 ----
 import static io.jooby.StatusCode.NOT_FOUND;
+
 {
   error(NOT_FOUND, (ctx, cause, statusCode) -> {
-    ctx.send(statusCode);   <1>
+    ctx.send(statusCode);   // <1>
   });
 }
 ----
@@ -177,32 +161,33 @@ import static io.jooby.StatusCode.NOT_FOUND;
 [source, kotlin, role = "secondary"]
 ----
 import io.jooby.StatusCode.NOT_FOUND
+
 {
-  error (NOT_FOUND) { ctx, cause, statusCode ->
-    ctx.send(statusCode)    <1>
+  error(NOT_FOUND) { ctx, cause, statusCode ->
+    ctx.send(statusCode)    // <1>
   }
 }
 ----
 
-<1> Send `404` response to the client
+<1> Send a silent `404` response to the client.
 
-Here we kind of silence all the `404` response due we don't log anything and send an empty response.
+In this example, we silence all `404` responses by bypassing the logging system and sending an empty response body.
 
 [TIP]
 ====
-The javadoc:Context[send, io.jooby.StatusCode] method send an empty response to the client
+The javadoc:Context[send, io.jooby.StatusCode] method sends an empty HTTP response with the specified status code.
 ====
 
-=== Catch by Exception
+===== Catch by Exception
 
-In addition to the generic/global error handler you can catch specific exception type:
+You can also register handlers for specific exception types. This is useful for intercepting business-logic exceptions before they hit the global handler:
 
-.Exception Handler
+.Exception Type Handler
 [source, java, role = "primary"]
 ----
 {
-  error(MyException.class, (ctx, cause, statusCode) -> {
-    // log and process MyException
+  error(MyBusinessException.class, (ctx, cause, statusCode) -> {
+    // Log and handle MyBusinessException specifically
   });
 }
 ----
@@ -211,9 +196,10 @@ In addition to the generic/global error handler you can catch specific exception
 [source, kotlin, role = "secondary"]
 ----
 {
-  error (MyException::class) { ctx, cause, statusCode ->
-    // log and process MyException
+  error(MyBusinessException::class) { ctx, cause, statusCode ->
+    // Log and handle MyBusinessException specifically
   }
 }
 ----
 
+include::problem-details.adoc[]

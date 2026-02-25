@@ -1,0 +1,13 @@
+== Core
+
+include::routing.adoc[]
+
+include::context.adoc[]
+
+include::responses.adoc[]
+
+include::handlers.adoc[]
+
+include::error-handler.adoc[]
+
+include::execution-model.adoc[]

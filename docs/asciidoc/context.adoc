@@ -1,14 +1,14 @@
-== Context
+=== Context
 
-A javadoc:Context[Context] allows you to interact with the HTTP Request and manipulate the HTTP Response.
+A javadoc:Context[Context] allows you to interact with the HTTP request and manipulate the HTTP response.
 
-In most of the cases you can access the context object as a parameter of your route handler:
+In most cases, you access the context object as a parameter of your route handler:
 
 .Java
 [source, java, role="primary"]
 ----
 {
-  get("/", ctx -> { /* do important stuff with variable 'ctx'. */ });
+  get("/", ctx -> { /* do important stuff with the 'ctx' variable */ });
 }
 ----
 
@@ -16,23 +16,15 @@ In most of the cases you can access the context object as a parameter of your ro
 [source, kotlin, role="secondary"]
 ----
 {
-  get("/") { /* variable 'it' holds the context now. */ }
+  get("/") { /* the 'it' variable (or implicit ctx) holds the context */ }
 }
 ----
 
-javadoc:Context[Context] also provides derived information about the current request such as a
-matching locale (or locales) based on the `Accept-Language` header (if presents). You may use
-the result of javadoc:Context[locale] or javadoc:Context[locales] to present content matching to
-the user's language preference.
+javadoc:Context[Context] also provides derived information about the current request, such as matching locales based on the `Accept-Language` header. You can use javadoc:Context[locale] or javadoc:Context[locales] to present content matching the user's language preference.
 
-The above methods use `Locale.lookup(...)` and `Locale.filter(...)` respectively to perform the
-language tag matching. See their overloads if you need to plug in your own matching strategy.
+These methods use `Locale.lookup(...)` and `Locale.filter(...)` to perform language tag matching. (See their overloads if you need to plug in a custom matching strategy).
 
-To leverage language matching however, you need to tell Jooby which languages your application
-supports. This can be done by either setting the `application.lang` configuration property
-to a value compatible with the
-https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language[Accept-Language]
-header:
+To leverage language matching, you must tell Jooby which languages your application supports. Set the `application.lang` configuration property to a value compatible with the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language[Accept-Language] header:
 
 .application.conf
 [source, properties]
@@ -40,8 +32,7 @@ header:
 application.lang = en, en-GB, de
 ----
 
-or calling the javadoc:Jooby[setLocales, java.util.List]
-or javadoc:Jooby[setLocales, java.util.Locale...] method at runtime:
+Or configure it programmatically using javadoc:Jooby[setLocales, java.util.List]:
 
 .Java
 [source, java, role="primary"]
@@ -59,24 +50,17 @@ or javadoc:Jooby[setLocales, java.util.Locale...] method at runtime:
 }
 ----
 
-If you don't set the supported locales explicitly, Jooby uses a single locale provided by
-`Locale.getDefault()`.
+If you don't explicitly set the supported locales, Jooby falls back to a single locale provided by `Locale.getDefault()`.
 
-=== Parameters
+==== Parameters
 
-There are several parameter types: `header`, `cookie`, `path`, `query`, `form`, `multipart`,
-`session` and `flash`. All them share a unified/type-safe API for accessing and manipulating their values.
+There are several parameter types: `header`, `cookie`, `path`, `query`, `form`, `multipart`, `session`, and `flash`. They all share a unified, type-safe API for accessing and manipulating their values.
 
-We are going to describe them briefly in the next sections, then go into specific features of the
-<<context-value-api,Value API>>.
+This section covers how to extract raw parameters. The next section covers how to convert them into complex objects using the <<core-context-value-api, Value API>>.
 
-There is also a <<context-parameters-parameter-lookup,parameter lookup>> feature by which you can access a parameter from any combination
-of the above types with well-defined priority.
+===== Header
 
-==== Header
-
-HTTP headers allow the client and the server to pass additional information with the request or the
-response.
+HTTP headers allow the client and server to pass additional information.
 
 .Java
 [source, java, role="primary"]
@@ -84,13 +68,10 @@ response.
 {
   get("/", ctx -> {
     String token = ctx.header("token").value();      // <1>
-
     Value headers = ctx.headers();                   // <2>
-
     Map<String, String> headerMap = ctx.headerMap(); // <3>
-    ...
+    // ...
   });
-  
 }
 ----
 
@@ -100,24 +81,20 @@ response.
 {
   get("/") { ctx ->
     val token = ctx.header("token").value() // <1>
-
     val headers = ctx.headers()             // <2>
-
-    val headerMap = ctx.headerMap();        // <3>
-    ...
+    val headerMap = ctx.headerMap()         // <3>
+    // ...
   }
-  
 }
 ----
 
-<1> Header variable `token`
-<2> All headers as javadoc:value.Value[]
-<3> All headers as map
+<1> Retrieves the header `token`.
+<2> Retrieves all headers as a javadoc:value.Value[].
+<3> Retrieves all headers as a Map.
 
-==== Cookie
+===== Cookie
 
-Request cookies are send to the server using the `Cookie` header, but we do provide a simple
-`key/value` access to them:
+Request cookies are sent to the server via the `Cookie` header. Jooby provides simple key/value access:
 
 .Cookies
 [source, java, role="primary"]
@@ -125,11 +102,9 @@ Request cookies are send to the server using the `Cookie` header, but we do prov
 {
   get("/", ctx -> {
     String token = ctx.cookie("token").value();      // <1>
-
     Map<String, String> cookieMap = ctx.cookieMap(); // <2>
-    ...
+    // ...
   });
-  
 }
 ----
 
@@ -139,34 +114,28 @@ Request cookies are send to the server using the `Cookie` header, but we do prov
 {
   get("/") { ctx ->
     val token = ctx.cookie("token").value() // <1>
-
     val cookieMap = ctx.cookieMap()         // <2>
-    ...
+    // ...
   }
-  
 }
 ----
 
-<1> Cookie variable `token`
-<2> All cookies as map
+<1> Retrieves the cookie named `token`.
+<2> Retrieves all cookies as a Map.
 
-==== Path
+===== Path
 
-Path parameter are part of the `URI`. To define a path variable you need to use the `{identifier}` notation.
+Path parameters are part of the URI. Use the `{identifier}` notation to define a path variable.
 
 .Syntax:
 [source,java,role="primary"]
 ----
 {
-  get("/{id}" ctx -> ctx.path("id").value());                                 // <1>
-  
-  get("/@{id}" ctx -> ctx.path("id").value());                                // <2>
-  
-  get("/file/{name}.{ext}", ctx -> cxt.path("name") + "." + ctx.path("ext")); // <3>
-  
-  get("/file/*", ctx -> ctx.path("*"))                                        // <4>
-
-  get("/{id:[0-9]+}", ctx -> ctx.path("id))                                   // <5>
+  get("/{id}", ctx -> ctx.path("id").value());                                 // <1>
+  get("/@{id}", ctx -> ctx.path("id").value());                                // <2>
+  get("/file/{name}.{ext}", ctx -> ctx.path("name") + "." + ctx.path("ext"));  // <3>
+  get("/file/*", ctx -> ctx.path("*"));                                        // <4>
+  get("/{id:[0-9]+}", ctx -> ctx.path("id"));                                  // <5>
 }
 ----
 
@@ -175,37 +144,29 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 ----
 {
   get("/{id}") { ctx -> ctx.path("id").value() }                                 // <1>
-  
   get("/@{id}") { ctx -> ctx.path("id").value() }                                // <2>
-  
-  get("/file/{name}.{ext}") { ctx -> cxt.path("name") + "." + ctx.path("ext") }  // <3>
-  
+  get("/file/{name}.{ext}") { ctx -> ctx.path("name") + "." + ctx.path("ext") }  // <3>
   get("/file/*") { ctx -> ctx.path("*") }                                        // <4>
-
-  get("/{id:[0-9]+}") { ctx -> ctx.path("id) }                                   // <5>
+  get("/{id:[0-9]+}") { ctx -> ctx.path("id") }                                  // <5>
 }
 ----
 
-<1> Path variable `id`
-<2> Path variable `id` prefixed with `@`
-<3> Multiple variables `name` and `ext`
-<4> Unnamed catchall path variable
-<5> Path variable with a regular expression
+<1> Standard path variable `id`.
+<2> Path variable `id` prefixed with `@`.
+<3> Multiple variables: `name` and `ext`.
+<4> Unnamed catchall path variable.
+<5> Path variable strictly matching a regular expression.
 
-.Java
+.Accessing Path Variables
 [source, java, role="primary"]
 ----
 {
   get("/{name}", ctx -> {
     String pathString = ctx.getRequestPath();     // <1>
-    
     Value path = ctx.path();                      // <2>
-    
     Map<String, String> pathMap = ctx.pathMap();  // <3>
-
     String name = ctx.path("name").value();       // <4>
-
-    ...    
+    // ...    
   });
 }
 ----
@@ -216,45 +177,22 @@ Path parameter are part of the `URI`. To define a path variable you need to use 
 {
   get("/{name}") { ctx ->
     val pathString = ctx.getRequestPath()  // <1>
-    
     val path = ctx.path()                 // <2>
-    
     val pathMap = ctx.pathMap()           // <3>
-
     val name = ctx.path("name").value()   // <4>
-
-    ...    
+    // ...    
   }
 }
 ----
 
-<1> Access to the `raw` path string:
+<1> Access the `raw` path string (e.g., `/a b` returns `/a%20b`).
+<2> Path as a javadoc:value.Value[] object (decoded).
+<3> Path as a `Map<String, String>` (decoded).
+<4> Specific path variable `name` as a `String` (decoded).
 
-- `/a+b`    => `/a+b`
-- `/a b`    => `/a%20b`  (not decoded)
-- `/%2F%2B` => `/%2F%2B` (not decoded)
+===== Query
 
-<2> Path as javadoc:value.Value[] object:
-
-- `/a+b`    => `{name=a+b}`
-- `/a b`    => `{name=a b}` (decoded)
-- `/%2F%2B` => `{name=/+}`  (decoded)
-
-<3> Path as `Map<String, String>` object:
-
-- `/a+b`    => `{name=a+b}`
-- `/a b`    => `{name=a b}` (decoded)
-- `/%2F%2B` => `{name=/+}`  (decoded)
-
-<4> Path variable `name` as `String`: 
-
-- `/a+b`    => `a+b`
-- `/a b`    => `a b`  (decoded)
-- `/%2F%2B` => `/+`   (decoded)
-
-==== Query
-
-Query String is part of the `URI` that start after the `?` character.
+The query string is the part of the URI that starts after the `?` character.
 
 .Java
 [source, java, role="primary"]
@@ -262,26 +200,17 @@ Query String is part of the `URI` that start after the `?` character.
 {
   get("/search", ctx -> {
     String queryString = ctx.queryString();                    // <1>
-
     QueryString query = ctx.query();                           // <2>
-
     Map<String, List<String>> queryMap = ctx.queryMultimap();  // <3>
-
     String q = ctx.query("q").value();                         // <4>
-
     SearchQuery searchQuery = ctx.query(SearchQuery.class);    // <5>
-
-    ...
+    // ...
   });
 }
 
 class SearchQuery {
-
    public final String q;
-
-   public SearchQuery(String q) {
-     this.q = q;
-   }
+   public SearchQuery(String q) { this.q = q; }
 }
 ----
 
@@ -291,57 +220,26 @@ class SearchQuery {
 {
   get("/search") { ctx ->
     val queryString = ctx.queryString()         // <1>
-
     val query = ctx.query()                     // <2>
-
     val queryMap = ctx.queryMultimap()          // <3>
-
     val q = ctx.query("q").value()              // <4>
-
     val searchQuery = ctx.query<SearchQuery>()  // <5>
-
-    ...
+    // ...
   }
 }
 
-data class SearchQuery (val q: String)
+data class SearchQuery(val q: String)
 ----
 
-<1> Access to `raw` queryString:
+<1> Access the `raw` query string (e.g., `?q=a%20b`).
+<2> Query string as a javadoc:QueryString[] object (e.g., `{q=a b}`).
+<3> Query string as a multi-value map (e.g., `{q=[a b]}`).
+<4> Access decoded variable `q`. Throws a `400 Bad Request` if missing.
+<5> Binds the query string directly to a `SearchQuery` object.
 
-- `/search`       => `""` (empty)
-- `/search?q=a+b` => `?q=a+b`
-- `/search?q=a b` => `?q=a%20b` (not decoded)
+===== Formdata
 
-<2> Query String as javadoc:QueryString[] object:
-
-- `/search`       => `{}`      (empty)
-- `/search?q=a+b` => `{q=a+b}` 
-- `/search?q=a b` => `{q=a b}` (decoded)
-
-<3> Query string as `multi-value map`
-
-- `/search`       => `{}`       (empty) 
-- `/search?q=a+b` => `{q=[a+b]}`
-- `/search?q=a b` => `{q=[a b]}`  (decoded)
-
-<4> Access to decoded variable `q`:
-
-- `/search`       => `Bad Request (400). Missing value: "q"`
-- `/search?q=a+b` => `a+b`
-- `/search?q=a b` => `a b` (decoded)
-
-<5> Query string as `SearchQuery`
-
-- `/search`       => `Bad Request (400). Missing value: "q"`
-- `/search?q=a+b` => `SearchQuery(q="a+b")`
-- `/search?q=a b` => `SearchQuery(q="a b")` (decoded)
-
-==== Formdata
-
-Formdata is expected to be in HTTP body, or for as part of the `URI` for `GET` requests.
-
-Data is expected to be encoded as `application/x-www-form-urlencoded`.
+Form data is sent in the HTTP body (or as part of the URI for `GET` requests) and is encoded as `application/x-www-form-urlencoded`.
 
 .Java
 [source, java, role="primary"]
@@ -349,25 +247,17 @@ Data is expected to be encoded as `application/x-www-form-urlencoded`.
 {
   post("/user", ctx -> {
     Formdata form = ctx.form();                             // <1>
-
     Map<String, List<String>> formMap = ctx.formMultimap(); // <2>
-
     String userId = ctx.form("id").value();                 // <3>
-    
     String pass = ctx.form("pass").value();                 // <4>
-
     User user = ctx.form(User.class);                       // <5>
-    
-    ...
+    // ...
   });
 }
 
 class User {
-
    public final String id;
-
    public final String pass;
-
    public User(String id, String pass) {
      this.id = id;
      this.pass = pass;
@@ -381,36 +271,26 @@ class User {
 {
   post("/user") { ctx ->
     val form = ctx.form()               // <1>
-
     val formMap = ctx.formMultimap()    // <2>
-
     val userId = ctx.form("id").value() // <3>
-    
     val pass = ctx.form("pass").value() // <4>
-
     val user = ctx.form<User>()         // <5>
-    
-    ...
+    // ...
   }
 }
 
-data class User (val id: String, val pass: String)
-
+data class User(val id: String, val pass: String)
 ----
 
-----
-curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
-----
+<1> Form as javadoc:Formdata[].
+<2> Form as a multi-value map.
+<3> Specific form variable `id`.
+<4> Specific form variable `pass`.
+<5> Form automatically bound to a `User` object.
 
-<1> Form as javadoc:Formdata[] => `{id=root, pass=pwd}`
-<2> Form as `multi-value map`  => `{id=root, pass=[pwd]}`
-<3> Form variable `id`         => `root`
-<4> Form variable `pass`       => `pwd`
-<5> Form as `User` object      => `User(id=root, pass=pwd)`
+===== Multipart & File Uploads
 
-==== Multipart
-
-Form-data must be present in the HTTP body and encoded as `multipart/form-data`:
+Multipart data is sent in the HTTP body and encoded as `multipart/form-data`. It is required for file uploads.
 
 .Java
 [source, java, role="primary"]
@@ -418,29 +298,19 @@ Form-data must be present in the HTTP body and encoded as `multipart/form-data`:
 {
   post("/user", ctx -> {
     Multipart multipart = ctx.multipart();                            // <1>
-
-    Map<String, List<String> multipartMap = ctx.multipartMultimap();  // <2>
-   
+    Map<String, List<String>> multipartMap = ctx.multipartMultimap(); // <2>
     String userId = ctx.multipart("id").value();                      // <3>
-    
     String pass = ctx.multipart("pass").value();                      // <4>
-    
     FileUpload pic = ctx.file("pic");                                 // <5>
-
     User user = ctx.multipart(User.class);                            // <6>
-
-    ...
+    // ...
   });
 }
 
 class User {
-
    public final String id;
-
    public final String pass;
-   
    public final FileUpload pic;
-
    public User(String id, String pass, FileUpload pic) {
      this.id = id;
      this.pass = pass;
@@ -455,48 +325,35 @@ class User {
 {
   post("/user") { ctx ->
     val multipart = ctx.multipart()              // <1>
-
     val multipartMap = ctx.multipartMultimap()   // <2>
-   
     val userId = ctx.multipart("id").value()     // <3>
-    
     val pass = ctx.multipart("pass").value()     // <4>
-    
     val pic = ctx.file("pic")                    // <5>
-
     val user = ctx.multipart<User>()             // <6>
-
-    ...
+    // ...
   }
 }
 
-data class User (val id: String, val pass: String, val pic: FileUpload)
+data class User(val id: String, val pass: String, val pic: FileUpload)
 ----
 
-----
-curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://localhost:8080/user
-----
-
-<1> Form as javadoc:Multipart[] => `{id=root, pass=pwd, pic=profile.png}`
-<2> Form as `multi-value map`   => `{id=root, pass=[pwd]}`
-<3> Form variable `id`          => `root`
-<4> Form variable `pass`        => `pwd`
-<5> javadoc:FileUpload[] variable `pic`
-<6> Form as `User` object       => `User(id=root, pass=pwd, pic=profile.png)`
+<1> Form as javadoc:Multipart[].
+<2> Form as a multi-value map.
+<3> Specific multipart text variable `id`.
+<4> Specific multipart text variable `pass`.
+<5> Single file upload named `pic`.
+<6> Multipart form bound to a `User` object (including the file).
 
 [NOTE]
 .File Upload
 ====
-
-File upload are available ONLY for multipart requests.
+File uploads are **only** available for multipart requests.
 
 .Java
 [source,java,role="primary"]
 ----
   FileUpload pic = ctx.file("pic");         // <1>
-
-  List<FileUpload> pic = ctx.files("pic");  // <2>
-
+  List<FileUpload> pics = ctx.files("pic"); // <2>
   List<FileUpload> files = ctx.files();     // <3>
 ----
 
@@ -504,58 +361,50 @@ File upload are available ONLY for multipart requests.
 [source,kotlin,role="secondary"]
 ----
   val pic = ctx.file("pic")   // <1>
-
-  val pic = ctx.files("pic")  // <2>
-
+  val pics = ctx.files("pic") // <2>
   val files = ctx.files()     // <3>
 ----
 
 <1> Single file upload named `pic`
 <2> Multiple file uploads named `pic`
 <3> All file uploads
-
 ====
 
-==== Session
+===== Session
 
-Session parameters are available via javadoc:Context[session] or javadoc:Context[sessionOrNull]
-methods. HTTP Session is covered in his own <<session, chapter>>, but here is a quick look:
+Session parameters are available via javadoc:Context[session] or javadoc:Context[sessionOrNull]. (See the full <<web-session, Session Chapter>> for details).
 
 .Java
 [source,java,role="primary"]
 ----
   Session session = ctx.session();                      // <1>
-
   String attribute = ctx.session("attribute").value();  // <2>
-
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
   val session = ctx.session()                             // <1>
-
   val attribute = session.attribute("attribute").value()  // <2>
 ----
 
-<1> Find an existing Session or create one
-<2> Get a session attribute
+<1> Finds an existing Session or creates a new one.
+<2> Gets a specific session attribute.
 
-==== Flash
+===== Flash
 
-Flash parameters are designed to transport success/error messages between requests. It is similar to
-a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one request*.
+Flash parameters transport success/error messages between requests. They are similar to a session, but their lifecycle is shorter: **data is kept for only one request**.
 
 .Java
 [source,java,role="primary"]
 ----
   get("/", ctx -> {
-    return ctx.flash("success").value("Welcome!"); <3>
+    return ctx.flash("success").value("Welcome!"); // <3>
   });
 
   post("/save", ctx -> {
-    ctx.flash().put("success", "Item created");    <1>
-    return ctx.sendRedirect("/");                  <2>
+    ctx.flash().put("success", "Item created");    // <1>
+    return ctx.sendRedirect("/");                  // <2>
   });
 ----
 
@@ -563,28 +412,26 @@ a javadoc:Session[] but the lifecycle is shorter: *data is kept for only one req
 [source,kotlin,role="secondary"]
 ----
   get("/") { ctx ->
-    ctx.flash("success").value("Welcome!")         <3>
+    ctx.flash("success").value("Welcome!")         // <3>
   }
   
   post("/save") { ctx ->
-    ctx.flash().put("success", "Item created")     <1>
-    ctx.sendRedirect("/")                          <2>
+    ctx.flash().put("success", "Item created")     // <1>
+    ctx.sendRedirect("/")                          // <2>
   }
 ----
 
-<1> Set a flash attribute: `success`
-<2> Redirect to home page
-<3> Display an existing flash attribute `success` or shows `Welcome!`
+<1> Sets a flash attribute: `success`.
+<2> Redirects to the home page.
+<3> Displays the flash attribute `success` (if it exists) or defaults to `Welcome!`.
 
-Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
-(its name defaults to `jooby.flash`) use the javadoc:Router[setFlashCookie, io.jooby.Cookie] method:
+Flash attributes are implemented using an HTTP Cookie. To customize the cookie (the default name is `jooby.flash`), use javadoc:Router[setFlashCookie, io.jooby.Cookie].
 
 .Java
 [source,java,role="primary"]
 ----
 {
   setFlashCookie(new Cookie("myflash").setHttpOnly(true));
-  
   // or if you're fine with the default name
   getFlashCookie().setHttpOnly(true);
 }
@@ -595,16 +442,14 @@ Flash attributes are implemented using an `HTTP Cookie`. To customize the cookie
 ----
 {
   flashCookie = Cookie("myflash").setHttpOnly(true)
-
   // or if you're fine with the default name
   flashCookie.isHttpOnly = true
 }
 ----
 
-==== Parameter Lookup
+===== Parameter Lookup
 
-You can search for parameters in multiple sources with an explicitly defined priority using the
-javadoc:Context[lookup] or javadoc:Context[lookup, java.lang.String, io.jooby.ParamSource...] method:
+You can search for parameters across multiple sources with an explicitly defined priority using javadoc:Context[lookup].
 
 .Java
 [source,java,role="primary"]
@@ -634,21 +479,18 @@ get("/{foo}") { ctx ->
 }
 ----
 
-In case of a request like `/bar?foo=baz`, `foo is: baz` will be returned since the query parameter
-takes precedence over the path parameter.
+If a request is made to `/bar?foo=baz`, the result will be `foo is: baz` because the query parameter takes precedence over the path parameter.
 
-==== Client Certificates
+===== Client Certificates
 
-If mutual TLS is enabled, you can access the client's certificates from the context. The first 
-certificate in the list is the peer certificate, followed by the ca certificates in the chain 
-(the order is preserved).
+If mutual TLS is enabled, you can access the client's certificates from the context. The first certificate in the list is the peer certificate, followed by the CA certificates in the chain.
 
 .Java
 [source,java,role="primary"]
 ----
 get("/{foo}", ctx -> {
-  List<Certificate> certificates = ctx.getClientCertificates(); <1>
-  Certificate peerCertificate = certificates.get(0);            <2>
+  List<Certificate> certificates = ctx.getClientCertificates(); // <1>
+  Certificate peerCertificate = certificates.get(0);            // <2>
 });
 ----
 
@@ -656,12 +498,12 @@ get("/{foo}", ctx -> {
 [source,kotlin,role="secondary"]
 ----
 get("/{foo}") { ctx ->
-  val certificates = ctx.clientCertificates                     <1>
-  val peerCertificate = certificates.first()                    <2>
+  val certificates = ctx.clientCertificates                     // <1>
+  val peerCertificate = certificates.first()                    // <2>
 }
 ----
 
-<1> Get all of the certificates presented by the client during the SSL handshake.
+<1> Get all certificates presented by the client during the SSL handshake.
 <2> Get only the peer certificate.
 
 include::value-api.adoc[]

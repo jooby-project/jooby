@@ -1,19 +1,16 @@
-== Configuration
-Application configuration is based on https://github.com/lightbend/config[config] library. Configuration 
-can by default be provided in either Java properties, JSON, and https://github.com/lightbend/config/blob/master/HOCON.md[HOCON] files.
+=== Configuration
 
-Jooby allows overriding any property via system properties or environment variables.
+Application configuration is built on the https://github.com/lightbend/config[Typesafe Config] library. By default, Jooby supports configuration provided in Java properties, JSON, or https://github.com/lightbend/config/blob/master/HOCON.md[HOCON] format.
 
-=== Environment
+Jooby allows you to override any property via system properties, environment variables, or program arguments.
 
-The application environment is available via the javadoc:Environment[Environment] class, which allows specifying one 
-or many unique environment names.
+==== Environment
 
-The active environment names serve the purpose of allowing loading different configuration files
-depending on the environment. Also, javadoc:Extension[] modules might configure application
-services differently depending on the environment too. For example: turn on/off caches, reload files, etc.
+The javadoc:Environment[Environment] class manages your application's configuration and active environment names (e.g., `dev`, `prod`, `test`).
 
-.Initializing the Environment
+Environment names allow you to load different configuration files or toggle features (like caching or file reloading) depending on the deployment stage.
+
+.Accessing the Environment
 [source, java, role = "primary"]
 ----
 {
@@ -29,85 +26,42 @@ services differently depending on the environment too. For example: turn on/off 
 }
 ----
 
-The active environment names property is set in one of this way:
+You can set active environment names in several ways:
 
-- As program argument: `java -jar myapp.jar application.env=foo,bar`; or just `java -jar myapp.jar foo,bar`
+* **Program Argument:** `java -jar myapp.jar prod,cloud` (This works when using Jooby's `runApp` methods).
+* **System Property:** `java -Dapplication.env=prod -jar myapp.jar`
+* **Environment Variable:** `application.env=prod`
 
-NOTE: This method works as long you start the application using one of the `runApp` methods
+==== Default Loading and Precedence
 
-- As system property: `java -Dapplication.env=foo,bar -jar myapp.jar`
+When you call `getEnvironment()`, Jooby searches for an `application.conf` file in the following order of priority:
 
-- As environment variable: `application.env=foo,bar`
+1. `${user.dir}/conf/application.conf` (External file system)
+2. `${user.dir}/application.conf` (External file system)
+3. `classpath://application.conf` (Internal jar resource)
 
+[NOTE]
+====
+`${user.dir}` refers to the directory from which the JVM was launched. Jooby **favors file system files** over classpath files, allowing you to easily externalize configuration without rebuilding your jar.
+====
 
-The javadoc:Jooby[getEnvironment] loads the default environment. 
+==== Overrides
 
-=== Default Environment
+Properties are resolved using the following precedence (highest priority first):
 
-The default environment is available via javadoc:Environment[loadEnvironment, io.jooby.EnvironmentOptions] method.
+1. Program arguments (e.g., `java -jar app.jar foo=bar`)
+2. System properties (e.g., `-Dfoo=bar`)
+3. Environment variables (e.g., `foo=bar java -jar app.jar`)
+4. Environment-specific property file (e.g., `application.prod.conf`)
+5. Default property file (`application.conf`)
 
-This method search for an `application.conf` file in three location (first-listed are higher priority):
-
-- `${user.dir}/conf`. This is a file system location, useful is you want to externalize configuration (outside of jar file)
-- `${user.dir}`. This is a file system location, useful is you want to externalize configuration (outside of jar file)
-- `classpath://` (root of classpath). No external configuration, configuration file lives inside the jar file
-
-NOTE: We use `$user.dir` to reference `System.getProperty("user.dir")`. This system property is set
-by the JVM at application startup time. It represent the current directory from where the JVM was
-launch it.
- 
-.File system loading
-[source,bash]
-----
-└── conf
-    └── application.conf
-└── myapp.jar
-----
-
-A call to:
-
-[source]
-----
-  Environment env = getEnvironment();
-----
-
-Loads the `application.conf` from `conf` directory. You get the same thing if you 
-move the `application.conf` to `myapp.jar` directory.
-
-.Classpath loading
-[source,bash]
-----
-└── myapp.jar
-   └── application.conf (file inside jar)
-----
-
-WARNING: Jooby favors file system property loading over classpath property loading. So, if there 
-is a property file either in the current directory or conf directory it hides the same file
-available in the classpath.
-
-=== Overrides
-
-Property overrides is done in multiple ways (first-listed are higher priority):
-
-- Program arguments
-- System properties
-- Environment variables
-- Environment property file
-- Property file
-
-.application.conf
-[source, properties]
-----
-foo = foo
-----
-
-.Property access
+.Accessing Properties
 [source, java, role="primary"]
 ----
 {
-  Environment env = getEnvironment();                <1>
-  Config conf = env.getConfig();             <2>
-  System.out.println(conf.getString("foo")); <3>
+  Environment env = getEnvironment();         // <1>
+  Config conf = env.getConfig();              // <2>
+  System.out.println(conf.getString("foo"));  // <3>
 }
 ----
 
@@ -115,101 +69,41 @@ foo = foo
 [source, kotlin, role="secondary"]
 ----
 {
-  val env = environment          <1>
-  val conf = env.config          <2>
-  println(conf.getString("foo")) <3>
+  val env = environment                       // <1>
+  val conf = env.config                       // <2>
+  println(conf.getString("foo"))              // <3>
 }
 ----
 
-<1> Get environment
-<2> Get configuration
-<3> Get `foo` property and prints `foo`
+<1> Retrieve the current environment.
+<2> Access the underlying `Config` object.
+<3> Extract the value for the key `foo`.
 
-At runtime you can override properties using:
+==== Multi-Environment Configuration
 
-.Program argument
-[source, bash]
+It is best practice to keep common settings in `application.conf` and override environment-specific values in separate files named `application.[env].conf`.
+
+.Example Structure
 ----
-java -jar myapp.jar foo=argument
-----
-
-Example prints: `argument`
-
-.System property
-[source, bash]
-----
-java -Dfoo=sysprop -jar myapp.jar
+└── application.conf      (foo = "default", bar = "base")
+└── application.prod.conf (foo = "production")
 ----
 
-Prints: `syspro`
+Running with `java -jar myapp.jar prod` results in:
+* `foo`: `"production"` (overridden)
+* `bar`: `"base"` (inherited from default)
 
-.Environment variable
-[source, bash]
-----
-foo=envar java -jar myapp.jar
-----
+To activate multiple environments, separate them with commas: `java -jar app.jar prod,cloud`.
 
-Prints: `envar`
+==== Custom Configuration
 
-If you have multiple properties to override, it is probably better to collect all them into a new file
-and use active environment name to select them.
+If you want to bypass Jooby's default loading logic, you can provide custom options or instantiate the environment manually.
 
-.Environment property file
-[source, bash]
-----
-└── application.conf
-└── application.prod.conf
-----
-
-.application.conf
-[source, properties]
-----
-foo = foo
-bar = devbar
-----
-
-.application.prod.conf
-[source, properties]
-----
-bar = prodbar
-----
-
-.Run with `prod` environment
-----
-java -jar my.app application.env=prod
-----
-
-Or just
-----
-java -jar my.app prod
-----
-
-TIP: You only need to override the properties that changes between environment not all the properties.
-
-The `application.conf` defines two properties : `foo` and `bar`, while the environment property file
-defines only `bar`.
-
-For Multiple environment activation you need to separate them with `,` (comma):
-
-.Run with `prod` and `cloud` environment
-----
- java -jar my.app application.env=prod,cloud
-----
-
-=== Custom environment
-
-Custom configuration and environment are available too using:
-
-- The javadoc:EnvironmentOptions[] class, or
-- Direct instantiation of the javadoc:Environment[] class
-
-.Environment options
+.Using Environment Options
 [source,java,role="primary"]
 ----
 {
-  Environment env = setEnvironmentOptions(
-    new EnvironmentOptions().setFilename("myapp.conf"));   <1>
-  )
+  setEnvironmentOptions(new EnvironmentOptions().setFilename("myapp.conf")); // <1>
 }
 ----
 
@@ -217,26 +111,21 @@ Custom configuration and environment are available too using:
 [source,kotlin,role="secondary"]
 ----
 {
-  val env = environmentOptions {                   <1>
-    filename = "myapp.conf"
+  environmentOptions {
+    filename = "myapp.conf" // <1>
   }
 }
 ----
 
-<1> Load `myapp.conf` using the loading and precedence mechanism described before
+<1> Loads `myapp.conf` instead of the default `application.conf` while maintaining standard precedence rules.
 
-The javadoc:Jooby[setEnvironmentOptions, io.jooby.EnvironmentOptions] method loads, set and returns
-the environment.
-
-To skip/ignore Jooby loading and precedence mechanism, just instantiate and set the environment:
-
-.Direct instantiation
+.Direct Instantiation
 [source,java,role="primary"]
 ----
 {
-  Config conf = ConfigFactory.load("myapp.conf");            <1>
-  Environment env = new Environment(getClassLoader(), conf); <2>
-  setEnvironment(env);                                       <3>
+  Config conf = ConfigFactory.load("custom.conf");           // <1>
+  Environment env = new Environment(getClassLoader(), conf); // <2>
+  setEnvironment(env);                                       // <3>
 }
 ----
 
@@ -244,149 +133,49 @@ To skip/ignore Jooby loading and precedence mechanism, just instantiate and set 
 [source,kotlin,role="secondary"]
 ----
 {
-  val conf = ConfigFactory.load("myapp.conf")              <1>
-  val env = Environment(classLoader, conf)                 <2>    
-  environment = env                                        <3>
+  val conf = ConfigFactory.load("custom.conf")               // <1>
+  val env = Environment(classLoader, conf)                   // <2>    
+  environment = env                                          // <3>
 }
 ----
 
-<1> Loads and parses configuration
-<2> Create a new environment with configuration and (optionally) active names
-<3> Set environment on Jooby instance
+<1> Manually load a configuration file.
+<2> Wrap it in a Jooby Environment.
+<3> Assign it to the application before startup.
 
-IMPORTANT: Custom configuration is very flexible. You can reuse Jooby mechanism or provide your own.
-The only thing to keep in mind is that environment setting must be done at very early stage, before
-starting the application.
+==== Logging
 
-=== Logging
+Jooby uses **SLF4J**, allowing you to plug in your preferred logging framework.
 
-Jooby uses https://www.slf4j.org[Slf4j] for logging which give you some flexibility for choosing
-the logging framework.
+===== Logback
 
-==== Logback
+1. **Add Dependency:** `logback-classic`.
+2. **Configure:** Place `logback.xml` in your `conf` directory or classpath root.
 
-The https://logback.qos.ch/manual/index.html[Logback] is probably the first alternative for 
-https://www.slf4j.org[Slf4j] due its natively implements the SLF4J API. Follow the next steps to use
-logback in your project:
+===== Log4j2
 
-1) Add dependency
+1. **Add Dependencies:** `log4j-slf4j-impl` and `log4j-core`.
+2. **Configure:** Place `log4j2.xml` in your `conf` directory or classpath root.
 
-[dependency, artifactId="logback-classic"]
+===== Environment-Aware Logging
 
-2) Creates a `logback.xml` file in the `conf` directory:
-
-.logback.xml
-[source, xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
-
-  <root level="INFO">
-    <appender-ref ref="STDOUT" />
-  </root>
-</configuration>
-----
-
-That's all! https://www.slf4j.org[Slf4j] is going to redirect log message to logback.
-
-==== Log4j2
-
-The https://logging.apache.org/log4j[Log4j2] project is another good alternative for logging. Follow
-the next steps to use logback in your project:
-
-1) Add dependencies
-
-[dependency, artifactId="log4j-slf4j-impl, log4j-core"]
-
-2) Creates a `log4j.xml` file in the `conf` directory:
-
-.log4j.xml
-[source, xml]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-  <Appenders>
-    <Console name="stdout">
-      <PatternLayout pattern="%d [%t] %-5level: %msg%n%throwable" />
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Root level="INFO" additivity="true">
-      <AppenderRef ref="stdout" />
-    </Root>
-  </Loggers>
-</Configuration>
-----
-
-All these extensions are considered valid: `.xml`, `.propertines`, `.yaml` and `.json`. As well as `log4j2` for file name.
-
-==== Environment logging
-
-Logging is integrated with the environment names. So it is possible to have a file name:
-
-- `logback[.name].xml` (for loggback)
-- `log4j[.name].xml` (for log4j2)
-
-Jooby favors the environment specific logging configuration file over regular/normal logging configuration file.
-
-.Example
-[source, bash]
-----
-conf
-└── logback.conf
-└── logback.prod.conf
-----
-
-To use `logback.prod.conf`, start your application like:
-
-`java -jar myapp.jar application.env=prod`
+Logging is also environment-aware. Jooby will look for `logback.[env].xml` or `log4j2.[env].xml` and favor them over the default files.
 
 [IMPORTANT]
 ====
-The logging configuration file per environment works as long you don't use *static* loggers
-before application has been start it. The next example won't work:
-
-[source, java]
-----
-public class App extends Jooby {
-  private static final Logger log = ...
-  
-  public static void main(String[] args) {
-    runApp(args, App::new);
-  }
-}
-----
-
-The `runApp` method is the one who configures the logging framework. Adding a static logger force
-the logging framework to configure without taking care the environment setup.
-
-There are a couple of solution is for this:
-
-- use an instance logger
-- use the getLog() method of Jooby
+To ensure environment-specific logging works correctly, avoid using **static** loggers in your main App class before `runApp` is called. Static loggers force the logging framework to initialize before Jooby can apply the environment-specific configuration. Use an instance logger or Jooby's `getLog()` method instead.
 ====
 
-=== Application Properties
+==== Application Properties
 
-These are the application properties that Jooby uses:
-
-[options="header"]
 |===
-|Property name | Description | Default value
-|application.charset | Charset used by your application. Used by template engine, HTTP encoding/decoding, database driver, etc. | `UTF-8`
-|application.env | The active <<configuration-environment, environment>> names. Use to identify `dev` vs `non-dev` application deployment. Jooby applies some optimizations for `non-dev`environments | `dev`
-|application.lang | The languages your application supports. Used by `Context.locale()` | A single locale provided by `Locale.getDefault()`.
-|application.logfile | The logging configuration file your application uses. You don't need to set this property, see <<configuration-logging, logging configuration>>. |
-|application.package | The base package of your application. |
-|application.pid | JVM process ID. | The native process ID assigned by the operating system.
-|application.startupSummary | The level of information logged during startup. |
-|application.tmpdir | Temporary directory used by your application. | `tmp`
+|Property | Description | Default
+
+|`application.charset` | Charset for encoding/decoding and templates. | `UTF-8`
+|`application.env` | Active environment names. Jooby optimizes performance for non-`dev` environments. | `dev`
+|`application.lang` | Supported languages for `Context.locale()`. | `Locale.getDefault()`
+|`application.tmpdir` | Temporary directory for the application. | `tmp`
+|`application.pid` | The JVM process ID. | System assigned
 |===
 
-See javadoc:AvailableSettings[] for more details.
+See javadoc:AvailableSettings[] for a complete reference.

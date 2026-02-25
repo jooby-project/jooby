@@ -251,11 +251,11 @@ public class DocGenerator {
     attributes.attribute("docinfo", "shared");
     attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
     attributes.tableOfContents(Placement.LEFT);
-    attributes.attribute("toclevels", "3");
+    attributes.attribute("toclevels", "4");
     attributes.setAnchors(true);
     attributes.attribute("sectlinks", "");
     attributes.sectionNumbers(true);
-    attributes.attribute("sectnumlevels", "3");
+//    attributes.attribute("sectnumlevels", "5");
     attributes.linkAttrs(true);
     attributes.noFooter(true);
     attributes.attribute("idprefix", "");
@@ -283,6 +283,7 @@ public class DocGenerator {
 
     attributes.attribute("joobyVersion", version);
     attributes.attribute("date", DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+    attributes.attribute("numbered!", "");
 
     OptionsBuilder options = Options.builder();
     options.backend("html5");

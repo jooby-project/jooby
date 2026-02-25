@@ -1,12 +1,10 @@
-== MVC API
+=== MVC API
 
-MVC API is an alternative way to define routes in Jooby. It generates source code to define and execute routes. The generated class are suffixed with `_` (underscore).
+The MVC API provides an annotation-driven alternative to the Script API for defining routes. Jooby uses an annotation processor to generate source code that defines and executes these routes. By default, the generated classes are suffixed with an underscore (`_`).
 
-If you use Gradle 6.0 or a later version, you can leverage incremental annotation processing support,
-which means that Gradle only compiles classes that changed since the last compilation, and only runs
-annotation processing on those changed classes.
+If you use Gradle 6.0 or later, or a modern Maven setup, Jooby leverages **incremental annotation processing**. This means the compiler only processes classes that have changed since the last build, significantly speeding up compilation times.
 
-The annotation processor has two options allowing you to control incremental processing behavior:
+You can control incremental processing via compiler arguments:
 
 .build.gradle
 [source, groovy, role = "primary", subs="verbatim,attributes"]
@@ -19,7 +17,7 @@ tasks.withType(JavaCompile) {
 }
 ----
 
-.Kotlin
+.Kotlin (kapt)
 [source, groovy, role = "secondary", subs="verbatim,attributes"]
 ----
 kapt {
@@ -29,12 +27,11 @@ kapt {
 }
 ----
 
-By setting `jooby.incremental` to `false` you can disable incremental processing entirely, which means
-the regardless what's changed, the whole project is recompiled each time. Defaults to `true`.
+By setting `jooby.incremental=false`, you disable incremental processing entirely, forcing a full recompilation of the project every time. (Defaults to `true`).
 
-The package `annotation` contains all the annotations available for MVC routes.
+The `io.jooby.annotation` package contains all the annotations available for MVC routes.
 
-.MVC API:
+.MVC API Example:
 [source,java,role="primary"]
 ----
 import io.jooby.annotation.*;
@@ -49,7 +46,6 @@ public class Controller {
 }
 
 public class App extends Jooby {
-
   {
     mvc(new Controller_());   // <3>
   }
@@ -63,14 +59,14 @@ public class App extends Jooby {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-
-import io.jooby.annotation.*;
+import io.jooby.annotation.*
+import io.jooby.kt.runApp
 
 @Path("/mvc")                  // <1>
 class Controller {
 
   @GET                         // <2>
-  fun sayHi() : String {
+  fun sayHi(): String {
     return "Hello Mvc!"
   }
 }
@@ -82,25 +78,26 @@ fun main(args: Array<String>) {
 }
 ----
 
-<1> Set a path pattern. The `@Path` annotation is enable at class or method level
-<2> Add a HTTP method
-<3> Register/install the generated controller in the main application
+<1> Set a base path pattern. The `@Path` annotation can be applied at the class or method level.
+<2> Define the HTTP method.
+<3> Register the generated controller (`Controller_`) in the main application.
 
-=== Getting Started
+==== Getting Started
 
-To create a new MVC project open the `jooby` console and type:
+To quickly create a new MVC project, use the `jooby` console:
 
-    jooby create myapp --mvc
+[source, bash]
+----
+jooby create myapp --mvc
+----
 
-The <<getting-started, jooby console>> takes care of all configuration steps required by the
-annotation processing tool.
+The <<getting-started, Jooby CLI>> automatically configures the Maven/Gradle build and sets up the annotation processor for you.
 
-=== Registration
+==== Registration
 
-Mvc routes need to be registered (no classpath scanning). Registration is done from your application
-class:
+Unlike some frameworks, Jooby **does not use classpath scanning**. MVC routes must be explicitly registered in your application configuration:
 
-.Simple MVC route registration
+.Simple MVC Route Registration
 [source, java, role = "primary"]
 ----
 public class App extends Jooby {
@@ -117,8 +114,7 @@ public class App extends Jooby {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-
-import io.jooby.*
+import io.jooby.kt.runApp
 
 fun main(args: Array<String>) {
   runApp(args) {
@@ -127,19 +123,17 @@ fun main(args: Array<String>) {
 }
 ----
 
-The javadoc:Jooby[mvc, io.jooby.MvcExtension] install the mvc route. The generated controller instantiate the controller
-or `requires` it when an `jakarta.inject.Inject` annotated controller is present.
+The javadoc:Jooby[mvc, io.jooby.MvcExtension] method installs the MVC routes. You can pass an instance directly, or if the controller constructor is annotated with `@Inject` (e.g., `jakarta.inject.Inject`), the generated code will attempt to resolve the dependencies from the registry.
 
-=== Parameters
+==== Parameters
 
-HTTP parameter provision is available via `*Param` annotations.
+HTTP parameter extraction is handled via `@*Param` annotations.
 
-There is also a javadoc:annotation.Param[] annotation which allows to retrieve parameters from
-<<mvc-api-parameters-multiple-sources,multiple sources>>.
+You can also use the generic javadoc:annotation.Param[] annotation to extract a parameter from <<web-mvc-api-parameters-multiple-sources, multiple sources>> with a specific fallback order.
 
-==== Header
+===== Header
 
-Provisioning of headers is available via javadoc:annotation.HeaderParam[] annotation:
+Extract headers using the javadoc:annotation.HeaderParam[] annotation:
 
 .Headers
 [source, java, role = "primary"]
@@ -147,8 +141,8 @@ Provisioning of headers is available via javadoc:annotation.HeaderParam[] annota
 public class MyController {
 
   @GET
-  public Object provisioning(@HeaderParam String token) {  // <1>
-    ...
+  public String handle(@HeaderParam String token) {  // <1>
+    // ...
   }
 }
 ----
@@ -159,26 +153,24 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@HeaderParam token: String) : Any {  // <1>
-    ...
+  fun handle(@HeaderParam token: String): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> Access to HTTP header named `token`
+<1> Accesses the HTTP header named `token`.
 
-Compared to JAX-RS the parameter name on `@*Param` annotation is completely optional, but required for
-non valid Java names:
+Unlike JAX-RS, specifying the parameter name inside the annotation is optional. Jooby infers it from the variable name. However, you must provide the name explicitly if the HTTP header is not a valid Java identifier:
 
-
-.Non valid Java name
+.Invalid Java Identifier
 [source, java, role = "primary"]
 ----
 public class MyController {
 
   @GET
-  public Object provisioning(@HeaderParam("Last-Modified-Since") long lastModifiedSince) {
-    ...
+  public String handle(@HeaderParam("Last-Modified-Since") long lastModifiedSince) {
+    // ...
   }
 }
 ----
@@ -189,15 +181,15 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@HeaderParam("Last-Modified-Since") lastModifiedSince: Long) : Any {
-    ...
+  fun handle(@HeaderParam("Last-Modified-Since") lastModifiedSince: Long): String {
+    // ...
   }
 }
 ----
 
-==== Cookie
+===== Cookie
 
-Provisioning of cookies is available via javadoc:annotation.CookieParam[] annotation:
+Extract cookies using the javadoc:annotation.CookieParam[] annotation:
 
 .Cookies
 [source, java, role = "primary"]
@@ -205,8 +197,8 @@ Provisioning of cookies is available via javadoc:annotation.CookieParam[] annota
 public class MyController {
 
   @GET
-  public Object provisioning(@CookieParam String token) {  // <1>
-    ...
+  public String handle(@CookieParam String token) {  // <1>
+    // ...
   }
 }
 ----
@@ -217,45 +209,19 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@CookieParam token: String) : Any {  // <1>
-    ...
+  fun handle(@CookieParam token: String): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> Access to cookie named `token`
+<1> Accesses the cookie named `token`.
 
-Compared to JAX-RS the parameter name on `@*Param` annotation is completely optional, but required for
-non valid Java names:
+As with headers, provide the explicit name if the cookie key contains dashes or invalid Java characters (e.g., `@CookieParam("token-id") String tokenId`).
 
+===== Path
 
-.Non valid Java name
-[source, java, role = "primary"]
-----
-public class MyController {
-
-  @GET
-  public Object provisioning(@CookieParam("token-id") String tokenId) {
-    ...
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-class MyController {
-
-  @GET
-  fun provisioning(@CookieParam("token-id") tokenId: String) : Any {
-    ...
-  }
-}
-----
-
-==== Path
-
-For path parameters the javadoc:annotation.PathParam[] annotation is required:
+Extract path variables using the javadoc:annotation.PathParam[] annotation:
 
 .PathParam
 [source, java, role = "primary"]
@@ -263,8 +229,8 @@ For path parameters the javadoc:annotation.PathParam[] annotation is required:
 public class MyController {
 
   @Path("/{id}")
-  public Object provisioning(@PathParam String id) {
-    ...
+  public String handle(@PathParam String id) {
+    // ...
   }
 }
 ----
@@ -275,15 +241,15 @@ public class MyController {
 class MyController {
 
   @Path("/{id}")
-  fun provisioning(@PathParam id: String) : Any {
-    ...
+  fun handle(@PathParam id: String): String {
+    // ...
   }
 }
 ----
 
-==== Query
+===== Query
 
-For query parameters the javadoc:annotation.QueryParam[] annotation is required:
+Extract query string variables using the javadoc:annotation.QueryParam[] annotation:
 
 .QueryParam
 [source, java, role = "primary"]
@@ -291,8 +257,8 @@ For query parameters the javadoc:annotation.QueryParam[] annotation is required:
 public class MyController {
 
   @Path("/")
-  public Object provisioning(@QueryParam String q) {
-    ...
+  public String handle(@QueryParam String q) {
+    // ...
   }
 }
 ----
@@ -303,25 +269,24 @@ public class MyController {
 class MyController {
 
   @Path("/")
-  fun provisioning(@QueryParam q: String) : Any {
-    ...
+  fun handle(@QueryParam q: String): String {
+    // ...
   }
 }
 ----
 
-==== Formdata/Multipart
+===== Formdata / Multipart
 
-For formdata/multipart parameters the javadoc:annotation.FormParam[] annotation is required:
+Extract form-data or multipart parameters using the javadoc:annotation.FormParam[] annotation:
 
-.QueryParam
+.FormParam
 [source, java, role = "primary"]
 ----
 public class MyController {
 
-  @Path("/")
-  @POST
-  public Object provisioning(@FormParam String username) {
-    ...
+  @POST("/")
+  public String handle(@FormParam String username) {
+    // ...
   }
 }
 ----
@@ -331,27 +296,25 @@ public class MyController {
 ----
 class MyController {
 
-  @Path("/")
-  @POST
-  fun provisioning(@FormParam username: String) : Any {
-    ...
+  @POST("/")
+  fun handle(@FormParam username: String): String {
+    // ...
   }
 }
 ----
 
-==== Body
+===== Request Body
 
-Body parameter doesn't require an annotation:
+The HTTP request body does not require an explicit annotation. Simply define the POJO in the method signature:
 
 .HTTP Body
 [source, java, role = "primary"]
 ----
 public class MyController {
 
-  @Path("/")
-  @POST
-  public Object provisioning(MyObject body) {
-    ...
+  @POST("/")
+  public String handle(MyObject body) {
+    // ...
   }
 }
 ----
@@ -361,19 +324,18 @@ public class MyController {
 ----
 class MyController {
 
-  @Path("/")
-  @POST
-  fun provisioning(body: MyObject) : Any {
-    ...
+  @POST("/")
+  fun handle(body: MyObject): String {
+    // ...
   }
 }
 ----
 
-==== Bind
+===== Bind
 
-You can use the javadoc:annotation.BindParam[] annotation which allow custom mapping from HTTP request.
+The javadoc:annotation.BindParam[] annotation allows for custom data binding from the HTTP request directly into an object.
 
-.Use the annotation
+.Using the annotation
 [source, java, role = "primary"]
 ----
 public class Controller {
@@ -395,13 +357,14 @@ class Controller {
 }
 ----
 
-.Write the mapping function
+.Writing the mapping function
 [source, java, role = "primary"]
 ----
 public record MyBean(String value) {
 
   public static MyBean of(Context ctx) {
-    // build MyBean from HTTP request
+    // Build MyBean entirely from the Context
+    return new MyBean(ctx.path("foo").value());
   }
 }
 ----
@@ -409,38 +372,32 @@ public record MyBean(String value) {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-class MyBean constructor(value: String) {
+class MyBean(val value: String) {
 
   companion object {
        @JvmStatic
-       fun of(ctx: Context) : Person {
-          // build MyBean from HTTP request
+       fun of(ctx: Context): MyBean {
+          // Build MyBean entirely from the Context
+          return MyBean(ctx.path("foo").value())
        }
   }
 }
 ----
 
-It works as:
+How `@BindParam` works:
 
-- The javadoc:annotation.BindParam[] allow you to convert HTTP request to an Java Object in the way you wish
-- The annotation looks for public method/function that takes a javadoc:Context[] as parameter and returns the same type required as parameter.
-- It looks in the parameter type or fallback into the controller class
+* It looks for a public method/function on the target class that accepts a javadoc:Context[] and returns the target type.
+* By default, it looks for this factory method on the parameter type itself (`MyBean`), but will fall back to searching the Controller class.
 
-Alternative you can specify the factory class:
-
+Alternatively, you can specify a distinct factory class and/or method name:
 ----
-   @BindParam(MyFactoryClass.class)
-----
-
-And/or function name:
-
-----
-   @BindParam(value = MyFactoryClass.class, fn = "fromContext")
+@BindParam(MyFactoryClass.class)
+@BindParam(value = MyFactoryClass.class, fn = "fromContext")
 ----
 
-==== Flash
+===== Flash
 
-Provisioning of flash attribute is available via javadoc:annotation.FlashParam[] annotation:
+Extract flash attributes using the javadoc:annotation.FlashParam[] annotation:
 
 .Flash
 [source, java, role = "primary"]
@@ -448,8 +405,8 @@ Provisioning of flash attribute is available via javadoc:annotation.FlashParam[]
 public class MyController {
 
   @GET
-  public Object provisioning(@FlashParam String success) {  // <1>
-    ...
+  public String handle(@FlashParam String success) {  // <1>
+    // ...
   }
 }
 ----
@@ -460,17 +417,17 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@FlashParam success: String) : Any {  // <1>
-    ...
+  fun handle(@FlashParam success: String): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> Access to flash named `success`
+<1> Accesses the flash attribute named `success`.
 
-==== Session
+===== Session
 
-Provisioning of session attribute is available via javadoc:annotation.SessionParam[] annotation:
+Extract specific session attributes using the javadoc:annotation.SessionParam[] annotation:
 
 .Session Attribute
 [source, java, role = "primary"]
@@ -478,8 +435,8 @@ Provisioning of session attribute is available via javadoc:annotation.SessionPar
 public class MyController {
 
   @GET
-  public Object provisioning(@SessionParam String userId) {  // <1>
-    ...
+  public String handle(@SessionParam String userId) {  // <1>
+    // ...
   }
 }
 ----
@@ -490,24 +447,24 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@SessionParam userId: String) : Any {  // <1>
-    ...
+  fun handle(@SessionParam userId: String): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> Access to session attribute named `userId`
+<1> Accesses the session attribute named `userId`.
 
-Provisioning of javadoc:Session[] is available too:
+You can also request the entire javadoc:Session[] object:
 
-.Session Attribute
+.Session Object
 [source, java, role = "primary"]
 ----
 public class MyController {
 
   @GET
-  public Object provisioning(Session session) {  // <1>
-    ...
+  public String handle(Session session) {  // <1>
+    // ...
   }
 }
 ----
@@ -518,19 +475,17 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(session: Session) : Any {  // <1>
-    ...
+  fun handle(session: Session): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> If no session exists yet, new session will be created
+<1> If no session exists yet, a **new session will be created**. To avoid this and only retrieve an existing session, use `Optional<Session>` as the parameter type.
 
-To avoid this, just use `java.util.Optional<Session>` as type.
+===== Context
 
-==== Context
-
-Provisioning of context attributes is available via javadoc:annotation.ContextParam[] annotation:
+Extract specific context attributes using the javadoc:annotation.ContextParam[] annotation:
 
 .Context Attribute
 [source, java, role = "primary"]
@@ -538,8 +493,8 @@ Provisioning of context attributes is available via javadoc:annotation.ContextPa
 public class MyController {
 
   @GET
-  public Object provisioning(@ContextParam String userId) {  // <1>
-    ...
+  public String handle(@ContextParam String userId) {  // <1>
+    // ...
   }
 }
 ----
@@ -550,24 +505,24 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@ContextParam userId: String) : Any {  // <1>
-    ...
+  fun handle(@ContextParam userId: String): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> Access to context attribute named `userId`
+<1> Accesses the context attribute named `userId`.
 
-Provisioning of all javadoc:Context[getAttributes, text="attributes"] is available too:
+You can also request all javadoc:Context[getAttributes, text="attributes"] at once:
 
-.Context Attributes
+.All Context Attributes
 [source, java, role = "primary"]
 ----
 public class MyController {
 
   @GET
-  public Object provisioning(@ContextParam Map<String, Object> attributes) {  // <1>
-    ...
+  public String handle(@ContextParam Map<String, Object> attributes) {  // <1>
+    // ...
   }
 }
 ----
@@ -578,22 +533,24 @@ public class MyController {
 class MyController {
 
   @GET
-  fun provisioning(@ContextParam attributes: Map<String, Object>) : Any {  // <1>
-    ...
+  fun handle(@ContextParam attributes: Map<String, Any>): String {  // <1>
+    // ...
   }
 }
 ----
 
-<1> All context attributes must be set as arguments. They must be declared as `Map<String, Object>`
+<1> To retrieve all context attributes, the parameter must be typed as a `Map<String, Object>` (or `Map<String, Any>` in Kotlin).
 
-==== Multiple Sources
+===== Multiple Sources
 
-You can use the javadoc:annotation.Param[] annotation to search for a parameter in multiple sources.
-The sources and their precedence can be specified as follows:
+Use the javadoc:annotation.Param[] annotation to search for a parameter across multiple sources with an explicitly defined fallback order:
 
 .Multiple Sources
 [source, java, role = "primary"]
 ----
+import static io.jooby.annotation.ParamSource.QUERY;
+import static io.jooby.annotation.ParamSource.PATH;
+
 public class FooController {
 
   @GET("/{foo}")
@@ -606,6 +563,9 @@ public class FooController {
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
+import io.jooby.annotation.ParamSource.QUERY
+import io.jooby.annotation.ParamSource.PATH
+
 class FooController {
 
   @GET("/{foo}")
@@ -613,26 +573,23 @@ class FooController {
 }
 ----
 
-In case of a request like `/bar?foo=baz`, `foo is: baz` will be returned since the query parameter
-takes precedence over the path parameter.
+If a request is made to `/bar?foo=baz`, the result will be `foo is: baz` because the `QUERY` parameter takes precedence over the `PATH` parameter in the annotation array.
 
-=== Responses
+==== Responses
 
-==== Status Code
+===== Status Code
 
-The default status code is `Success(200)`, except for `void` methods with the `@DELETE` annotation which is set to `No Content(204)`.
+The default HTTP status code returned by an MVC route is `200 OK`, except for `void` methods annotated with `@DELETE`, which automatically return `204 No Content`.
 
-There are two options if you need a different status code:
+If you need to return a different status code, you have two options:
+1. Inject the javadoc:Context[] into your method and call javadoc:Context[setResponseCode, io.jooby.StatusCode].
+2. Return a javadoc:StatusCode[] instance directly from the method.
 
-- Add a javadoc:Context[] parameter and set the javadoc:Context[setResponseCode, io.jooby.StatusCode]
-- Returns a javadoc:StatusCode[] instance
+===== NonBlocking
 
-==== NonBlocking
+Any MVC method returning a non-blocking type (`CompletableFuture`, `Single`, `Maybe`, `Flowable`, `Mono`, `Flux`) is automatically handled as a non-blocking route.
 
-Method returning a `CompletableFuture`, `Single`, `Maybe`, `Flowable`, `Mono` or `Flux` is
-considered a non-blocking route.
-
-Kotlin suspend functions are supported too: 
+Kotlin `suspend` functions are also supported natively:
 
 .Kotlin Coroutines
 [source, kotlin]
@@ -648,136 +605,28 @@ class SuspendMvc {
 
 fun main(args: Array<String>) {
   runApp(args) {
-    use(SuspendMvc())
+    mvc(SuspendMvc_())
   }
 }
 ----
 
-A non-blocking route run on the event loop (by default) where *blocking is NOT allowed*. For more 
-details please checkout the <<responses-nonblocking, non-blocking responses>> section.
+A non-blocking route runs on the event loop by default, where **blocking is NOT allowed**. For more details, see the <<core-responses-nonblocking, NonBlocking Responses>> section.
 
-=== Execution model
+==== Execution Model
 
-The MVC routes follows the execution model described in <<execution-model, Execution Model>>. To run application
-logic in the javadoc:ExecutionMode[EVENT_LOOP]:
+MVC routes follow the standard Jooby <<core-execution-model, Execution Model>>.
 
-.EventLoop MVC route
+By default, if your route returns a blocking type (like a `String` or a POJO), Jooby automatically dispatches the execution to the **worker executor**. If it returns a non-blocking type (or is a `suspend` function), it runs on the **event loop**.
+
+If you need explicit control over where a specific blocking MVC route executes, use the javadoc:annotation.Dispatch[] annotation:
+
+.Dispatch Annotation
 [source, java, role = "primary"]
 ----
-
-public class App extends Jooby {
-  {
-    mvc(new MyController_());
-  }
-
-  public static void main(String[] args) {
-    runApp(args, EVENT_LOOP, App::new);  <1>
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args, EVENT_LOOP) {             <1>
-    mvc(MyController_())
-  }
-}
-----
-
-<1> Start the application in the EVENT_LOOP execution mode
-
-Similarly, if you need to run all mvc routes in the javadoc:ExecutionMode[WORKER] execution mode:
-
-.Worker mode MVC route
-[source, java, role = "primary"]
-----
-
-public class App extends Jooby {
-  {
-    dispatch(() -> {
-      mvc(new MyBlockingController_());  <1>
-    });
-  }
-
-  public static void main(String[] args) {
-    runApp(args, EVENT_LOOP, App::new);
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-import io.jooby.*
-
-fun main(args: Array<String>) {
-  runApp(args, EVENT_LOOP) {
-    dispatch {
-      mvc(MyBlockingController_())        <1>
-    }
-  }
-}
-----
-
-<1> Wrap the controller using the dispatch operator
-
-One drawback with this approach is that the entire controller is now going to be executed in the worker or custom executor.
-For more fine grain control use the javadoc:annotation.Dispatch[] annotation:
-
-.Dispatch annotation
-[source, java, role = "primary"]
-----
-
 public class MyController {
-  @GET("/nonblocking")
-  public String nonblocking() {  <1>
-    return "I'm nonblocking";
-  }
 
   @GET("/blocking")
-  @Dispatch
-  public String blocking() {     <2>
-    return "I'm blocking";
-  }
-}
-----
-
-.Kotlin
-[source, kotlin, role = "secondary"]
-----
-import io.jooby.annotation.*
-
-class MyController {
-
-  @GET("/nonblocking")
-  fun nonblocking() : String {   <1>
-    return "I'm nonblocking";
-  }
-
-  @GET("/blocking")
-  @Dispatch
-  fun blocking() : String {      <2>
-    return "I'm blocking";
-  }
-}
-----
-
-<1> MVC route run in EVENT_LOOP mode. Blocking is NOT allowed it.
-<2> MVC route run in WORKER mode. Blocking is allowed it.
-
-The javadoc:annotation.Dispatch[] annotation supports custom executor using an executor name.
-
-.Dispatch to custom executor
-[source, java, role = "primary"]
-----
-
-public class MyController {
-  @GET("/blocking")
-  @Dispatch("single")         <1>
+  @Dispatch              // <1>
   public String blocking() {
     return "I'm blocking";
   }
@@ -792,16 +641,48 @@ import io.jooby.annotation.*
 class MyController {
 
   @GET("/blocking")
-  @Dispatch("single")          <1>
-  fun blocking() : String {
+  @Dispatch              // <1>
+  fun blocking(): String {
+    return "I'm blocking"
+  }
+}
+----
+
+<1> Forces the route to run in the `WORKER` executor, safely allowing blocking calls.
+
+The javadoc:annotation.Dispatch[] annotation also supports routing execution to a named, custom executor:
+
+.Dispatch to custom executor
+[source, java, role = "primary"]
+----
+public class MyController {
+
+  @GET("/blocking")
+  @Dispatch("single")         // <1>
+  public String blocking() {
     return "I'm blocking";
   }
 }
 ----
 
-<1> Dispatch to an executor named it `single`
+.Kotlin
+[source, kotlin, role = "secondary"]
+----
+import io.jooby.annotation.*
 
-Executor must be registered using via services or executor utility method:
+class MyController {
+
+  @GET("/blocking")
+  @Dispatch("single")         // <1>
+  fun blocking(): String {
+    return "I'm blocking"
+  }
+}
+----
+
+<1> Dispatches execution to the executor registered under the name `single`.
+
+The custom executor must be registered in the application **before** the MVC route is registered:
 
 .Custom executor registration
 [source, java, role = "primary"]
@@ -823,16 +704,13 @@ Executor must be registered using via services or executor utility method:
 }
 ----
 
-The executor must be registered before the MVC route/controller.
+==== JAX-RS Annotations
 
-=== JAX-RS Annotations
-
-Alternative you can use JAX-RS annotations to define MVC routes.
+Alternatively, you can use JAX-RS annotations to define MVC routes.
 
 .Resource
 [source, java, role="primary"]
 ----
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
@@ -856,78 +734,72 @@ import javax.ws.rs.Path
 class Resource {
 
   @GET
-  fun getIt() : String {
+  fun getIt(): String {
     return "Got it!"
   }
 }
 ----
 
-Annotations work exactly like the Jooby MVC annotations, but keep in mind we don't implement the
-JAX-RS specification and there is no immediate plan to do it.
+These annotations work exactly like the Jooby native MVC annotations.
 
-The main reason to support JAX-RS annotations is to let you plug-in third-party tools that rely
-on them (mostly annotations processors).
+*(Note: Jooby does **not** implement the full JAX-RS specification, nor is there a plan to do so. Support for these annotations exists primarily to allow integration with third-party tools, like Swagger/OpenAPI generators, that rely on them).*
 
-=== Generated router
+==== Generated Router
 
-For each MVC/controller class a new class is generated. The new class ends with `_`, this class
-mimics the constructors from the source class. If the constructor is annotated with `@Inject` a
-default constructor will exists.
+For each MVC controller class, a new class is generated ending with an underscore (`_`). This generated class mimics the constructors of the source class. (If the constructor is annotated with `@Inject`, a default constructor is automatically generated).
 
-Any annotation found on the controller method will be persisted as route attributes, unless
-`jooby.skipAttributeAnnotations` excludes it.
+Any annotations found on the controller methods will be persisted as route attributes, unless explicitly excluded by the `jooby.skipAttributeAnnotations` compiler option.
 
-Access to generated routes is allowed:
+You can access the generated routes at runtime:
 
 [source, java]
 ----
 {
   var routes = mvc(new MyController_());
   routes.forEach(route -> {
-    // do something with route
+    // Modify or inspect the route
   });
 }
 ----
 
-=== Annotation Processor Options
+==== Annotation Processor Options
 
-[cols="1,1,1,1"]
+[cols="1,1,1,2"]
 |===
-| Option | Value | Default Value| Description
+| Option | Type | Default | Description
 
-|jooby.debug
-|boolean
-|true
-|Run processor in debug mode
+| `jooby.debug`
+| boolean
+| true
+| Runs the annotation processor in debug mode.
 
-|jooby.incremental
-|boolean
-|true
-|Hints maven/gradle to do incremental compilation. Useful for development.
+| `jooby.incremental`
+| boolean
+| true
+| Hints to Maven/Gradle to perform incremental compilation. Essential for fast development iteration.
 
-|jooby.skipAttributeAnnotations
-|array
-|[]
-|Skip annotation during byte code generation (i.e. don't generate them as route attributes)
+| `jooby.skipAttributeAnnotations`
+| array
+| []
+| A comma-separated list of annotations to skip during bytecode generation (i.e., do not attach them as route attributes).
 
-|jooby.mvcMethod
-|boolean
-|false
-|Set the Route.mvcMethod when true.
+| `jooby.mvcMethod`
+| boolean
+| false
+| Sets the `Route.mvcMethod` property on the generated route when true.
 
-|jooby.routerPrefix
-|string
+| `jooby.routerPrefix`
+| string
 |
-|Prefix for generated class
+| Adds a prefix to the generated class name.
 
-|jooby.routerSuffix
-|string
-|_
-|Suffix for generated class
-
+| `jooby.routerSuffix`
+| string
+| _
+| Sets the suffix for the generated class name.
 |=== 
 
-==== Setting options
+===== Setting Options
 
 .Maven
 [source, xml, role="primary", subs="verbatim,attributes"]
@@ -936,8 +808,6 @@ Access to generated routes is allowed:
     <artifactId>maven-compiler-plugin</artifactId>
     <configuration>
       <annotationProcessorPaths>
-        <!-- if using lombok, it must be placed before the jooby-apt -->
-        <!-- if using avaje-inject, it must be placed after lombok, but before the jooby-apt -->
         <path>
           <groupId>io.jooby</groupId>
           <artifactId>jooby-apt</artifactId>
@@ -945,15 +815,9 @@ Access to generated routes is allowed:
         </path>
       </annotationProcessorPaths>
       <compilerArgs>
-        <compilerArg>
-          -Ajooby.debug=false
-        </compilerArg>
-        <compilerArg>
-          -Ajooby.incremental=true
-        </compilerArg>
-        <compilerArg>
-          -Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation
-        </compilerArg>
+        <compilerArg>-Ajooby.debug=false</compilerArg>
+        <compilerArg>-Ajooby.incremental=true</compilerArg>
+        <compilerArg>-Ajooby.skipAttributeAnnotations=FooAnnotation,BarAnnotation</compilerArg>
       </compilerArgs>
     </configuration>
   </plugin>
@@ -972,7 +836,7 @@ tasks.withType(JavaCompile) {
 }
 ----
 
-[NOTE]
+[IMPORTANT]
 ====
-Please note that the order of annotation processors is important. For example, if you're using `lombok` and `avaje-inject`, the correct order should be: `lombok` -> `avaje-inject` -> `jooby-apt`
+The execution order of annotation processors is critical. If you are using `Lombok` and `Avaje Inject` alongside Jooby, the configuration order must be: `lombok` -> `avaje-inject` -> `jooby-apt`.
 ====

@@ -1,31 +1,25 @@
-== Session
+=== Session
 
-Session is accessible via 
+Sessions are accessible via:
 
-- javadoc:Context[sessionOrNull]: which find an existing session
-- javadoc:Context[session]: which find an existing session or create a new one
+* javadoc:Context[sessionOrNull]: Finds and returns an existing session (or returns `null`).
+* javadoc:Context[session]: Finds an existing session or creates a new one if none exists.
 
-Sessions have a lot of uses cases but the most commons are: authentication, storing information 
-about current user, etc.
+Sessions are commonly used for authentication, storing user preferences, or tracking user state.
 
-A session attribute must be a String or a primitive. The session doesn't allow storing of arbitrary 
-objects. It's intended as a simple mechanism to store basic data (not an object graph).
+A session attribute **must be a String or a primitive**. The session API does not allow storing arbitrary Java objects or complex object graphs. It is intended as a simple, lightweight mechanism to store basic data.
 
-Jooby provides the following javadoc:SessionStore[]:
+Jooby provides the following javadoc:SessionStore[] implementations:
 
-- In-Memory sessions—which you should combine with a sticky sessions proxy if you plan to run multiple instances.
-- Cookie sessions signed with a secret key
-- JSON Web Token sessions
+* **In-Memory Sessions:** Suitable for single-instance applications (or multi-instance if combined with a sticky-session proxy).
+* **Signed Cookie Sessions:** Stateless sessions signed with a secret key.
+* **JWT (JSON Web Token) Sessions:** Stateless, token-based sessions.
 
-Since 4.0.0 no session is configured by default. Attempt to access to a session at runtime results
-in exception.
+**Note:** Since Jooby 4.0.0, no session store is configured by default. Attempting to access a session at runtime without first configuring a store will result in an exception.
 
-=== In-Memory Session
+==== In-Memory Session
 
-Default session store uses memory to save session data. This store:
-
-- Uses a cookie/header to read/save the session ID
-- Store session data in-memory
+The in-memory session store saves session data directly in the server's RAM. It uses a cookie or HTTP header solely to track the session ID.
 
 .In-Memory Session
 [source,java,role="primary"]
@@ -35,7 +29,6 @@ Default session store uses memory to save session data. This store:
 
   get("/", ctx -> {
     Session session = ctx.session();   // <1>
-
     session.put("foo", "bar");         // <2>
     
     return session.get("foo").value(); // <3>
@@ -47,23 +40,24 @@ Default session store uses memory to save session data. This store:
 [source,kotlin,role="secondary"]
 ----
 {
-  setSessionStore(SessionStore.memory(Cookie.session("myappid")))
+  sessionStore = SessionStore.memory(Cookie.session("myappid"))
 
   get("/") {
     val session = ctx.session()        // <1>
-
     session.put("foo", "bar")          // <2>
-
+    
     session.get("foo").value()         // <3>
   }
 }
 ----
 
-<1> Find an existing session or create a new session
-<2> Set a session attribute
-<3> Get a session attribute
+<1> Finds an existing session or creates a new one.
+<2> Sets a session attribute.
+<3> Gets a session attribute.
 
-Session token/ID is retrieved it from request cookie. Default session cookie never expires, it is http only under the `/` path. To customize cookie details:
+By default, the session ID is retrieved from a request cookie. The default session cookie never expires and is set to `HttpOnly` under the root `/` path.
+
+To customize the cookie details:
 
 .In-Memory Session with Custom Cookie
 [source,java,role="primary"]
@@ -73,7 +67,6 @@ Session token/ID is retrieved it from request cookie. Default session cookie nev
 
   get("/", ctx -> {
     Session session = ctx.session();
-
     session.put("foo", "bar");
     
     return session.get("foo").value();
@@ -89,17 +82,16 @@ Session token/ID is retrieved it from request cookie. Default session cookie nev
 
   get("/") {
     val session = ctx.session()
-
     session.put("foo", "bar")
-
+    
     session.get("foo").value()
   }
 }
 ----
 
-<1> Set an `in-memory` session store with a custom cookie named: `SESSION`
+<1> Configures an in-memory session store using a custom cookie named `SESSION`.
 
-Alternatively, you can use a request header to retrieve a session token/ID:
+Alternatively, you can use an HTTP header to transmit the session token/ID instead of a cookie:
 
 .In-Memory Session with HTTP Header
 [source,java,role="primary"]
@@ -109,7 +101,6 @@ Alternatively, you can use a request header to retrieve a session token/ID:
 
   get("/", ctx -> {
     Session session = ctx.session();
-
     session.put("foo", "bar");
     
     return session.get("foo").value();
@@ -125,27 +116,27 @@ Alternatively, you can use a request header to retrieve a session token/ID:
 
   get("/") {
     val session = ctx.session()
-
     session.put("foo", "bar")
-
+    
     session.get("foo").value()
   }
 }
 ----
 
-<1> Session Token/ID comes from HTTP header `TOKEN`
+<1> The Session Token/ID is read from the `TOKEN` HTTP header.
 
-You can mix cookie and header tokens:
+You can also combine both methods, telling Jooby to check the cookie first, and then fall back to the header:
 
-.Java
+.Mixed Tokens
 [source,java,role="primary"]
 ----
 {
-  setSessionStore(SessionStore.memory(SessionToken.comibe(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN"))));    // <1>
+  setSessionStore(SessionStore.memory(
+      SessionToken.combine(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN")) // <1>
+  ));
 
   get("/", ctx -> {
     Session session = ctx.session();
-
     session.put("foo", "bar");
     
     return session.get("foo").value();
@@ -157,40 +148,39 @@ You can mix cookie and header tokens:
 [source,kotlin,role="secondary"]
 ----
 {
-  sessionStore = SessionStore.memory(SessionToken.combie(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN")))       // <1>
+  sessionStore = SessionStore.memory(
+      SessionToken.combine(SessionToken.cookie("SESSION"), SessionToken.header("TOKEN")) // <1>
+  )
 
   get("/") {
     val session = ctx.session()
-
     session.put("foo", "bar")
-
+    
     session.get("foo").value()
   }
 }
 ----
 
-<1> Session Token/ID comes from HTTP Cookie `SESSION` or HTTP header `TOKEN` (in that order)
+<1> The Session Token/ID is read from the `SESSION` cookie or the `TOKEN` header (in that order).
 
-=== Signed Session
+==== Signed Session
 
-This is a stateless session store that expects to find session token on each request. The server doesn't keep any state.
+This is a **stateless** session store. The server does not keep any session state in memory. Instead, the entire session payload is serialized, cryptographically signed, and sent back and forth between the client and server on every request.
 
-- Session data is retrieve/save from/into HTTP Cookie or Header
-- Session data is (un)signed with `HmacSHA256`. Key must be 256 bits long (32 bytes)
+* Session data is retrieved/saved entirely from/into the HTTP Cookie or Header.
+* Session data is signed using `HmacSHA256` to prevent tampering. The secret key must be at least 256 bits long (32 bytes).
 
-Data sign/unsign is done using javadoc:Cookie[sign, java.lang.String, java.lang.String] and javadoc:Cookie[unsign, java.lang.String, java.lang.String].
+Signing and verification are handled internally using javadoc:Cookie[sign, java.lang.String, java.lang.String] and javadoc:Cookie[unsign, java.lang.String, java.lang.String].
 
 .Usage
 [source,java,role="primary"]
 ----
 {
-  String secret = "super secret key";                                         // <1>
-
+  String secret = "super-secret-key-must-be-32-bytes";                        // <1>
   setSessionStore(SessionStore.signed(Cookie.session("myappid"), secret));    // <2>
 
   get("/", ctx -> {
     Session session = ctx.session();
-
     session.put("foo", "bar");
     
     return session.get("foo").value();
@@ -202,36 +192,32 @@ Data sign/unsign is done using javadoc:Cookie[sign, java.lang.String, java.lang.
 [source,kotlin,role="secondary"]
 ----
 {
-  val secret = "super secret key"                                            // <1>
-
-  sessionStore = SessionStore.signed(Cookie.session("myappid"),secret)       // <2>
+  val secret = "super-secret-key-must-be-32-bytes"                           // <1>
+  sessionStore = SessionStore.signed(Cookie.session("myappid"), secret)      // <2>
 
   get("/") {
     val session = ctx.session()
-
     session.put("foo", "bar")
-
+    
     session.get("foo").value()
   }
 }
 ----
 
-<1> A secret key is required to signed the data
-<2> Creates a cookie session store using the secret
+<1> A secure, 32-byte secret key is required to sign the data.
+<2> Creates a signed session store using a cookie and the secret key.
 
-Like with `memory` session store you can use HTTP headers:
+Just like the in-memory store, the signed session store also supports HTTP headers:
 
-.Signed with headers
+.Signed Session with HTTP Headers
 [source,java,role="primary"]
 ----
 {
-  String secret = "super secret key";                                            // <1>
-
+  String secret = "super-secret-key-must-be-32-bytes";                           // <1>
   setSessionStore(SessionStore.signed(SessionToken.header("TOKEN"), secret));    // <2>
 
   get("/", ctx -> {
     Session session = ctx.session();
-
     session.put("foo", "bar");
     
     return session.get("foo").value();
@@ -243,24 +229,22 @@ Like with `memory` session store you can use HTTP headers:
 [source,kotlin,role="secondary"]
 ----
 {
-  val secret = "super secret key"                                                // <1>
-
+  val secret = "super-secret-key-must-be-32-bytes"                               // <1>
   sessionStore = SessionStore.signed(SessionToken.header("TOKEN"), secret)       // <2>
 
   get("/") {
     val session = ctx.session()
-
     session.put("foo", "bar")
-
+    
     session.get("foo").value()
   }
 }
 ----
 
-=== Stores
+==== Additional Stores
 
-In addition to built-in memory stores we do provide:
+In addition to the built-in memory and signed stores, Jooby provides external module integrations:
 
-* link:modules/caffeine[Caffeine]: In-memory session store using Caffeine cache.
-* link:modules/jwt-session-store[JWT]: JSON Web Token session store.
-* link:modules/redis#redis-http-session[Redis]: Redis session store.
+* link:modules/caffeine[Caffeine]: High-performance in-memory session store using the Caffeine cache library.
+* link:modules/jwt-session-store[JWT]: Stateless JSON Web Token session store.
+* link:modules/redis#redis-http-session[Redis]: Distributed session store using Redis.
