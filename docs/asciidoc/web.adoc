@@ -1,4 +1,6 @@
 == Web
+[.lead]
+Everything you need to handle HTTP traffic and build robust APIs or web applications. Explore Jooby's expressive routing paradigms, request and response handling, content negotiation, and advanced web features like WebSockets and file uploads.
 
 include::mvc-api.adoc[]
 

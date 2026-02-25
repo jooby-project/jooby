@@ -168,14 +168,15 @@ To ensure environment-specific logging works correctly, avoid using **static** l
 
 ==== Application Properties
 
+[cols="2,1,3"]
 |===
-|Property | Description | Default
+|Property | Default | Description
 
-|`application.charset` | Charset for encoding/decoding and templates. | `UTF-8`
-|`application.env` | Active environment names. Jooby optimizes performance for non-`dev` environments. | `dev`
-|`application.lang` | Supported languages for `Context.locale()`. | `Locale.getDefault()`
-|`application.tmpdir` | Temporary directory for the application. | `tmp`
-|`application.pid` | The JVM process ID. | System assigned
+|`application.charset` | `UTF-8` | Charset for encoding/decoding and templates.
+|`application.env` | `dev` | Active environment names. Jooby optimizes performance for non-`dev` environments.
+|`application.lang` | `Locale.getDefault()` | Supported languages for `Context.locale()`.
+|`application.tmpdir` | `tmp` | Temporary directory for the application. 
+|`application.pid` | System assigned | The JVM process ID.
 |===
 
 See javadoc:AvailableSettings[] for a complete reference.

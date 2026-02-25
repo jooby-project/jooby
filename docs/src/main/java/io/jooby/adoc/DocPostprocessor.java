@@ -86,6 +86,7 @@ public class DocPostprocessor extends Postprocessor {
     headerIds(doc, 3);
     headerIds(doc, 4);
     headerIds(doc, 5);
+    headerIds(doc, 6);
   }
 
   private static void toc(Document doc) {

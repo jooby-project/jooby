@@ -14,8 +14,7 @@ A javadoc:Route[] consists of three parts:
 [source, java, role="primary"]
 ----
 {
-  
-  // <1> <2>
+ // <1> <2>
   get("/foo", ctx -> {
     return "foo"; // <3>
   });
@@ -35,9 +34,8 @@ A javadoc:Route[] consists of three parts:
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
-{
-  
-  // <1> <2>
+{ 
+ // <1> <2>
   get("/foo") {
     "foo" // <3>
   }

@@ -64,9 +64,10 @@ Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
 |===
 
 ==== Class renames
+[cols="1,1,2"]
 |===
 |2.x|3.x|Module
-|io.jooby.Route.Decorator|io.jooby.Route.Filter| jooby (core)
+|io.jooby.Route.Decorator| jooby (core) |io.jooby.Route.Filter
 |io.jooby.Kooby|io.jooby.kt.Kooby| jooby-kotlin (new module)
 |io.jooby.jetty.Jetty|io.jooby.jetty.JettyServer| jooby-jetty
 |io.jooby.netty.Netty|io.jooby.netty.NettyServer| jooby-netty
@@ -87,6 +88,7 @@ Kotlin was removed from core, you need to the `jooby-kotlin` dependency:
 |===
 
 ==== Method renames
+[cols="1,1,2"]
 |===
 |2.x|3.x|Description
 |Router.decorator(Decorator)|Router.use(Filter)| `decorator` has been deprecated in favor of `use`

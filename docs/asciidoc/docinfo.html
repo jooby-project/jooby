@@ -1,109 +1,12 @@
-<link rel="stylesheet" href="/js/styles/toc.css">
-<style>
-  /** Tabs */
-  .hidden {
-    display: none;
-  }
-
-  .switch {
-    display: inline-block;
-  }
-
-  .switch--item {
-    padding: 5px 10px;
-    color: #fff;
-    display: inline-block;
-    cursor: pointer;
-    background-color: #333;
-    border-left: 1px solid #ffa;
-  }
-
-  .switch--item:not(:first-child) {
-  }
-
-  .switch--item:last-child {
-    border-radius: 0 5px 0 0;
-  }
-
-  .switch--item.selected {
-    color: #ffa;
-    border-bottom: 1px solid #ffa;
-  }
-
-  .clipboard {
-    position: absolute;
-    bottom: .1rem;
-    right: .1rem;
-    display: inline-block;
-    padding: 4px 8px;
-    font-size: 13px;
-    font-weight: 700;
-    line-height: 20px;
-    color: #333;
-    white-space: nowrap;
-    vertical-align: middle;
-    cursor: pointer;
-    background-color: #eee;
-    background-image: linear-gradient(#fcfcfc, #eee);
-    border: 1px solid #d5d5d5;
-    border-radius: 3px;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-appearance: none
-  }
-
-  .clipboard i {
-    font-style: normal;
-    font-weight: 500;
-    opacity: .6
-  }
-
-  .clipboard .octicon {
-    vertical-align: text-top
-  }
-
-  .clipboard .counter {
-    text-shadow: none;
-    background-color: #e5e5e5
-  }
-
-  .clipboard:focus {
-    text-decoration: none;
-    border-color: #51a7e8;
-    outline: none;
-    box-shadow: 0 0 5px rgba(81, 167, 232, .5)
-  }
-
-  .clipboard:focus:hover, .clipboard.selected:focus {
-    border-color: #51a7e8
-  }
-
-  .clipboard:hover, .clipboard:active, .clipboard.zeroclipboard-is-hover, .clipboard.zeroclipboard-is-active {
-    text-decoration: none;
-    background-color: #ddd;
-    background-image: linear-gradient(#eee, #ddd);
-    border-color: #ccc
-  }
-
-  .clipboard:active, .clipboard.selected, .clipboard.zeroclipboard-is-active {
-    background-color: #dcdcdc;
-    background-image: none;
-    border-color: #b5b5b5;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .15)
-  }
-
-  .clipboard.selected:hover {
-    background-color: #cfcfcf
-  }
-
-  .clipboard:disabled, .clipboard:disabled:hover, .clipboard.disabled, .clipboard.disabled:hover {
-    color: rgba(102, 102, 102, .5);
-    cursor: default;
-    background-color: rgba(229, 229, 229, .5);
-    background-image: none;
-    border-color: rgba(197, 197, 197, .5);
-    box-shadow: none
-  }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // This MUST be in the <head>. It runs before the body is rendered, preventing the white flash.
+  (function() {
+    const savedTheme = localStorage.getItem('jooby-theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+</script>

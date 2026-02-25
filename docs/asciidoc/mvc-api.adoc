@@ -764,7 +764,7 @@ You can access the generated routes at runtime:
 
 ==== Annotation Processor Options
 
-[cols="1,1,1,2"]
+[cols="2,1,1,4"]
 |===
 | Option | Type | Default | Description
 
