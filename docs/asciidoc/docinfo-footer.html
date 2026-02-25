@@ -1,23 +1,37 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script>
-  $(function () {
-    /** Tabs: */
-    $('.primary .switch .switch--item').on('click', function () {
-      const option = $(this)[0].className.match(/option-\d+/)[0].split('option-')[1];
-      $('.primary .switch .switch--item').removeClass('selected');
-      $(`.primary .content`).addClass('hidden');
-
-      $(`.primary .switch .switch--item.option-${option}`).addClass('selected');
-      $(`.primary .content.option-${option}`).removeClass('hidden');
-    });
-  });
-</script>
-<script src="/js/toc.js"></script>
 <script src="/js/clipboard.min.js"></script>
+<script src="/js/toc.js"></script>
+
 <script>
-  $(function() {
-    new ClipboardJS('.clipboard')
-    .on('success', function(e) {
+  // Replacing $(function() { ... }) with native DOMContentLoaded
+  document.addEventListener('DOMContentLoaded', () => {
+    /** Tabs: */
+    const tabButtons = document.querySelectorAll('.primary .switch .switch--item');
+    const contents = document.querySelectorAll('.primary .content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        // Extract option number (e.g., '1' from 'option-1')
+        const match = this.className.match(/option-(\d+)/);
+        if (!match) return;
+        const option = match[1];
+
+        // Reset states
+        tabButtons.forEach(btn => btn.classList.remove('selected'));
+        contents.forEach(content => content.classList.add('hidden'));
+
+        // Set active states
+        document.querySelectorAll(`.primary .switch .switch--item.option-${option}`)
+            .forEach(el => el.classList.add('selected'));
+
+        document.querySelectorAll(`.primary .content.option-${option}`)
+            .forEach(el => el.classList.remove('hidden'));
+      });
+    });
+
+    /** Clipboard.js Initialization */
+        // Note: Since you're already loading clipboard.min.js, we just use the native constructor
+    const clipboard = new ClipboardJS('.clipboard');
+    clipboard.on('success', (e) => {
       e.clearSelection();
     });
   });
