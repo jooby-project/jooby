@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package tests.i3853;
+package io.jooby.i3853;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,35 +13,33 @@ import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.Project;
 
-@Path("/3854")
+@Path("/3853")
 public class C3853 {
   @GET(value = "/stub", projection = "(id, name)")
   public U3853 projectUser() {
-    return new U3853(1, "Projected User", "Projected", "User");
+    return U3853.createUser();
   }
 
-  @GET("/optinal")
+  @GET("/optional")
   @Project("(id, name)")
   public Optional<U3853> findUser() {
-    return Optional.of(new U3853(1, "Projected User", "Projected", "User"));
+    return Optional.of(U3853.createUser());
   }
 
   @GET("/list")
-  @Project("(id, name)")
+  @Project("(id)")
   public List<U3853> findUsers() {
-    return List.of(new U3853(1, "Projected User", "Projected", "User"));
+    return List.of(U3853.createUser());
   }
 
-  @GET("/list")
+  @GET("/projected")
   @Project("(id, name)")
   public Projected<U3853> projected() {
-    return Projected.wrap(new U3853(1, "Projected User", "Projected", "User"))
-        .include("(id, name)");
+    return Projected.wrap(U3853.createUser()).include("(id, name)");
   }
 
-  @GET(value = "/list", projection = "(id, name)")
+  @GET(value = "/projectedProjection", projection = "(id, name)")
   public Projected<U3853> projectedProjection() {
-    return Projected.wrap(new U3853(1, "Projected User", "Projected", "User"))
-        .include("(id, name)");
+    return Projected.wrap(U3853.createUser()).include("(id, name)");
   }
 }

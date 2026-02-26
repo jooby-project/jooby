@@ -5,11 +5,11 @@
  */
 package io.jooby.i3853;
 
+import static io.jooby.i3853.U3853.createUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.*;
 
-import io.avaje.jsonb.Json;
 import io.jooby.Extension;
 import io.jooby.Projected;
 import io.jooby.Projection;
@@ -21,7 +21,7 @@ import io.jooby.junit.ServerTestRunner;
 
 public class Issue3853 {
 
-  Projection<User> STUB = Projection.of(User.class).include("(id, name)");
+  Projection<U3853> STUB = Projection.of(U3853.class).include("(id, name)");
 
   @ServerTest
   public void shouldProjectJackson2Data(ServerTestRunner runner) {
@@ -54,6 +54,12 @@ public class Issue3853 {
                   "/stub-list",
                   ctx -> {
                     return Projected.wrap(List.of(createUser())).include("(id, name)");
+                  });
+
+              app.get(
+                  "/stub-empty-list",
+                  ctx -> {
+                    return Projected.wrap(List.of()).include("(id, name)");
                   });
 
               app.get(
@@ -100,8 +106,8 @@ public class Issue3853 {
                   "/stub/address-stub-ref",
                   ctx -> {
                     return Projected.wrap(createUser())
-                        .include(User::getId, User::getName)
-                        .include(User::getAddress, addr -> addr.include(Address::getCity));
+                        .include(U3853::getId, U3853::getName)
+                        .include(U3853::getAddress, addr -> addr.include(A3853::getCity));
                   });
             })
         .ready(
@@ -149,6 +155,15 @@ public class Issue3853 {
                         .isEqualToIgnoringNewLines(
                             """
                             {"id":"cobb-001","name":"Dom Cobb"}
+                            """);
+                  });
+              http.get(
+                  "/stub-empty-list",
+                  rsp -> {
+                    assertThat(rsp.body().string())
+                        .isEqualToIgnoringNewLines(
+                            """
+                            []
                             """);
                   });
               http.get(
@@ -238,93 +253,5 @@ public class Issue3853 {
                             """);
                   });
             });
-  }
-
-  @Json
-  public static class User {
-    private final String id;
-    private final String name;
-    private final Address address;
-    private final List<Role> roles;
-    private final Map<String, String> meta;
-
-    public User(
-        String id, String name, Address address, List<Role> roles, Map<String, String> meta) {
-      this.id = id;
-      this.name = name;
-      this.address = address;
-      this.roles = roles;
-      this.meta = meta;
-    }
-
-    public String getId() {
-      return id;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Address getAddress() {
-      return address;
-    }
-
-    public List<Role> getRoles() {
-      return roles;
-    }
-
-    public Map<String, String> getMeta() {
-      return meta;
-    }
-  }
-
-  @Json
-  public static class Address {
-    private final String city;
-    private final Location loc;
-
-    public Address(String city, Location loc) {
-      this.city = city;
-      this.loc = loc;
-    }
-
-    public String getCity() {
-      return city;
-    }
-
-    public Location getLoc() {
-      return loc;
-    }
-  }
-
-  @Json
-  public record Role(String name, int level) {}
-
-  @Json
-  public record Location(double lat, double lon) {}
-
-  public static User createUser() {
-    // Nested Location: The Fortress in the Snow (Level 3)
-    Location fortress = new Location(80.0, -20.0);
-
-    // Address: Represents the "Dream Layer"
-    Address dreamLayer = new Address("Snow Fortress (Level 3)", fortress);
-
-    // Roles: The Extraction Team
-    List<Role> roles =
-        List.of(
-            new Role("The Extractor", 10),
-            new Role("The Architect", 9),
-            new Role("The Point Man", 8),
-            new Role("The Forger", 8));
-
-    // Metadata: Mission specs
-    Map<String, String> meta = new LinkedHashMap<>();
-    meta.put("target", "Robert Fischer");
-    meta.put("objective", "Inception");
-    meta.put("status", "Synchronizing Kicks");
-
-    // Root User: Dom Cobb
-    return new User("cobb-001", "Dom Cobb", dreamLayer, roles, meta);
   }
 }

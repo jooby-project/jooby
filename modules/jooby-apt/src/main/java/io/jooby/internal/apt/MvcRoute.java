@@ -68,19 +68,35 @@ public class MvcRoute {
   public String getProjection() {
     var project = AnnotationSupport.findAnnotationByName(method, Types.PROJECT);
     if (project != null) {
-      return AnnotationSupport.findAnnotationValue(project, VALUE).stream().findFirst().orElse("");
+      return AnnotationSupport.findAnnotationValue(project, VALUE).stream()
+          .findFirst()
+          .orElse(null);
     }
-    return null;
+    // look inside the method annotation
+    var httpMethod = annotationMap.values().iterator().next();
+    var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
+    return projection.stream().findFirst().orElse(null);
+  }
+
+  public boolean isProjection() {
+    if (returnType.is(Types.PROJECTED)) {
+      return false;
+    }
+    var isProjection = AnnotationSupport.findAnnotationByName(method, Types.PROJECT) != null;
+    if (isProjection) {
+      return true;
+    }
+    // look inside the method annotation
+    var httpMethod = annotationMap.values().iterator().next();
+    var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
+    return !projection.isEmpty();
   }
 
   public TypeDefinition getReturnType() {
     var processingEnv = context.getProcessingEnvironment();
     var types = processingEnv.getTypeUtils();
     var elements = processingEnv.getElementUtils();
-    var isProjection =
-        !returnType.is(Types.PROJECTED)
-            && AnnotationSupport.findAnnotationByName(method, Types.PROJECT) != null;
-    if (isProjection) {
+    if (isProjection()) {
       return new TypeDefinition(types, elements.getTypeElement(Types.PROJECTED).asType(), true);
     } else if (returnType.isVoid()) {
       return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());

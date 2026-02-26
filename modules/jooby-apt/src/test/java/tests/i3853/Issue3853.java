@@ -5,6 +5,8 @@
  */
 package tests.i3853;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -16,9 +18,9 @@ public class Issue3853 {
     new ProcessorRunner(new C3853())
         .withSourceCode(
             source -> {
-              Assertions.assertTrue(
-                  source.contains(
-                      "return io.jooby.Projected.wrap(c.projectUser()).include(\"(id, name)\");"));
+              assertThat(source)
+                  .contains(
+                      "return io.jooby.Projected.wrap(c.projectUser()).include(\"(id, name)\");");
               Assertions.assertTrue(
                   source.contains(
                       "return io.jooby.Projected.wrap(c.findUser()).include(\"(id, name)\");"));
@@ -26,6 +28,7 @@ public class Issue3853 {
                   source.contains(
                       "return io.jooby.Projected.wrap(c.findUsers()).include(\"(id, name)\");"));
               Assertions.assertTrue(source.contains("return c.projected();"));
+              Assertions.assertTrue(source.contains("return c.projectedProjection();"));
             })
         .withSourceCode(
             true,
@@ -40,6 +43,7 @@ public class Issue3853 {
                   source.contains(
                       "return io.jooby.Projected.wrap(c.findUsers()).include(\"(id, name)\")"));
               Assertions.assertTrue(source.contains("return c.projected()"));
+              Assertions.assertTrue(source.contains("return c.projectedProjection()"));
             });
   }
 }

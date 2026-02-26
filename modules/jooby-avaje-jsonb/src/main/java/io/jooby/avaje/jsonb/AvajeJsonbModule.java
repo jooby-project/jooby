@@ -8,8 +8,6 @@ package io.jooby.avaje.jsonb;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.json.JsonWriter;
@@ -65,8 +63,6 @@ import io.jooby.output.Output;
  */
 public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncoder {
 
-  private final ConcurrentMap<String, JsonView<?>> viewCache = new ConcurrentHashMap<>();
-
   private final Jsonb jsonb;
 
   /**
@@ -121,34 +117,30 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
   @SuppressWarnings("unchecked")
   private void encodeProjection(JsonWriter writer, Projected<?> projected) {
-    // Generate the Avaje-compatible view string (e.g., "(id,name,address(city))")
     var value = projected.getValue();
-    var projection = projected.getProjection();
-    var viewString = projection.toView();
-    var type = projection.getType();
-    var view =
-        (JsonView<Object>)
-            viewCache.computeIfAbsent(
-                value.getClass().getName() + viewString,
-                k -> {
-                  var jsonbType = jsonb.type(type);
-                  jsonbType =
-                      switch (value) {
-                        case Set<?> ignored -> jsonbType.set();
-                        case Collection<?> ignored -> jsonbType.list();
-                        default -> jsonbType;
-                      };
-                  return jsonbType.view(viewString);
-                });
     if (value instanceof Optional<?> optional) {
       if (optional.isEmpty()) {
         writer.serializeNulls(true);
         writer.nullValue();
-      } else {
-        view.toJson(optional.get(), writer);
+        return;
       }
-    } else {
-      view.toJson(value, writer);
+      value = optional.get();
     }
+    if (value instanceof Collection<?> collection && collection.isEmpty()) {
+      writer.emptyArray();
+      return;
+    }
+    var projection = projected.getProjection();
+    var viewString = projection.toView();
+    var type = projection.getType();
+    var jsonbType = jsonb.type(type);
+    jsonbType =
+        switch (value) {
+          case Set<?> ignored -> jsonbType.set();
+          case Collection<?> ignored -> jsonbType.list();
+          default -> jsonbType;
+        };
+    var view = (JsonView<Object>) jsonbType.view(viewString);
+    view.toJson(value, writer);
   }
 }

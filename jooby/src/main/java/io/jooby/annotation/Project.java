@@ -32,6 +32,15 @@ import java.lang.annotation.*;
  * }
  * }</pre>
  *
+ * Or
+ *
+ * <pre>{@code
+ * @GET(projection = "id, name, address(city, zip)")
+ * public User getUser() {
+ * return userService.find(1);
+ * }
+ * }</pre>
+ *
  * @author edgar
  * @since 4.0.0
  */
@@ -41,9 +50,9 @@ import java.lang.annotation.*;
 @Documented
 public @interface Project {
   /**
-   * Field paths to include. Supports dot-notation and avaje-notation.
+   * Example: {@code "id, name, address(city, zip)"}
    *
-   * @return The array of field paths.
+   * @return Avaje notation.
    */
-  String[] value() default {};
+  String value() default "";
 }
