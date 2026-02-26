@@ -7,9 +7,7 @@ package io.jooby.i3853;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import io.avaje.jsonb.Json;
 import io.jooby.Extension;
@@ -50,6 +48,28 @@ public class Issue3853 {
                   "/stub",
                   ctx -> {
                     return Projected.wrap(createUser(), STUB);
+                  });
+
+              app.get(
+                  "/stub-list",
+                  ctx -> {
+                    return Projected.wrap(List.of(createUser())).include("(id, name)");
+                  });
+
+              app.get(
+                  "/stub-set",
+                  ctx -> {
+                    return Projected.wrap(Set.of(createUser())).include("(id, name)");
+                  });
+              app.get(
+                  "/stub-optional",
+                  ctx -> {
+                    return Projected.wrap(Optional.of(createUser())).include("(id, name)");
+                  });
+              app.get(
+                  "/stub-optional-null",
+                  ctx -> {
+                    return Projected.wrap(Optional.empty()).include("(id, name)");
                   });
               app.get(
                   "/stub/meta",
@@ -103,6 +123,38 @@ public class Issue3853 {
                             """
                             {"id":"cobb-001","name":"Dom Cobb"}
                             """);
+                  });
+              http.get(
+                  "/stub-list",
+                  rsp -> {
+                    assertThat(rsp.body().string())
+                        .isEqualToIgnoringNewLines(
+                            """
+                            [{"id":"cobb-001","name":"Dom Cobb"}]
+                            """);
+                  });
+              http.get(
+                  "/stub-set",
+                  rsp -> {
+                    assertThat(rsp.body().string())
+                        .isEqualToIgnoringNewLines(
+                            """
+                            [{"id":"cobb-001","name":"Dom Cobb"}]
+                            """);
+                  });
+              http.get(
+                  "/stub-optional",
+                  rsp -> {
+                    assertThat(rsp.body().string())
+                        .isEqualToIgnoringNewLines(
+                            """
+                            {"id":"cobb-001","name":"Dom Cobb"}
+                            """);
+                  });
+              http.get(
+                  "/stub-optional-null",
+                  rsp -> {
+                    assertThat(rsp.body().string()).isEqualTo("null");
                   });
               http.get(
                   "/stub/address",

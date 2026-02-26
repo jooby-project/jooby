@@ -316,4 +316,22 @@ public class ProjectionTest {
     assertTrue(p.getChildren().containsKey("extraPolymorphicField"));
     assertTrue(p.getChildren().get("address").getChildren().containsKey("zipcode"));
   }
+
+  @Test
+  public void testTopLevelListProjection() {
+    // If your route returns a List<User>, the root projection type is just User.class.
+    // The JSON engines (Jackson/Avaje) will naturally apply this User projection
+    // to every element in the JSON array.
+    Projection<User> projection = Projection.of(User.class).include("id, email");
+
+    // Assert: Avaje view string
+    assertEquals("(id,email)", projection.toView());
+
+    // Assert: Tree Structure validates against User
+    assertEquals(User.class, projection.getType());
+    assertEquals(2, projection.getChildren().size());
+    assertTrue(projection.getChildren().containsKey("id"));
+    assertTrue(projection.getChildren().containsKey("email"));
+    assertFalse(projection.getChildren().containsKey("name"));
+  }
 }

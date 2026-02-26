@@ -7,6 +7,7 @@ package io.jooby.avaje.jsonb;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -128,8 +129,26 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     var view =
         (JsonView<Object>)
             viewCache.computeIfAbsent(
-                type.getName() + viewString, k -> jsonb.type(type).view(viewString));
-
-    view.toJson(value, writer);
+                value.getClass().getName() + viewString,
+                k -> {
+                  var jsonbType = jsonb.type(type);
+                  jsonbType =
+                      switch (value) {
+                        case Set<?> ignored -> jsonbType.set();
+                        case Collection<?> ignored -> jsonbType.list();
+                        default -> jsonbType;
+                      };
+                  return jsonbType.view(viewString);
+                });
+    if (value instanceof Optional<?> optional) {
+      if (optional.isEmpty()) {
+        writer.serializeNulls(true);
+        writer.nullValue();
+      } else {
+        view.toJson(optional.get(), writer);
+      }
+    } else {
+      view.toJson(value, writer);
+    }
   }
 }

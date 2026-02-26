@@ -15,7 +15,7 @@ import java.util.TimeZone;
 
 class Types {
   static final String PROJECT = "io.jooby.annotation.Project";
-  static final String PROJECTED = "io.jooby.annotation.Projected";
+  static final String PROJECTED = "io.jooby.Projected";
   static final Set<String> BUILT_IN =
       Set.of(
           String.class.getName(),

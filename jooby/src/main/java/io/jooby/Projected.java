@@ -5,6 +5,7 @@
  */
 package io.jooby;
 
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -25,7 +26,17 @@ public class Projected<T> {
 
   @SuppressWarnings("unchecked")
   public static <T> Projected<T> wrap(T value) {
-    return new Projected<>(value, Projection.of((Class<T>) value.getClass()));
+    return new Projected<T>(value, Projection.of(computeProjectionType(value)));
+  }
+
+  @SuppressWarnings("rawtypes")
+  private static Class computeProjectionType(Object value) {
+    return switch (value) {
+      case Set<?> col -> col.isEmpty() ? Object.class : col.iterator().next().getClass();
+      case Collection<?> col -> col.isEmpty() ? Object.class : col.iterator().next().getClass();
+      case Optional<?> optional -> optional.isEmpty() ? Object.class : optional.get().getClass();
+      default -> value.getClass();
+    };
   }
 
   public static <T> Projected<T> wrap(T value, Projection<T> projection) {
