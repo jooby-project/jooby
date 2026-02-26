@@ -38,7 +38,7 @@ import io.jooby.Jooby
 }
 ----
 
-[cols="2,1,1,4"]
+[cols="1,1,1,4"]
 |===
 | Option | Type | Default | Description
 

@@ -245,22 +245,27 @@ public class DocGenerator {
       throws IOException {
     var attributes = Attributes.builder();
 
+    attributes.linkCss(true);
+    attributes.experimental(true);
+    attributes.styleSheetName("theme.css");
+    attributes.stylesDir("js/styles");
+    attributes.setAnchors(true);
+    attributes.attribute("docinfo", "shared");
+
     attributes.attribute("docfile", docfile.toString());
     attributes.attribute("uiVersion", uiVersion);
     attributes.attribute("love", "&#9825;");
     attributes.attribute("docinfo", "shared");
     attributes.title(title == null ? "jooby: do more! more easily!!" : "jooby: " + title);
     attributes.tableOfContents(Placement.LEFT);
-    attributes.attribute("toclevels", "4");
+    attributes.attribute("toclevels", "5");
     attributes.setAnchors(true);
     attributes.attribute("sectlinks", "");
     attributes.sectionNumbers(true);
-//    attributes.attribute("sectnumlevels", "5");
     attributes.linkAttrs(true);
     attributes.noFooter(true);
     attributes.attribute("idprefix", "");
     attributes.attribute("idseparator", "-");
-    attributes.icons("font");
     attributes.attribute("description", "The modular micro web framework for Java");
     attributes.attribute(
         "keywords", "Java, Modern, Micro, Web, Framework, Reactive, Lightweight, Microservices");
@@ -268,7 +273,7 @@ public class DocGenerator {
     attributes.sourceHighlighter("highlightjs");
     attributes.attribute("highlightjsdir", "js");
     // agate, atom-one-dark, tomorrow-night-bright, tokyo-night-dark
-    attributes.attribute("highlightjs-theme", "agate");
+    attributes.attribute("highlightjs-theme", "atom-one-dark");
     attributes.attribute("favicon", "images/favicon96.png");
 
     // versions:

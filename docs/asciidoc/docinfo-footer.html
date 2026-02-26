@@ -1,24 +1,157 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script>
-  $(function () {
-    /** Tabs: */
-    $('.primary .switch .switch--item').on('click', function () {
-      const option = $(this)[0].className.match(/option-\d+/)[0].split('option-')[1];
-      $('.primary .switch .switch--item').removeClass('selected');
-      $(`.primary .content`).addClass('hidden');
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+  <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 18.894a.75.75 0 01-1.06-1.06l1.59-1.591a.75.75 0 111.061 1.06l-1.59 1.591zM2.25 12a.75.75 0 01.75-.75h2.25a.75.75 0 010 1.5H3a.75.75 0 01-.75-.75zM5.106 6.166a.75.75 0 011.06-1.06l1.591 1.59a.75.75 0 11-1.06 1.061l-1.591-1.59z"/></svg>
+  <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clip-rule="evenodd"/></svg>
+</button>
 
-      $(`.primary .switch .switch--item.option-${option}`).addClass('selected');
-      $(`.primary .content.option-${option}`).removeClass('hidden');
+<script src="/js/clipboard.min.js"></script>
+<script src="/js/toc.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+
+    /** 1. Theme Switcher Logic */
+    const themeToggle = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+    const hljsThemeLink = document.getElementById('hljs-theme'); // Grab the CSS link
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        if (htmlElement.getAttribute('data-theme') === 'dark') {
+          // Switch to Light Mode
+          htmlElement.removeAttribute('data-theme');
+          localStorage.setItem('jooby-theme', 'light');
+
+          // Switch code block to Agate
+          if (hljsThemeLink) hljsThemeLink.href = 'js/styles/agate.min.css';
+
+        } else {
+          // Switch to Dark Mode
+          htmlElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('jooby-theme', 'dark');
+
+          // Switch code block to Atom One Dark
+          if (hljsThemeLink) hljsThemeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css';
+        }
+      });
+    }
+
+    /** 2. Tabs Logic */
+    const tabButtons = document.querySelectorAll('.primary .switch .switch--item');
+    const contents = document.querySelectorAll('.primary .content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        const match = this.className.match(/option-(\d+)/);
+        if (!match) return;
+        const option = match[1];
+
+        // Reset states
+        tabButtons.forEach(btn => btn.classList.remove('selected'));
+        contents.forEach(content => content.classList.add('hidden'));
+
+        // Set active states
+        document.querySelectorAll(`.primary .switch .switch--item.option-${option}`)
+            .forEach(el => el.classList.add('selected'));
+
+        document.querySelectorAll(`.primary .content.option-${option}`)
+            .forEach(el => el.classList.remove('hidden'));
+      });
+    });
+
+    /** 3. Clipboard.js Initialization */
+    const clipboard = new ClipboardJS('.clipboard');
+    clipboard.on('success', (e) => {
+      e.clearSelection();
+      const btn = e.trigger;
+      const originalHTML = btn.innerHTML;
+
+      // Temporarily change background and insert a checkmark SVG
+      btn.style.backgroundColor = '#10b981'; // Tailwind emerald-500
+      btn.style.borderColor = '#059669';
+      btn.innerHTML = `<svg fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
+
+      // Revert back after 2 seconds
+      setTimeout(() => {
+        btn.style.backgroundColor = '';
+        btn.style.borderColor = '';
+        btn.innerHTML = originalHTML;
+      }, 2000);
     });
   });
-</script>
-<script src="/js/toc.js"></script>
-<script src="/js/clipboard.min.js"></script>
-<script>
-  $(function() {
-    new ClipboardJS('.clipboard')
-    .on('success', function(e) {
-      e.clearSelection();
+  /** 4. Code Callout Badges (Zero-Flash & Auto-Format) */
+  document.querySelectorAll('pre.highlightjs').forEach(pre => {
+    // Check every 10ms if highlight.js has finished formatting this block
+    const checkInterval = setInterval(() => {
+      if (pre.dataset.highlighted === "yes" || pre.querySelector('.hljs')) {
+        clearInterval(checkInterval);
+
+        const codeEl = pre.querySelector('code');
+        if (codeEl) {
+          // Upgraded regex to handle consecutive callouts like: // (1) (2)
+          // The "Lookahead" (?= ... ) now checks if the rest of the line
+          // is empty OR contains subsequent (N) callout numbers.
+          const calloutRegex = /(\/\/\s*|\s+)\(\s*(?:<[^>]+>\s*)*(\d+)\s*(?:<[^>]+>\s*)*\)(?=\s*(?:<[^>]+>\s*)*(?:\(\s*(?:<[^>]+>\s*)*\d+\s*(?:<[^>]+>\s*)*\)\s*(?:<[^>]+>\s*)*)*(\n|<|$))/g;
+
+          codeEl.innerHTML = codeEl.innerHTML.replace(
+              calloutRegex,
+              (match, prefix, num) => {
+                // Injects a hidden "//" before EVERY badge so that
+                // multiple badges paste safely as "// 1 // 2"
+                return ` <span class="visually-hidden">//</span> <span class="conum-badge">${num}</span>`;
+              }
+          );
+        }
+
+        // Reveal the block smoothly
+        pre.classList.add('badges-loaded');
+      }
+    }, 10);
+
+    // Fallback: Reveal the block anyway after 500ms
+    setTimeout(() => {
+      pre.classList.add('badges-loaded');
+      clearInterval(checkInterval);
+    }, 500);
+  });
+  /** 5. Copy Header Anchor Links to Clipboard */
+  document.querySelectorAll('a.anchor').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      // We do NOT prevent default, so the browser still scrolls to the header naturally
+
+      // Construct the full absolute URL for the clipboard
+      const fullUrl = window.location.origin + window.location.pathname + window.location.search + this.getAttribute('href');
+
+      // Use native clipboard API
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        // Add the 'copied' class for visual feedback
+        this.classList.add('copied');
+
+        // Remove the checkmark after 2 seconds
+        setTimeout(() => {
+          this.classList.remove('copied');
+        }, 2000);
+      }).catch(err => console.error('Failed to copy anchor:', err));
     });
+  });
+  /** 6. Hamburger Menu */
+  document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menu-toggle');
+
+    // Try to find the Toc (Table of Contents) or the Navigation Container
+    const sidebar = document.getElementById('toc') ||
+        document.querySelector('.nav-container') ||
+        document.getElementById('sidebar');
+
+    if (menuToggle && sidebar) {
+      menuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+        menuToggle.classList.toggle('open');
+
+        // Optional: Prevent body scrolling when menu is open
+        document.body.classList.toggle('menu-open');
+      });
+    } else {
+      console.warn("Hamburger menu: Could not find the navigation element to toggle.");
+    }
   });
 </script>

@@ -105,43 +105,47 @@ Data generation follows a flexible pipeline architecture. You start with a sourc
 ===== 3. Data Sources (Lookups)
 These functions are your entry points to locate objects within the OpenAPI definition.
 
-[cols="2m,3,3"]
+[cols="2,4,5"]
 |===
-|Function |Description |Example
+|Function |Example | Description
 
 |operation(method, path)
-|Generic lookup for an API operation.
 |`{{ operation("GET", "/books") }}`
+|Generic lookup for an API operation.
 
 |GET(path)
-|Shorthand for `operation("GET", path)`.
 |`{{ GET("/books") }}`
+|Shorthand for `operation("GET", path)`.
 
 |POST(path)
-|Shorthand for `operation("POST", path)`.
 |`{{ POST("/books") }}`
+|Shorthand for `operation("POST", path)`.
 
 |PUT / PATCH / DELETE
-|Shorthand for respective HTTP methods.
 |`{{ DELETE("/books/{id}") }}`
+|Shorthand for respective HTTP methods.
 
 |schema(name)
-|Looks up a Schema/Model definition by name.
 |`{{ schema("User") }}`
+|Looks up a Schema/Model definition by name.
 
 |tag(name)
-|Selects a specific Tag group (containing name, description, and routes).
 |`{{ tag("Inventory") }}`
+|Selects a specific Tag group (containing name, description, and routes).
 
 |routes()
-|Returns a collection of all available routes in the API.
 |`{% for r in routes() %}...{% endfor %}`
+|Returns a collection of all available routes in the API.
 
 |server(index)
-|Selects a server definition from the OpenAPI spec by index.
 |`{{ server(0).url }}`
+|Selects a server definition from the OpenAPI spec by index.
 
 |error(code)
+|`{{ statusCode(200) }}`
+`{{ statusCode([200, 400]) }}`
+
+`{{ statusCode( {200: "OK", 400: "Bad Syntax"} ) }}`
 |Generates an error response object. +
 **Default:** `{statusCode, reason, message}`. +
 **Custom:** Looks for a global `error` variable map and interpolates values.
@@ -152,11 +156,6 @@ These functions are your entry points to locate objects within the OpenAPI defin
 1. **Int:** Default reason. +
 2. **List:** `[200, 404]` +
 3. **Map:** `{200: "OK", 400: "Bad Syntax"}` (Overrides defaults).
-|`{{ statusCode(200) }}`
-
-`{{ statusCode([200, 400]) }}`
-
-`{{ statusCode( {200: "OK", 400: "Bad Syntax"} ) }}`
 
 |===
 

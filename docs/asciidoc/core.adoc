@@ -1,4 +1,6 @@
 == Core
+[.lead]
+The foundational building blocks of your Jooby application. This section covers how to bootstrap the server, manage application environments and configuration, and leverage the modular architecture that makes Jooby both lightweight and highly extensible.
 
 include::routing.adoc[]
 

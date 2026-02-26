@@ -1,4 +1,6 @@
 == Ecosystem
+[.lead]
+Extend the power of Jooby through its rich ecosystem of modules and standards. Learn how to seamlessly integrate with OpenAPI 3 to automatically generate interactive documentation and client SDKs, and explore a wide array of community and first-party modules that bring database access, security, and messaging to your application with minimal configuration.
 
 The Jooby ecosystem is built on three core, interconnected concepts:
 
@@ -131,7 +133,7 @@ public class MyExtension implements Extension {
    public void install(Jooby app) {
       DataSource dataSource = createDataSource();         // <1>
 
-      app.getServices().put(DataSource.class, dataSource); // <2>
+      app.getServices().put(DataSource.class, dataSource);// <2>
 
       app.onStop(dataSource::close);                      // <3>
    }
@@ -150,11 +152,11 @@ import io.jooby.Jooby
 
 class MyExtension : Extension {
   override fun install(app: Jooby) {
-    val dataSource = createDataSource()                   // <1>
+    val dataSource = createDataSource()                  // <1>
 
-    app.services.put(DataSource::class.java, dataSource)  // <2>
+    app.services.put(DataSource::class.java, dataSource) // <2>
 
-    app.onStop(dataSource::close)                         // <3>
+    app.onStop(dataSource::close)                        // <3>
   }
   
   private fun createDataSource(): DataSource {

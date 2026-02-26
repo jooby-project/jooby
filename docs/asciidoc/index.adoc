@@ -19,7 +19,7 @@ Style guidelines:
 [discrete]
 == &infin; do more, more easily
 
-Jooby is a modern, fast, and easy-to-use web framework for Java and Kotlin, built on top of your favorite web server.
+Jooby is a modular, high-performance web framework for Java and Kotlin. Designed for simplicity and speed, it gives you the freedom to build on your favorite server with a clean, modern API.
 
 .Welcome!
 [source,java,role="primary"]

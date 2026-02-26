@@ -1,4 +1,6 @@
 == Tooling and Operations
+[.lead]
+Streamline your development workflow with Jooby's productivity suite. This section covers essential utilities like Hot Reload for instantaneous code changes without restarting the server, and deep integration with build systems like Maven and Gradle to manage your project's lifecycle from the first line of code to the final deployment.
 
 include::configuration.adoc[]
 
