@@ -23,6 +23,7 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
+import io.jooby.internal.openapi.projection.ProjectionParser;
 import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.PathItem;
@@ -317,6 +318,8 @@ public class OpenAPIGenerator {
       new OpenAPI30To31().process(openapi);
       openapi.setJsonSchemaDialect(null);
     }
+
+    ProjectionParser.parse(ctx, openapi);
 
     return openapi;
   }

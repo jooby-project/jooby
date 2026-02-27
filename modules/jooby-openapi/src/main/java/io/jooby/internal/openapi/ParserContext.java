@@ -12,7 +12,6 @@ import static io.jooby.internal.openapi.TypeFactory.ROUTER;
 import static java.util.Arrays.asList;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -427,10 +426,14 @@ public class ParserContext {
     if (schema != null) {
       return schema.toSchema();
     }
+    return schema(javaType(type));
+  }
+
+  public JavaType javaType(String type) {
     String json = "{\"type\":\"" + type + "\"}";
     try {
       TypeLiteral literal = json().readValue(json, TypeLiteral.class);
-      return schema(literal.type);
+      return literal.type;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -499,10 +502,6 @@ public class ParserContext {
     } catch (Exception x) {
       return null;
     }
-  }
-
-  public byte[] loadResource(String path) throws IOException {
-    return source.loadResource(path);
   }
 
   private ClassNode newClassNode(Type type) {

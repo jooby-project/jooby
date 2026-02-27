@@ -15,6 +15,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import io.jooby.value.ValueFactory;
+
 /**
  * Hierarchical schema for JSON field selection. A Projection defines exactly which fields of a Java
  * object should be serialized to JSON.
@@ -201,6 +203,12 @@ public class Projection<T> {
   public Projection<T> validate() {
     this.validate = true;
     return this;
+  }
+
+  /** Determines if a type is a simple/scalar value that cannot be further projected. */
+  private boolean isSimpleType(Type type) {
+    var valueFactory = new ValueFactory();
+    return valueFactory.get(type) != null;
   }
 
   /**
