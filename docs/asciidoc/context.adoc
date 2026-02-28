@@ -406,7 +406,7 @@ curl -d "id=root&pass=pwd" -X POST http://localhost:8080/user
 <2> Form as `multi-value map`  => `{id=root, pass=[pwd]}`
 <3> Form variable `id`         => `root`
 <4> Form variable `pass`       => `pwd`
-<5> Form as `U3853` object      => `User(id=root, pass=pwd)`
+<5> Form as `User` object      => `User(id=root, pass=pwd)`
 
 ==== Multipart
 
@@ -482,7 +482,7 @@ curl -F id=root -F pass=root -F pic=@/path/to/local/file/profile.png http://loca
 <3> Form variable `id`          => `root`
 <4> Form variable `pass`        => `pwd`
 <5> javadoc:FileUpload[] variable `pic`
-<6> Form as `U3853` object       => `User(id=root, pass=pwd, pic=profile.png)`
+<6> Form as `User` object       => `User(id=root, pass=pwd, pic=profile.png)`
 
 [NOTE]
 .File Upload
