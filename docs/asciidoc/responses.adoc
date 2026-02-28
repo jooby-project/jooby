@@ -37,6 +37,72 @@ Raw responses are **not** processed by a <<core-context-response-body-message-en
 
 Even if a JSON encoder is installed, a raw response is always sent directly to the client bypassing the encoder.
 
+==== Projections
+
+Projections allow API consumers to request a partial representation of a resource. This feature is a more flexible, dynamic, and powerful alternative to the standard Jackson `@JsonView` annotation.
+
+While inspired by the "selection set" philosophy of **GraphQL**, it is important to note that this is **not** a GraphQL implementation. Instead, it provides a "Light GraphQL" experience for RESTful endpoints, allowing you to define exactly which fields should be serialized in the JSON response without the overhead of a full GraphQL engine.
+
+===== Basic Usage
+
+To enable a projection, you wrap your response object using the `Projected.wrap` utility. The projection syntax is parsed and applied to the underlying object or collection.
+
+[source,java]
+----
+get("/users/{id}", ctx -> {
+  User user = repository.findById(ctx.path("id").value());
+  
+  return Projected.wrap(user)
+      .include("(id, name, email)");
+});
+----
+
+===== Comparison with @JsonView
+
+If you have used Jackson's `@JsonView`, you will find Projections far more capable:
+
+* **Dynamic**: Unlike `@JsonView`, which requires static class markers defined at compile-time, Projections are defined at runtime.
+* **Ad-hoc**: You can create any combination of fields on the fly without adding new Java interfaces or classes.
+* **Deep Nesting**: Projections easily handle deeply nested object graphs, whereas `@JsonView` can become difficult to manage with complex relationships.
+
+===== Projection DSL
+
+The `include` method accepts a string using a simple, nested syntax:
+
+* **Field Selection**: `(id, name)` returns only those two fields.
+* **Nested Selection**: `(id, address(city, country))` selects the `id` and specific fields from the nested `address` object.
+* **Wildcards**: `(id, address(*))` selects the `id` and all available fields within the `address` object.
+* **Deep Nesting**: `(id, orders(id, items(name, price)))` allows for recursion into the object graph.
+
+===== Validation
+
+By default, the projection engine **does not validate** that requested fields exist on the target class (`failOnMissingProperty` is `false`). This allows for maximum flexibility, especially when working with polymorphic types or dynamic data where certain fields may only exist on specific subclasses.
+
+If you prefer strict enforcement to prevent API consumers from requesting non-existent fields, you can enable validation:
+
+[source,java]
+----
+return Projected.wrap(data)
+    .failOnMissingProperty(true)
+    .include("(id, name, strictFieldOnly)");
+----
+
+===== More Information
+
+Support for Projections extends beyond core scripting to include high-level annotations and documentation generation.
+
+* **MVC Support**: Projections can be applied to controller methods using the `@Project` annotation. See the <<web-mvc-api-responses-projections, MVC documentation>> for details.
+* **OpenAPI Support**: Jooby automatically generates pruned schemas for your Swagger documentation. See the link:modules/openapi[OpenAPI documentation] for details.
+
+[NOTE]
+====
+**Implementation Note:**
+The `Projection` core API defines the structure and the DSL. The actual runtime filtering is performed by your chosen JSON module:
+
+1. link:modules/avaje-jsonb[Avaje Jsonb]
+2. link:modules/jackson2[Jackson 2]/link:modules/jackson3[Jackson 3]
+====
+
 ==== Streaming / Chunked
 
 The Streaming/Chunked API is available via:

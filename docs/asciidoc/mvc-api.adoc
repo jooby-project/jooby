@@ -577,6 +577,59 @@ If a request is made to `/bar?foo=baz`, the result will be `foo is: baz` because
 
 ==== Responses
 
+===== Projections
+
+The MVC module provides first-class support for Projections via annotations. This allows you to define the response view declaratively, keeping your controller logic clean and focused on data retrieval.
+
+====== Usage
+
+There are two ways to define a projection in an MVC controller.
+
+You can annotate your method with `@Project` and provide the selection DSL:
+
+.Via @Project Annotation
+[source,java]
+----
+@GET
+@Project("(id, name)")
+public List<User> listUsers() {
+  return service.findUsers();
+}
+----
+
+Alternatively, you can define the projection directly within the HTTP method annotation (e.g., `@GET`, `@POST`) using the `projection` attribute:
+
+.Via HTTP Method Attribute
+[source,java]
+----
+@GET(value = "/users", projection = "(id, name, email)")
+public List<User> listUsers() {
+  return service.findUsers();
+}
+----
+
+====== Automatic Wrapping
+
+The Jooby Annotation Processor automatically handles the conversion of your method's return type. You are **not forced** to return a `Projected` instance; you can simply return your POJO or Collection, and Jooby will wrap it for you at compile-time.
+
+However, if you need manual control (for example, to dynamically toggle validation), you can still return a `Projected` instance explicitly:
+
+[source,java]
+----
+@GET
+public Projected<User> getUser(String id) {
+  User user = service.findById(id);
+  return Projected.wrap(user)
+      .failOnMissingProperty(true)
+      .include("(id, status)");
+}
+----
+
+[NOTE]
+====
+For more details on the Selection DSL syntax and available JSON engines, please refer to the <<core-responses-projections, Core Projections documentation>>.
+====
+
 ===== Status Code
 
 The default HTTP status code returned by an MVC route is `200 OK`, except for `void` methods annotated with `@DELETE`, which automatically return `204 No Content`.
