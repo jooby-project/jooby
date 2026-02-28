@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jooby.Router;
 import io.swagger.v3.oas.models.*;
+import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
@@ -39,12 +40,24 @@ public class OpenAPIExt extends OpenAPI {
   }
 
   public void addSecuritySchemes(String name, SecurityScheme scheme) {
-    var components = getComponents();
-    if (components == null) {
-      components = new Components();
-      setComponents(components);
+    getRequiredComponents().addSecuritySchemes(name, scheme);
+  }
+
+  @JsonIgnore
+  public Components getRequiredComponents() {
+    if (getComponents() == null) {
+      setComponents(new Components());
     }
-    components.addSecuritySchemes(name, scheme);
+    return getComponents();
+  }
+
+  @JsonIgnore
+  public Map<String, Schema> getRequiredSchemas() {
+    var components = getRequiredComponents();
+    if (components.getSchemas() == null) {
+      components.setSchemas(new LinkedHashMap<>());
+    }
+    return components.getSchemas();
   }
 
   @Override

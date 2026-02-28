@@ -163,11 +163,8 @@ public class AsciiDocContext {
                         .toList();
                 openapiRoot.put("tags", tags);
                 // Schemas
-                var components = context.openapi.getComponents();
-                if (components != null && components.getSchemas() != null) {
-                  var schemas = components.getSchemas();
-                  openapiRoot.put("schemas", new ArrayList<>(schemas.values()));
-                }
+                var schemas = context.openapi.getRequiredSchemas();
+                openapiRoot.put("schemas", new ArrayList<>(schemas.values()));
 
                 // make in to work without literal
                 openapiRoot.put("query", "query");
@@ -466,9 +463,6 @@ public class AsciiDocContext {
 
   private Optional<Schema<?>> resolveSchemaInternal(String name) {
     var components = openapi.getComponents();
-    if (components == null || components.getSchemas() == null) {
-      throw new NoSuchElementException("No schema found");
-    }
     if (name.startsWith(COMPONENTS_SCHEMAS_REF)) {
       name = name.substring(COMPONENTS_SCHEMAS_REF.length());
     }

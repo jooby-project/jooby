@@ -23,6 +23,10 @@ public class SchemaPruner {
 
   public static Schema<?> prune(
       Schema<?> original, Projection<?> projection, Components components) {
+    if (original == null || projection == null) {
+      return original;
+    }
+
     // 1. Deep wildcard (e.g., address(*)). Return the original schema/ref untouched.
     if (projection.getChildren().isEmpty()) {
       return original;
@@ -39,28 +43,28 @@ public class SchemaPruner {
       return newArraySchema;
     }
 
-    // --- THE CACHE CHECK (Early Exit) ---
-    String baseName = getBaseName(original);
-    String newComponentName = null;
-
-    if (baseName != null && components != null) {
-      newComponentName = generateProjectedName(baseName, projection);
-
-      // If we already built this exact projection view, reuse it immediately!
-      if (components.getSchemas() != null
-          && components.getSchemas().containsKey(newComponentName)) {
-        return new Schema<>().$ref("#/components/schemas/" + newComponentName);
-      }
-    }
-    // ------------------------------------
-
-    // 3. Resolve the actual properties from the original schema
+    // --- AGGRESSIVE ROOT RESOLUTION ---
+    // We MUST resolve the actual object schema if 'original' is just a $ref pointer,
+    // otherwise we can't see the properties we need to prune.
     Schema<?> actualSchema = resolveSchema(original, components);
     if (actualSchema == null || actualSchema.getProperties() == null) {
       return original;
     }
 
-    // 4. Build the new pruned ObjectSchema
+    // --- THE CACHE CHECK (Early Exit) ---
+    // We use the base name of the $ref (if it had one) to name our new component.
+    String baseName = getBaseName(original);
+    String newComponentName = null;
+
+    if (baseName != null) {
+      newComponentName = generateProjectedName(baseName, projection);
+
+      if (components.getSchemas().containsKey(newComponentName)) {
+        return new Schema<>().$ref("#/components/schemas/" + newComponentName);
+      }
+    }
+
+    // --- THE PRUNING ---
     Schema<?> prunedSchema = new ObjectSchema();
     copyMetadata(actualSchema, prunedSchema);
     Map<String, Schema> originalProps = actualSchema.getProperties();
@@ -71,30 +75,30 @@ public class SchemaPruner {
       Schema<?> originalPropSchema = originalProps.get(propName);
 
       if (originalPropSchema != null) {
-        // Recursion naturally handles leaf nodes vs. nested objects
         Schema<?> prunedProp = prune(originalPropSchema, childNode, components);
         prunedSchema.addProperty(propName, prunedProp);
       }
     }
 
-    // 5. Componentize! Register the new one and return a $ref.
+    // --- REGISTER IN COMPONENTS CACHE ---
     if (newComponentName != null && components != null) {
-      // Add the fully built pruned schema to the global registry
       components.addSchemas(newComponentName, prunedSchema);
-
-      // Return a lightweight $ref pointer to the newly registered component
       return new Schema<>().$ref("#/components/schemas/" + newComponentName);
     }
 
-    // Fallback: If it was an anonymous inline object to begin with, just return the inline pruned
-    // object.
     return prunedSchema;
   }
 
+  /**
+   * Resolves a $ref to its actual Schema object in the Components map. If the schema is not a $ref,
+   * it returns the schema itself.
+   */
   private static Schema<?> resolveSchema(Schema<?> schema, Components components) {
-    if (schema.get$ref() != null && components != null && components.getSchemas() != null) {
+    if (schema.get$ref() != null) {
+      // Extract "User" from "#/components/schemas/User"
       String refName = schema.get$ref().substring(schema.get$ref().lastIndexOf('/') + 1);
-      return components.getSchemas().get(refName);
+      Schema<?> resolved = components.getSchemas().get(refName);
+      return resolved != null ? resolved : schema;
     }
     return schema;
   }

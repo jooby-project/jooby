@@ -292,4 +292,9 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
   public String getPath(Map<String, Object> pathParams) {
     return Router.reverse(getPath(), pathParams);
   }
+
+  @JsonIgnore
+  public boolean isScript() {
+    return getController() == null;
+  }
 }
