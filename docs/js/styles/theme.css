@@ -31,6 +31,37 @@
 
   /* Modern Developer Font Stack */
   --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  /* 1. The Modern Developer System Stack
+     This bypasses old default fonts and uses the highly-optimized UI font of whatever OS the user is on (San Francisco on Mac, Segoe UI on Windows, Roboto on Android) */
+  --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  font-size: 16px; /* Ensure a solid base size */
+  line-height: 1.65; /* Gives the lines a bit more breathing room */
+
+  /* 2. Dark Mode Legibility Magic
+     These three properties stop the text from looking thin/jagged on dark backgrounds */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+
+  /* 3. A slightly crisper text color.
+     Pure white (#FFF) is too harsh, but a bright slate grey pops beautifully */
+  color: #e2e8f0;
+}
+
+/* Ensure standard paragraphs use the spacing properly */
+p {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+/* Optional polish for your bold text to make it stand out better against the new crisp text */
+strong, b {
+  font-weight: 600;
+  color: #f8fafc; /* Slightly brighter than normal text */
 }
 
 pre.highlightjs, .highlightjs code {
