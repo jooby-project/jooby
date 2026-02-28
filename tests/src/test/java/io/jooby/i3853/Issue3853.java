@@ -102,13 +102,6 @@ public class Issue3853 {
                   ctx -> {
                     return Projected.wrap(createUser()).include("(id, name, address(loc(lat)))");
                   });
-              app.get(
-                  "/stub/address-stub-ref",
-                  ctx -> {
-                    return Projected.wrap(createUser())
-                        .include(U3853::getId, U3853::getName)
-                        .include(U3853::getAddress, addr -> addr.include(A3853::getCity));
-                  });
             })
         .ready(
             http -> {
@@ -182,15 +175,6 @@ public class Issue3853 {
                   });
               http.get(
                   "/stub/address-stub",
-                  rsp -> {
-                    assertThat(rsp.body().string())
-                        .isEqualToIgnoringNewLines(
-                            """
-                            {"id":"cobb-001","name":"Dom Cobb","address":{"city":"Snow Fortress (Level 3)"}}
-                            """);
-                  });
-              http.get(
-                  "/stub/address-stub-ref",
                   rsp -> {
                     assertThat(rsp.body().string())
                         .isEqualToIgnoringNewLines(

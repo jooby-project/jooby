@@ -6,7 +6,6 @@
 package io.jooby;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * A wrapper for a value and its associated {@link Projection}.
@@ -53,17 +52,6 @@ public class Projected<T> {
 
   public Projected<T> include(String... paths) {
     projection.include(paths);
-    return this;
-  }
-
-  @SafeVarargs
-  public final Projected<T> include(Projection.Property<T, ?>... props) {
-    projection.include(props);
-    return this;
-  }
-
-  public <R> Projected<T> include(Projection.Property<T, R> prop, Consumer<Projection<R>> child) {
-    projection.include(prop, child);
     return this;
   }
 

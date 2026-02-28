@@ -5,15 +5,12 @@
  */
 package io.jooby;
 
-import java.io.Serializable;
-import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 import io.jooby.value.ValueFactory;
 
@@ -90,23 +87,6 @@ import io.jooby.value.ValueFactory;
  */
 public class Projection<T> {
 
-  /**
-   * Functional interface for capturing method references.
-   *
-   * @param <T> The type containing the property.
-   * @param <R> The return type of the property.
-   */
-  @FunctionalInterface
-  public interface Property<T, R> extends Serializable {
-    /**
-     * Captures the property method reference.
-     *
-     * @param instance The instance to apply the method to.
-     * @return The property value.
-     */
-    R apply(T instance);
-  }
-
   private static final Map<Class<?>, String> PROP_CACHE = new ConcurrentHashMap<>();
 
   private final Class<T> type;
@@ -148,44 +128,6 @@ public class Projection<T> {
         parseAndValidate(segment.trim());
       }
     }
-    rebuild();
-    return this;
-  }
-
-  /**
-   * Includes fields via type-safe method references.
-   *
-   * @param props Method references.
-   * @return This projection instance.
-   */
-  @SafeVarargs
-  public final Projection<T> include(Property<T, ?>... props) {
-    for (Property<T, ?> prop : props) {
-      String name = getFieldName(prop);
-      children.computeIfAbsent(
-          name, k -> new Projection<>(resolveFieldType(this.type, name), false, validate));
-    }
-    rebuild();
-    return this;
-  }
-
-  /**
-   * Includes a nested field and configures its sub-projection using a lambda. This provides full
-   * type-safety for nested objects.
-   *
-   * @param <R> The type of the nested field.
-   * @param prop The method reference to the nested field.
-   * @param childSpec A consumer that configures the nested projection.
-   * @return This projection instance.
-   */
-  public <R> Projection<T> include(Property<T, R> prop, Consumer<Projection<R>> childSpec) {
-    String name = getFieldName(prop);
-    Class<R> childType = (Class<R>) resolveFieldType(this.type, name);
-    Projection<R> child =
-        (Projection<R>)
-            children.computeIfAbsent(name, k -> new Projection<>(childType, false, validate));
-    childSpec.accept(child);
-    child.rebuild();
     rebuild();
     return this;
   }
@@ -550,23 +492,6 @@ public class Projection<T> {
     }
 
     return rawType;
-  }
-
-  private static String getFieldName(Property<?, ?> property) {
-    return PROP_CACHE.computeIfAbsent(
-        property.getClass(),
-        clz -> {
-          try {
-            Method m = clz.getDeclaredMethod("writeReplace");
-            m.setAccessible(true);
-            SerializedLambda l = (SerializedLambda) m.invoke(property);
-            String n = l.getImplMethodName();
-            int s = n.startsWith("get") ? 3 : (n.startsWith("is") ? 2 : 0);
-            return Character.toLowerCase(n.charAt(s)) + n.substring(s + 1);
-          } catch (Exception x) {
-            throw new IllegalArgumentException("Could not resolve field from method reference.", x);
-          }
-        });
   }
 
   @Override

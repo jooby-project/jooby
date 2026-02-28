@@ -132,14 +132,6 @@ public class ProjectionTest {
   }
 
   @Test
-  public void testTypeSafeInclude() {
-    // Type-safe references also follow the defined order
-    Projection<User> p = Projection.of(User.class).include(User::getName, User::getId);
-    assertEquals("(name,id)", p.toView());
-    assertEquals("User(name,id)", p.toString());
-  }
-
-  @Test
   public void testCollectionGenericUnwrapping() {
     Projection<User> p = Projection.of(User.class).include("roles.name");
     assertEquals("roles(name)", p.toView());
