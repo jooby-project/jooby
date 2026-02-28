@@ -326,7 +326,9 @@ public class OpenAPIGenerator {
     return openapi;
   }
 
-  private void finish(OpenAPIExt openapi) {}
+  private void finish(OpenAPIExt openapi) {
+    SchemaPurger.purgeUnused(openapi);
+  }
 
   ObjectMapper yamlMapper() {
     return specVersion == SpecVersion.V30 ? Yaml.mapper() : Yaml31.mapper();

@@ -566,21 +566,6 @@ public class ApiDocTest {
                   description: Published books.
                   items:
                     $ref: "#/components/schemas/Book"
-            BookQuery:
-              type: object
-              properties:
-                title:
-                  type: string
-                  description: Book's title.
-                author:
-                  type: string
-                  description: Book's author. Optional.
-                isbn:
-                  type: array
-                  description: Book's isbn. Optional.
-                  items:
-                    type: string
-              description: Query books by complex filters.
             Address:
               type: object
               properties:

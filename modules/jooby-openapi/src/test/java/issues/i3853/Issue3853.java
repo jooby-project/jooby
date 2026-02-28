@@ -123,30 +123,6 @@ public class Issue3853 {
                             $ref: "#/components/schemas/U3853_xsv0o"
             components:
               schemas:
-                U3853:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      description: Retrieves the unique identifier for the user.
-                    name:
-                      type: string
-                      description: Retrieves the name of the user.
-                    address:
-                      $ref: "#/components/schemas/A3853"
-                    roles:
-                      type: array
-                      description: Retrieves the list of roles associated with the user.
-                      items:
-                        $ref: "#/components/schemas/R3853"
-                    meta:
-                      type: object
-                      additionalProperties:
-                        type: string
-                      description: Retrieves the metadata associated with the user.
-                  description: "Represents a user entity identified by an ID and name, with associated\\
-                    \\ address details, roles, and metadata. This class is immutable, ensuring\\
-                    \\ the integrity of its fields."
                 L3853:
                   type: object
                   properties:
@@ -156,14 +132,6 @@ public class Issue3853 {
                     lon:
                       type: number
                       format: double
-                R3853:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    level:
-                      type: integer
-                      format: int32
                 A3853:
                   type: object
                   properties:
@@ -323,31 +291,6 @@ public class Issue3853 {
                             $ref: "#/components/schemas/U3853_xsv0o"
             components:
               schemas:
-                U3853:
-                  type: object
-                  description: "Represents a user entity identified by an ID and name, with associated\\
-                    \\ address details, roles, and metadata. This class is immutable, ensuring\\
-                    \\ the integrity of its fields."
-                  properties:
-                    id:
-                      type: string
-                      description: Retrieves the unique identifier for the user.
-                    name:
-                      type: string
-                      description: Retrieves the name of the user.
-                    address:
-                      $ref: "#/components/schemas/A3853"
-                      description: Retrieves the address associated with the user.
-                    roles:
-                      type: array
-                      description: Retrieves the list of roles associated with the user.
-                      items:
-                        $ref: "#/components/schemas/R3853"
-                    meta:
-                      type: object
-                      additionalProperties:
-                        type: string
-                      description: Retrieves the metadata associated with the user.
                 L3853:
                   type: object
                   properties:
@@ -357,14 +300,6 @@ public class Issue3853 {
                     lon:
                       type: number
                       format: double
-                R3853:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    level:
-                      type: integer
-                      format: int32
                 A3853:
                   type: object
                   properties:
@@ -498,30 +433,6 @@ public class Issue3853 {
                             $ref: "#/components/schemas/U3853_xsv0o"
             components:
               schemas:
-                U3853:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                      description: Retrieves the unique identifier for the user.
-                    name:
-                      type: string
-                      description: Retrieves the name of the user.
-                    address:
-                      $ref: "#/components/schemas/A3853"
-                    roles:
-                      type: array
-                      description: Retrieves the list of roles associated with the user.
-                      items:
-                        $ref: "#/components/schemas/R3853"
-                    meta:
-                      type: object
-                      additionalProperties:
-                        type: string
-                      description: Retrieves the metadata associated with the user.
-                  description: "Represents a user entity identified by an ID and name, with associated\\
-                    \\ address details, roles, and metadata. This class is immutable, ensuring\\
-                    \\ the integrity of its fields."
                 L3853:
                   type: object
                   properties:
@@ -531,14 +442,6 @@ public class Issue3853 {
                     lon:
                       type: number
                       format: double
-                R3853:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    level:
-                      type: integer
-                      format: int32
                 A3853:
                   type: object
                   properties:
@@ -680,31 +583,6 @@ public class Issue3853 {
                             $ref: "#/components/schemas/U3853_xsv0o"
             components:
               schemas:
-                U3853:
-                  type: object
-                  description: "Represents a user entity identified by an ID and name, with associated\\
-                    \\ address details, roles, and metadata. This class is immutable, ensuring\\
-                    \\ the integrity of its fields."
-                  properties:
-                    id:
-                      type: string
-                      description: Retrieves the unique identifier for the user.
-                    name:
-                      type: string
-                      description: Retrieves the name of the user.
-                    address:
-                      $ref: "#/components/schemas/A3853"
-                      description: Retrieves the address associated with the user.
-                    roles:
-                      type: array
-                      description: Retrieves the list of roles associated with the user.
-                      items:
-                        $ref: "#/components/schemas/R3853"
-                    meta:
-                      type: object
-                      additionalProperties:
-                        type: string
-                      description: Retrieves the metadata associated with the user.
                 L3853:
                   type: object
                   properties:
@@ -714,14 +592,6 @@ public class Issue3853 {
                     lon:
                       type: number
                       format: double
-                R3853:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    level:
-                      type: integer
-                      format: int32
                 A3853:
                   type: object
                   properties:
