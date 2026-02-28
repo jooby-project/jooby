@@ -271,7 +271,7 @@ public class RouteParser {
       return "";
     }
     return Stream.of(pattern.split("\\W+"))
-        .filter(s -> s.length() > 0)
+        .filter(s -> !s.isEmpty())
         .map(
             segment ->
                 Character.toUpperCase(segment.charAt(0))

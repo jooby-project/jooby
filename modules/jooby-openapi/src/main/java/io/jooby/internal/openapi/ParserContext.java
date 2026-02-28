@@ -12,7 +12,6 @@ import static io.jooby.internal.openapi.TypeFactory.ROUTER;
 import static java.util.Arrays.asList;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -54,10 +53,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import io.jooby.Context;
-import io.jooby.FileUpload;
-import io.jooby.SneakyThrows;
-import io.jooby.StatusCode;
+import io.jooby.*;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.util.RefUtils;
@@ -172,6 +168,9 @@ public class ParserContext {
   public Schema schema(Class type) {
     if (isVoid(type.getName())) {
       return null;
+    }
+    if (type == Projected.class) {
+      return new ObjectSchema().name("Projected");
     }
     if (type == String.class) {
       return new StringSchema();
@@ -427,10 +426,14 @@ public class ParserContext {
     if (schema != null) {
       return schema.toSchema();
     }
+    return schema(javaType(type));
+  }
+
+  public JavaType javaType(String type) {
     String json = "{\"type\":\"" + type + "\"}";
     try {
       TypeLiteral literal = json().readValue(json, TypeLiteral.class);
-      return schema(literal.type);
+      return literal.type;
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
@@ -493,16 +496,19 @@ public class ParserContext {
         .orElseThrow(() -> new IllegalArgumentException("Method not found: " + type + "." + name));
   }
 
+  public MethodNode findMethodNode(Type type, String name, String desc) {
+    return nodes.computeIfAbsent(type, this::newClassNode).methods.stream()
+        .filter(it -> it.name.equals(name) && it.desc.equals(desc))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Method not found: " + type + "." + name));
+  }
+
   public ClassNode classNodeOrNull(Type type) {
     try {
       return nodes.computeIfAbsent(type, this::newClassNode);
     } catch (Exception x) {
       return null;
     }
-  }
-
-  public byte[] loadResource(String path) throws IOException {
-    return source.loadResource(path);
   }
 
   private ClassNode newClassNode(Type type) {

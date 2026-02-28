@@ -5,33 +5,32 @@
  */
 package io.jooby.jackson;
 
+import static com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter.*;
+
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
-import io.jooby.StatusCode;
+import io.jooby.*;
 import io.jooby.output.Output;
 
 /**
@@ -78,6 +77,14 @@ import io.jooby.output.Output;
  * @since 2.0.0
  */
 public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
+  public static final String FILTER_ID = "jooby.projection";
+
+  // Cache for ObjectWriters tied to specific projection strings
+  private final Map<String, ObjectWriter> writerCache = new ConcurrentHashMap<>();
+
+  @JsonFilter(FILTER_ID)
+  private interface ProjectionMixIn {}
+
   private final MediaType mediaType;
 
   private final ObjectMapper mapper;
@@ -143,6 +150,14 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
 
+    // Filter
+    var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
+    mapper.addMixIn(Object.class, ProjectionMixIn.class);
+    mapper.setFilterProvider(defaultProvider);
+    var projectionModule = new SimpleModule();
+    projectionModule.addSerializer(Projected.class, new JacksonProjectedSerializer(mapper));
+    mapper.registerModule(projectionModule);
+
     application.onStarting(
         () -> {
           for (Class<? extends Module> type : modules) {
@@ -156,6 +171,19 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
+    if (value instanceof Projected<?> projected) {
+      var p = projected.getProjection();
+      var writer =
+          writerCache.computeIfAbsent(
+              p.getType().getName() + p.toView(),
+              k -> {
+                // Use a specialized ObjectWriter with our custom path filter
+                var filters =
+                    new SimpleFilterProvider().addFilter(FILTER_ID, new JacksonProjectionFilter(p));
+                return mapper.writer(filters);
+              });
+      return factory.wrap(writer.writeValueAsBytes(projected.getValue()));
+    }
     // let jackson uses his own cache, so wrap the bytes
     return factory.wrap(mapper.writeValueAsBytes(value));
   }

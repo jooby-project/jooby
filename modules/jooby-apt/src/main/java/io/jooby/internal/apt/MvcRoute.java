@@ -65,11 +65,40 @@ public class MvcRoute {
     return context;
   }
 
+  public String getProjection() {
+    var project = AnnotationSupport.findAnnotationByName(method, Types.PROJECT);
+    if (project != null) {
+      return AnnotationSupport.findAnnotationValue(project, VALUE).stream()
+          .findFirst()
+          .orElse(null);
+    }
+    // look inside the method annotation
+    var httpMethod = annotationMap.values().iterator().next();
+    var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
+    return projection.stream().findFirst().orElse(null);
+  }
+
+  public boolean isProjection() {
+    if (returnType.is(Types.PROJECTED)) {
+      return false;
+    }
+    var isProjection = AnnotationSupport.findAnnotationByName(method, Types.PROJECT) != null;
+    if (isProjection) {
+      return true;
+    }
+    // look inside the method annotation
+    var httpMethod = annotationMap.values().iterator().next();
+    var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
+    return !projection.isEmpty();
+  }
+
   public TypeDefinition getReturnType() {
     var processingEnv = context.getProcessingEnvironment();
     var types = processingEnv.getTypeUtils();
     var elements = processingEnv.getElementUtils();
-    if (returnType.isVoid()) {
+    if (isProjection()) {
+      return new TypeDefinition(types, elements.getTypeElement(Types.PROJECTED).asType(), true);
+    } else if (returnType.isVoid()) {
       return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());
     } else if (isSuspendFun()) {
       var continuation = parameters.get(parameters.size() - 1).getType();
@@ -220,6 +249,13 @@ public class MvcRoute {
     var returnTypeGenerics =
         getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
     var returnTypeString = type(kt, getReturnType().toString());
+    var customReturnType = getReturnType();
+    if (customReturnType.isProjection()) {
+      // Override for projection
+      returnTypeGenerics = "";
+      returnTypeString = Types.PROJECTED + "<" + returnType + ">";
+    }
+
     boolean nullable = false;
     if (kt) {
       nullable =
@@ -317,7 +353,10 @@ public class MvcRoute {
       buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
     } else {
       controllerVar(kt, buffer);
-      var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+      var cast =
+          customReturnType.isProjection()
+              ? ""
+              : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
       var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
       var call =
           of(
@@ -329,7 +368,15 @@ public class MvcRoute {
         setUncheckedCast(true);
         call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
       }
-      buffer.add(statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
+      if (customReturnType.isProjection()) {
+        var projected =
+            of(Types.PROJECTED, ".wrap(", call, ").include(", string(getProjection()), ")");
+        buffer.add(
+            statement(indent(2), "return ", projected, kt && nullable ? "!!" : "", semicolon(kt)));
+      } else {
+        buffer.add(
+            statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
+      }
     }
     buffer.add(statement("}", System.lineSeparator()));
     if (uncheckedCast) {

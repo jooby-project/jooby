@@ -232,6 +232,23 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
         .collect(Collectors.toList());
   }
 
+  @JsonIgnore
+  public String getProjection() {
+    return getAllAnnotations().stream()
+        .filter(
+            it ->
+                Router.METHODS.stream()
+                        .map(method -> "Lio/jooby/annotation/" + method + ";")
+                        .anyMatch(it.desc::equals)
+                    && it.values != null)
+        .map(it -> AnnotationUtils.findAnnotationValue(it, "projection"))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst()
+        .map(Object::toString)
+        .orElse(null);
+  }
+
   public OperationExt copy(String pattern) {
     OperationExt copy = new OperationExt(node, method, pattern, getParameters(), defaultResponse);
     copy.setTags(getTags());
@@ -274,5 +291,10 @@ public class OperationExt extends io.swagger.v3.oas.models.Operation {
 
   public String getPath(Map<String, Object> pathParams) {
     return Router.reverse(getPath(), pathParams);
+  }
+
+  @JsonIgnore
+  public boolean isScript() {
+    return getController() == null;
   }
 }

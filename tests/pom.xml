@@ -318,6 +318,11 @@
                     <version>${avaje.validator.version}</version>
                 </annotationProcessorPath>
                 <annotationProcessorPath>
+                  <groupId>io.avaje</groupId>
+                  <artifactId>avaje-jsonb-generator</artifactId>
+                  <version>${avaje.jsonb.version}</version>
+                </annotationProcessorPath>
+                <annotationProcessorPath>
                   <groupId>org.openjdk.jmh</groupId>
                   <artifactId>jmh-generator-annprocess</artifactId>
                   <version>${jmh.version}</version>
