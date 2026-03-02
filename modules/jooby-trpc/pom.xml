@@ -6,10 +6,10 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
-  <artifactId>jooby-trcp</artifactId>
-  <name>jooby-trcp</name>
+  <artifactId>jooby-trpc</artifactId>
+  <name>jooby-trpc</name>
 
   <dependencies>
     <dependency>

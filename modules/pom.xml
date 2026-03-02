@@ -33,7 +33,7 @@
     <module>jooby-redoc</module>
 
     <!-- xRCP !-->
-    <module>jooby-trcp</module>
+    <module>jooby-trpc</module>
 
     <!-- data -->
     <module>jooby-hikari</module>
