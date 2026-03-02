@@ -297,7 +297,7 @@ public class JoobyProcessor extends AbstractProcessor {
                 }
               });
       if (!currentType.equals(superType)) {
-        // edge-case #1: when controller has no method and extends another class which has.
+        // edge-case #1: when a controller has no method and extends another class which has.
         // edge-case #2: some odd usage a controller could be empty.
         // See https://github.com/jooby-project/jooby/issues/3656
         if (registry.containsKey(superType)) {

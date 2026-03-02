@@ -88,6 +88,26 @@ public class MvcContext {
   }
 
   /**
+   * Find path from trpc route method and router type. This method scan and expand path base on the
+   * annotation present at method or class level.
+   *
+   * @param owner Router type.
+   * @param exec Method.
+   * @param procedure Child path.
+   * @return List of possible paths.
+   */
+  public List<String> trpcPath(TypeElement owner, ExecutableElement exec, String procedure) {
+    var prefix = HttpPath.PATH.trpcPath(superTypes(owner));
+    if (prefix.isEmpty()) {
+      return procedure.isEmpty() ? Collections.singletonList("/") : List.of(procedure);
+    }
+    return prefix.stream()
+        .map(root -> root.equals("/") ? procedure : root + procedure)
+        .distinct()
+        .toList();
+  }
+
+  /**
    * Find path from route method and router type. This method scan and expand path base on the
    * annotation present at method or class level.
    *

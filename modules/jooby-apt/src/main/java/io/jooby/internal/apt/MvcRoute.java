@@ -7,7 +7,7 @@ package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.*;
 import static io.jooby.internal.apt.CodeBlock.*;
-import static java.lang.System.lineSeparator;
+import static java.lang.System.*;
 import static java.util.Optional.ofNullable;
 
 import java.util.*;
@@ -31,6 +31,7 @@ public class MvcRoute {
   private final boolean suspendFun;
   private boolean uncheckedCast;
   private final boolean hasBeanValidation;
+  private final List<TrpcMethod> trpcMethods = new ArrayList<>();
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -142,19 +143,36 @@ public class MvcRoute {
       var lastHttpMethod = lastRoute && entries.get(entries.size() - 1).equals(e);
       var annotation = e.getKey();
       var httpMethod = HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString());
+      var dslMethod = annotation.getSimpleName().toString().toLowerCase();
       var paths = context.path(router.getTargetType(), method, annotation);
+      var targetMethod = methodName;
+      if (httpMethod == HttpMethod.tRPC) {
+        httpMethod = trpcMethod(method);
+        if (httpMethod == null) {
+          throw new IllegalArgumentException(
+              "tRPC method not found: "
+                  + method.getSimpleName()
+                  + "() in "
+                  + router.getTargetType());
+        }
+        dslMethod = httpMethod.name().toLowerCase();
+        paths = List.of(trpcPath(method));
+        targetMethod =
+            "trpc" + targetMethod.substring(0, 1).toUpperCase() + targetMethod.substring(1);
+        trpcMethods.add(new TrpcMethod(httpMethod, targetMethod));
+      }
       for (var path : paths) {
         var lastLine = lastHttpMethod && paths.get(paths.size() - 1).equals(path);
         block.add(javadocLink);
         block.add(
             statement(
                 isSuspendFun() ? "" : "app.",
-                annotation.getSimpleName().toString().toLowerCase(),
+                dslMethod,
                 "(",
                 string(leadingSlash(path)),
                 ", ",
                 context.pipeline(
-                    getReturnTypeHandler(), methodReference(kt, thisRef, methodName))));
+                    getReturnTypeHandler(), methodReference(kt, thisRef, targetMethod))));
         if (context.nonBlocking(getReturnTypeHandler()) || isSuspendFun()) {
           block.add(statement(indent(2), ".setNonBlocking(true)"));
         }
@@ -245,7 +263,6 @@ public class MvcRoute {
 
       paramList.add(generatedParameter);
     }
-    var throwsException = !method.getThrownTypes().isEmpty();
     var returnTypeGenerics =
         getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
     var returnTypeString = type(kt, getReturnType().toString());
@@ -256,48 +273,8 @@ public class MvcRoute {
       returnTypeString = Types.PROJECTED + "<" + returnType + ">";
     }
 
-    boolean nullable = false;
-    if (kt) {
-      nullable =
-          method.getAnnotationMirrors().stream()
-              .map(AnnotationMirror::getAnnotationType)
-              .map(Objects::toString)
-              .anyMatch(NULLABLE);
-      if (throwsException) {
-        buffer.add(statement("@Throws(Exception::class)"));
-      }
-      if (isSuspendFun()) {
-        buffer.add(
-            statement(
-                "suspend ",
-                "fun ",
-                returnTypeGenerics,
-                getGeneratedName(),
-                "(handler: io.jooby.kt.HandlerContext): ",
-                returnTypeString,
-                " {"));
-        buffer.add(statement(indent(2), "val ctx = handler.ctx"));
-      } else {
-        buffer.add(
-            statement(
-                "fun ",
-                returnTypeGenerics,
-                getGeneratedName(),
-                "(ctx: io.jooby.Context): ",
-                returnTypeString,
-                " {"));
-      }
-    } else {
-      buffer.add(
-          statement(
-              "public ",
-              returnTypeGenerics,
-              returnTypeString,
-              " ",
-              getGeneratedName(),
-              "(io.jooby.Context ctx) ",
-              throwsException ? "throws Exception {" : "{"));
-    }
+    var nullable =
+        methodCallHeader(kt, getGeneratedName(), buffer, returnTypeGenerics, returnTypeString);
     if (returnType.isVoid()) {
       String statusCode;
       if (annotationMap.size() == 1) {
@@ -381,11 +358,152 @@ public class MvcRoute {
     buffer.add(statement("}", System.lineSeparator()));
     if (uncheckedCast) {
       if (kt) {
-        buffer.add(0, statement("@Suppress(\"UNCHECKED_CAST\")"));
+        buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
       } else {
-        buffer.add(0, statement("@SuppressWarnings(\"unchecked\")"));
+        buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
       }
     }
+    for (var trpcMethod : trpcMethods) {
+      buffer.addAll(generateTrpcMethod(kt, trpcMethod));
+    }
+    return buffer;
+  }
+
+  private boolean methodCallHeader(
+      boolean kt,
+      String methodName,
+      ArrayList<String> buffer,
+      String returnTypeGenerics,
+      String returnTypeString) {
+    var throwsException = !method.getThrownTypes().isEmpty();
+    var nullable = false;
+    if (kt) {
+      nullable =
+          method.getAnnotationMirrors().stream()
+              .map(AnnotationMirror::getAnnotationType)
+              .map(Objects::toString)
+              .anyMatch(NULLABLE);
+      if (throwsException) {
+        buffer.add(statement("@Throws(Exception::class)"));
+      }
+      if (isSuspendFun()) {
+        buffer.add(
+            statement(
+                "suspend ",
+                "fun ",
+                returnTypeGenerics,
+                methodName,
+                "(handler: io.jooby.kt.HandlerContext): ",
+                returnTypeString,
+                " {"));
+        buffer.add(statement(indent(2), "val ctx = handler.ctx"));
+      } else {
+        buffer.add(
+            statement(
+                "fun ",
+                returnTypeGenerics,
+                methodName,
+                "(ctx: io.jooby.Context): ",
+                returnTypeString,
+                " {"));
+      }
+    } else {
+      buffer.add(
+          statement(
+              "public ",
+              returnTypeGenerics,
+              returnTypeString,
+              " ",
+              methodName,
+              "(io.jooby.Context ctx) ",
+              throwsException ? "throws Exception {" : "{"));
+    }
+    return nullable;
+  }
+
+  private List<String> generateTrpcMethod(boolean kt, TrpcMethod trpcMethod) {
+    var buffer = new ArrayList<String>();
+
+    var returnTypeString =
+        "io.jooby.trpc.TrpcResponse<" + type(kt, getReturnType().toString()) + ">";
+
+    var nullable = methodCallHeader(kt, trpcMethod.name, buffer, "", returnTypeString);
+    if (trpcMethod.method == HttpMethod.GET) {
+      buffer.add(
+          statement(
+              indent(2),
+              var(kt),
+              "input = ctx.query(",
+              string("input"),
+              ").value()",
+              semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(2),
+              var(kt),
+              "mapper = ctx.require(tools.jackson.databind.ObjectMapper",
+              clazz(kt),
+              ")",
+              semicolon(kt)));
+      List<String> arguments =
+          switch (method.getParameters().size()) {
+            case 0 -> List.of();
+            case 1 -> {
+              buffer.add(
+                  statement(
+                      indent(2),
+                      var(kt),
+                      method.getParameters().getFirst().getSimpleName(),
+                      " = mapper.readValue(input, ",
+                      method.getParameters().getFirst().asType().toString(),
+                      clazz(kt),
+                      ")",
+                      semicolon(kt)));
+              yield List.of(method.getParameters().getFirst().getSimpleName().toString());
+            }
+            default -> {
+              buffer.add(
+                  statement(indent(2), var(kt), "array = mapper.readTree(input)", semicolon(kt)));
+              var args = new ArrayList<String>();
+              for (int i = 0; i < method.getParameters().size(); i++) {
+                buffer.add(
+                    statement(
+                        indent(2),
+                        var(kt),
+                        method.getParameters().getFirst().getSimpleName(),
+                        Integer.toString(i),
+                        " = mapper.readValue(array.get(",
+                        Integer.toString(i),
+                        "), ",
+                        method.getParameters().getFirst().asType().toString(),
+                        clazz(kt),
+                        ")",
+                        semicolon(kt)));
+                args.add(method.getParameters().getFirst().getSimpleName().toString());
+              }
+              yield args;
+            }
+          };
+      controllerVar(kt, buffer);
+      var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+      var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
+      var call =
+          of(
+              "c.",
+              this.method.getSimpleName(),
+              kotlinNotEnoughTypeInformation,
+              arguments.stream().collect(Collectors.joining(", ", "(", ")")));
+      if (!cast.isEmpty()) {
+        setUncheckedCast(true);
+        call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+      }
+      buffer.add(statement(indent(2), var(kt), "result = ", call, semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(2), "return ", "io.jooby.trpc.TrpcResponse.success(result)", semicolon(kt)));
+    }
+
+    buffer.add(statement("}", System.lineSeparator()));
     return buffer;
   }
 
@@ -544,4 +662,51 @@ public class MvcRoute {
   public boolean hasBeanValidation() {
     return hasBeanValidation;
   }
+
+  private HttpMethod trpcMethod(Element element) {
+    var trpc = AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc");
+    if (trpc != null) {
+      if (HttpMethod.GET.matches(element)) {
+        return HttpMethod.GET;
+      }
+      if (HttpMethod.POST.matches(element)) {
+        return HttpMethod.POST;
+      }
+      return null;
+    }
+    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Query") != null) {
+      return HttpMethod.GET;
+    }
+    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Mutation")
+        != null) {
+      return HttpMethod.POST;
+    }
+    return null;
+  }
+
+  public String trpcPath(Element element) {
+    var namespace =
+        Optional.ofNullable(
+                AnnotationSupport.findAnnotationByName(
+                    element.getEnclosingElement(), "io.jooby.annotation.Trpc"))
+            .flatMap(it -> findAnnotationValue(it, VALUE).stream().findFirst())
+            .map(it -> it + ".")
+            .orElse("");
+
+    var procedure =
+        Stream.of(
+                "io.jooby.annotation.Trpc.Query",
+                "io.jooby.annotation.Trpc.Mutation",
+                "io.jooby.annotation.Trpc")
+            .map(it -> AnnotationSupport.findAnnotationByName(element, it))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .flatMap(it -> findAnnotationValue(it, VALUE).stream().findFirst())
+            .orElse(element.getSimpleName().toString());
+    return Stream.of("trpc", namespace + procedure)
+        .map(segment -> segment.startsWith("/") ? segment.substring(1) : segment)
+        .collect(Collectors.joining("/", "/", ""));
+  }
+
+  record TrpcMethod(HttpMethod method, String name) {}
 }
