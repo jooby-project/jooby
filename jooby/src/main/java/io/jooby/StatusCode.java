@@ -738,6 +738,14 @@ public final class StatusCode {
   public static final StatusCode REQUEST_HEADER_FIELDS_TOO_LARGE =
       new StatusCode(REQUEST_HEADER_FIELDS_TOO_LARGE_CODE, "Request Header Fields Too Large");
 
+  /** {@code 499 The client aborted the request before completion}. */
+  public static final int CLIENT_CLOSED_REQUEST_CODE = 499;
+
+  /** {@code 499 The client aborted the request before completion}. */
+  public static final StatusCode CLIENT_CLOSED_REQUEST =
+      new StatusCode(
+          CLIENT_CLOSED_REQUEST_CODE, "The client aborted the request before completion");
+
   // --- 5xx Server Error ---
 
   /**
@@ -1025,6 +1033,7 @@ public final class StatusCode {
       case PRECONDITION_REQUIRED_CODE -> PRECONDITION_REQUIRED;
       case TOO_MANY_REQUESTS_CODE -> TOO_MANY_REQUESTS;
       case REQUEST_HEADER_FIELDS_TOO_LARGE_CODE -> REQUEST_HEADER_FIELDS_TOO_LARGE;
+      case CLIENT_CLOSED_REQUEST_CODE -> CLIENT_CLOSED_REQUEST;
       case SERVER_ERROR_CODE -> SERVER_ERROR;
       case NOT_IMPLEMENTED_CODE -> NOT_IMPLEMENTED;
       case BAD_GATEWAY_CODE -> BAD_GATEWAY;

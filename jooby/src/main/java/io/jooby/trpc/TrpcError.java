@@ -7,6 +7,8 @@ package io.jooby.trpc;
 
 import java.util.Map;
 
-public record TrpcError(ErrorDetail error) {
-  public record ErrorDetail(String message, int code, Map<String, Object> data) {}
+public class TrpcError extends RuntimeException {
+  public TrpcError(String message, int code, Map<String, Object> data) {
+    super(message);
+  }
 }
