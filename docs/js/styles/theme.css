@@ -13,13 +13,15 @@
   --bg-callout: #f3f4f6;
   --border-color: #e5e7eb;
 
-  --text-main: #374151;
+  /* Typography Colors (Adapts to Light Theme) */
+  --text-main: #334155;     /* Dark Slate */
   --text-muted: #6b7280;
+  --text-bold: #0f172a;     /* Near Black */
   --heading-color: #111827;
-  --link-color: var(--jooby-blue);
+  --link-color: #2563eb;    /* Bright Blue */
 
   /* Code Blocks */
-  --code-bg: #282c34; /* Update this to match Atom One Dark perfectly */
+  --code-bg: #282c34;
   --code-text: #ffffff;
   --code-inline-bg: #f1f5f9;
   --code-inline-text: #be185d;
@@ -29,48 +31,9 @@
   --content-max-width: 900px;
   --border-radius: 6px;
 
-  /* Modern Developer Font Stack */
+  /* Typography Stacks */
   --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  /* 1. The Modern Developer System Stack
-     This bypasses old default fonts and uses the highly-optimized UI font of whatever OS the user is on (San Francisco on Mac, Segoe UI on Windows, Roboto on Android) */
   --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-body {
-  font-family: var(--font-main);
-  font-size: 16px; /* Ensure a solid base size */
-  line-height: 1.65; /* Gives the lines a bit more breathing room */
-
-  /* 2. Dark Mode Legibility Magic
-     These three properties stop the text from looking thin/jagged on dark backgrounds */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-
-  /* 3. A slightly crisper text color.
-     Pure white (#FFF) is too harsh, but a bright slate grey pops beautifully */
-  color: #e2e8f0;
-}
-
-/* Ensure standard paragraphs use the spacing properly */
-p {
-  margin-top: 0;
-  margin-bottom: 1.25rem;
-}
-
-/* Optional polish for your bold text to make it stand out better against the new crisp text */
-strong, b {
-  font-weight: 600;
-  color: #f8fafc; /* Slightly brighter than normal text */
-}
-
-pre.highlightjs, .highlightjs code {
-  background: var(--code-bg) !important;
-}
-
-/* Optional: Make the line under the tabs a bit softer to match the new color */
-.switch {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 html[data-theme="dark"] {
@@ -79,17 +42,19 @@ html[data-theme="dark"] {
   --bg-callout: #1e293b;
   --border-color: #334155;
 
-  --text-main: #cbd5e1;
+  /* Typography Colors (Adapts to Dark Theme) */
+  --text-main: #e2e8f0;     /* Light Slate */
   --text-muted: #94a3b8;
+  --text-bold: #f8fafc;     /* Near White */
   --heading-color: #f8fafc;
-  --link-color: #38bdf8;
+  --link-color: #60a5fa;    /* Light Blue */
 
   --code-inline-bg: #1e293b;
   --code-inline-text: #f472b6;
 }
 
 /* ==========================================================================
-   2. Base & Typography (TIGHTENED SPACING)
+   2. Base & Typography
    ========================================================================== */
 html { scroll-padding-top: 80px; }
 *, ::before, ::after { box-sizing: border-box; }
@@ -97,11 +62,14 @@ html { scroll-padding-top: 80px; }
 body {
   background: var(--bg-main);
   color: var(--text-main);
-  font-family: 'Open Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.6;
+  font-family: var(--font-main);
+  font-size: 16px;
+  line-height: 1.65;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Tighter Headings */
@@ -116,33 +84,40 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 2.5rem; margin-top: 1em; letter-spacing: -0.02em; }
 h2 { font-size: 1.875rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; margin-top: 2em; }
 h3 { font-size: 1.5rem; }
-h4 { font-size: 1.25rem; } /* 20px */
-h5 { font-size: 1.125rem; } /* 18px - Just slightly larger than body text */
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
 
-/* Optional: Make h6 distinct since it's the same size as body text */
 h6 {
-  font-size: 1rem; /* 16px - Same as body */
+  font-size: 1rem;
   color: var(--text-muted);
   letter-spacing: 0.05em;
 }
 
-/* ASCIIDOCTOR FIX: Pull subheadings closer when they immediately follow a parent section */
+/* ASCIIDOCTOR FIX: Pull subheadings closer */
 .sectionbody > .sect2:first-child > h3,
 .sect2 > .sect3:first-child > h4,
 .sect3 > .sect4:first-child > h5 {
   margin-top: 0.75em;
 }
 
-p, table, blockquote { margin-top: 0; margin-bottom: 1rem; }
+p, table, blockquote { margin-top: 0; margin-bottom: 1.25rem; }
 
-a { color: var(--link-color); text-decoration: none; transition: color 0.15s ease; }
+strong, b { font-weight: 600; color: var(--text-bold); }
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+}
 a:hover { text-decoration: underline; color: var(--jooby-blue-hover); }
+
 hr { border: none; border-bottom: 1px solid var(--border-color); margin: 2rem 0; }
 
-/* ASCIIDOCTOR FIX: Fix bloated lists caused by <p> tags inside <li> */
+/* ASCIIDOCTOR FIX: Fix bloated lists */
 ul, ol, dl { margin-top: 0; margin-bottom: 1rem; }
 li { margin-bottom: 0.35rem; }
-.ulist li p, .olist li p, .dlist li p { margin-bottom: 0; } /* Kills the double-spacing */
+.ulist li p, .olist li p, .dlist li p { margin-bottom: 0; }
 
 /* ==========================================================================
    3. Main Content Layout
@@ -234,7 +209,6 @@ html[data-theme="dark"] #toc::-webkit-scrollbar-thumb:hover { background: #64748
    ========================================================================== */
 .admonitionblock { margin-bottom: 1.5rem; }
 
-/* Override Asciidoctor's rigid table layout with modern Flexbox */
 .admonitionblock > table,
 .admonitionblock > table > tbody,
 .admonitionblock > table > tbody > tr {
@@ -250,7 +224,6 @@ html[data-theme="dark"] #toc::-webkit-scrollbar-thumb:hover { background: #64748
   padding: 1.25rem;
 }
 
-/* Style the Left Column (Label & Icon) */
 .admonitionblock td.icon {
   border: none;
   padding: 0;
@@ -260,7 +233,6 @@ html[data-theme="dark"] #toc::-webkit-scrollbar-thumb:hover { background: #64748
   align-items: flex-start;
 }
 
-/* The Text "Note", "Tip", etc. */
 .admonitionblock td.icon .title {
   font-weight: 700;
   text-transform: uppercase;
@@ -272,7 +244,6 @@ html[data-theme="dark"] #toc::-webkit-scrollbar-thumb:hover { background: #64748
   gap: 0.5rem;
 }
 
-/* Style the Main Content */
 .admonitionblock td.content {
   border: none;
   padding: 0;
@@ -283,51 +254,26 @@ html[data-theme="dark"] #toc::-webkit-scrollbar-thumb:hover { background: #64748
 
 .admonitionblock td.content p:last-child { margin-bottom: 0; }
 
-/* --- Color Variants & Zero-Dependency CSS Icons --- */
+/* Variants */
+.admonitionblock.note { --admonition-color: var(--jooby-blue); --admonition-bg: rgba(33, 150, 243, 0.05); }
+.admonitionblock.note td.icon .title::before { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%232196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>'); display: block; width: 16px; height: 16px; }
 
-/* NOTE (Blue) */
-.admonitionblock.note {
-  --admonition-color: var(--jooby-blue);
-  --admonition-bg: rgba(33, 150, 243, 0.05); /* Subtle 5% tint */
-}
-.admonitionblock.note td.icon .title::before {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%232196f3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>');
-  display: block; width: 16px; height: 16px;
-}
+.admonitionblock.tip { --admonition-color: #10b981; --admonition-bg: rgba(16, 185, 129, 0.05); }
+.admonitionblock.tip td.icon .title::before { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>'); display: block; width: 16px; height: 16px; }
 
-/* TIP (Green) */
-.admonitionblock.tip {
-  --admonition-color: #10b981;
-  --admonition-bg: rgba(16, 185, 129, 0.05);
-}
-.admonitionblock.tip td.icon .title::before {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%2310b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>');
-  display: block; width: 16px; height: 16px;
-}
+.admonitionblock.warning { --admonition-color: #f59e0b; --admonition-bg: rgba(245, 158, 11, 0.05); }
+.admonitionblock.warning td.icon .title::before { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'); display: block; width: 16px; height: 16px; }
 
-/* WARNING (Orange/Yellow) */
-.admonitionblock.warning {
-  --admonition-color: #f59e0b;
-  --admonition-bg: rgba(245, 158, 11, 0.05);
-}
-.admonitionblock.warning td.icon .title::before {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>');
-  display: block; width: 16px; height: 16px;
-}
-
-/* IMPORTANT (Red) */
-.admonitionblock.important {
-  --admonition-color: #ef4444;
-  --admonition-bg: rgba(239, 68, 68, 0.05);
-}
-.admonitionblock.important td.icon .title::before {
-  content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>');
-  display: block; width: 16px; height: 16px;
-}
+.admonitionblock.important { --admonition-color: #ef4444; --admonition-bg: rgba(239, 68, 68, 0.05); }
+.admonitionblock.important td.icon .title::before { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>'); display: block; width: 16px; height: 16px; }
 
 /* ==========================================================================
    6. Code Blocks & Inline Code
    ========================================================================== */
+pre.highlightjs, .highlightjs code {
+  background: var(--code-bg) !important;
+}
+
 pre {
   position: relative;
   background: var(--code-bg);
@@ -335,19 +281,15 @@ pre {
   padding: 1rem 1.25rem;
   border-radius: var(--border-radius);
   overflow-x: auto;
-
-  /* Use the new font */
   font-family: var(--font-code);
   font-size: 0.85rem;
   font-weight: 400;
-  line-height: 1.6; /* Slightly increased for better code readability */
-  letter-spacing: -0.01em; /* Crisp rendering */
-
+  line-height: 1.6;
+  letter-spacing: -0.01em;
   margin-top: 0;
   margin-bottom: 1rem;
 }
 
-/* Also update your inline code blocks */
 :not(pre) > code {
   font-family: var(--font-code);
 }
@@ -359,25 +301,20 @@ pre code, pre .hljs {
   font-size: inherit;
 }
 
-/* ==========================================================================
-   6. Code Blocks & Inline Code
-   ========================================================================== */
-
-/* 1. Style the Title as a Mac/IDE File Tab */
+/* Style the Title as a Mac/IDE File Tab */
 .listingblock .title {
-  background-color: #21252b; /* Slightly darker than the code background */
-  color: #abb2bf; /* Muted terminal gray */
+  background-color: #21252b;
+  color: #abb2bf;
   font-family: var(--font-code);
   font-size: 0.78rem;
   padding: 0.5rem 1.25rem;
-  margin-bottom: 0; /* Connects it to the block below */
+  margin-bottom: 0;
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
   border-bottom: 1px solid rgba(0, 0, 0, 0.4);
   display: block;
 }
 
-/* 2. Remove the top rounded corners of the code block so it attaches perfectly */
 .listingblock .title + .content pre {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
@@ -395,7 +332,7 @@ pre code, pre .hljs {
   background-color: var(--code-bg);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   overflow: hidden;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 0;
 }
 
@@ -483,15 +420,9 @@ html[data-theme="dark"] .theme-toggle .sun-icon { display: none; }
 /* ==========================================================================
    9. Header Anchor Links (Deep Linking)
    ========================================================================== */
-h2, h3, h4, h5, h6 {
-  position: relative;
-}
+h2, h3, h4, h5, h6 { position: relative; }
 
-h2 > a.anchor,
-h3 > a.anchor,
-h4 > a.anchor,
-h5 > a.anchor,
-h6 > a.anchor {
+h2 > a.anchor, h3 > a.anchor, h4 > a.anchor, h5 > a.anchor, h6 > a.anchor {
   position: absolute;
   left: -1.5rem;
   top: 0;
@@ -502,29 +433,16 @@ h6 > a.anchor {
   font-weight: 400;
 }
 
-h2 > a.anchor::before,
-h3 > a.anchor::before,
-h4 > a.anchor::before,
-h5 > a.anchor::before,
-h6 > a.anchor::before {
-  content: "#"; /* Modern hash symbol instead of the old section mark */
+h2 > a.anchor::before, h3 > a.anchor::before, h4 > a.anchor::before, h5 > a.anchor::before, h6 > a.anchor::before {
+  content: "#";
 }
 
-/* Show the anchor on hover */
-h2:hover > a.anchor,
-h3:hover > a.anchor,
-h4:hover > a.anchor,
-h5:hover > a.anchor,
-h6:hover > a.anchor {
-  opacity: 1;
-}
+h2:hover > a.anchor, h3:hover > a.anchor, h4:hover > a.anchor, h5:hover > a.anchor, h6:hover > a.anchor { opacity: 1; }
+h2 > a.anchor:hover, h3 > a.anchor:hover, h4 > a.anchor:hover, h5 > a.anchor:hover, h6 > a.anchor:hover { color: var(--jooby-blue); }
 
-h2 > a.anchor:hover,
-h3 > a.anchor:hover,
-h4 > a.anchor:hover,
-h5 > a.anchor:hover,
-h6 > a.anchor:hover {
-  color: var(--jooby-blue);
+h2 > a.anchor.copied::before, h3 > a.anchor.copied::before, h4 > a.anchor.copied::before,
+h5 > a.anchor.copied::before, h6 > a.anchor.copied::before {
+  content: "✓"; color: #10b981;
 }
 
 /* ==========================================================================
@@ -536,7 +454,6 @@ h6 > a.anchor:hover {
   letter-spacing: -0.03em;
   margin-top: 0;
   margin-bottom: 1rem;
-  /* Optional: A subtle gradient using Jooby's blue to accent */
   background: linear-gradient(135deg, var(--jooby-blue) 0%, #8b5cf6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -551,50 +468,8 @@ h6 > a.anchor:hover {
 }
 
 /* ==========================================================================
-   12. Print Styles (For "Save to PDF")
+   11. Miscellaneous Badges
    ========================================================================== */
-@media print {
-  /* Force light theme for printing */
-  :root {
-    --bg-main: #ffffff !important;
-    --text-main: #000000 !important;
-    --heading-color: #000000 !important;
-  }
-
-  body {
-    background: white !important;
-    color: black !important;
-    font-size: 11pt; /* Better for paper */
-  }
-
-  /* Hide UI elements */
-  #toc, .theme-toggle, .clipboard, .version-selector, .switch {
-    display: none !important;
-  }
-
-  /* Reset layout constraints */
-  body.toc2, #content, #header, #footer {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-  }
-
-  /* Prevent awkward page breaks */
-  h2, h3, h4, h5 { page-break-after: avoid; }
-  pre, blockquote, table, img { page-break-inside: avoid; }
-
-  /* Show link URLs explicitly on paper */
-  #content a::after {
-    content: " (" attr(href) ")";
-    font-size: 0.85em;
-    color: #666;
-  }
-  /* Don't print URLs for internal anchor links */
-  #content a[href^="#"]::after {
-    content: "";
-  }
-}
-
 .badge {
   display: inline-block;
   padding: 0.15em 0.5em;
@@ -612,76 +487,11 @@ h6 > a.anchor:hover {
 .badge.new { background: #10b981; color: #fff; }
 
 /* ==========================================================================
-   13. Callouts (Code Pointers)
+   12. Callouts (Code Pointers & Lists)
    ========================================================================== */
+pre.highlightjs code { opacity: 0; transition: opacity 0.05s ease-out; }
+pre.highlightjs.badges-loaded code { opacity: 1; }
 
-/* 1. The badge INSIDE the code block (created via JavaScript) */
-.conum-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background-color: var(--code-inline-text); /* The Pink/Red */
-  color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: 700;
-  font-style: normal;
-}
-
-/* 2. The list BELOW the code block */
-.colist {
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.colist table { border: none !important; background: transparent !important; margin: 0 !important;}
-.colist tr { background: transparent !important; }
-.colist td { border: none !important; padding: 0.4rem 0.5rem !important; vertical-align: top !important; color: var(--text-main); }
-.colist td:first-child { padding-left: 0 !important; width: 2.5rem !important; }
-
-/* The dark circle in the list below the code block */
-.colist .conum {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem !important;
-  height: 1.5rem !important;
-  border-radius: 50% !important;
-  background-color: var(--text-main) !important;
-  color: var(--bg-main) !important;
-  font-size: 0.85rem !important;
-  font-weight: 700 !important;
-  font-style: normal !important;
-  position: relative;
-}
-
-/* Hide fallback text Asciidoctor injects */
-.colist i.conum[data-value] { color: transparent !important; }
-.colist i.conum[data-value]::after {
-  content: attr(data-value);
-  color: var(--bg-main) !important;
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-}
-.colist .conum + b { display: none !important; }
-
-/* ==========================================================================
-   13. Callouts (Code Pointers & Lists)
-   ========================================================================== */
-
-/* 1. Prevent the Flash: Keep background solid, micro-fade the text only */
-pre.highlightjs code {
-  opacity: 0;
-  transition: opacity 0.05s ease-out;
-}
-pre.highlightjs.badges-loaded code {
-  opacity: 1;
-}
-
-/* 2. The Pink Badge INSIDE the code block */
 .conum-badge {
   display: inline-flex;
   align-items: center;
@@ -697,7 +507,6 @@ pre.highlightjs.badges-loaded code {
   flex-shrink: 0;
 }
 
-/* 3. The List BELOW the code block */
 .colist.arabic ol {
   list-style: none !important;
   padding-left: 0;
@@ -709,12 +518,10 @@ pre.highlightjs.badges-loaded code {
   margin-bottom: 1.25rem;
   counter-increment: colist-counter;
   position: relative;
-  /* This creates a "gutter" for the badge */
   padding-left: 2.5rem;
   min-height: 1.5rem;
 }
 
-/* Draws the Dark Badge */
 .colist.arabic li::before {
   content: counter(colist-counter);
   position: absolute;
@@ -732,40 +539,13 @@ pre.highlightjs.badges-loaded code {
   font-weight: 700;
 }
 
-/* Ensures all nested content (paragraphs, ulist, etc.) aligns to the right of the badge */
-.colist.arabic li > *:first-child {
-  display: block;
-  margin-top: 0;
-}
+.colist.arabic li > *:first-child { display: block; margin-top: 0; }
+.colist.arabic li p { margin-bottom: 0.5rem; line-height: 1.5rem; }
 
-.colist.arabic li p {
-  margin-bottom: 0.5rem;
-  line-height: 1.5rem;
-}
-
-/* Nested Bullet Lists */
-.colist.arabic li .ulist {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.colist.arabic li .ulist ul {
-  list-style: disc;
-  padding-left: 1.25rem; /* Standard bullet indentation */
-  margin: 0;
-}
-
-.colist.arabic li .ulist li {
-  padding-left: 0; /* Reset the callout padding for nested bullets */
-  margin-bottom: 0.25rem;
-  counter-increment: none;
-}
-
-.colist.arabic li .ulist li::before {
-  content: none; /* No badges on nested bullets */
-}
-
-/* --- Utilities --- */
+.colist.arabic li .ulist { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+.colist.arabic li .ulist ul { list-style: disc; padding-left: 1.25rem; margin: 0; }
+.colist.arabic li .ulist li { padding-left: 0; margin-bottom: 0.25rem; counter-increment: none; }
+.colist.arabic li .ulist li::before { content: none; }
 
 .visually-hidden {
   position: absolute !important; width: 1px !important; height: 1px !important;
@@ -773,18 +553,11 @@ pre.highlightjs.badges-loaded code {
   clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important;
 }
 
-h2 > a.anchor.copied::before, h3 > a.anchor.copied::before, h4 > a.anchor.copied::before,
-h5 > a.anchor.copied::before, h6 > a.anchor.copied::before {
-  content: "✓"; color: #10b981;
-}
-
 /* ==========================================================================
-   14. Tables
+   13. Tables
    ========================================================================== */
-
 table.tableblock {
   width: 100%;
-  /* Switch back to fixed to strictly honor [cols="1,1,4"] */
   table-layout: fixed !important;
   border-collapse: separate;
   border-spacing: 0;
@@ -794,9 +567,7 @@ table.tableblock {
   overflow: hidden;
 }
 
-/* 1. Reset all columns to allow wrapping by default */
-table.tableblock td,
-table.tableblock th {
+table.tableblock td, table.tableblock th {
   padding: 0.75rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.9rem;
@@ -807,120 +578,53 @@ table.tableblock th {
   overflow-wrap: anywhere;
 }
 
-/* 2. Header Polish */
 table.tableblock thead th {
   background-color: var(--bg-surface);
   font-weight: 600;
   border-bottom: 2px solid var(--border-color);
   color: var(--heading-color);
-  white-space: nowrap; /* Keep headers clean on one line */
+  white-space: nowrap;
 }
 
-/* 3. Smart First Column Handling
-   If you have NOT defined specific columns, we force it to fit.
-   If you HAVE defined [cols], we let it wrap to fit your proportions. */
 table.tableblock:not(:has(colgroup col[style*="width"])) td:first-child {
   white-space: nowrap;
-  width: 1%; /* Shrink-wrap effect */
+  width: 1%;
 }
 
-/* 4. Column Spacing & Visuals */
-table.tableblock td:first-child {
-  font-weight: 500;
-  color: var(--heading-color);
-}
-
-/* Ensure code blocks inside tables don't have extra margins */
-table.tableblock td p {
-  margin: 0;
-}
-table.tableblock td p + p {
-  margin-top: 0.5rem;
-}
-
+table.tableblock td:first-child { font-weight: 500; color: var(--heading-color); }
+table.tableblock td p { margin: 0; }
+table.tableblock td p + p { margin-top: 0.5rem; }
 table.tableblock tbody tr:hover { background-color: var(--bg-callout); }
 table.tableblock tbody tr:last-child td { border-bottom: none; }
 
 /* ==========================================================================
-   15. Keyboard Shortcuts (kbd)
+   14. Keyboard Shortcuts (kbd)
    ========================================================================== */
 kbd {
   display: inline-block;
   padding: 0.1rem 0.4rem;
-  font-family: var(--font-code); /* Uses JetBrains Mono for that tech feel */
+  font-family: var(--font-code);
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--text-main);
   background-color: var(--bg-surface);
-  /* The "3D" Key Effect */
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  box-shadow:
-      0 1px 0 rgba(0, 0, 0, 0.2),
-      inset 0 0 0 2px var(--bg-main);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2), inset 0 0 0 2px var(--bg-main);
   margin: 0 0.15rem;
   vertical-align: middle;
   line-height: 1.2;
 }
 
 /* ==========================================================================
-   16. Responsive / Mobile Adjustments
+   15. Responsive / Mobile Adjustments
    ========================================================================== */
 
-@media screen and (max-width: 768px) {
-  /* 1. Create a top bar so the button isn't just floating over text */
-  #header {
-    padding-top: 4rem !important; /* Push content down to clear the bar */
-  }
+/* Hidden elements on Desktop */
+.mobile-nav-bar { display: none; }
 
-  .mobile-nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3.5rem;
-    background-color: var(--bg-main);
-    border-bottom: 1px solid var(--border-color);
-    padding: 0 1.5rem;
-    z-index: 10001; /* Higher than the sidebar */
-  }
-
-  /* 2. Reposition the button inside the new bar */
-  #menu-toggle {
-    position: static !important; /* Remove the fixed positioning from before */
-    margin-left: auto;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  /* 1. Make tables scrollable horizontally without breaking the page */
-  .tableblock {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  }
-
-  /* 2. Prevent the "First Column" from taking up too much room on mobile */
-  table.tableblock td:first-child {
-    white-space: normal !important; /* Allow wrapping on small screens */
-    min-width: 120px;
-  }
-
-  /* 3. Slightly reduce padding to save precious horizontal space */
-  table.tableblock th,
-  table.tableblock td {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.85rem;
-  }
-}
-
-/* Hamburger Button Styling */
 .hamburger {
-  display: none; /* Hidden by default on Desktop */
+  display: none;
   flex-direction: column;
   justify-content: space-around;
   width: 2rem;
@@ -941,130 +645,84 @@ kbd {
 }
 
 /* Animate Hamburger to X */
-.hamburger.open span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.open span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -6px);
-}
+.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(7px, -6px); }
 
 @media screen and (max-width: 768px) {
-  /* 1. Force the navigation to be a fixed mobile drawer */
+  /* Mobile Header Top Bar */
+  #header { padding-top: 4rem !important; }
+
+  .mobile-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3.5rem;
+    background-color: var(--bg-main);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 1.5rem;
+    z-index: 10001;
+  }
+
+  .hamburger { display: flex; }
+  #menu-toggle { position: static !important; margin-left: auto; }
+
+  /* Slide-out Sidebar Menu */
   #toc, .nav-container, #sidebar {
     position: fixed !important;
     top: 0 !important;
-    left: -100% !important; /* Start off-screen */
-    width: 80% !important; /* Take up most of the screen */
+    left: -100% !important;
+    width: 80% !important;
     max-width: 300px !important;
     height: 100vh !important;
-    background-color: var(--bg-main) !important; /* Ensure it's not transparent */
-    z-index: 9999 !important; /* Sit on top of everything */
+    background-color: var(--bg-main) !important;
+    z-index: 9999 !important;
     transition: left 0.3s ease-in-out !important;
-    display: block !important; /* Ensure it's not hidden with display:none */
+    display: block !important;
     box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-    padding: 2rem 1rem !important;
+    padding: 4rem 1rem 2rem 1rem !important; /* Spaced to clear nav bar */
     overflow-y: auto !important;
   }
 
-  /* 2. Slide in when the 'active' class is applied */
-  #toc.active, .nav-container.active, #sidebar.active {
-    left: 0 !important;
-  }
+  #toc.active, .nav-container.active, #sidebar.active { left: 0 !important; }
 
-  /* 3. Ensure the hamburger button stays visible and on top */
-  #menu-toggle {
-    display: flex !important;
-    position: fixed !important;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10000 !important;
-    background: var(--bg-surface);
-    padding: 5px;
-    border-radius: var(--border-radius);
+  /* Mobile Tables */
+  .tableblock {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-}
-
-@media screen and (max-width: 768px) {
-  .hamburger {
-    display: flex; /* Show on Mobile */
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-  }
-
-  /* Target your specific sidebar class (usually .nav-container or #toc) */
-  #sidebar, .nav-container {
-    position: fixed;
-    top: 0;
-    left: -100%; /* Hide off-screen */
-    width: 280px;
-    height: 100vh;
-    background: var(--bg-main);
-    transition: left 0.3s ease-in-out;
-    z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
-  }
-
-  /* When the 'active' class is added via JS, slide it in */
-  #sidebar.active, .nav-container.active {
-    left: 0;
-  }
+  table.tableblock td:first-child { white-space: normal !important; min-width: 120px; }
+  table.tableblock th, table.tableblock td { padding: 0.5rem 0.75rem !important; font-size: 0.85rem; }
 }
 
 /* ==========================================================================
-   17. Print Styles (Ink-Friendly PDF)
+   16. Print Styles (Ink-Friendly PDF)
    ========================================================================== */
-
 @media print {
-  /* 1. Force a clean white background and black text for legibility */
-  body {
-    background: white !important;
-    color: black !important;
-    font-size: 11pt;
-  }
+  body { background: white !important; color: black !important; font-size: 11pt; }
+  #header, #footer, #sidebar, .nav-container, .edit-link, .mobile-nav-bar, .theme-toggle, .clipboard, .switch { display: none !important; }
+  #content { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+  body.toc2, #header, #footer { padding: 0 !important; max-width: 100% !important; }
 
-  /* 2. Remove the sidebar, header, and footer to focus on the content */
-  #header, #footer, #sidebar, .nav-container, .edit-link {
-    display: none !important;
-  }
-
-  #content {
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* 3. Convert Code Blocks to a light theme for the printer */
   pre {
     background: #f5f5f5 !important;
     color: #333 !important;
     border: 1px solid #ddd !important;
-    page-break-inside: avoid; /* Prevents code from splitting across pages */
-  }
-
-  pre code {
-    color: #333 !important;
-  }
-
-  /* 4. Ensure Tables expand and borders are visible */
-  table.tableblock {
-    border: 1px solid #999 !important;
-    page-break-inside: auto;
-  }
-
-  tr {
     page-break-inside: avoid;
-    page-break-after: auto;
   }
+  pre code { color: #333 !important; }
 
-  /* 5. Show the actual URL next to links (useful for paper) */
-  a[href^="http"]:after {
-    content: " (" attr(href) ")";
-    font-size: 90%;
-    color: #666;
-  }
+  table.tableblock { border: 1px solid #999 !important; page-break-inside: auto; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+  h2, h3, h4, h5 { page-break-after: avoid; }
+  pre, blockquote, img { page-break-inside: avoid; }
+
+  a[href^="http"]:after { content: " (" attr(href) ")"; font-size: 90%; color: #666; }
+  #content a[href^="#"]::after { content: ""; }
 }
-
