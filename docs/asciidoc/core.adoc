@@ -1,6 +1,6 @@
 == Core
 [.lead]
-The foundational building blocks of your Jooby application. This section covers how to bootstrap the server, manage application environments and configuration, and leverage the modular architecture that makes Jooby both lightweight and highly extensible.
+The heart of the Jooby development experience. This section defines the Request-Response Pipeline, covering everything from expressive routing and path patterns to managing the Context and crafting fluid responses. It is the essential guide to building the logic that powers your web applications.
 
 include::routing.adoc[]
 
