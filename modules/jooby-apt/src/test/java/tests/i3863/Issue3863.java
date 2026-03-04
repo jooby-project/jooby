@@ -11,7 +11,7 @@ import io.jooby.apt.ProcessorRunner;
 
 public class Issue3863 {
   @Test
-  public void shouldGenerateTrpcHandler() throws Exception {
+  public void shouldGenerateTrpcService() throws Exception {
     new ProcessorRunner(new C3863())
         .withSourceCode(
             source -> {

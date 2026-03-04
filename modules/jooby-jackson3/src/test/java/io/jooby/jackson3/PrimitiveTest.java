@@ -6,6 +6,7 @@
 package io.jooby.jackson3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,5 +18,7 @@ public class PrimitiveTest {
   public void shouldParsePrimitive() {
     var mapper = new ObjectMapper();
     assertEquals(1, mapper.readValue("1", long.class));
+    assertEquals(1, mapper.readValue("null", long.class));
+    assertNull(mapper.readValue("null", Long.class));
   }
 }

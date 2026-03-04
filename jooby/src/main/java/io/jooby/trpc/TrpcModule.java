@@ -11,7 +11,13 @@ import io.jooby.Jooby;
 
 public class TrpcModule implements Extension {
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
-    application.error(new TrpcErrorHandler());
+  public void install(@NonNull Jooby app) throws Exception {
+    var services = app.getServices();
+
+    services.require(TrpcParser.class);
+    // Custom mapping for TrpcErrorCode
+    services.mapOf(Class.class, TrpcErrorCode.class);
+
+    app.error(new TrpcErrorHandler());
   }
 }

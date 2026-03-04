@@ -5,6 +5,8 @@
  */
 package io.jooby.test;
 
+import static okhttp3.RequestBody.create;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
@@ -357,6 +359,10 @@ public class WebClient implements AutoCloseable {
 
   public void post(String path, RequestBody form, SneakyThrows.Consumer<Response> callback) {
     post(path, form).execute(callback);
+  }
+
+  public void postJson(String path, String json, SneakyThrows.Consumer<Response> callback) {
+    post(path, create(json, MediaType.parse("application/json"))).execute(callback);
   }
 
   public Request put(String path) {

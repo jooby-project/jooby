@@ -3,6 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.trpc;
+package io.jooby.i3863;
 
-public record TrpcResult<T>(T data) {}
+import io.avaje.jsonb.Json;
+
+@Json
+public record Movie(int id, String title, int year) {}

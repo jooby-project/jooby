@@ -37,6 +37,10 @@ public class MvcParameter {
     return type;
   }
 
+  public String getName() {
+    return parameter.getSimpleName().toString();
+  }
+
   public String generateMapping(boolean kt) {
     var strategy =
         annotations.entrySet().stream()

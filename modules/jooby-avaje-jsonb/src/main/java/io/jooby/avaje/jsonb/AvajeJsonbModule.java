@@ -10,12 +10,18 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.*;
+import io.jooby.internal.avaje.jsonb.AvajeTrpcParser;
+import io.jooby.internal.avaje.jsonb.AvajeTrpcResponseAdapter;
 import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcErrorCode;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 
 /**
  * JSON module using Avaje-JsonB: <a
@@ -68,7 +74,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   /**
    * Creates a new module and use an Avaje-JsonB instance.
    *
-   * @param jsonb Gson to use.
+   * @param jsonb JsonB to use.
    */
   public AvajeJsonbModule(@NonNull Jsonb jsonb) {
     this.jsonb = jsonb;
@@ -76,7 +82,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
   /** Creates a new Avaje-JsonB module. */
   public AvajeJsonbModule() {
-    this(Jsonb.builder().build());
+    this(Jsonb.builder().add(TrpcResponse.class, trpcResponseAdapter()).build());
   }
 
   @Override
@@ -84,11 +90,17 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(Jsonb.class, jsonb);
+    // tRpc
+    services.put(TrpcParser.class, new AvajeTrpcParser(jsonb));
+    application.errorCode(JsonDataException.class, StatusCode.BAD_REQUEST);
+    services
+        .mapOf(Class.class, TrpcErrorCode.class)
+        .put(JsonDataException.class, TrpcErrorCode.BAD_REQUEST);
   }
 
-  @NonNull @Override
+  @Override
   public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
@@ -142,5 +154,14 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
         };
     var view = (JsonView<Object>) jsonbType.view(viewString);
     view.toJson(value, writer);
+  }
+
+  /**
+   * Custom adapter for {@link TrpcResponse}.
+   *
+   * @return Custom adapter for {@link TrpcResponse}.
+   */
+  public static Jsonb.AdapterBuilder trpcResponseAdapter() {
+    return AvajeTrpcResponseAdapter::new;
   }
 }

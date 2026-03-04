@@ -18,10 +18,9 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -149,6 +148,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
 
     // Filter
     var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);

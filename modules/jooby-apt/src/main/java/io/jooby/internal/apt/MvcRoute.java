@@ -32,6 +32,7 @@ public class MvcRoute {
   private boolean uncheckedCast;
   private final boolean hasBeanValidation;
   private final List<TrpcMethod> trpcMethods = new ArrayList<>();
+  private final Set<String> pending = new HashSet<>();
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -160,9 +161,11 @@ public class MvcRoute {
         targetMethod =
             "trpc" + targetMethod.substring(0, 1).toUpperCase() + targetMethod.substring(1);
         trpcMethods.add(new TrpcMethod(httpMethod, targetMethod));
+      } else {
+        pending.add(methodName);
       }
       for (var path : paths) {
-        var lastLine = lastHttpMethod && paths.get(paths.size() - 1).equals(path);
+        var lastLine = lastHttpMethod && paths.getLast().equals(path);
         block.add(javadocLink);
         block.add(
             statement(
@@ -251,116 +254,120 @@ public class MvcRoute {
 
   public List<String> generateHandlerCall(boolean kt) {
     var buffer = new ArrayList<String>();
-    /* Parameters */
-    var paramList = new StringJoiner(", ", "(", ")");
-    for (var parameter : getParameters(true)) {
-      String generatedParameter = parameter.generateMapping(kt);
-      if (parameter.isRequireBeanValidation()) {
-        generatedParameter =
-            CodeBlock.of(
-                "io.jooby.validation.BeanValidator.apply(", "ctx, ", generatedParameter, ")");
+    var methodName = getGeneratedName();
+    if (pending.contains(methodName)) {
+      /* Parameters */
+      var paramList = new StringJoiner(", ", "(", ")");
+      for (var parameter : getParameters(true)) {
+        String generatedParameter = parameter.generateMapping(kt);
+        if (parameter.isRequireBeanValidation()) {
+          generatedParameter =
+              CodeBlock.of(
+                  "io.jooby.validation.BeanValidator.apply(", "ctx, ", generatedParameter, ")");
+        }
+
+        paramList.add(generatedParameter);
+      }
+      var returnTypeGenerics =
+          getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+      var returnTypeString = type(kt, getReturnType().toString());
+      var customReturnType = getReturnType();
+      if (customReturnType.isProjection()) {
+        // Override for projection
+        returnTypeGenerics = "";
+        returnTypeString = Types.PROJECTED + "<" + returnType + ">";
       }
 
-      paramList.add(generatedParameter);
-    }
-    var returnTypeGenerics =
-        getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-    var returnTypeString = type(kt, getReturnType().toString());
-    var customReturnType = getReturnType();
-    if (customReturnType.isProjection()) {
-      // Override for projection
-      returnTypeGenerics = "";
-      returnTypeString = Types.PROJECTED + "<" + returnType + ">";
-    }
-
-    var nullable =
-        methodCallHeader(kt, getGeneratedName(), buffer, returnTypeGenerics, returnTypeString);
-    if (returnType.isVoid()) {
-      String statusCode;
-      if (annotationMap.size() == 1) {
-        statusCode =
-            annotationMap.keySet().iterator().next().getSimpleName().toString().equals("DELETE")
-                ? "NO_CONTENT"
-                : "OK";
-      } else {
-        statusCode = null;
-      }
-      if (statusCode != null) {
+      var nullable =
+          methodCallHeader(kt, "ctx", methodName, buffer, returnTypeGenerics, returnTypeString);
+      if (returnType.isVoid()) {
+        String statusCode;
+        if (annotationMap.size() == 1) {
+          statusCode =
+              annotationMap.keySet().iterator().next().getSimpleName().toString().equals("DELETE")
+                  ? "NO_CONTENT"
+                  : "OK";
+        } else {
+          statusCode = null;
+        }
+        if (statusCode != null) {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "ctx.setResponseCode(io.jooby.StatusCode.",
+                  statusCode,
+                  ")",
+                  semicolon(kt)));
+        } else {
+          if (kt) {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
+                    string("DELETE"),
+                    ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
+          } else {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
+                    string("DELETE"),
+                    ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
+                    semicolon(false)));
+          }
+        }
+        controllerVar(kt, buffer);
+        buffer.add(
+            statement(
+                indent(2), "c.", this.method.getSimpleName(), paramList.toString(), semicolon(kt)));
+        buffer.add(statement(indent(2), "return ctx.getResponseCode()", semicolon(kt)));
+      } else if (returnType.is("io.jooby.StatusCode")) {
+        controllerVar(kt, buffer);
         buffer.add(
             statement(
                 indent(2),
-                "ctx.setResponseCode(io.jooby.StatusCode.",
-                statusCode,
-                ")",
+                kt ? "val" : "var",
+                " statusCode = c.",
+                this.method.getSimpleName(),
+                paramList.toString(),
                 semicolon(kt)));
+        buffer.add(statement(indent(2), "ctx.setResponseCode(statusCode)", semicolon(kt)));
+        buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
       } else {
-        if (kt) {
+        controllerVar(kt, buffer);
+        var cast =
+            customReturnType.isProjection()
+                ? ""
+                : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+        var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
+        var call =
+            of(
+                "c.",
+                this.method.getSimpleName(),
+                kotlinNotEnoughTypeInformation,
+                paramList.toString());
+        if (!cast.isEmpty()) {
+          setUncheckedCast(true);
+          call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+        }
+        if (customReturnType.isProjection()) {
+          var projected =
+              of(Types.PROJECTED, ".wrap(", call, ").include(", string(getProjection()), ")");
           buffer.add(
               statement(
-                  indent(2),
-                  "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
-                  string("DELETE"),
-                  ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
+                  indent(2), "return ", projected, kt && nullable ? "!!" : "", semicolon(kt)));
         } else {
           buffer.add(
-              statement(
-                  indent(2),
-                  "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
-                  string("DELETE"),
-                  ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
-                  semicolon(false)));
+              statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
         }
       }
-      controllerVar(kt, buffer);
-      buffer.add(
-          statement(
-              indent(2), "c.", this.method.getSimpleName(), paramList.toString(), semicolon(kt)));
-      buffer.add(statement(indent(2), "return ctx.getResponseCode()", semicolon(kt)));
-    } else if (returnType.is("io.jooby.StatusCode")) {
-      controllerVar(kt, buffer);
-      buffer.add(
-          statement(
-              indent(2),
-              kt ? "val" : "var",
-              " statusCode = c.",
-              this.method.getSimpleName(),
-              paramList.toString(),
-              semicolon(kt)));
-      buffer.add(statement(indent(2), "ctx.setResponseCode(statusCode)", semicolon(kt)));
-      buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
-    } else {
-      controllerVar(kt, buffer);
-      var cast =
-          customReturnType.isProjection()
-              ? ""
-              : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-      var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
-      var call =
-          of(
-              "c.",
-              this.method.getSimpleName(),
-              kotlinNotEnoughTypeInformation,
-              paramList.toString());
-      if (!cast.isEmpty()) {
-        setUncheckedCast(true);
-        call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
-      }
-      if (customReturnType.isProjection()) {
-        var projected =
-            of(Types.PROJECTED, ".wrap(", call, ").include(", string(getProjection()), ")");
-        buffer.add(
-            statement(indent(2), "return ", projected, kt && nullable ? "!!" : "", semicolon(kt)));
-      } else {
-        buffer.add(
-            statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
-      }
-    }
-    buffer.add(statement("}", System.lineSeparator()));
-    if (uncheckedCast) {
-      if (kt) {
-        buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
-      } else {
-        buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
+      buffer.add(statement("}", System.lineSeparator()));
+      if (uncheckedCast) {
+        if (kt) {
+          buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
+        } else {
+          buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
+        }
       }
     }
     for (var trpcMethod : trpcMethods) {
@@ -371,11 +378,29 @@ public class MvcRoute {
 
   private boolean methodCallHeader(
       boolean kt,
+      String contextVarname,
       String methodName,
       ArrayList<String> buffer,
       String returnTypeGenerics,
       String returnTypeString) {
-    var throwsException = !method.getThrownTypes().isEmpty();
+    return methodCallHeader(
+        kt,
+        contextVarname,
+        methodName,
+        buffer,
+        returnTypeGenerics,
+        returnTypeString,
+        !method.getThrownTypes().isEmpty());
+  }
+
+  private boolean methodCallHeader(
+      boolean kt,
+      String contextVarname,
+      String methodName,
+      ArrayList<String> buffer,
+      String returnTypeGenerics,
+      String returnTypeString,
+      boolean throwsException) {
     var nullable = false;
     if (kt) {
       nullable =
@@ -396,14 +421,16 @@ public class MvcRoute {
                 "(handler: io.jooby.kt.HandlerContext): ",
                 returnTypeString,
                 " {"));
-        buffer.add(statement(indent(2), "val ctx = handler.ctx"));
+        buffer.add(statement(indent(2), "val ", contextVarname, " = handler.ctx"));
       } else {
         buffer.add(
             statement(
                 "fun ",
                 returnTypeGenerics,
                 methodName,
-                "(ctx: io.jooby.Context): ",
+                "(",
+                contextVarname,
+                ": io.jooby.Context): ",
                 returnTypeString,
                 " {"));
       }
@@ -415,7 +442,9 @@ public class MvcRoute {
               returnTypeString,
               " ",
               methodName,
-              "(io.jooby.Context ctx) ",
+              "(io.jooby.Context ",
+              contextVarname,
+              ") ",
               throwsException ? "throws Exception {" : "{"));
     }
     return nullable;
@@ -427,80 +456,192 @@ public class MvcRoute {
     var returnTypeString =
         "io.jooby.trpc.TrpcResponse<" + type(kt, getReturnType().toString()) + ">";
 
-    var nullable = methodCallHeader(kt, trpcMethod.name, buffer, "", returnTypeString);
-    if (trpcMethod.method == HttpMethod.GET) {
+    methodCallHeader(kt, "ctx", trpcMethod.name, buffer, "", returnTypeString, true);
+    var hasArgs = !parameters.isEmpty();
+    if (hasArgs) {
       buffer.add(
           statement(
               indent(2),
               var(kt),
-              "input = ctx.query(",
-              string("input"),
-              ").value()",
-              semicolon(kt)));
-      buffer.add(
-          statement(
-              indent(2),
-              var(kt),
-              "mapper = ctx.require(tools.jackson.databind.ObjectMapper",
+              "parser = ctx.require(io.jooby.trpc.TrpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
-      List<String> arguments =
-          switch (method.getParameters().size()) {
-            case 0 -> List.of();
-            case 1 -> {
-              buffer.add(
+      if (trpcMethod.method == HttpMethod.GET) {
+        buffer.add(
+            statement(
+                indent(2),
+                var(kt),
+                "input = ctx.query(",
+                string("input"),
+                ").",
+                parameters.isEmpty() ? "valueOrNull" : "value",
+                "()",
+                semicolon(kt)));
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "if (input?.trim()?.let { it.startsWith('[') && it.endsWith(']') } != true) throw"
+                      + " IllegalArgumentException(",
+                  string("tRPC input must be a JSON array (tuple)"),
+                  ")"));
+        } else {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "if (input == null || input.length() < 2 || input.charAt(0) != '[' ||"
+                      + " input.charAt(input.length() - 1) != ']') throw new"
+                      + " IllegalArgumentException(",
+                  string("tRPC input must be a JSON array (tuple)"),
+                  ");"));
+        }
+      } else {
+        buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "if (input.size < 2 || input[0] != '['.toByte() || input[input.size - 1] !="
+                      + " ']'.toByte()) throw IllegalArgumentException(",
+                  string("tRPC body must be a JSON array (tuple)"),
+                  ")"));
+        } else {
+          buffer.add(
+              statement(
+                  indent(2),
+                  "if (input.length < 2 || input[0] != '[' || input[input.length - 1] != ']') throw"
+                      + " new IllegalArgumentException(",
+                  string("tRPC body must be a JSON array (tuple)"),
+                  ");"));
+        }
+      }
+    }
+    var isVoid = returnType.isVoid() || returnType.is("kotlin.Unit");
+
+    var parseStatements = new ArrayList<String>();
+    var arguments = new ArrayList<String>();
+    for (var parameter : parameters) {
+      var paramenterName = parameter.getName();
+      var type = parameter.getType().getRawType().toString();
+      switch (type) {
+        case "io.jooby.Context":
+          {
+            arguments.add("ctx");
+          }
+          break;
+        case "int", "long", "double", "boolean", "java.lang.String":
+          {
+            var simpleType = type.equals(String.class.getName()) ? "String" : type;
+            var nextName =
+                "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
+            parseStatements.add(
+                statement(
+                    indent(4),
+                    var(kt),
+                    paramenterName,
+                    " = reader.",
+                    nextName,
+                    "(",
+                    string(paramenterName),
+                    ")",
+                    semicolon(kt)));
+            arguments.add(paramenterName);
+          }
+          break;
+        default:
+          {
+            if (kt) {
+              parseStatements.add(
                   statement(
-                      indent(2),
-                      var(kt),
-                      method.getParameters().getFirst().getSimpleName(),
-                      " = mapper.readValue(input, ",
-                      method.getParameters().getFirst().asType().toString(),
-                      clazz(kt),
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      "Decoder: io.jooby.trpc.TrpcDecoder<",
+                      parameter.getType().toString(),
+                      "> = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
                       ")",
                       semicolon(kt)));
-              yield List.of(method.getParameters().getFirst().getSimpleName().toString());
+              parseStatements.add(
+                  statement(
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      ": ",
+                      parameter.getType().toString(),
+                      " = reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName + "Decoder)",
+                      semicolon(kt)));
+            } else {
+              parseStatements.add(
+                  statement(
+                      indent(4),
+                      "io.jooby.trpc.TrpcDecoder<",
+                      parameter.getType().toString(),
+                      "> ",
+                      paramenterName,
+                      "Decoder = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
+                      ")",
+                      semicolon(kt)));
+              parseStatements.add(
+                  statement(
+                      indent(4),
+                      parameter.getType().toString(),
+                      " ",
+                      paramenterName,
+                      " = reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName + "Decoder)",
+                      semicolon(kt)));
             }
-            default -> {
-              buffer.add(
-                  statement(indent(2), var(kt), "array = mapper.readTree(input)", semicolon(kt)));
-              var args = new ArrayList<String>();
-              for (int i = 0; i < method.getParameters().size(); i++) {
-                buffer.add(
-                    statement(
-                        indent(2),
-                        var(kt),
-                        method.getParameters().getFirst().getSimpleName(),
-                        Integer.toString(i),
-                        " = mapper.readValue(array.get(",
-                        Integer.toString(i),
-                        "), ",
-                        method.getParameters().getFirst().asType().toString(),
-                        clazz(kt),
-                        ")",
-                        semicolon(kt)));
-                args.add(method.getParameters().getFirst().getSimpleName().toString());
-              }
-              yield args;
-            }
-          };
-      controllerVar(kt, buffer);
-      var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-      var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
-      var call =
-          of(
-              "c.",
-              this.method.getSimpleName(),
-              kotlinNotEnoughTypeInformation,
-              arguments.stream().collect(Collectors.joining(", ", "(", ")")));
-      if (!cast.isEmpty()) {
-        setUncheckedCast(true);
-        call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+            arguments.add(paramenterName);
+          }
+          break;
       }
-      buffer.add(statement(indent(2), var(kt), "result = ", call, semicolon(kt)));
-      buffer.add(
-          statement(
-              indent(2), "return ", "io.jooby.trpc.TrpcResponse.success(result)", semicolon(kt)));
+    }
+
+    int indent = 2;
+    if (hasArgs) {
+      indent = 4;
+      if (kt) {
+        buffer.add(statement(indent(2), "parser.reader(input).use { reader -> "));
+      } else {
+        buffer.add(statement(indent(2), "try (var reader = parser.reader(input)) {"));
+      }
+      buffer.addAll(parseStatements);
+    }
+    controllerVar(kt, buffer, indent);
+    var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+    var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
+    var call =
+        of(
+            "c.",
+            this.method.getSimpleName(),
+            kotlinNotEnoughTypeInformation,
+            arguments.stream().collect(Collectors.joining(", ", "(", ")")));
+    if (!cast.isEmpty()) {
+      setUncheckedCast(true);
+      call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+    }
+    if (isVoid) {
+      buffer.add(statement(indent(indent), call, semicolon(kt)));
+    } else {
+      buffer.add(statement(indent(indent), var(kt), "result = ", call, semicolon(kt)));
+    }
+    buffer.add(
+        statement(
+            indent(indent),
+            "return ",
+            "io.jooby.trpc.TrpcResponse.",
+            isVoid ? "empty()" : "of(result)",
+            semicolon(kt)));
+    if (hasArgs) {
+      buffer.add(statement(indent(2), "}"));
     }
 
     buffer.add(statement("}", System.lineSeparator()));
@@ -508,8 +649,11 @@ public class MvcRoute {
   }
 
   private void controllerVar(boolean kt, List<String> buffer) {
-    buffer.add(
-        statement(indent(2), kt ? "val" : "var", " c = this.factory.apply(ctx)", semicolon(kt)));
+    controllerVar(kt, buffer, 2);
+  }
+
+  private void controllerVar(boolean kt, List<String> buffer, int indent) {
+    buffer.add(statement(indent(indent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
   }
 
   public String getGeneratedName() {

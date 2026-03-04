@@ -17,13 +17,17 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.internal.jackson3.JacksonTrpcParser;
+import io.jooby.internal.jackson3.JacksonTrpcResponseSerializer;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcErrorCode;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.databind.JacksonModule;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.*;
+import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -141,9 +145,15 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     Class mapperType = mapper.getClass();
     services.put(mapperType, mapper);
     services.put(ObjectMapper.class, mapper);
+    // tRPC
+    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
 
     // Parsing exception as 400
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
+    services
+        .mapOf(Class.class, TrpcErrorCode.class)
+        .put(StreamReadException.class, TrpcErrorCode.BAD_REQUEST)
+        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST);
 
     application.onStarting(() -> onStarting(application, services, mapperType));
 
@@ -217,6 +227,9 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     JsonMapper.Builder builder = JsonMapper.builder();
 
     Stream.of(modules).forEach(builder::addModule);
+    var trpcModule = new SimpleModule();
+    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    builder.addModule(trpcModule);
 
     return builder.build();
   }

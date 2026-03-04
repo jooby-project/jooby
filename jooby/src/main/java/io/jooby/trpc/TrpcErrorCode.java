@@ -8,8 +8,8 @@ package io.jooby.trpc;
 import io.jooby.StatusCode;
 
 public enum TrpcErrorCode {
-  PARSE_ERROR(-32700, StatusCode.BAD_REQUEST),
   BAD_REQUEST(-32600, StatusCode.BAD_REQUEST),
+  PARSE_ERROR(-32700, StatusCode.BAD_REQUEST),
   INTERNAL_SERVER_ERROR(-32603, StatusCode.SERVER_ERROR),
   UNAUTHORIZED(-32001, StatusCode.UNAUTHORIZED),
   FORBIDDEN(-32003, StatusCode.FORBIDDEN),
