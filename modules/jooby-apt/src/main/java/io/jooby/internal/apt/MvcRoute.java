@@ -11,6 +11,7 @@ import static java.lang.System.*;
 import static java.util.Optional.ofNullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -519,92 +520,8 @@ public class MvcRoute {
     }
     var isVoid = returnType.isVoid() || returnType.is("kotlin.Unit");
 
-    var parseStatements = new ArrayList<String>();
     var arguments = new ArrayList<String>();
-    for (var parameter : parameters) {
-      var paramenterName = parameter.getName();
-      var type = parameter.getType().getRawType().toString();
-      switch (type) {
-        case "io.jooby.Context":
-          {
-            arguments.add("ctx");
-          }
-          break;
-        case "int", "long", "double", "boolean", "java.lang.String":
-          {
-            var simpleType = type.equals(String.class.getName()) ? "String" : type;
-            var nextName =
-                "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
-            parseStatements.add(
-                statement(
-                    indent(4),
-                    var(kt),
-                    paramenterName,
-                    " = reader.",
-                    nextName,
-                    "(",
-                    string(paramenterName),
-                    ")",
-                    semicolon(kt)));
-            arguments.add(paramenterName);
-          }
-          break;
-        default:
-          {
-            if (kt) {
-              parseStatements.add(
-                  statement(
-                      indent(4),
-                      "val ",
-                      paramenterName,
-                      "Decoder: io.jooby.trpc.TrpcDecoder<",
-                      parameter.getType().toString(),
-                      "> = parser.decoder(",
-                      parameter.getType().toSourceCode(kt),
-                      ")",
-                      semicolon(kt)));
-              parseStatements.add(
-                  statement(
-                      indent(4),
-                      "val ",
-                      paramenterName,
-                      ": ",
-                      parameter.getType().toString(),
-                      " = reader.nextObject(",
-                      string(paramenterName),
-                      ", ",
-                      paramenterName + "Decoder)",
-                      semicolon(kt)));
-            } else {
-              parseStatements.add(
-                  statement(
-                      indent(4),
-                      "io.jooby.trpc.TrpcDecoder<",
-                      parameter.getType().toString(),
-                      "> ",
-                      paramenterName,
-                      "Decoder = parser.decoder(",
-                      parameter.getType().toSourceCode(kt),
-                      ")",
-                      semicolon(kt)));
-              parseStatements.add(
-                  statement(
-                      indent(4),
-                      parameter.getType().toString(),
-                      " ",
-                      paramenterName,
-                      " = reader.nextObject(",
-                      string(paramenterName),
-                      ", ",
-                      paramenterName + "Decoder)",
-                      semicolon(kt)));
-            }
-            arguments.add(paramenterName);
-          }
-          break;
-      }
-    }
-
+    var argumentStatements = generateTrpcParameter(kt, arguments::add);
     int indent = 2;
     if (hasArgs) {
       indent = 4;
@@ -613,7 +530,7 @@ public class MvcRoute {
       } else {
         buffer.add(statement(indent(2), "try (var reader = parser.reader(input)) {"));
       }
-      buffer.addAll(parseStatements);
+      buffer.addAll(argumentStatements);
     }
     controllerVar(kt, buffer, indent);
     var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
@@ -646,6 +563,274 @@ public class MvcRoute {
 
     buffer.add(statement("}", System.lineSeparator()));
     return buffer;
+  }
+
+  private List<String> generateTrpcParameter(boolean kt, Consumer<String> arguments) {
+    var statements = new ArrayList<String>();
+    for (var parameter : parameters) {
+      var paramenterName = parameter.getName();
+      var type = parameter.getType().getRawType().toString();
+
+      boolean isNullable = parameter.isNullable(kt);
+
+      switch (type) {
+        case "io.jooby.Context":
+          {
+            arguments.accept("ctx");
+          }
+          break;
+
+        case "int",
+        "long",
+        "double",
+        "boolean",
+        "java.lang.String",
+        "java.lang.Integer",
+        "java.lang.Long",
+        "java.lang.Double",
+        "java.lang.Boolean":
+          {
+            var simpleType = type.startsWith("java.lang.") ? type.substring(10) : type;
+            if (simpleType.equals("Integer") || simpleType.equals("int")) simpleType = "Int";
+            var readName =
+                "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
+
+            if (isNullable) {
+              if (kt) {
+                statements.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.",
+                        readName,
+                        "(",
+                        string(paramenterName),
+                        ")"));
+              } else {
+                statements.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : reader.",
+                        readName,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        semicolon(kt)));
+              }
+            } else {
+              // Non-Nullable: Direct call
+              statements.add(
+                  statement(
+                      indent(4),
+                      var(kt),
+                      paramenterName,
+                      " = reader.",
+                      readName,
+                      "(",
+                      string(paramenterName),
+                      ")",
+                      semicolon(kt)));
+            }
+            arguments.accept(paramenterName);
+          }
+          break;
+
+        case "byte",
+        "short",
+        "float",
+        "char",
+        "java.lang.Byte",
+        "java.lang.Short",
+        "java.lang.Float",
+        "java.lang.Character":
+          {
+            var isChar = type.equals("char") || type.equals("java.lang.Character");
+            var isFloat = type.equals("float") || type.equals("java.lang.Float");
+            var readMethod = isFloat ? "nextDouble" : (isChar ? "nextString" : "nextInt");
+
+            if (isNullable) {
+              if (kt) {
+                var ktCast =
+                    isChar
+                        ? "?.get(0)"
+                        : "?.to"
+                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                            + type.replace("java.lang.", "").substring(1)
+                            + "()";
+                statements.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        ktCast));
+              } else {
+                var targetType = type.replace("java.lang.", "");
+                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+                var javaSuffix = isChar ? ".charAt(0)" : "";
+                statements.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : ",
+                        javaPrefix,
+                        "reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        javaSuffix,
+                        semicolon(kt)));
+              }
+            } else {
+              if (kt) {
+                var ktCast =
+                    isChar
+                        ? "[0]"
+                        : ".to"
+                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                            + type.replace("java.lang.", "").substring(1)
+                            + "()";
+                statements.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        ktCast,
+                        semicolon(kt)));
+              } else {
+                var targetType = type.replace("java.lang.", "");
+                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+                var javaSuffix = isChar ? ".charAt(0)" : "";
+                statements.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = ",
+                        javaPrefix,
+                        "reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        javaSuffix,
+                        semicolon(kt)));
+              }
+            }
+            arguments.accept(paramenterName);
+          }
+          break;
+
+        default:
+          {
+            if (kt) {
+              statements.add(
+                  statement(
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      "Decoder: io.jooby.trpc.TrpcDecoder<",
+                      parameter.getType().toString(),
+                      "> = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
+                      ")",
+                      semicolon(kt)));
+              if (isNullable) {
+                statements.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)"));
+              } else {
+                statements.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)",
+                        semicolon(kt)));
+              }
+            } else {
+              statements.add(
+                  statement(
+                      indent(4),
+                      "io.jooby.trpc.TrpcDecoder<",
+                      parameter.getType().toString(),
+                      "> ",
+                      paramenterName,
+                      "Decoder = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
+                      ")",
+                      semicolon(kt)));
+              if (isNullable) {
+                statements.add(
+                    statement(
+                        indent(4),
+                        parameter.getType().toString(),
+                        " ",
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)",
+                        semicolon(kt)));
+              } else {
+                statements.add(
+                    statement(
+                        indent(4),
+                        parameter.getType().toString(),
+                        " ",
+                        paramenterName,
+                        " = reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)",
+                        semicolon(kt)));
+              }
+            }
+            arguments.accept(paramenterName);
+          }
+          break;
+      }
+    }
+    return statements;
   }
 
   private void controllerVar(boolean kt, List<String> buffer) {

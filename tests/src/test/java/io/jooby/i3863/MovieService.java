@@ -47,8 +47,10 @@ public class MovieService {
 
   /** Procedure: movies.search Multi-argument (Tuple) */
   @Trpc.Query
-  public List<Movie> search(String title, int year) {
-    return database.stream().filter(m -> m.title().contains(title) && m.year() == year).toList();
+  public List<Movie> search(String title, Integer year) {
+    return database.stream()
+        .filter(m -> m.title().contains(title) && (year == null || m.year() == year))
+        .toList();
   }
 
   /** Procedure: movies.addReview Mix of String and int (Mutation) */
@@ -59,5 +61,12 @@ public class MovieService {
         "title", movieTitle,
         "rating", stars,
         "status", "published");
+  }
+
+  /** Procedure: movies.addReview Mix of String and int (Mutation) */
+  @Trpc.Mutation
+  public Metadata updateMetadata(int id, Metadata metadata) {
+    // Business logic...
+    return metadata;
   }
 }

@@ -5,13 +5,23 @@
  */
 package io.jooby.trpc;
 
+import io.jooby.exception.MissingValueException;
+
 /**
  * A sequential reader used at RUNTIME for multi-argument methods. Allows the APT code to extract
  * arguments one by one, preserving primitives.
  */
 public interface TrpcReader extends AutoCloseable {
 
-  // Primitive extractors to avoid autoboxing
+  boolean nextIsNull(String name);
+
+  // 2. Default helper for non-nullable primitives to fail fast
+  default void requireNext(String name) {
+    if (nextIsNull(name)) {
+      throw new MissingValueException(name);
+    }
+  }
+
   int nextInt(String name);
 
   long nextLong(String name);

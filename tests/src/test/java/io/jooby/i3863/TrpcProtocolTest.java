@@ -156,5 +156,64 @@ public class TrpcProtocolTest {
           assertThat(JsonPath.<String>read(json, "$.error.data.code")).isEqualTo("NOT_FOUND");
           assertThat(JsonPath.<Integer>read(json, "$.error.data.httpStatus")).isEqualTo(404);
         });
+
+    // 1. Validating a nullable parameter is accepted when passing `null`
+    // Assuming `movies.search` has a signature like: search(String title, Integer year)
+    // where `year` is nullable. Sending: ["The Godfather", null]
+    http.get(
+        "/trpc/movies.search?input=[\"The Godfather\", null]",
+        rsp -> {
+          assertThat(rsp.code()).isEqualTo(200);
+          assertThat(rsp.body().string())
+              .isEqualToIgnoringNewLines(
+                  """
+                  {"result":{"data":[{"id":1,"title":"The Godfather","year":1972}]}}
+                  """);
+        });
+
+    // 2. Validating a required (non-nullable) parameter rejects `null`
+    // Assuming `movies.getById` has signature: getById(int id)
+    // Sending: [null]
+    http.get(
+        "/trpc/movies.getById?input=[null]",
+        rsp -> {
+          String json = rsp.body().string();
+          assertThat(rsp.code()).isEqualTo(400);
+
+          // Should trigger a parsing error because a primitive cannot be null
+          assertThat(JsonPath.<String>read(json, "$.error.data.code")).isEqualTo("BAD_REQUEST");
+          assertThat(JsonPath.<String>read(json, "$.error.message")).containsIgnoringCase("id");
+        });
+
+    // 3. Validating MissingValueException (Not enough arguments)
+    // Assuming `movies.addReview` requires 3 arguments: addReview(String title, int stars, String
+    // comment)
+    // Sending only 2: ["The Godfather", 5]
+    http.postJson(
+        "/trpc/movies.addReview",
+        "[\"The Godfather\", 5]",
+        rsp -> {
+          String json = rsp.body().string();
+          assertThat(rsp.code()).isEqualTo(400);
+
+          // Should trigger Jooby's MissingValueException because the array ended too early
+          assertThat(JsonPath.<String>read(json, "$.error.data.code")).isEqualTo("BAD_REQUEST");
+          assertThat(JsonPath.<String>read(json, "$.error.message"))
+              .containsIgnoringCase("comment");
+        });
+
+    // 4. Validating explicit `null` on an Object/POJO (if allowed)
+    // Assuming a method like: updateMetadata(int id, Metadata data) where `data` is nullable
+    // Sending: [1, null]
+    http.postJson(
+        "/trpc/movies.updateMetadata",
+        "[1, null]",
+        rsp -> {
+          String json = rsp.body().string();
+          System.out.println(json);
+          assertThat(rsp.code()).isEqualTo(200);
+          // Validates the generator correctly used nextIsNull for the POJO decoder
+          assertThat(json).contains("\"result\"");
+        });
   }
 }

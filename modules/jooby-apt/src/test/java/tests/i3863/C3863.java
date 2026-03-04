@@ -5,29 +5,33 @@
  */
 package tests.i3863;
 
-import io.jooby.Context;
 import io.jooby.annotation.*;
 
 @Trpc("users")
 public class C3863 {
 
-  //  @Trpc.Query
-  //  public String ping () {
-  //    return null;
-  //  }
-
-  //  @Trpc.Query
-  //  public void clear() {
-  //
-  //  }
-
   @Trpc.Query
-  public U3863 findUser(Context ctx, @PathParam long id) {
+  public String ping(Integer year) {
     return null;
   }
 
   //  @Trpc.Query
-  //  public List<U3863> multipleSimpleArgs(String q, String type) {
+  //  public String ping() {
+  //    return null;
+  //  }
+  //
+  //  @Trpc.Query
+  //  public void clear() {
+  //
+  //  }
+  //
+  //  @Trpc.Query
+  //  public U3863 findUser(Context ctx, @PathParam long id) {
+  //    return null;
+  //  }
+  //
+  //  @Trpc.Query
+  //  public List<U3863> multipleSimpleArgs(String q, byte type) {
   //    return null;
   //  }
   //
@@ -40,4 +44,5 @@ public class C3863 {
   //  public U3863 updateUser(String id, U3863 payload) {
   //    return null;
   //  }
+
 }
