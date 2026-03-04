@@ -44,19 +44,6 @@ public class TypeDefinition {
     return toSourceCode(this, kt, false);
   }
 
-  public String toJacksonTypeReference(boolean kt) {
-    if (isParameterizedType()) {
-      var buffer = new StringBuilder();
-      if (!kt) {
-        buffer.append("new ");
-      }
-      buffer.append("tools.jackson.core.type.TypeReference<").append(type).append(">() {}");
-      return buffer.toString();
-    } else {
-      return CodeBlock.type(kt, getRawType().toString()) + clazz(kt);
-    }
-  }
-
   public String getArgumentsString(boolean kt, boolean convertTypeVar, Set<TypeKind> kinds) {
     List<TypeDefinition> arguments = getArguments();
     var filtered =

@@ -455,9 +455,11 @@ public class MvcRoute {
     var buffer = new ArrayList<String>();
 
     var returnTypeString =
-        "io.jooby.trpc.TrpcResponse<" + type(kt, getReturnType().toString()) + ">";
+        "io.jooby.trpc.TrpcResponse<"
+            + (returnType.isVoid() ? (kt ? "Unit" : "Void") : type(kt, returnType.toString()))
+            + ">";
 
-    methodCallHeader(kt, "ctx", trpcMethod.name, buffer, "", returnTypeString, true);
+    var nullable = methodCallHeader(kt, "ctx", trpcMethod.name, buffer, "", returnTypeString, true);
     var hasArgs = !parameters.isEmpty();
     if (hasArgs) {
       buffer.add(
@@ -476,7 +478,7 @@ public class MvcRoute {
                 "input = ctx.query(",
                 string("input"),
                 ").",
-                parameters.isEmpty() ? "valueOrNull" : "value",
+                "value",
                 "()",
                 semicolon(kt)));
         if (kt) {
@@ -503,8 +505,8 @@ public class MvcRoute {
           buffer.add(
               statement(
                   indent(2),
-                  "if (input.size < 2 || input[0] != '['.toByte() || input[input.size - 1] !="
-                      + " ']'.toByte()) throw IllegalArgumentException(",
+                  "if (input.size < 2 || input[0] != '['.code.toByte() || input[input.size - 1] !="
+                      + " ']'.code.toByte()) throw IllegalArgumentException(",
                   string("tRPC body must be a JSON array (tuple)"),
                   ")"));
         } else {
@@ -533,30 +535,38 @@ public class MvcRoute {
       buffer.addAll(argumentStatements);
     }
     controllerVar(kt, buffer, indent);
-    var cast = getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-    var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
     var call =
         of(
             "c.",
             this.method.getSimpleName(),
-            kotlinNotEnoughTypeInformation,
+            "",
             arguments.stream().collect(Collectors.joining(", ", "(", ")")));
-    if (!cast.isEmpty()) {
-      setUncheckedCast(true);
-      call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
-    }
     if (isVoid) {
       buffer.add(statement(indent(indent), call, semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(indent), "return ", "io.jooby.trpc.TrpcResponse.empty()", semicolon(kt)));
     } else {
-      buffer.add(statement(indent(indent), var(kt), "result = ", call, semicolon(kt)));
+      if (kt) {
+        var cast = !returnType.getArguments().isEmpty();
+        buffer.add(
+            statement(
+                indent(indent),
+                "val result = ",
+                call,
+                cast ? " as " + type(true, returnType.toString()) : ""));
+        buffer.add(
+            statement(
+                indent(indent),
+                "return ",
+                "io.jooby.trpc.TrpcResponse.of(result",
+                nullable ? "!!" : "",
+                ")"));
+      } else {
+        buffer.add(statement(indent(indent), "var result = ", call, ";"));
+        buffer.add(statement(indent(indent), "return ", "io.jooby.trpc.TrpcResponse.of(result);"));
+      }
     }
-    buffer.add(
-        statement(
-            indent(indent),
-            "return ",
-            "io.jooby.trpc.TrpcResponse.",
-            isVoid ? "empty()" : "of(result)",
-            semicolon(kt)));
     if (hasArgs) {
       buffer.add(statement(indent(2), "}"));
     }
@@ -569,11 +579,11 @@ public class MvcRoute {
     var statements = new ArrayList<String>();
     for (var parameter : parameters) {
       var paramenterName = parameter.getName();
-      var type = parameter.getType().getRawType().toString();
+      var type = type(kt, parameter.getType().toString());
 
       boolean isNullable = parameter.isNullable(kt);
 
-      switch (type) {
+      switch (parameter.getType().getRawType().toString()) {
         case "io.jooby.Context":
           {
             arguments.accept("ctx");
@@ -752,7 +762,7 @@ public class MvcRoute {
                       "val ",
                       paramenterName,
                       "Decoder: io.jooby.trpc.TrpcDecoder<",
-                      parameter.getType().toString(),
+                      type,
                       "> = parser.decoder(",
                       parameter.getType().toSourceCode(kt),
                       ")",
@@ -788,7 +798,7 @@ public class MvcRoute {
                   statement(
                       indent(4),
                       "io.jooby.trpc.TrpcDecoder<",
-                      parameter.getType().toString(),
+                      type,
                       "> ",
                       paramenterName,
                       "Decoder = parser.decoder(",
