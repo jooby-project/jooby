@@ -32,8 +32,9 @@ public class MvcRoute {
   private final boolean suspendFun;
   private boolean uncheckedCast;
   private final boolean hasBeanValidation;
-  private final List<TrpcMethod> trpcMethods = new ArrayList<>();
   private final Set<String> pending = new HashSet<>();
+  private boolean isTrpc = false;
+  private HttpMethod resolvedTrpcMethod = null;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
     this.context = context;
@@ -75,7 +76,6 @@ public class MvcRoute {
           .findFirst()
           .orElse(null);
     }
-    // look inside the method annotation
     var httpMethod = annotationMap.values().iterator().next();
     var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
     return projection.stream().findFirst().orElse(null);
@@ -89,7 +89,6 @@ public class MvcRoute {
     if (isProjection) {
       return true;
     }
-    // look inside the method annotation
     var httpMethod = annotationMap.values().iterator().next();
     var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
     return !projection.isEmpty();
@@ -141,6 +140,7 @@ public class MvcRoute {
                 + context.generateRouterName(router.getTargetType().getSimpleName().toString())
                 + "::"
             : "this::";
+
     for (var e : entries) {
       var lastHttpMethod = lastRoute && entries.get(entries.size() - 1).equals(e);
       var annotation = e.getKey();
@@ -148,23 +148,25 @@ public class MvcRoute {
       var dslMethod = annotation.getSimpleName().toString().toLowerCase();
       var paths = context.path(router.getTargetType(), method, annotation);
       var targetMethod = methodName;
+
       if (httpMethod == HttpMethod.tRPC) {
-        httpMethod = trpcMethod(method);
-        if (httpMethod == null) {
+        resolvedTrpcMethod = trpcMethod(method);
+        if (resolvedTrpcMethod == null) {
           throw new IllegalArgumentException(
               "tRPC method not found: "
                   + method.getSimpleName()
                   + "() in "
                   + router.getTargetType());
         }
-        dslMethod = httpMethod.name().toLowerCase();
+        dslMethod = resolvedTrpcMethod.name().toLowerCase();
         paths = List.of(trpcPath(method));
         targetMethod =
             "trpc" + targetMethod.substring(0, 1).toUpperCase() + targetMethod.substring(1);
-        trpcMethods.add(new TrpcMethod(httpMethod, targetMethod));
-      } else {
-        pending.add(methodName);
+        this.isTrpc = true;
       }
+
+      pending.add(targetMethod);
+
       for (var path : paths) {
         var lastLine = lastHttpMethod && paths.getLast().equals(path);
         block.add(javadocLink);
@@ -180,25 +182,20 @@ public class MvcRoute {
         if (context.nonBlocking(getReturnTypeHandler()) || isSuspendFun()) {
           block.add(statement(indent(2), ".setNonBlocking(true)"));
         }
-        /* consumes */
         mediaType(httpMethod::consumes)
             .ifPresent(consumes -> block.add(statement(indent(2), ".setConsumes(", consumes, ")")));
-        /* produces */
         mediaType(httpMethod::produces)
             .ifPresent(produces -> block.add(statement(indent(2), ".setProduces(", produces, ")")));
-        /* dispatch */
         dispatch()
             .ifPresent(
                 dispatch ->
                     block.add(statement(indent(2), ".setExecutorKey(", string(dispatch), ")")));
-        /* attributes */
         attributeGenerator
             .toSourceCode(kt, this, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();
         if (context.generateMvcMethod()) {
-          /* mvcMethod */
           block.add(
               CodeBlock.of(
                   indent(2),
@@ -240,12 +237,6 @@ public class MvcRoute {
     return thisRef + methodName + ")";
   }
 
-  /**
-   * Ensure path start with a <code>/</code>(leading slash).
-   *
-   * @param path Path to process.
-   * @return Path with leading slash.
-   */
   static String leadingSlash(String path) {
     if (path == null || path.isEmpty() || path.equals("/")) {
       return "/";
@@ -255,46 +246,143 @@ public class MvcRoute {
 
   public List<String> generateHandlerCall(boolean kt) {
     var buffer = new ArrayList<String>();
-    var methodName = getGeneratedName();
-    if (pending.contains(methodName)) {
-      /* Parameters */
-      var paramList = new StringJoiner(", ", "(", ")");
-      for (var parameter : getParameters(true)) {
-        String generatedParameter = parameter.generateMapping(kt);
-        if (parameter.isRequireBeanValidation()) {
-          generatedParameter =
-              CodeBlock.of(
-                  "io.jooby.validation.BeanValidator.apply(", "ctx, ", generatedParameter, ")");
-        }
+    var methodName =
+        isTrpc
+            ? "trpc"
+                + getGeneratedName().substring(0, 1).toUpperCase()
+                + getGeneratedName().substring(1)
+            : getGeneratedName();
 
-        paramList.add(generatedParameter);
-      }
+    if (pending.contains(methodName)) {
+      var paramList = new StringJoiner(", ", "(", ")");
       var returnTypeGenerics =
           getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
       var returnTypeString = type(kt, getReturnType().toString());
       var customReturnType = getReturnType();
+
       if (customReturnType.isProjection()) {
-        // Override for projection
         returnTypeGenerics = "";
         returnTypeString = Types.PROJECTED + "<" + returnType + ">";
       }
 
+      // Add the TrpcResponse generic wrapper for the generated method return type
+      var methodReturnTypeString = returnTypeString;
+      if (isTrpc) {
+        methodReturnTypeString =
+            "io.jooby.trpc.TrpcResponse<"
+                + (returnType.isVoid() ? (kt ? "Unit" : "Void") : returnTypeString)
+                + ">";
+      }
+
       var nullable =
-          methodCallHeader(kt, "ctx", methodName, buffer, returnTypeGenerics, returnTypeString);
-      if (returnType.isVoid()) {
-        String statusCode;
-        if (annotationMap.size() == 1) {
-          statusCode =
-              annotationMap.keySet().iterator().next().getSimpleName().toString().equals("DELETE")
-                  ? "NO_CONTENT"
-                  : "OK";
-        } else {
-          statusCode = null;
-        }
-        if (statusCode != null) {
+          methodCallHeader(
+              kt,
+              "ctx",
+              methodName,
+              buffer,
+              returnTypeGenerics,
+              methodReturnTypeString,
+              isTrpc || !method.getThrownTypes().isEmpty());
+
+      int controllerIndent = 2;
+
+      if (isTrpc && !parameters.isEmpty()) {
+        controllerIndent = 4;
+        buffer.add(
+            statement(
+                indent(2),
+                var(kt),
+                "parser = ctx.require(io.jooby.trpc.TrpcParser",
+                clazz(kt),
+                ")",
+                semicolon(kt)));
+
+        if (resolvedTrpcMethod == HttpMethod.GET) {
           buffer.add(
               statement(
                   indent(2),
+                  var(kt),
+                  "input = ctx.query(",
+                  string("input"),
+                  ").value()",
+                  semicolon(kt)));
+          if (kt) {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "if (input?.trim()?.let { it.startsWith('[') && it.endsWith(']') } != true)"
+                        + " throw IllegalArgumentException(",
+                    string("tRPC input must be a JSON array (tuple)"),
+                    ")"));
+          } else {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "if (input == null || input.length() < 2 || input.charAt(0) != '[' ||"
+                        + " input.charAt(input.length() - 1) != ']') throw new"
+                        + " IllegalArgumentException(",
+                    string("tRPC input must be a JSON array (tuple)"),
+                    ");"));
+          }
+        } else {
+          buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
+          if (kt) {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "if (input.size < 2 || input[0] != '['.code.toByte() || input[input.size - 1]"
+                        + " != ']'.code.toByte()) throw IllegalArgumentException(",
+                    string("tRPC body must be a JSON array (tuple)"),
+                    ")"));
+          } else {
+            buffer.add(
+                statement(
+                    indent(2),
+                    "if (input.length < 2 || input[0] != '[' || input[input.length - 1] != ']')"
+                        + " throw new IllegalArgumentException(",
+                    string("tRPC body must be a JSON array (tuple)"),
+                    ");"));
+          }
+        }
+
+        if (kt) {
+          buffer.add(statement(indent(2), "parser.reader(input).use { reader -> "));
+        } else {
+          buffer.add(statement(indent(2), "try (var reader = parser.reader(input)) {"));
+        }
+
+        buffer.addAll(generateTrpcParameter(kt, paramList::add));
+      } else if (!isTrpc) {
+        for (var parameter : getParameters(true)) {
+          String generatedParameter = parameter.generateMapping(kt);
+          if (parameter.isRequireBeanValidation()) {
+            generatedParameter =
+                CodeBlock.of(
+                    "io.jooby.validation.BeanValidator.apply(", "ctx, ", generatedParameter, ")");
+          }
+          paramList.add(generatedParameter);
+        }
+      }
+
+      controllerVar(kt, buffer, controllerIndent);
+
+      if (returnType.isVoid()) {
+        String statusCode =
+            annotationMap.size() == 1
+                    && annotationMap
+                        .keySet()
+                        .iterator()
+                        .next()
+                        .getSimpleName()
+                        .toString()
+                        .equals("DELETE")
+                ? "NO_CONTENT"
+                : "OK";
+
+        if (annotationMap.size() == 1) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
                   "ctx.setResponseCode(io.jooby.StatusCode.",
                   statusCode,
                   ")",
@@ -303,66 +391,135 @@ public class MvcRoute {
           if (kt) {
             buffer.add(
                 statement(
-                    indent(2),
+                    indent(controllerIndent),
                     "ctx.setResponseCode(if (ctx.getRoute().getMethod().equals(",
                     string("DELETE"),
                     ")) io.jooby.StatusCode.NO_CONTENT else io.jooby.StatusCode.OK)"));
           } else {
             buffer.add(
                 statement(
-                    indent(2),
+                    indent(controllerIndent),
                     "ctx.setResponseCode(ctx.getRoute().getMethod().equals(",
                     string("DELETE"),
                     ") ? io.jooby.StatusCode.NO_CONTENT: io.jooby.StatusCode.OK)",
                     semicolon(false)));
           }
         }
-        controllerVar(kt, buffer);
+
         buffer.add(
             statement(
-                indent(2), "c.", this.method.getSimpleName(), paramList.toString(), semicolon(kt)));
-        buffer.add(statement(indent(2), "return ctx.getResponseCode()", semicolon(kt)));
+                indent(controllerIndent),
+                "c.",
+                this.method.getSimpleName(),
+                paramList.toString(),
+                semicolon(kt)));
+
+        if (isTrpc) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return io.jooby.trpc.TrpcResponse.empty()",
+                  semicolon(kt)));
+        } else {
+          buffer.add(
+              statement(indent(controllerIndent), "return ctx.getResponseCode()", semicolon(kt)));
+        }
       } else if (returnType.is("io.jooby.StatusCode")) {
-        controllerVar(kt, buffer);
         buffer.add(
             statement(
-                indent(2),
+                indent(controllerIndent),
                 kt ? "val" : "var",
                 " statusCode = c.",
                 this.method.getSimpleName(),
                 paramList.toString(),
                 semicolon(kt)));
-        buffer.add(statement(indent(2), "ctx.setResponseCode(statusCode)", semicolon(kt)));
-        buffer.add(statement(indent(2), "return statusCode", semicolon(kt)));
+        buffer.add(
+            statement(indent(controllerIndent), "ctx.setResponseCode(statusCode)", semicolon(kt)));
+
+        if (isTrpc) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return io.jooby.trpc.TrpcResponse.of(statusCode)",
+                  semicolon(kt)));
+        } else {
+          buffer.add(statement(indent(controllerIndent), "return statusCode", semicolon(kt)));
+        }
       } else {
-        controllerVar(kt, buffer);
-        var cast =
+        var castStr =
             customReturnType.isProjection()
                 ? ""
                 : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-        var kotlinNotEnoughTypeInformation = !cast.isEmpty() && kt ? "<Any>" : "";
+
+        // Ensure projections are ignored by the kotlin hardcast, as they handle their own wrapper
+        var needsCast =
+            !castStr.isEmpty()
+                || (kt
+                    && !customReturnType.isProjection()
+                    && !customReturnType.getArguments().isEmpty());
+
+        var kotlinNotEnoughTypeInformation = !castStr.isEmpty() && kt ? "<Any>" : "";
         var call =
             of(
                 "c.",
                 this.method.getSimpleName(),
                 kotlinNotEnoughTypeInformation,
                 paramList.toString());
-        if (!cast.isEmpty()) {
+
+        if (needsCast) {
           setUncheckedCast(true);
           call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
         }
+
         if (customReturnType.isProjection()) {
           var projected =
               of(Types.PROJECTED, ".wrap(", call, ").include(", string(getProjection()), ")");
-          buffer.add(
-              statement(
-                  indent(2), "return ", projected, kt && nullable ? "!!" : "", semicolon(kt)));
+          if (isTrpc) {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return io.jooby.trpc.TrpcResponse.of(",
+                    projected,
+                    kt && nullable ? "!!" : "",
+                    ")",
+                    semicolon(kt)));
+          } else {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return ",
+                    projected,
+                    kt && nullable ? "!!" : "",
+                    semicolon(kt)));
+          }
         } else {
-          buffer.add(
-              statement(indent(2), "return ", call, kt && nullable ? "!!" : "", semicolon(kt)));
+          if (isTrpc) {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return io.jooby.trpc.TrpcResponse.of(",
+                    call,
+                    kt && nullable ? "!!" : "",
+                    ")",
+                    semicolon(kt)));
+          } else {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return ",
+                    call,
+                    kt && nullable ? "!!" : "",
+                    semicolon(kt)));
+          }
         }
       }
+
+      if (isTrpc && !parameters.isEmpty()) {
+        buffer.add(statement(indent(2), "}"));
+      }
+
       buffer.add(statement("}", System.lineSeparator()));
+
       if (uncheckedCast) {
         if (kt) {
           buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
@@ -371,27 +528,7 @@ public class MvcRoute {
         }
       }
     }
-    for (var trpcMethod : trpcMethods) {
-      buffer.addAll(generateTrpcMethod(kt, trpcMethod));
-    }
     return buffer;
-  }
-
-  private boolean methodCallHeader(
-      boolean kt,
-      String contextVarname,
-      String methodName,
-      ArrayList<String> buffer,
-      String returnTypeGenerics,
-      String returnTypeString) {
-    return methodCallHeader(
-        kt,
-        contextVarname,
-        methodName,
-        buffer,
-        returnTypeGenerics,
-        returnTypeString,
-        !method.getThrownTypes().isEmpty());
   }
 
   private boolean methodCallHeader(
@@ -451,145 +588,17 @@ public class MvcRoute {
     return nullable;
   }
 
-  private List<String> generateTrpcMethod(boolean kt, TrpcMethod trpcMethod) {
-    var buffer = new ArrayList<String>();
-
-    var returnTypeString =
-        "io.jooby.trpc.TrpcResponse<"
-            + (returnType.isVoid() ? (kt ? "Unit" : "Void") : type(kt, returnType.toString()))
-            + ">";
-
-    var nullable = methodCallHeader(kt, "ctx", trpcMethod.name, buffer, "", returnTypeString, true);
-    var hasArgs = !parameters.isEmpty();
-    if (hasArgs) {
-      buffer.add(
-          statement(
-              indent(2),
-              var(kt),
-              "parser = ctx.require(io.jooby.trpc.TrpcParser",
-              clazz(kt),
-              ")",
-              semicolon(kt)));
-      if (trpcMethod.method == HttpMethod.GET) {
-        buffer.add(
-            statement(
-                indent(2),
-                var(kt),
-                "input = ctx.query(",
-                string("input"),
-                ").",
-                "value",
-                "()",
-                semicolon(kt)));
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(2),
-                  "if (input?.trim()?.let { it.startsWith('[') && it.endsWith(']') } != true) throw"
-                      + " IllegalArgumentException(",
-                  string("tRPC input must be a JSON array (tuple)"),
-                  ")"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(2),
-                  "if (input == null || input.length() < 2 || input.charAt(0) != '[' ||"
-                      + " input.charAt(input.length() - 1) != ']') throw new"
-                      + " IllegalArgumentException(",
-                  string("tRPC input must be a JSON array (tuple)"),
-                  ");"));
-        }
-      } else {
-        buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(2),
-                  "if (input.size < 2 || input[0] != '['.code.toByte() || input[input.size - 1] !="
-                      + " ']'.code.toByte()) throw IllegalArgumentException(",
-                  string("tRPC body must be a JSON array (tuple)"),
-                  ")"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(2),
-                  "if (input.length < 2 || input[0] != '[' || input[input.length - 1] != ']') throw"
-                      + " new IllegalArgumentException(",
-                  string("tRPC body must be a JSON array (tuple)"),
-                  ");"));
-        }
-      }
-    }
-    var isVoid = returnType.isVoid() || returnType.is("kotlin.Unit");
-
-    var arguments = new ArrayList<String>();
-    var argumentStatements = generateTrpcParameter(kt, arguments::add);
-    int indent = 2;
-    if (hasArgs) {
-      indent = 4;
-      if (kt) {
-        buffer.add(statement(indent(2), "parser.reader(input).use { reader -> "));
-      } else {
-        buffer.add(statement(indent(2), "try (var reader = parser.reader(input)) {"));
-      }
-      buffer.addAll(argumentStatements);
-    }
-    controllerVar(kt, buffer, indent);
-    var call =
-        of(
-            "c.",
-            this.method.getSimpleName(),
-            "",
-            arguments.stream().collect(Collectors.joining(", ", "(", ")")));
-    if (isVoid) {
-      buffer.add(statement(indent(indent), call, semicolon(kt)));
-      buffer.add(
-          statement(
-              indent(indent), "return ", "io.jooby.trpc.TrpcResponse.empty()", semicolon(kt)));
-    } else {
-      if (kt) {
-        var cast = !returnType.getArguments().isEmpty();
-        buffer.add(
-            statement(
-                indent(indent),
-                "val result = ",
-                call,
-                cast ? " as " + type(true, returnType.toString()) : ""));
-        buffer.add(
-            statement(
-                indent(indent),
-                "return ",
-                "io.jooby.trpc.TrpcResponse.of(result",
-                nullable ? "!!" : "",
-                ")"));
-      } else {
-        buffer.add(statement(indent(indent), "var result = ", call, ";"));
-        buffer.add(statement(indent(indent), "return ", "io.jooby.trpc.TrpcResponse.of(result);"));
-      }
-    }
-    if (hasArgs) {
-      buffer.add(statement(indent(2), "}"));
-    }
-
-    buffer.add(statement("}", System.lineSeparator()));
-    return buffer;
-  }
-
   private List<String> generateTrpcParameter(boolean kt, Consumer<String> arguments) {
     var statements = new ArrayList<String>();
     for (var parameter : parameters) {
       var paramenterName = parameter.getName();
       var type = type(kt, parameter.getType().toString());
-
       boolean isNullable = parameter.isNullable(kt);
 
       switch (parameter.getType().getRawType().toString()) {
         case "io.jooby.Context":
-          {
-            arguments.accept("ctx");
-          }
+          arguments.accept("ctx");
           break;
-
         case "int",
         "long",
         "double",
@@ -599,59 +608,55 @@ public class MvcRoute {
         "java.lang.Long",
         "java.lang.Double",
         "java.lang.Boolean":
-          {
-            var simpleType = type.startsWith("java.lang.") ? type.substring(10) : type;
-            if (simpleType.equals("Integer") || simpleType.equals("int")) simpleType = "Int";
-            var readName =
-                "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
+          var simpleType = type.startsWith("java.lang.") ? type.substring(10) : type;
+          if (simpleType.equals("Integer") || simpleType.equals("int")) simpleType = "Int";
+          var readName =
+              "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
 
-            if (isNullable) {
-              if (kt) {
-                statements.add(
-                    statement(
-                        indent(4),
-                        "val ",
-                        paramenterName,
-                        " = if (reader.nextIsNull(",
-                        string(paramenterName),
-                        ")) null else reader.",
-                        readName,
-                        "(",
-                        string(paramenterName),
-                        ")"));
-              } else {
-                statements.add(
-                    statement(
-                        indent(4),
-                        var(kt),
-                        paramenterName,
-                        " = reader.nextIsNull(",
-                        string(paramenterName),
-                        ") ? null : reader.",
-                        readName,
-                        "(",
-                        string(paramenterName),
-                        ")",
-                        semicolon(kt)));
-              }
+          if (isNullable) {
+            if (kt) {
+              statements.add(
+                  statement(
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      " = if (reader.nextIsNull(",
+                      string(paramenterName),
+                      ")) null else reader.",
+                      readName,
+                      "(",
+                      string(paramenterName),
+                      ")"));
             } else {
-              // Non-Nullable: Direct call
               statements.add(
                   statement(
                       indent(4),
                       var(kt),
                       paramenterName,
-                      " = reader.",
+                      " = reader.nextIsNull(",
+                      string(paramenterName),
+                      ") ? null : reader.",
                       readName,
                       "(",
                       string(paramenterName),
                       ")",
                       semicolon(kt)));
             }
-            arguments.accept(paramenterName);
+          } else {
+            statements.add(
+                statement(
+                    indent(4),
+                    var(kt),
+                    paramenterName,
+                    " = reader.",
+                    readName,
+                    "(",
+                    string(paramenterName),
+                    ")",
+                    semicolon(kt)));
           }
+          arguments.accept(paramenterName);
           break;
-
         case "byte",
         "short",
         "float",
@@ -660,183 +665,178 @@ public class MvcRoute {
         "java.lang.Short",
         "java.lang.Float",
         "java.lang.Character":
-          {
-            var isChar = type.equals("char") || type.equals("java.lang.Character");
-            var isFloat = type.equals("float") || type.equals("java.lang.Float");
-            var readMethod = isFloat ? "nextDouble" : (isChar ? "nextString" : "nextInt");
+          var isChar = type.equals("char") || type.equals("java.lang.Character");
+          var isFloat = type.equals("float") || type.equals("java.lang.Float");
+          var readMethod = isFloat ? "nextDouble" : (isChar ? "nextString" : "nextInt");
 
-            if (isNullable) {
-              if (kt) {
-                var ktCast =
-                    isChar
-                        ? "?.get(0)"
-                        : "?.to"
-                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
-                            + type.replace("java.lang.", "").substring(1)
-                            + "()";
-                statements.add(
-                    statement(
-                        indent(4),
-                        "val ",
-                        paramenterName,
-                        " = if (reader.nextIsNull(",
-                        string(paramenterName),
-                        ")) null else reader.",
-                        readMethod,
-                        "(",
-                        string(paramenterName),
-                        ")",
-                        ktCast));
-              } else {
-                var targetType = type.replace("java.lang.", "");
-                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
-                var javaSuffix = isChar ? ".charAt(0)" : "";
-                statements.add(
-                    statement(
-                        indent(4),
-                        var(kt),
-                        paramenterName,
-                        " = reader.nextIsNull(",
-                        string(paramenterName),
-                        ") ? null : ",
-                        javaPrefix,
-                        "reader.",
-                        readMethod,
-                        "(",
-                        string(paramenterName),
-                        ")",
-                        javaSuffix,
-                        semicolon(kt)));
-              }
-            } else {
-              if (kt) {
-                var ktCast =
-                    isChar
-                        ? "[0]"
-                        : ".to"
-                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
-                            + type.replace("java.lang.", "").substring(1)
-                            + "()";
-                statements.add(
-                    statement(
-                        indent(4),
-                        var(kt),
-                        paramenterName,
-                        " = reader.",
-                        readMethod,
-                        "(",
-                        string(paramenterName),
-                        ")",
-                        ktCast,
-                        semicolon(kt)));
-              } else {
-                var targetType = type.replace("java.lang.", "");
-                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
-                var javaSuffix = isChar ? ".charAt(0)" : "";
-                statements.add(
-                    statement(
-                        indent(4),
-                        var(kt),
-                        paramenterName,
-                        " = ",
-                        javaPrefix,
-                        "reader.",
-                        readMethod,
-                        "(",
-                        string(paramenterName),
-                        ")",
-                        javaSuffix,
-                        semicolon(kt)));
-              }
-            }
-            arguments.accept(paramenterName);
-          }
-          break;
-
-        default:
-          {
+          if (isNullable) {
             if (kt) {
+              var ktCast =
+                  isChar
+                      ? "?.get(0)"
+                      : "?.to"
+                          + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                          + type.replace("java.lang.", "").substring(1)
+                          + "()";
               statements.add(
                   statement(
                       indent(4),
                       "val ",
                       paramenterName,
-                      "Decoder: io.jooby.trpc.TrpcDecoder<",
-                      type,
-                      "> = parser.decoder(",
-                      parameter.getType().toSourceCode(kt),
+                      " = if (reader.nextIsNull(",
+                      string(paramenterName),
+                      ")) null else reader.",
+                      readMethod,
+                      "(",
+                      string(paramenterName),
                       ")",
+                      ktCast));
+            } else {
+              var targetType = type.replace("java.lang.", "");
+              var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+              var javaSuffix = isChar ? ".charAt(0)" : "";
+              statements.add(
+                  statement(
+                      indent(4),
+                      var(kt),
+                      paramenterName,
+                      " = reader.nextIsNull(",
+                      string(paramenterName),
+                      ") ? null : ",
+                      javaPrefix,
+                      "reader.",
+                      readMethod,
+                      "(",
+                      string(paramenterName),
+                      ")",
+                      javaSuffix,
                       semicolon(kt)));
-              if (isNullable) {
-                statements.add(
-                    statement(
-                        indent(4),
-                        "val ",
-                        paramenterName,
-                        " = if (reader.nextIsNull(",
-                        string(paramenterName),
-                        ")) null else reader.nextObject(",
-                        string(paramenterName),
-                        ", ",
-                        paramenterName,
-                        "Decoder)"));
-              } else {
-                statements.add(
-                    statement(
-                        indent(4),
-                        "val ",
-                        paramenterName,
-                        " = reader.nextObject(",
-                        string(paramenterName),
-                        ", ",
-                        paramenterName,
-                        "Decoder)",
-                        semicolon(kt)));
-              }
+            }
+          } else {
+            if (kt) {
+              var ktCast =
+                  isChar
+                      ? "[0]"
+                      : ".to"
+                          + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                          + type.replace("java.lang.", "").substring(1)
+                          + "()";
+              statements.add(
+                  statement(
+                      indent(4),
+                      var(kt),
+                      paramenterName,
+                      " = reader.",
+                      readMethod,
+                      "(",
+                      string(paramenterName),
+                      ")",
+                      ktCast,
+                      semicolon(kt)));
+            } else {
+              var targetType = type.replace("java.lang.", "");
+              var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+              var javaSuffix = isChar ? ".charAt(0)" : "";
+              statements.add(
+                  statement(
+                      indent(4),
+                      var(kt),
+                      paramenterName,
+                      " = ",
+                      javaPrefix,
+                      "reader.",
+                      readMethod,
+                      "(",
+                      string(paramenterName),
+                      ")",
+                      javaSuffix,
+                      semicolon(kt)));
+            }
+          }
+          arguments.accept(paramenterName);
+          break;
+        default:
+          if (kt) {
+            statements.add(
+                statement(
+                    indent(4),
+                    "val ",
+                    paramenterName,
+                    "Decoder: io.jooby.trpc.TrpcDecoder<",
+                    type,
+                    "> = parser.decoder(",
+                    parameter.getType().toSourceCode(kt),
+                    ")",
+                    semicolon(kt)));
+            if (isNullable) {
+              statements.add(
+                  statement(
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      " = if (reader.nextIsNull(",
+                      string(paramenterName),
+                      ")) null else reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName,
+                      "Decoder)"));
             } else {
               statements.add(
                   statement(
                       indent(4),
-                      "io.jooby.trpc.TrpcDecoder<",
-                      type,
-                      "> ",
+                      "val ",
                       paramenterName,
-                      "Decoder = parser.decoder(",
-                      parameter.getType().toSourceCode(kt),
-                      ")",
+                      " = reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName,
+                      "Decoder)",
                       semicolon(kt)));
-              if (isNullable) {
-                statements.add(
-                    statement(
-                        indent(4),
-                        parameter.getType().toString(),
-                        " ",
-                        paramenterName,
-                        " = reader.nextIsNull(",
-                        string(paramenterName),
-                        ") ? null : reader.nextObject(",
-                        string(paramenterName),
-                        ", ",
-                        paramenterName,
-                        "Decoder)",
-                        semicolon(kt)));
-              } else {
-                statements.add(
-                    statement(
-                        indent(4),
-                        parameter.getType().toString(),
-                        " ",
-                        paramenterName,
-                        " = reader.nextObject(",
-                        string(paramenterName),
-                        ", ",
-                        paramenterName,
-                        "Decoder)",
-                        semicolon(kt)));
-              }
             }
-            arguments.accept(paramenterName);
+          } else {
+            statements.add(
+                statement(
+                    indent(4),
+                    "io.jooby.trpc.TrpcDecoder<",
+                    type,
+                    "> ",
+                    paramenterName,
+                    "Decoder = parser.decoder(",
+                    parameter.getType().toSourceCode(kt),
+                    ")",
+                    semicolon(kt)));
+            if (isNullable) {
+              statements.add(
+                  statement(
+                      indent(4),
+                      parameter.getType().toString(),
+                      " ",
+                      paramenterName,
+                      " = reader.nextIsNull(",
+                      string(paramenterName),
+                      ") ? null : reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName,
+                      "Decoder)",
+                      semicolon(kt)));
+            } else {
+              statements.add(
+                  statement(
+                      indent(4),
+                      parameter.getType().toString(),
+                      " ",
+                      paramenterName,
+                      " = reader.nextObject(",
+                      string(paramenterName),
+                      ", ",
+                      paramenterName,
+                      "Decoder)",
+                      semicolon(kt)));
+            }
           }
+          arguments.accept(paramenterName);
           break;
       }
     }
@@ -895,7 +895,6 @@ public class MvcRoute {
         .map(
             it -> {
               var type = it.getType();
-              // Kotlin requires his own types for primitives
               if (kt && type.isPrimitive()) {
                 return type(kt, type.getRawType().toString());
               }
@@ -970,11 +969,6 @@ public class MvcRoute {
             .collect(Collectors.joining(", ", "java.util.List.of(", ")")));
   }
 
-  /**
-   * Kotlin suspend function has a <code>kotlin.coroutines.Continuation</code> as last parameter.
-   *
-   * @return True for Kotlin suspend function.
-   */
   public boolean isSuspendFun() {
     return suspendFun;
   }
@@ -1046,6 +1040,4 @@ public class MvcRoute {
         .map(segment -> segment.startsWith("/") ? segment.substring(1) : segment)
         .collect(Collectors.joining("/", "/", ""));
   }
-
-  record TrpcMethod(HttpMethod method, String name) {}
 }

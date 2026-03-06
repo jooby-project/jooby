@@ -35,16 +35,6 @@ public enum HttpPath implements AnnotationSupport {
     return path(hierarchy, getAnnotations());
   }
 
-  /**
-   * Find path on type hierarchy. It goes back at hierarchy until it finds a Path annotation.
-   *
-   * @param hierarchy Type hierarchy.
-   * @return Path or empty list.
-   */
-  public List<String> trpcPath(Collection<TypeElement> hierarchy) {
-    return path(hierarchy, List.of("io.jooby.annotation.Trpc"));
-  }
-
   private List<String> path(Collection<TypeElement> hierarchy, List<String> annotations) {
     var prefix = Collections.<String>emptyList();
     var it = hierarchy.iterator();

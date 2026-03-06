@@ -100,7 +100,7 @@ public class MvcRouter {
    *
    * <pre>{@code
    * public class Controller_ implements MvcExtension {
-   *     ....
+   * ....
    * }
    *
    * }</pre>
