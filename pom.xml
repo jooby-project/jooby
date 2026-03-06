@@ -133,7 +133,7 @@
     <!-- Misc -->
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
-    <pac4j.version>6.3.1</pac4j.version>
+    <pac4j.version>6.3.3</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.16.1</bucket4j-core.version>
