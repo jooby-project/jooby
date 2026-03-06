@@ -265,13 +265,33 @@ public class MvcRoute {
         returnTypeString = Types.PROJECTED + "<" + returnType + ">";
       }
 
-      // Add the TrpcResponse generic wrapper for the generated method return type
+      var reactive = isTrpc ? context.getReactiveType(returnType.getRawType()) : null;
+      var isReactiveVoid = false;
+      var innerReactiveType = "Object";
+
+      // 1. Resolve Target Signature
       var methodReturnTypeString = returnTypeString;
       if (isTrpc) {
-        methodReturnTypeString =
-            "io.jooby.trpc.TrpcResponse<"
-                + (returnType.isVoid() ? (kt ? "Unit" : "Void") : returnTypeString)
-                + ">";
+        if (reactive != null) {
+          var rawReactiveType = type(kt, returnType.getRawType().toString());
+          if (!returnType.getArguments().isEmpty()) {
+            innerReactiveType = type(kt, returnType.getArguments().get(0).getRawType().toString());
+            if (innerReactiveType.equals("java.lang.Void") || innerReactiveType.equals("Void")) {
+              isReactiveVoid = true;
+              innerReactiveType = kt ? "Unit" : "Void";
+            }
+          } else if (rawReactiveType.contains("Completable")) {
+            isReactiveVoid = true;
+            innerReactiveType = kt ? "Unit" : "Void";
+          }
+          methodReturnTypeString =
+              rawReactiveType + "<io.jooby.trpc.TrpcResponse<" + innerReactiveType + ">>";
+        } else {
+          methodReturnTypeString =
+              "io.jooby.trpc.TrpcResponse<"
+                  + (returnType.isVoid() ? (kt ? "Unit" : "Void") : returnTypeString)
+                  + ">";
+        }
       }
 
       var nullable =
@@ -366,6 +386,7 @@ public class MvcRoute {
 
       controllerVar(kt, buffer, controllerIndent);
 
+      // 2. Resolve Return Flow
       if (returnType.isVoid()) {
         String statusCode =
             annotationMap.size() == 1
@@ -451,7 +472,6 @@ public class MvcRoute {
                 ? ""
                 : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
 
-        // Ensure projections are ignored by the kotlin hardcast, as they handle their own wrapper
         var needsCast =
             !castStr.isEmpty()
                 || (kt
@@ -480,7 +500,6 @@ public class MvcRoute {
                     indent(controllerIndent),
                     "return io.jooby.trpc.TrpcResponse.of(",
                     projected,
-                    kt && nullable ? "!!" : "",
                     ")",
                     semicolon(kt)));
           } else {
@@ -493,7 +512,62 @@ public class MvcRoute {
                     semicolon(kt)));
           }
         } else {
-          if (isTrpc) {
+
+          if (isTrpc && reactive != null) {
+            if (isReactiveVoid) {
+              // Ensure empty void streams systematically resolve into an empty TrpcResponse
+              var handler = reactive.handlerType();
+              if (handler.contains("Reactor")) {
+                buffer.add(
+                    statement(
+                        indent(controllerIndent),
+                        "return ",
+                        call,
+                        ".then(reactor.core.publisher.Mono.just(io.jooby.trpc.TrpcResponse.empty()))",
+                        semicolon(kt)));
+              } else if (handler.contains("Mutiny")) {
+                buffer.add(
+                    statement(
+                        indent(controllerIndent),
+                        "return ",
+                        call,
+                        ".replaceWith(io.jooby.trpc.TrpcResponse.empty())",
+                        semicolon(kt)));
+              } else if (handler.contains("ReactiveSupport")) {
+                buffer.add(
+                    statement(
+                        indent(controllerIndent),
+                        "return ",
+                        call,
+                        ".thenApply(x -> io.jooby.trpc.TrpcResponse.empty())",
+                        semicolon(kt)));
+              } else if (handler.contains("Reactivex")) {
+                buffer.add(
+                    statement(
+                        indent(controllerIndent),
+                        "return ",
+                        call,
+                        ".toSingleDefault(io.jooby.trpc.TrpcResponse.empty())",
+                        semicolon(kt)));
+              } else {
+                buffer.add(
+                    statement(
+                        indent(controllerIndent),
+                        "return ",
+                        call,
+                        ".map(x -> io.jooby.trpc.TrpcResponse.empty())",
+                        semicolon(kt)));
+              }
+            } else {
+              buffer.add(
+                  statement(
+                      indent(controllerIndent),
+                      "return ",
+                      call,
+                      reactive.mapOperator(),
+                      semicolon(kt)));
+            }
+          } else if (isTrpc) {
             buffer.add(
                 statement(
                     indent(controllerIndent),

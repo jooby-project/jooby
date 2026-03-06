@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.jooby.annotation.Trpc;
+import reactor.core.publisher.Mono;
 
 @Trpc("movies")
 public class MovieService {
@@ -22,6 +23,13 @@ public class MovieService {
   public Movie create(Movie movie) {
     // In a real app, save to DB. For now, just return it.
     return movie;
+  }
+
+  /** Procedure: movies.create Takes a single complex object. */
+  @Trpc.Mutation
+  public Mono<Movie> createMono(Movie movie) {
+    // In a real app, save to DB. For now, just return it.
+    return Mono.just(movie);
   }
 
   @Trpc.Mutation

@@ -101,6 +101,21 @@ public class TrpcProtocolTest {
           assertThat(JsonPath.<Integer>read(json, "$.result.data.year")).isEqualTo(1999);
         });
 
+    // reactive
+    http.postJson(
+        "/trpc/movies.createMono",
+        "[{\"id\": 1, \"title\": \"The Matrix\", \"year\": 1999}]",
+        rsp -> {
+          String json = rsp.body().string();
+
+          // 4. Validating the tRPC envelope and data using JsonPath + AssertJ
+          assertThat(rsp.code()).isEqualTo(200);
+
+          assertThat(JsonPath.<Integer>read(json, "$.result.data.id")).isEqualTo(1);
+          assertThat(JsonPath.<String>read(json, "$.result.data.title")).isEqualTo("The Matrix");
+          assertThat(JsonPath.<Integer>read(json, "$.result.data.year")).isEqualTo(1999);
+        });
+
     http.post(
         "/trpc/movies.resetIndex",
         rsp -> {
