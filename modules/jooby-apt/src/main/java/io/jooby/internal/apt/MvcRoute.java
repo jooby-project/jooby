@@ -938,6 +938,12 @@ public class MvcRoute {
         ofNullable(findAnnotationByName(this.method, annotation.getQualifiedName().toString()))
             .orElseThrow(() -> new IllegalArgumentException("Annotation not found: " + annotation));
     annotationMap.put(annotation, annotationMirror);
+
+    // Eagerly flag as tRPC so equals/hashCode can differentiate hybrid methods early
+    if (HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString())
+        == HttpMethod.tRPC) {
+      this.isTrpc = true;
+    }
     return this;
   }
 
@@ -984,13 +990,13 @@ public class MvcRoute {
 
   @Override
   public int hashCode() {
-    return method.toString().hashCode();
+    return Objects.hash(method.toString(), isTrpc);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof MvcRoute that) {
-      return this.method.toString().equals(that.method.toString());
+      return this.method.toString().equals(that.method.toString()) && this.isTrpc == that.isTrpc;
     }
     return false;
   }
@@ -1071,6 +1077,16 @@ public class MvcRoute {
   }
 
   private HttpMethod trpcMethod(Element element) {
+    // 1. High Precedence: Explicit tRPC procedure annotations
+    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Query") != null) {
+      return HttpMethod.GET;
+    }
+    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Mutation")
+        != null) {
+      return HttpMethod.POST;
+    }
+
+    // 2. Base Precedence: @Trpc combined with standard HTTP annotations
     var trpc = AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc");
     if (trpc != null) {
       if (HttpMethod.GET.matches(element)) {
@@ -1079,14 +1095,15 @@ public class MvcRoute {
       if (HttpMethod.POST.matches(element)) {
         return HttpMethod.POST;
       }
-      return null;
-    }
-    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Query") != null) {
-      return HttpMethod.GET;
-    }
-    if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Mutation")
-        != null) {
-      return HttpMethod.POST;
+
+      // 3. Fallback: Missing HTTP Method -> Compilation Error
+      throw new IllegalArgumentException(
+          "tRPC procedure missing HTTP mapping. Method "
+              + element.getSimpleName()
+              + "() in "
+              + element.getEnclosingElement().getSimpleName()
+              + " is annotated with @Trpc but lacks @GET or @POST. Please annotate the method with"
+              + " @Trpc.Query, @Trpc.Mutation, or combine @Trpc with @GET or @POST.");
     }
     return null;
   }

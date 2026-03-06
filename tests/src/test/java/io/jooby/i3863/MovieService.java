@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.jooby.annotation.Trpc;
+import io.jooby.annotation.*;
 import reactor.core.publisher.Mono;
 
 @Trpc("movies")
+@Path("/api/movies")
 public class MovieService {
 
   private final List<Movie> database =
@@ -20,6 +21,7 @@ public class MovieService {
 
   /** Procedure: movies.create Takes a single complex object. */
   @Trpc.Mutation
+  @POST("/create")
   public Movie create(Movie movie) {
     // In a real app, save to DB. For now, just return it.
     return movie;
@@ -33,6 +35,7 @@ public class MovieService {
   }
 
   @Trpc.Mutation
+  @PUT
   public void resetIndex() {}
 
   /** Procedure: movies.bulkCreate Takes a List of complex objects. */
@@ -49,7 +52,8 @@ public class MovieService {
 
   /** Procedure: movies.getById Single primitive argument */
   @Trpc.Query
-  public Movie getById(int id) {
+  @GET("/{id}")
+  public Movie getById(@PathParam int id) {
     return database.stream().filter(m -> m.id() == id).findFirst().orElse(null);
   }
 
