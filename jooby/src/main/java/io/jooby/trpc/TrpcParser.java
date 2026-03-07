@@ -20,15 +20,17 @@ public interface TrpcParser {
    * Creates a sequential reader for parsing tRPC arguments from a JSON array.
    *
    * @param payload A JSON array containing the method arguments.
+   * @param isTuple If the payload is a tuple.
    * @return A reader for sequential argument extraction.
    */
-  TrpcReader reader(byte[] payload);
+  TrpcReader reader(byte[] payload, boolean isTuple);
 
   /**
    * Creates a sequential reader for parsing tRPC arguments from a JSON array.
    *
    * @param payload A JSON array containing the method arguments.
+   * @param isTuple If the payload is a tuple.
    * @return A reader for sequential argument extraction.
    */
-  TrpcReader reader(String payload);
+  TrpcReader reader(String payload, boolean isTuple);
 }

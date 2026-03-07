@@ -14,10 +14,16 @@ import tools.jackson.core.JsonToken;
 public class JacksonTrpcReader implements TrpcReader {
   private final JsonParser parser;
   private boolean hasPeeked = false;
+  private final boolean isTuple;
+  private boolean isFirstRead = true;
 
-  public JacksonTrpcReader(JsonParser parser) {
+  public JacksonTrpcReader(JsonParser parser, boolean isTuple) {
     this.parser = parser;
-    parser.nextToken();
+    this.isTuple = isTuple;
+    var token = parser.nextToken();
+    if (isTuple && token != tools.jackson.core.JsonToken.START_ARRAY) {
+      throw new IllegalArgumentException("Expected tRPC tuple array");
+    }
   }
 
   @Override
@@ -32,18 +38,14 @@ public class JacksonTrpcReader implements TrpcReader {
       return true;
     }
 
-    // It's not null. We leave hasPeeked = true so extraction doesn't advance again.
     return false;
   }
 
   private void ensureNext(String name) {
     if (hasPeeked) {
-      // We already advanced the stream during nextIsNull().
-      // Reset the flag since the caller is about to consume the value.
       hasPeeked = false;
       return;
     }
-
     advance(name);
   }
 
@@ -52,8 +54,16 @@ public class JacksonTrpcReader implements TrpcReader {
   }
 
   private void advance(String name) {
-    JsonToken token = parser.nextToken();
-    if (token == JsonToken.END_ARRAY || token == null) {
+    // If it's a seamless raw value, we are ALREADY on the token. Do not advance.
+    if (!isTuple) {
+      if (!isFirstRead) throw new MissingValueException(name);
+      isFirstRead = false;
+      // The constructor already positioned us on the root token. Do not advance.
+      return;
+    }
+
+    var token = parser.nextToken();
+    if (token == tools.jackson.core.JsonToken.END_ARRAY || token == null) {
       throw new MissingValueException(name);
     }
   }
@@ -97,10 +107,6 @@ public class JacksonTrpcReader implements TrpcReader {
   public <T> T nextObject(String name, TrpcDecoder<T> decoder) {
     ensureNext(name);
     ensureNonNull(name);
-
-    // Cast back to our specific implementation to access the underlying ObjectReader.
-    // This allows us to read complex objects directly from the current position
-    // in the stream without any intermediate byte[] buffering or allocation.
     JacksonTrpcDecoder<T> jacksonDecoder = (JacksonTrpcDecoder<T>) decoder;
     return jacksonDecoder.reader.readValue(parser);
   }

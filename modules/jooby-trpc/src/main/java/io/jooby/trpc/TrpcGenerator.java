@@ -8,6 +8,7 @@ package io.jooby.trpc;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -41,8 +42,7 @@ import io.github.classgraph.ClassGraph;
  * <p>This tool bypasses the standard REST scanner of {@code typescript-generator}. Instead, it:
  *
  * <ol>
- *   <li>Scans the compiled class directory (or explicitly added classes) for controllers marked
- *       with {@code @Trpc}.
+ *   <li>Scans the classpath via the provided ClassLoader for controllers marked with {@code @Trpc}.
  *   <li>Extracts only the input and return types (DTOs) of the matching methods.
  *   <li>Feeds those data models to the generator to produce clean TypeScript interfaces.
  *   <li>Uses a fast, recursive type resolver to accurately map Java methods to tRPC {@code { input,
@@ -54,8 +54,7 @@ public class TrpcGenerator {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private Path buildClassesDir;
-  private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+  private ClassLoader classLoader = getClass().getClassLoader();
   private Path outputDir;
   private String outputFile = "trpc.d.ts";
   private boolean expandLookup = false;
@@ -92,7 +91,7 @@ public class TrpcGenerator {
     if (controllers.isEmpty()) {
       throw new IllegalStateException(
           "No controllers were found to generate. "
-              + "Ensure 'buildClassesDir' points to the compiled classes directory, "
+              + "Ensure the 'classLoader' has access to compiled classes, "
               + "or use 'addController(Class)' to manually register controllers for unit testing.");
     }
 
@@ -185,6 +184,8 @@ public class TrpcGenerator {
         if (includeMethod) {
           var params = method.getGenericParameterTypes();
           String tsInput = "void";
+
+          // Seamless tRPC: single arguments are raw, multiple arguments are packed in a tuple
           if (params.length == 1) {
             tsInput = resolveTsType(params[0]);
           } else if (params.length > 1) {
@@ -194,9 +195,10 @@ public class TrpcGenerator {
           }
 
           String tsOutput = resolveTsType(method.getGenericReturnType());
+          String procedureName = getProcedureName(method);
 
           ts.append(indent)
-              .append(method.getName())
+              .append(procedureName)
               .append(": { input: ")
               .append(tsInput)
               .append("; output: ")
@@ -228,8 +230,10 @@ public class TrpcGenerator {
       var raw = pt.getRawType();
       var rawName = raw.getTypeName();
 
-      // Unwrap async types (CompletableFuture, Mono, Single, Future)
-      if (rawName.endsWith("CompletableFuture")
+      // Unwrap async and protocol wrapper types (TrpcResponse, CompletableFuture, Mono, Single,
+      // Future)
+      if (rawName.endsWith("TrpcResponse")
+          || rawName.endsWith("CompletableFuture")
           || rawName.endsWith("Single")
           || rawName.endsWith("Mono")
           || rawName.endsWith("Future")) {
@@ -300,15 +304,13 @@ public class TrpcGenerator {
   }
 
   /**
-   * Scans the build output directory to load and validate controller classes.
+   * Scans the classloader to load and validate controller classes.
    *
    * @return A set of valid controller classes found on disk.
-   * @throws IOException If the directory scan fails.
    */
   private Set<Class<?>> discoverControllers() {
     var controllers = new LinkedHashSet<Class<?>>();
 
-    // We scope the scan strictly to the build directory for maximum speed
     var classGraph =
         new ClassGraph()
             .enableClassInfo()
@@ -316,12 +318,8 @@ public class TrpcGenerator {
             .enableMethodInfo()
             .ignoreClassVisibility();
 
-    if (buildClassesDir != null && Files.exists(buildClassesDir)) {
-      classGraph.overrideClasspath(buildClassesDir.toUri().toString());
-    } else if (classLoader != null) {
+    if (classLoader != null) {
       classGraph.overrideClassLoaders(classLoader);
-    } else {
-      return controllers;
     }
 
     try (var scanResult = classGraph.scan()) {
@@ -355,19 +353,56 @@ public class TrpcGenerator {
     return controllers;
   }
 
-  /**
-   * ClassLoader-agnostic check to see if an element has the Trpc annotation.
-   *
-   * @param element The class or method to inspect.
-   * @return True if annotated with {@code io.jooby.annotation.Trpc}.
-   */
-  private boolean isTrpcAnnotated(AnnotatedElement element) {
+  /** Retrieves an annotation safely, supporting nested annotation syntax differences. */
+  private Annotation getAnnotation(AnnotatedElement element, String annotationName) {
     for (Annotation a : element.getAnnotations()) {
-      if (a.annotationType().getName().equals("io.jooby.annotation.Trpc")) {
-        return true;
+      String name = a.annotationType().getName();
+      if (name.equals(annotationName)
+          || name.replace('$', '.').equals(annotationName.replace('$', '.'))) {
+        return a;
       }
     }
-    return false;
+    return null;
+  }
+
+  /**
+   * ClassLoader-agnostic check to see if an element has a Trpc annotation. Matches the APT
+   * precedence.
+   *
+   * @param element The class or method to inspect.
+   * @return True if annotated with `@Trpc`, `@Trpc.Query`, or `@Trpc.Mutation`.
+   */
+  private boolean isTrpcAnnotated(AnnotatedElement element) {
+    return getAnnotation(element, "io.jooby.annotation.Trpc") != null
+        || getAnnotation(element, "io.jooby.annotation.Trpc$Query") != null
+        || getAnnotation(element, "io.jooby.annotation.Trpc$Mutation") != null;
+  }
+
+  /**
+   * Evaluates the exact tRPC procedure name based on annotation values, defaulting to the method
+   * name. Respects the precedence hierarchy: .Query / .Mutation > Base @Trpc.
+   */
+  private String getProcedureName(Method method) {
+    String[] procedureAnnotations = {
+      "io.jooby.annotation.Trpc$Query",
+      "io.jooby.annotation.Trpc$Mutation",
+      "io.jooby.annotation.Trpc"
+    };
+
+    for (String annName : procedureAnnotations) {
+      Annotation a = getAnnotation(method, annName);
+      if (a != null) {
+        try {
+          var valueMethod = a.annotationType().getMethod("value");
+          var value = (String) valueMethod.invoke(a);
+          if (value != null && !value.isBlank()) {
+            return value;
+          }
+        } catch (Exception ignored) {
+        }
+      }
+    }
+    return method.getName();
   }
 
   /**
@@ -390,36 +425,25 @@ public class TrpcGenerator {
 
   /**
    * Extracts the target namespace for the tRPC router based on the controller. If the class is not
-   * annotated with @Trpc, it returns null (indicating root-level).
+   * annotated with @Trpc, or if its value is empty, it returns null (indicating the methods belong
+   * to the root namespace).
    *
    * @param controller The controller class.
    * @return The determined namespace string, or null for root-level.
    */
   private String extractNamespace(Class<?> controller) {
-    boolean hasClassLevelTrpc = false;
-
-    for (Annotation a : controller.getAnnotations()) {
-      if (a.annotationType().getName().equals("io.jooby.annotation.Trpc")) {
-        hasClassLevelTrpc = true;
-        try {
-          var method = a.annotationType().getMethod("value");
-          var value = (String) method.invoke(a);
-          // Explicit namespace provided: @Trpc("myNamespace")
-          if (value != null && !value.isBlank()) return value;
-        } catch (Exception ignored) {
+    Annotation trpc = getAnnotation(controller, "io.jooby.annotation.Trpc");
+    if (trpc != null) {
+      try {
+        var method = trpc.annotationType().getMethod("value");
+        var value = (String) method.invoke(trpc);
+        if (value != null && !value.isBlank()) {
+          return value;
         }
+      } catch (Exception ignored) {
       }
     }
-
-    // No class-level annotation means these methods sit at the root of the router
-    if (!hasClassLevelTrpc) {
-      return null;
-    }
-
-    // Class is annotated, but no explicit value provided. Derive from class name.
-    var name = controller.getSimpleName();
-    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-    return name.replace("Controller", "").replace("Resource", "");
+    return null; // Root namespace
   }
 
   // --- Configuration API (Getters, Setters, and Builders) ---
@@ -432,20 +456,6 @@ public class TrpcGenerator {
    */
   public void addController(Class<?> controller) {
     this.manualControllers.add(controller);
-  }
-
-  /**
-   * @return The directory where compiled class files are located.
-   */
-  public Path getBuildClassesDir() {
-    return buildClassesDir;
-  }
-
-  /**
-   * @param buildClassesDir The directory where compiled class files are located.
-   */
-  public void setBuildClassesDir(Path buildClassesDir) {
-    this.buildClassesDir = buildClassesDir;
   }
 
   /**

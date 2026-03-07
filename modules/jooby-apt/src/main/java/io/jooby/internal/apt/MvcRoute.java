@@ -326,49 +326,68 @@ public class MvcRoute {
                   string("input"),
                   ").value()",
                   semicolon(kt)));
-          if (kt) {
-            buffer.add(
-                statement(
-                    indent(2),
-                    "if (input?.trim()?.let { it.startsWith('[') && it.endsWith(']') } != true)"
-                        + " throw IllegalArgumentException(",
-                    string("tRPC input must be a JSON array (tuple)"),
-                    ")"));
-          } else {
-            buffer.add(
-                statement(
-                    indent(2),
-                    "if (input == null || input.length() < 2 || input.charAt(0) != '[' ||"
-                        + " input.charAt(input.length() - 1) != ']') throw new"
-                        + " IllegalArgumentException(",
-                    string("tRPC input must be a JSON array (tuple)"),
-                    ");"));
+
+          // Only enforce JSON array tuples if there are multiple arguments
+          if (parameters.size() > 1) {
+            if (kt) {
+              buffer.add(
+                  statement(
+                      indent(2),
+                      "if (input?.trim()?.let { it.startsWith('[') && it.endsWith(']') } != true)"
+                          + " throw IllegalArgumentException(",
+                      string("tRPC input for multiple arguments must be a JSON array (tuple)"),
+                      ")"));
+            } else {
+              buffer.add(
+                  statement(
+                      indent(2),
+                      "if (input == null || input.length() < 2 || input.charAt(0) != '[' ||"
+                          + " input.charAt(input.length() - 1) != ']') throw new"
+                          + " IllegalArgumentException(",
+                      string("tRPC input for multiple arguments must be a JSON array (tuple)"),
+                      ");"));
+            }
           }
         } else {
           buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
-          if (kt) {
-            buffer.add(
-                statement(
-                    indent(2),
-                    "if (input.size < 2 || input[0] != '['.code.toByte() || input[input.size - 1]"
-                        + " != ']'.code.toByte()) throw IllegalArgumentException(",
-                    string("tRPC body must be a JSON array (tuple)"),
-                    ")"));
-          } else {
-            buffer.add(
-                statement(
-                    indent(2),
-                    "if (input.length < 2 || input[0] != '[' || input[input.length - 1] != ']')"
-                        + " throw new IllegalArgumentException(",
-                    string("tRPC body must be a JSON array (tuple)"),
-                    ");"));
+
+          // Only enforce JSON array tuples if there are multiple arguments
+          if (parameters.size() > 1) {
+            if (kt) {
+              buffer.add(
+                  statement(
+                      indent(2),
+                      "if (input.size < 2 || input[0] != '['.code.toByte() || input[input.size - 1]"
+                          + " != ']'.code.toByte()) throw IllegalArgumentException(",
+                      string("tRPC body for multiple arguments must be a JSON array (tuple)"),
+                      ")"));
+            } else {
+              buffer.add(
+                  statement(
+                      indent(2),
+                      "if (input.length < 2 || input[0] != '[' || input[input.length - 1] != ']')"
+                          + " throw new IllegalArgumentException(",
+                      string("tRPC body for multiple arguments must be a JSON array (tuple)"),
+                      ");"));
+            }
           }
         }
 
+        boolean isTuple = parameters.size() > 1;
         if (kt) {
-          buffer.add(statement(indent(2), "parser.reader(input).use { reader -> "));
+          buffer.add(
+              statement(
+                  indent(2),
+                  "parser.reader(input, ",
+                  String.valueOf(isTuple),
+                  ").use { reader -> "));
         } else {
-          buffer.add(statement(indent(2), "try (var reader = parser.reader(input)) {"));
+          buffer.add(
+              statement(
+                  indent(2),
+                  "try (var reader = parser.reader(input, ",
+                  String.valueOf(isTuple),
+                  ")) {"));
         }
 
         buffer.addAll(generateTrpcParameter(kt, paramList::add));

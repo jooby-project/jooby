@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.*;
+import io.jooby.exception.NotFoundException;
 import reactor.core.publisher.Mono;
 
 @Trpc("movies")
@@ -51,10 +53,13 @@ public class MovieService {
   }
 
   /** Procedure: movies.getById Single primitive argument */
-  @Trpc.Query
+  @Trpc
   @GET("/{id}")
-  public Movie getById(@PathParam int id) {
-    return database.stream().filter(m -> m.id() == id).findFirst().orElse(null);
+  public @NonNull Movie getById(@PathParam int id) {
+    return database.stream()
+        .filter(m -> m.id() == id)
+        .findFirst()
+        .orElseThrow(() -> new NotFoundException("Movie not found: " + id));
   }
 
   /** Procedure: movies.search Multi-argument (Tuple) */

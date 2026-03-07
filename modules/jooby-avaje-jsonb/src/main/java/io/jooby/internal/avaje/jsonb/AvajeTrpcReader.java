@@ -13,44 +13,52 @@ import io.jooby.trpc.TrpcReader;
 public class AvajeTrpcReader implements TrpcReader {
   private final JsonReader reader;
   private boolean hasPeeked = false;
+  private final boolean isTuple;
+  private boolean isFirstRead = true;
 
-  public AvajeTrpcReader(JsonReader reader) {
+  public AvajeTrpcReader(JsonReader reader, boolean isTuple) {
     this.reader = reader;
-    reader.beginArray();
+    this.isTuple = isTuple;
+    if (isTuple) {
+      reader.beginArray();
+    }
   }
 
   @Override
   public boolean nextIsNull(String name) {
     if (!hasPeeked) {
-      if (!reader.hasNextElement()) {
-        throw new MissingValueException(name);
-      }
-      hasPeeked = true; // We successfully advanced the cursor to a value
+      ensureNextState(name);
+      hasPeeked = true;
     }
 
     if (reader.isNullValue()) {
-      // Avaje requires us to actively skip the null token to consume it
       reader.skipValue();
-      hasPeeked = false; // Reset because the value is consumed
+      hasPeeked = false;
       return true;
     }
 
-    // It's not null. We leave hasPeeked = true so the next extraction method doesn't advance again.
     return false;
+  }
+
+  private void ensureNextState(String name) {
+    if (isTuple) {
+      if (!reader.hasNextElement()) {
+        throw new MissingValueException(name);
+      }
+    } else {
+      if (!isFirstRead) {
+        throw new MissingValueException(name);
+      }
+      isFirstRead = false;
+    }
   }
 
   private void ensureNext(String name) {
     if (hasPeeked) {
-      // We already advanced the stream during nextIsNull().
-      // Reset the flag since the caller is about to consume the value.
       hasPeeked = false;
       return;
     }
-
-    // hasNextElement() checks for ']' and consumes the comma ',' if present.
-    if (!reader.hasNextElement()) {
-      throw new MissingValueException(name);
-    }
+    ensureNextState(name);
   }
 
   private void ensureNonNull(String name) {
@@ -96,18 +104,15 @@ public class AvajeTrpcReader implements TrpcReader {
   public <T> T nextObject(String name, TrpcDecoder<T> decoder) {
     ensureNext(name);
     ensureNonNull(name);
-    // Cast to access the underlying Avaje JsonType adapter
     AvajeTrpcDecoder<T> avajeDecoder = (AvajeTrpcDecoder<T>) decoder;
-
-    // JsonType.fromJson(JsonReader) consumes exactly the tokens needed
-    // for the object, leaving the stream in the correct position.
     return avajeDecoder.typeAdapter.fromJson(reader);
   }
 
   @Override
   public void close() {
-    // Consume the closing ']' and close the underlying stream
-    reader.endArray();
+    if (isTuple) {
+      reader.endArray();
+    }
     reader.close();
   }
 }

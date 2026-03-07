@@ -26,8 +26,6 @@ class TrpcGeneratorTest {
     var testClassesDir =
         Paths.get(C3863.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-    generator.setBuildClassesDir(testClassesDir);
-    generator.setClassLoader(Thread.currentThread().getContextClassLoader());
     generator.setOutputDir(outputDir);
     generator.setOutputFile("api.d.ts");
 

@@ -27,12 +27,12 @@ public class AvajeTrpcParser implements TrpcParser {
   }
 
   @Override
-  public TrpcReader reader(byte[] payload) {
-    return new AvajeTrpcReader(jsonb.reader(payload));
+  public TrpcReader reader(byte[] payload, boolean isTuple) {
+    return new AvajeTrpcReader(jsonb.reader(payload), isTuple);
   }
 
   @Override
-  public TrpcReader reader(String payload) {
-    return new AvajeTrpcReader(jsonb.reader(payload));
+  public TrpcReader reader(String payload, boolean isTuple) {
+    return new AvajeTrpcReader(jsonb.reader(payload), isTuple);
   }
 }

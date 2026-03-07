@@ -32,12 +32,12 @@ public class JacksonTrpcParser implements TrpcParser {
   }
 
   @Override
-  public TrpcReader reader(byte[] payload) {
-    return new JacksonTrpcReader(mapper.createParser(payload));
+  public TrpcReader reader(byte[] payload, boolean isTuple) {
+    return new JacksonTrpcReader(mapper.createParser(payload), isTuple);
   }
 
   @Override
-  public TrpcReader reader(String payload) {
-    return new JacksonTrpcReader(mapper.createParser(payload));
+  public TrpcReader reader(String payload, boolean isTuple) {
+    return new JacksonTrpcReader(mapper.createParser(payload), isTuple);
   }
 }
