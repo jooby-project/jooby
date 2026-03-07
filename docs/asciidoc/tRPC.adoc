@@ -1,0 +1,184 @@
+=== tRPC
+
+The tRPC module provides end-to-end type safety by integrating the https://trpc.io/[tRPC] protocol directly into Jooby.
+
+Because the `io.jooby.trpc` package is included in Jooby core, there are no extra dependencies to add to your project. This integration allows you to write standard Java/Kotlin controllers and consume them directly in the browser using the official `@trpc/client`—complete with 100% type safety, autocomplete, and zero manual client generation.
+
+==== Usage
+
+Because tRPC relies heavily on JSON serialization to communicate with the frontend client, a JSON module **must** be installed prior to the `TrpcModule`.
+
+NOTE: Currently, Jooby only provides the required `TrpcParser` SPI implementation for two JSON engines: **Jackson 2/3** and **AvajeJsonbModule** . Using other JSON modules (like Gson) will result in a missing service exception at startup.
+
+[source, java]
+----
+import io.jooby.Jooby;
+import io.jooby.json.JacksonModule;
+import io.jooby.trpc.TrpcModule;
+
+public class App extends Jooby {
+  {
+    install(new JacksonModule()); // <1>
+
+    install(new TrpcModule());    // <2>
+
+    install(new MovieService_()); // <3>
+  }
+}
+----
+
+1. Install a supported JSON engine (Jackson or Avaje)
+2. Install the tRPC extension
+3. Register your @Trpc annotated controllers (using the APT generated route)
+
+==== Writing a Service
+
+You can define your procedures using explicit tRPC annotations or a hybrid approach combining tRPC with standard HTTP methods:
+
+* **Explicit Annotations:** Use `@Trpc.Query` (maps to `GET`) and `@Trpc.Mutation` (maps to `POST`).
+* **Hybrid Annotations:** Combine the base `@Trpc` annotation with Jooby's standard HTTP annotations. A `@GET` resolves to a tRPC query, while state-changing methods (`@POST`, `@PUT`, `@DELETE`) resolve to tRPC mutations.
+
+.MovieService
+[source, java]
+----
+import io.jooby.annotation.Trpc;
+import io.jooby.annotation.DELETE;
+
+public record Movie(int id, String title, int year) {}
+
+@Trpc("movies") // Defines the 'movies' namespace
+public class MovieService {
+
+  // 1. Explicit tRPC Query
+  @Trpc.Query
+  public Movie getById(int id) {
+    return new Movie(id, "Pulp Fiction", 1994);
+  }
+
+  // 2. Explicit tRPC Mutation
+  @Trpc.Mutation
+  public Movie create(Movie movie) {
+    // Save to database logic here
+    return movie;
+  }
+
+  // 3. Hybrid Mutation
+  @Trpc
+  @DELETE
+  public void delete(int id) {
+    // Delete from database
+  }
+}
+----
+
+==== Build Tool Configuration
+
+To generate the `trpc.d.ts` TypeScript definitions, you must configure the Jooby build plugin for your project. The generator parses your source code and emits the definitions during the compilation phase.
+
+.pom.xml
+[source, xml, role = "primary", subs="verbatim,attributes"]
+----
+<plugin>
+  <groupId>io.jooby</groupId>
+  <artifactId>jooby-maven-plugin</artifactId>
+  <version>${jooby.version}</version>
+  <executions>
+    <execution>
+      <goals>
+        <goal>trpc</goal>
+      </goals>
+    </execution>
+  </executions>
+  <configuration>
+    <jsonLibrary>jackson2</jsonLibrary>
+    <outputDir>${project.build.outputDirectory}</outputDir>
+  </configuration>
+</plugin>
+----
+
+.gradle.build
+[source, groovy, role = "secondary", subs="verbatim,attributes"]
+----
+plugins {
+  id 'io.jooby.trpc' version "${joobyVersion}"
+}
+
+trpc {
+  // Optional settings
+  jsonLibrary = 'jackson2'
+}
+----
+
+==== Consuming the API (Frontend)
+
+Once the project is compiled, the build plugin generates a `trpc.d.ts` file containing your exact `AppRouter` shape. You can then use the official client in your TypeScript frontend:
+
+[source, bash]
+----
+npm install @trpc/client
+----
+
+[source, typescript]
+----
+import { createTRPCProxyClient, httpLink } from '@trpc/client';
+import type { AppRouter } from './target/classes/trpc'; // Path to generated file
+
+// Initialize the strongly-typed client
+export const trpc = createTRPCProxyClient<AppRouter>({
+  links: [
+    httpLink({
+      url: 'http://localhost:8080/trpc',
+    }),
+  ],
+});
+
+// 100% Type-safe! IDEs will autocomplete namespaces, inputs, and outputs.
+const movie = await trpc.movies.getById.query(1);
+console.log(`Fetched: ${movie.title} (${movie.year})`);
+----
+
+==== Advanced Configuration
+
+===== Custom Exception Mapping
+The tRPC protocol expects specific JSON-RPC error codes (e.g., `-32600` for Bad Request). `TrpcModule` automatically registers a specialized error handler to format these errors.
+
+If you throw custom domain exceptions, you can map them directly to tRPC error codes using the service registry so the frontend client receives the correct error state:
+
+[source, java]
+----
+import io.jooby.trpc.TrpcErrorCode;
+
+{
+  install(new TrpcModule());
+
+  // Map your custom business exception to a standard tRPC error code
+  getServices().mapOf(Class.class, TrpcErrorCode.class)
+    .put(IllegalArgumentException.class, TrpcErrorCode.BAD_REQUEST)
+    .put(MovieNotFoundException.class, TrpcErrorCode.NOT_FOUND);
+}
+----
+
+===== Custom TypeScript Mappings
+Sometimes you have custom Java types (like `java.util.UUID` or `java.math.BigDecimal`) that you want translated into specific TypeScript primitives. You can define these overrides in your build tool:
+
+**Maven:**
+[source, xml]
+----
+<configuration>
+  <customTypeMappings>
+    <java.util.UUID>string</java.util.UUID>
+    <java.math.BigDecimal>number</java.math.BigDecimal>
+  </customTypeMappings>
+</configuration>
+----
+
+**Gradle:**
+[source, groovy]
+----
+trpc {
+  customTypeMappings = [
+    'java.util.UUID': 'string',
+    'java.math.BigDecimal': 'number'
+  ]
+}
+----
