@@ -317,6 +317,18 @@ public class MvcRoute {
                 ")",
                 semicolon(kt)));
 
+        // Calculate actual tRPC payload parameters (ignore Context and Coroutines)
+        long trpcPayloadCount =
+            parameters.stream()
+                .filter(
+                    p -> {
+                      String type = p.getType().getRawType().toString();
+                      return !type.equals("io.jooby.Context")
+                          && !p.getType().is("kotlin.coroutines.Continuation");
+                    })
+                .count();
+        boolean isTuple = trpcPayloadCount > 1;
+
         if (resolvedTrpcMethod == HttpMethod.GET) {
           buffer.add(
               statement(
@@ -327,8 +339,7 @@ public class MvcRoute {
                   ").value()",
                   semicolon(kt)));
 
-          // Only enforce JSON array tuples if there are multiple arguments
-          if (parameters.size() > 1) {
+          if (isTuple) { // <-- Use calculated isTuple
             if (kt) {
               buffer.add(
                   statement(
@@ -351,8 +362,7 @@ public class MvcRoute {
         } else {
           buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
 
-          // Only enforce JSON array tuples if there are multiple arguments
-          if (parameters.size() > 1) {
+          if (isTuple) { // <-- Use calculated isTuple
             if (kt) {
               buffer.add(
                   statement(
@@ -373,7 +383,6 @@ public class MvcRoute {
           }
         }
 
-        boolean isTuple = parameters.size() > 1;
         if (kt) {
           buffer.add(
               statement(

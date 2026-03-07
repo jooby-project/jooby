@@ -83,7 +83,6 @@ public class TrpcGenerator {
   private ClassLoader classLoader = getClass().getClassLoader();
   private Path outputDir;
   private String outputFile = "trpc.d.ts";
-  private boolean expandLookup = false;
 
   private final Set<Class<?>> manualControllers = new LinkedHashSet<>();
 
@@ -125,13 +124,14 @@ public class TrpcGenerator {
     var typesToGenerate = new LinkedHashSet<Type>();
     for (var controller : controllers) {
       for (var method : controller.getDeclaredMethods()) {
-        boolean includeMethod = isTrpcAnnotated(method);
-        if (!includeMethod && expandLookup) includeMethod = hasWebAnnotation(method);
-
-        if (includeMethod) {
+        if (isTrpcAnnotated(method)) {
           addTypeToGenerate(typesToGenerate, method.getGenericReturnType());
           for (var param : method.getGenericParameterTypes()) {
-            addTypeToGenerate(typesToGenerate, param);
+            String typeName = param.getTypeName();
+            if (!typeName.equals("io.jooby.Context")
+                && !typeName.startsWith("kotlin.coroutines.Continuation")) {
+              addTypeToGenerate(typesToGenerate, param);
+            }
           }
         }
       }
@@ -155,10 +155,10 @@ public class TrpcGenerator {
       /// FIREWALL: Force the generator to ignore all reactive wrappers if discovered indirectly.
       // typescript-generator strictly demands exact generic signatures (e.g. Future<V>).
       // We dynamically append the type variables using reflection to satisfy its parser.
-      for (String wrapper : WRAPPERS) {
+      for (var wrapper : WRAPPERS) {
         try {
-          Class<?> clazz = Class.forName(wrapper, false, classLoader);
-          StringBuilder key = new StringBuilder(wrapper);
+          var clazz = Class.forName(wrapper, false, classLoader);
+          var key = new StringBuilder(wrapper);
           var typeParams = clazz.getTypeParameters();
 
           if (typeParams.length > 0) {
@@ -268,10 +268,7 @@ public class TrpcGenerator {
       namespaces.computeIfAbsent(key, k -> new ArrayList<>());
 
       for (var method : controller.getDeclaredMethods()) {
-        boolean includeMethod = isTrpcAnnotated(method);
-        if (!includeMethod && expandLookup) includeMethod = hasWebAnnotation(method);
-
-        if (includeMethod) {
+        if (isTrpcAnnotated(method)) {
           namespaces.get(key).add(method);
         }
       }
@@ -332,15 +329,22 @@ public class TrpcGenerator {
   }
 
   private void appendProcedure(StringBuilder ts, String indent, Method method) {
-    var params = method.getGenericParameterTypes();
-    String tsInput = "void";
+    // Filter out framework parameters so they don't appear in the TypeScript signature
+    var payloadParams = new ArrayList<Type>();
+    for (var p : method.getGenericParameterTypes()) {
+      String typeName = p.getTypeName();
+      if (!typeName.equals("io.jooby.Context")
+          && !typeName.startsWith("kotlin.coroutines.Continuation")) {
+        payloadParams.add(p);
+      }
+    }
 
-    // Seamless tRPC: single arguments are raw, multiple arguments are packed in a tuple
-    if (params.length == 1) {
-      tsInput = resolveTsType(params[0]);
-    } else if (params.length > 1) {
+    String tsInput = "void";
+    if (payloadParams.size() == 1) {
+      tsInput = resolveTsType(payloadParams.get(0));
+    } else if (payloadParams.size() > 1) {
       var tuple = new ArrayList<String>();
-      for (var p : params) tuple.add(resolveTsType(p));
+      for (var p : payloadParams) tuple.add(resolveTsType(p));
       tsInput = "[" + String.join(", ", tuple) + "]";
     }
 
@@ -506,18 +510,12 @@ public class TrpcGenerator {
         try {
           var clazz = classInfo.loadClass(false); // loads without initializing!
 
-          boolean includeClass = isTrpcAnnotated(clazz);
-          if (!includeClass && expandLookup) includeClass = hasWebAnnotation(clazz);
-
-          if (includeClass) {
+          if (isTrpcAnnotated(clazz)) {
             controllers.add(clazz);
           } else {
             // Check methods if the class itself isn't annotated
             for (var method : clazz.getDeclaredMethods()) {
-              boolean includeMethod = isTrpcAnnotated(method);
-              if (!includeMethod && expandLookup) includeMethod = hasWebAnnotation(method);
-
-              if (includeMethod) {
+              if (isTrpcAnnotated(method)) {
                 controllers.add(clazz);
                 break;
               }
@@ -582,24 +580,6 @@ public class TrpcGenerator {
       }
     }
     return method.getName();
-  }
-
-  /**
-   * ClassLoader-agnostic check for standard web routing annotations.
-   *
-   * @param element The class or method to inspect.
-   * @return True if a JAX-RS or Jooby web annotation is present.
-   */
-  private boolean hasWebAnnotation(AnnotatedElement element) {
-    for (Annotation a : element.getAnnotations()) {
-      var name = a.annotationType().getName();
-      if (name.startsWith("io.jooby.annotation.")
-          || name.startsWith("jakarta.ws.rs.")
-          || name.startsWith("javax.ws.rs.")) {
-        return true;
-      }
-    }
-    return false;
   }
 
   /**
@@ -678,21 +658,6 @@ public class TrpcGenerator {
    */
   public void setOutputFile(String outputFile) {
     if (outputFile != null && !outputFile.isBlank()) this.outputFile = outputFile;
-  }
-
-  /**
-   * @return True if standard Jooby and JAX-RS annotations are included in the generation.
-   */
-  public boolean isExpandLookup() {
-    return expandLookup;
-  }
-
-  /**
-   * @param expandLookup Set to true to generate endpoints for standard web annotations even
-   *     without @Trpc.
-   */
-  public void setExpandLookup(boolean expandLookup) {
-    this.expandLookup = expandLookup;
   }
 
   /**

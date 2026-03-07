@@ -7,6 +7,7 @@ package io.jooby.trpc.i3863;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.jooby.Context;
 import io.jooby.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -16,7 +17,7 @@ public class C3863 {
 
   @GET("/{id}")
   @Trpc
-  public U3863 getUser(String id) {
+  public U3863 getUser(Context ctx, String id) {
     return new U3863(id, "user");
   }
 
