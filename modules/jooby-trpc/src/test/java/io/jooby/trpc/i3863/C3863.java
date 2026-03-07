@@ -5,10 +5,10 @@
  */
 package io.jooby.trpc.i3863;
 
-import io.jooby.annotation.GET;
-import io.jooby.annotation.POST;
-import io.jooby.annotation.Path;
-import io.jooby.annotation.Trpc;
+import java.util.concurrent.CompletableFuture;
+
+import io.jooby.annotation.*;
+import reactor.core.publisher.Mono;
 
 @Path("/users")
 @Trpc("users") // Custom namespace
@@ -24,6 +24,17 @@ public class C3863 {
   @Trpc
   public U3863 createUser(U3863 user) {
     return user;
+  }
+
+  @PUT
+  @Trpc
+  public CompletableFuture<U3863> createFuture(U3863 user) {
+    return CompletableFuture.completedFuture(user);
+  }
+
+  @Trpc.Mutation
+  public Mono<U3863> createMono(U3863 user) {
+    return Mono.just(user);
   }
 
   @GET("/internal")

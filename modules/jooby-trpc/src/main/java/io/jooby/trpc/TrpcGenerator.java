@@ -52,6 +52,32 @@ import io.github.classgraph.ClassGraph;
  */
 public class TrpcGenerator {
 
+  private static final Set<String> WRAPPERS =
+      Set.of(
+          // Protocol Envelope
+          "io.jooby.trpc.TrpcResponse",
+          // JDK Async
+          "java.util.concurrent.CompletableFuture",
+          "java.util.concurrent.CompletionStage",
+          "java.util.concurrent.Future",
+          // Reactor
+          "reactor.core.publisher.Mono",
+          "reactor.core.publisher.Flux",
+          // Mutiny
+          "io.smallrye.mutiny.Uni",
+          "io.smallrye.mutiny.Multi",
+          // RxJava 2 & 3
+          "io.reactivex.Single",
+          "io.reactivex.Maybe",
+          "io.reactivex.Observable",
+          "io.reactivex.Flowable",
+          "io.reactivex.Completable",
+          "io.reactivex.rxjava3.core.Single",
+          "io.reactivex.rxjava3.core.Maybe",
+          "io.reactivex.rxjava3.core.Observable",
+          "io.reactivex.rxjava3.core.Flowable",
+          "io.reactivex.rxjava3.core.Completable");
+
   private final Logger log = LoggerFactory.getLogger(getClass());
 
   private ClassLoader classLoader = getClass().getClassLoader();
@@ -103,9 +129,9 @@ public class TrpcGenerator {
         if (!includeMethod && expandLookup) includeMethod = hasWebAnnotation(method);
 
         if (includeMethod) {
-          typesToGenerate.add(method.getGenericReturnType());
+          addTypeToGenerate(typesToGenerate, method.getGenericReturnType());
           for (var param : method.getGenericParameterTypes()) {
-            typesToGenerate.add(param);
+            addTypeToGenerate(typesToGenerate, param);
           }
         }
       }
@@ -125,6 +151,31 @@ public class TrpcGenerator {
     // 2. Generate standard interfaces (DTOs only)
     if (!typesToGenerate.isEmpty()) {
       TypeScriptGenerator.setLogger(asSlf4j(log));
+
+      /// FIREWALL: Force the generator to ignore all reactive wrappers if discovered indirectly.
+      // typescript-generator strictly demands exact generic signatures (e.g. Future<V>).
+      // We dynamically append the type variables using reflection to satisfy its parser.
+      for (String wrapper : WRAPPERS) {
+        try {
+          Class<?> clazz = Class.forName(wrapper, false, classLoader);
+          StringBuilder key = new StringBuilder(wrapper);
+          var typeParams = clazz.getTypeParameters();
+
+          if (typeParams.length > 0) {
+            key.append("<");
+            for (int i = 0; i < typeParams.length; i++) {
+              if (i > 0) key.append(", ");
+              key.append(typeParams[i].getName());
+            }
+            key.append(">");
+          }
+
+          settings.customTypeMappings.put(key.toString(), "any");
+        } catch (ClassNotFoundException | NoClassDefFoundError ignored) {
+          // Class not on classpath, safe to ignore
+        }
+      }
+
       var generator = new TypeScriptGenerator(settings);
       var input = Input.from(typesToGenerate.toArray(new Type[0]));
       generator.generateTypeScript(input, Output.to(finalOutput.toFile()));
@@ -155,6 +206,45 @@ public class TrpcGenerator {
     };
   }
 
+  private void addTypeToGenerate(Set<Type> types, Type type) {
+    if (type == void.class || type == Void.class) return;
+
+    if (type instanceof ParameterizedType pt) {
+      var rawName = pt.getRawType().getTypeName();
+
+      // Unwrap async and protocol wrapper types
+      if (WRAPPERS.contains(rawName) && pt.getActualTypeArguments().length > 0) {
+        addTypeToGenerate(types, pt.getActualTypeArguments()[0]);
+        return;
+      }
+
+      // Decompose standard generic types to ensure inner DTOs are discovered safely
+      addTypeToGenerate(types, pt.getRawType());
+      for (Type arg : pt.getActualTypeArguments()) {
+        addTypeToGenerate(types, arg);
+      }
+      return;
+    } else if (type instanceof Class<?> clazz) {
+      // Ignore bare async types (like RxJava Completable) that signify void
+      if (WRAPPERS.contains(clazz.getName())) return;
+
+      if (clazz.isArray()) {
+        addTypeToGenerate(types, clazz.getComponentType());
+        return;
+      }
+    } else if (type instanceof java.lang.reflect.WildcardType wt) {
+      for (Type bound : wt.getUpperBounds()) {
+        if (bound != Object.class) addTypeToGenerate(types, bound);
+      }
+      return;
+    } else if (type instanceof java.lang.reflect.GenericArrayType gat) {
+      addTypeToGenerate(types, gat.getGenericComponentType());
+      return;
+    }
+
+    types.add(type);
+  }
+
   /**
    * Constructs and appends the tRPC {@code AppRouter} mapping to the bottom of the generated file.
    *
@@ -168,52 +258,132 @@ public class TrpcGenerator {
     ts.append("\n// --- tRPC Router Mapping ---\n\n");
     ts.append("export type AppRouter = {\n");
 
+    // 1. Group by namespace using a TreeMap to guarantee deterministic alphabetical order
+    Map<String, List<Method>> namespaces = new java.util.TreeMap<>();
+
     for (var controller : controllers) {
       var namespace = extractNamespace(controller);
-      String indent = "  "; // Default indent for root methods
+      String key = namespace == null ? "" : namespace;
 
-      if (namespace != null) {
-        ts.append("  ").append(namespace).append(": {\n");
-        indent = "    "; // Increase indent for nested methods
-      }
+      namespaces.computeIfAbsent(key, k -> new ArrayList<>());
 
       for (var method : controller.getDeclaredMethods()) {
         boolean includeMethod = isTrpcAnnotated(method);
         if (!includeMethod && expandLookup) includeMethod = hasWebAnnotation(method);
 
         if (includeMethod) {
-          var params = method.getGenericParameterTypes();
-          String tsInput = "void";
+          namespaces.get(key).add(method);
+        }
+      }
+    }
 
-          // Seamless tRPC: single arguments are raw, multiple arguments are packed in a tuple
-          if (params.length == 1) {
-            tsInput = resolveTsType(params[0]);
-          } else if (params.length > 1) {
-            var tuple = new ArrayList<String>();
-            for (var p : params) tuple.add(resolveTsType(p));
-            tsInput = "[" + String.join(", ", tuple) + "]";
-          }
+    // 2. Generate the TypeScript output
+    for (var entry : namespaces.entrySet()) {
+      String namespace = entry.getKey();
+      List<Method> methods = entry.getValue();
 
-          String tsOutput = resolveTsType(method.getGenericReturnType());
-          String procedureName = getProcedureName(method);
+      if (methods.isEmpty()) continue;
 
-          ts.append(indent)
-              .append(procedureName)
-              .append(": { input: ")
-              .append(tsInput)
-              .append("; output: ")
-              .append(tsOutput)
-              .append(" };\n");
+      String indent = "  ";
+      if (!namespace.isEmpty()) {
+        ts.append("  ").append(namespace).append(": {\n");
+        indent = "    ";
+      }
+
+      // Separate into queries and mutations for deterministic grouping
+      List<Method> queries = new ArrayList<>();
+      List<Method> mutations = new ArrayList<>();
+
+      for (Method m : methods) {
+        if (isMutation(m)) {
+          mutations.add(m);
+        } else {
+          queries.add(m);
         }
       }
 
-      if (namespace != null) {
+      // Sort alphabetically by procedure name to prevent reflection-order test flakiness
+      java.util.Comparator<Method> byName = java.util.Comparator.comparing(this::getProcedureName);
+      queries.sort(byName);
+      mutations.sort(byName);
+
+      if (!queries.isEmpty()) {
+        ts.append(indent).append("// queries\n");
+        for (Method method : queries) {
+          appendProcedure(ts, indent, method);
+        }
+      }
+
+      if (!mutations.isEmpty()) {
+        if (!queries.isEmpty()) ts.append("\n"); // Add a blank line between groups if both exist
+        ts.append(indent).append("// mutations\n");
+        for (Method method : mutations) {
+          appendProcedure(ts, indent, method);
+        }
+      }
+
+      if (!namespace.isEmpty()) {
         ts.append("  };\n");
       }
     }
 
     ts.append("};\n");
     Files.writeString(finalOutput, ts.toString(), StandardOpenOption.APPEND);
+  }
+
+  private void appendProcedure(StringBuilder ts, String indent, Method method) {
+    var params = method.getGenericParameterTypes();
+    String tsInput = "void";
+
+    // Seamless tRPC: single arguments are raw, multiple arguments are packed in a tuple
+    if (params.length == 1) {
+      tsInput = resolveTsType(params[0]);
+    } else if (params.length > 1) {
+      var tuple = new ArrayList<String>();
+      for (var p : params) tuple.add(resolveTsType(p));
+      tsInput = "[" + String.join(", ", tuple) + "]";
+    }
+
+    String tsOutput = resolveTsType(method.getGenericReturnType());
+    String procedureName = getProcedureName(method);
+
+    ts.append(indent)
+        .append(procedureName)
+        .append(": { input: ")
+        .append(tsInput)
+        .append("; ")
+        .append("output: ")
+        .append(tsOutput)
+        .append(" };\n");
+  }
+
+  private boolean isMutation(Method method) {
+    // 1. Explicit tRPC mutation annotation
+    if (getAnnotation(method, "io.jooby.annotation.Trpc$Mutation") != null) {
+      return true;
+    }
+    // 2. Explicit tRPC query annotation
+    if (getAnnotation(method, "io.jooby.annotation.Trpc$Query") != null) {
+      return false;
+    }
+
+    // 3. Base @Trpc combined with standard HTTP mutation annotations
+    String[] httpMutations = {
+      "io.jooby.annotation.POST", "io.jooby.annotation.PUT",
+      "io.jooby.annotation.PATCH", "io.jooby.annotation.DELETE",
+      "jakarta.ws.rs.POST", "jakarta.ws.rs.PUT",
+      "jakarta.ws.rs.PATCH", "jakarta.ws.rs.DELETE",
+      "javax.ws.rs.POST", "javax.ws.rs.PUT",
+      "javax.ws.rs.PATCH", "javax.ws.rs.DELETE"
+    };
+
+    for (String ann : httpMutations) {
+      if (getAnnotation(method, ann) != null) {
+        return true;
+      }
+    }
+
+    return false; // Default to query
   }
 
   /**
@@ -230,13 +400,8 @@ public class TrpcGenerator {
       var raw = pt.getRawType();
       var rawName = raw.getTypeName();
 
-      // Unwrap async and protocol wrapper types (TrpcResponse, CompletableFuture, Mono, Single,
-      // Future)
-      if (rawName.endsWith("TrpcResponse")
-          || rawName.endsWith("CompletableFuture")
-          || rawName.endsWith("Single")
-          || rawName.endsWith("Mono")
-          || rawName.endsWith("Future")) {
+      // Unwrap async and protocol wrapper types
+      if (WRAPPERS.contains(rawName) && pt.getActualTypeArguments().length > 0) {
         return resolveTsType(pt.getActualTypeArguments()[0]);
       }
 
@@ -259,12 +424,26 @@ public class TrpcGenerator {
       }
     }
 
+    if (type instanceof java.lang.reflect.WildcardType wt) {
+      if (wt.getUpperBounds().length > 0 && wt.getUpperBounds()[0] != Object.class) {
+        return resolveTsType(wt.getUpperBounds()[0]);
+      }
+      return "any";
+    }
+
+    if (type instanceof java.lang.reflect.GenericArrayType gat) {
+      return resolveTsType(gat.getGenericComponentType()) + "[]";
+    }
+
     if (type instanceof Class<?> clazz) {
       if (clazz.isArray()) {
         if (clazz.getComponentType() == byte.class)
           return "string"; // Common byte[] to base64 string
         return resolveTsType(clazz.getComponentType()) + "[]";
       }
+
+      // Handle bare async types (like RxJava Completable) as void returns
+      if (WRAPPERS.contains(clazz.getName())) return "void";
 
       if (clazz == String.class
           || clazz == char.class

@@ -50,7 +50,12 @@ class TrpcGeneratorTest {
 
         export type AppRouter = {
           users: {
+            // queries
             getUser: { input: string; output: U3863 };
+
+            // mutations
+            createFuture: { input: U3863; output: U3863 };
+            createMono: { input: U3863; output: U3863 };
             createUser: { input: U3863; output: U3863 };
           };
         };

@@ -210,5 +210,13 @@ public class TrpcProtocolTest {
           assertThat(rsp.code()).isEqualTo(200);
           assertThat(rsp.body().string()).contains("\"result\"");
         });
+    // Delete Movide
+    http.postJson(
+        "/trpc/movies.deleteMovie",
+        "1",
+        rsp -> {
+          assertThat(rsp.code()).isEqualTo(200);
+          assertThat(rsp.body().string()).contains("\"result\"");
+        });
   }
 }

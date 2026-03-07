@@ -81,9 +81,14 @@ public class MovieService {
   }
 
   /** Procedure: movies.addReview Mix of String and int (Mutation) */
-  @Trpc.Mutation
-  public Metadata updateMetadata(int id, Metadata metadata) {
+  @Trpc
+  @PUT("/{id}/metadata")
+  public Metadata updateMetadata(@PathParam int id, Metadata metadata) {
     // Business logic...
     return metadata;
   }
+
+  @Trpc
+  @DELETE("/{id}")
+  public void deleteMovie(@PathParam int id) {}
 }

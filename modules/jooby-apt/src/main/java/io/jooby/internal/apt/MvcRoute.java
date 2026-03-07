@@ -1111,7 +1111,12 @@ public class MvcRoute {
       if (HttpMethod.GET.matches(element)) {
         return HttpMethod.GET;
       }
-      if (HttpMethod.POST.matches(element)) {
+
+      // Map all state-changing HTTP annotations to a tRPC POST mutation
+      if (HttpMethod.POST.matches(element)
+          || HttpMethod.PUT.matches(element)
+          || HttpMethod.PATCH.matches(element)
+          || HttpMethod.DELETE.matches(element)) {
         return HttpMethod.POST;
       }
 
@@ -1121,8 +1126,9 @@ public class MvcRoute {
               + element.getSimpleName()
               + "() in "
               + element.getEnclosingElement().getSimpleName()
-              + " is annotated with @Trpc but lacks @GET or @POST. Please annotate the method with"
-              + " @Trpc.Query, @Trpc.Mutation, or combine @Trpc with @GET or @POST.");
+              + " is annotated with @Trpc but lacks a valid HTTP method annotation. Please annotate"
+              + " the method with @Trpc.Query, @Trpc.Mutation, or combine @Trpc with @GET, @POST,"
+              + " @PUT, @PATCH, or @DELETE.");
     }
     return null;
   }
