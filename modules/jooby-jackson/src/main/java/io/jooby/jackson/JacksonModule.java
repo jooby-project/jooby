@@ -30,7 +30,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.internal.jackson.JacksonTrpcParser;
+import io.jooby.internal.jackson.JacksonTrpcResponseSerializer;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson2.
@@ -150,6 +154,9 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
     application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
 
+    // tRPC
+    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
+
     // Filter
     var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
     mapper.addMixIn(Object.class, ProjectionMixIn.class);
@@ -221,6 +228,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
             .addModule(new JavaTimeModule());
 
     Stream.of(modules).forEach(builder::addModule);
+    // tRPC
+    var trpcModule = new SimpleModule();
+    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    builder.addModule(trpcModule);
 
     return builder.build();
   }

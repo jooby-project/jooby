@@ -12,6 +12,7 @@ import java.util.Map;
 import com.jayway.jsonpath.JsonPath;
 import io.jooby.Extension;
 import io.jooby.avaje.jsonb.AvajeJsonbModule;
+import io.jooby.jackson.JacksonModule;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -23,6 +24,11 @@ public class TrpcProtocolTest {
   @ServerTest
   void shouldTalkTrpcUsingJackson3(ServerTestRunner runner) {
     shouldTalkTrpc(runner, new Jackson3Module());
+  }
+
+  @ServerTest
+  void shouldTalkTrpcUsingJackson2(ServerTestRunner runner) {
+    shouldTalkTrpc(runner, new JacksonModule());
   }
 
   @ServerTest

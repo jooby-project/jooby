@@ -71,6 +71,10 @@
       <version>1.37</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
