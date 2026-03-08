@@ -256,26 +256,26 @@ public class MvcRoute {
 
     if (!parameters.isEmpty()) {
       if (kt) {
-        buffer.add(statement(indent(6), "parser.reader(req.params).use { reader ->"));
+        buffer.add(statement(indent(8), "parser.reader(req.params).use { reader ->"));
       } else {
         // Correct inline try-with-resources statement
-        buffer.add(statement(indent(6), "try (var reader = parser.reader(req.getParams())) {"));
+        buffer.add(statement(indent(10), "try (var reader = parser.reader(req.getParams())) {"));
       }
 
       buffer.addAll(generateRpcParameter(kt, paramList::add, true));
     }
 
-    var call = of("delegate.", getMethodName(), paramList.toString());
+    var call = of("c.", getMethodName(), paramList.toString());
 
     if (returnType.isVoid()) {
-      buffer.add(statement(indent(8), call, semicolon(kt)));
-      buffer.add(statement(indent(8), kt ? "null" : "return null", semicolon(kt)));
+      buffer.add(statement(indent(12), call, semicolon(kt)));
+      buffer.add(statement(indent(12), kt ? "null" : "return null", semicolon(kt)));
     } else {
-      buffer.add(statement(indent(8), kt ? call : "return " + call, semicolon(kt)));
+      buffer.add(statement(indent(12), kt ? call : "return " + call, semicolon(kt)));
     }
 
     if (!parameters.isEmpty()) {
-      buffer.add(statement(indent(6), "}"));
+      buffer.add(statement(indent(10), "}"));
     }
     return buffer;
   }
@@ -731,7 +731,7 @@ public class MvcRoute {
     var statements = new ArrayList<String>();
     var decoderInterface =
         isJsonRpc ? "io.jooby.jsonrpc.JsonRpcDecoder" : "io.jooby.trpc.TrpcDecoder";
-    int baseIndent = isJsonRpc ? 8 : 4;
+    int baseIndent = isJsonRpc ? 12 : 4;
 
     for (var parameter : parameters) {
       var paramenterName = parameter.getName();
