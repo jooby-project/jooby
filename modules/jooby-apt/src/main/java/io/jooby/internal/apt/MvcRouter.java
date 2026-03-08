@@ -169,6 +169,30 @@ public class MvcRouter {
     return "";
   }
 
+  public boolean hasRestRoutes() {
+    return getRoutes().stream().anyMatch(it -> !it.isJsonRpc());
+  }
+
+  public boolean hasJsonRpcRoutes() {
+    return getRoutes().stream().anyMatch(MvcRoute::isJsonRpc);
+  }
+
+  public String getRestGeneratedType() {
+    return context.generateRouterName(getTargetType().getQualifiedName().toString());
+  }
+
+  public String getRpcGeneratedType() {
+    return context.generateRouterName(getTargetType().getQualifiedName().toString() + "Rpc");
+  }
+
+  public String getRestGeneratedFilename() {
+    return getRestGeneratedType().replace('.', '/') + (isKt() ? ".kt" : ".java");
+  }
+
+  public String getRpcGeneratedFilename() {
+    return getRpcGeneratedType().replace('.', '/') + (isKt() ? ".kt" : ".java");
+  }
+
   /**
    * Generate the controller extension for MVC controller:
    *
@@ -181,20 +205,17 @@ public class MvcRouter {
    *
    * @return The source code to write, or null if the controller only contains JSON-RPC routes.
    */
-  public String toSourceCode(Boolean generateKotlin) throws IOException {
-    if (isJsonRpc()) {
-      return generateJsonRpcService(generateKotlin == Boolean.TRUE || isKt());
-    }
+  public String getRestSourceCode(Boolean generateKotlin) throws IOException {
     var mvcRoutes = this.routes.values().stream().filter(it -> !it.isJsonRpc()).toList();
 
-    // If there are no standard MVC/tRPC routes, we return null to completely
-    // skip generation for this controller. The Global dispatcher handles the JSON-RPC portion.
     if (mvcRoutes.isEmpty()) {
-      return null;
+      return null; // Safety check if called on a JSON-RPC-only controller
     }
 
     var kt = generateKotlin == Boolean.TRUE || isKt();
-    var generateTypeName = context.generateRouterName(getTargetType().getSimpleName().toString());
+    var generateTypeName = getTargetType().getSimpleName().toString();
+    var generatedClass = context.generateRouterName(generateTypeName);
+
     try (var in = getClass().getResourceAsStream("Source" + (kt ? ".kt" : ".java"))) {
       Objects.requireNonNull(in);
       var suspended = mvcRoutes.stream().filter(MvcRoute::isSuspendFun).toList();
@@ -249,23 +270,31 @@ public class MvcRouter {
       return new String(in.readAllBytes(), StandardCharsets.UTF_8)
           .replace("${packageName}", getPackageName())
           .replace("${imports}", imports)
-          .replace("${className}", getTargetType().getSimpleName())
-          .replace("${generatedClassName}", generateTypeName)
-          .replace("${constructors}", constructors(generateTypeName, kt))
+          .replace("${className}", generateTypeName)
+          .replace("${generatedClassName}", generatedClass)
+          .replace("${constructors}", constructors(generatedClass, kt))
           .replace("${methods}", trimr(buffer));
     }
   }
 
+  public String getRpcSourceCode(Boolean generateKotlin) {
+    if (!hasJsonRpcRoutes()) {
+      return null;
+    }
+    return generateJsonRpcService(generateKotlin == Boolean.TRUE || isKt());
+  }
+
   private String generateJsonRpcService(boolean kt) {
     var buffer = new StringBuilder();
-    var rpcClassName =
-        context.generateRouterName(getTargetType().getSimpleName().toString() + "Rpc");
-    var className = getTargetType().getSimpleName().toString();
+    var generateTypeName = getTargetType().getSimpleName().toString();
+    var rpcClassName = context.generateRouterName(generateTypeName + "Rpc");
     var namespace = getJsonRpcNamespace();
     var packageName = getPackageName();
 
+    var rpcRoutes = getRoutes().stream().filter(MvcRoute::isJsonRpc).toList();
+
     List<String> fullMethods = new ArrayList<>();
-    for (MvcRoute route : getRoutes()) {
+    for (MvcRoute route : rpcRoutes) {
       String routeName = route.getJsonRpcMethodName();
       fullMethods.add(namespace.isEmpty() ? routeName : namespace + "." + routeName);
     }
@@ -276,7 +305,7 @@ public class MvcRouter {
     buffer.append(statement("package ", packageName, semicolon(kt)));
     buffer.append(System.lineSeparator());
 
-    buffer.append(statement("@io.jooby.annotation.Generated(", className, clazz(kt), ")"));
+    buffer.append(statement("@io.jooby.annotation.Generated(", generateTypeName, clazz(kt), ")"));
 
     if (kt) {
       buffer.append(
@@ -284,88 +313,94 @@ public class MvcRouter {
               "class ", rpcClassName, " : io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension {"));
       buffer.append(
           statement(
-              indent(4), "protected lateinit var factory: (io.jooby.Context) -> ", className));
+              indent(2),
+              "protected lateinit var factory: (io.jooby.Context) -> ",
+              generateTypeName));
 
-      // constructors() handles its own internal 4-space indentation and surrounding newlines
-      // naturally
-      buffer.append(constructors(rpcClassName, true));
-
-      buffer.append(statement(indent(4), "constructor(instance: ", className, ") {"));
-      buffer.append(statement(indent(7), "setup { ctx -> instance }"));
-      buffer.append(statement(indent(4), "}"));
+      String ktConstructors = constructors(rpcClassName, true).toString().replaceAll("(?m)^  ", "");
+      buffer.append(ktConstructors);
       buffer.append(System.lineSeparator());
 
-      buffer.append(
-          statement(indent(4), "constructor(provider: javax.inject.Provider<", className, ">) {"));
-      buffer.append(statement(indent(7), "setup { ctx -> provider.get() }"));
-      buffer.append(statement(indent(4), "}"));
+      buffer.append(statement(indent(2), "constructor(instance: ", generateTypeName, ") {"));
+      buffer.append(statement(indent(4), "setup { ctx -> instance }"));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
       buffer.append(
           statement(
-              indent(4),
+              indent(2), "constructor(provider: javax.inject.Provider<", generateTypeName, ">) {"));
+      buffer.append(statement(indent(4), "setup { ctx -> provider.get() }"));
+      buffer.append(statement(indent(2), "}"));
+      buffer.append(System.lineSeparator());
+
+      buffer.append(
+          statement(
+              indent(2),
               "constructor(provider: java.util.function.Function<Class<",
-              className,
+              generateTypeName,
               ">, ",
-              className,
+              generateTypeName,
               ">) {"));
       buffer.append(
-          statement(indent(7), "setup { ctx -> provider.apply(", className, "::class.java) }"));
-      buffer.append(statement(indent(4), "}"));
+          statement(
+              indent(4), "setup { ctx -> provider.apply(", generateTypeName, "::class.java) }"));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
       buffer.append(
           statement(
-              indent(4), "private fun setup(factory: (io.jooby.Context) -> ", className, ") {"));
-      buffer.append(statement(indent(8), "this.factory = factory"));
-      buffer.append(statement(indent(4), "}"));
+              indent(2),
+              "private fun setup(factory: (io.jooby.Context) -> ",
+              generateTypeName,
+              ") {"));
+      buffer.append(statement(indent(4), "this.factory = factory"));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
-      buffer.append(statement(indent(4), "override fun install(app: io.jooby.Jooby) {"));
-      buffer.append(
-          statement(
-              indent(6),
-              "app.services.listOf(io.jooby.jsonrpc.JsonRpcService::class.java).add(this)"));
-      buffer.append(statement(indent(4), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(4), "override fun getMethods(): List<String> {"));
-      buffer.append(statement(indent(6), "return listOf(", methodListString, ")"));
-      buffer.append(statement(indent(4), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(4), "@Throws(Exception::class)"));
+      buffer.append(statement(indent(2), "override fun install(app: io.jooby.Jooby) {"));
       buffer.append(
           statement(
               indent(4),
-              "override fun execute(ctx: io.jooby.Context, req: io.jooby.jsonrpc.JsonRpcRequest):"
-                  + " Any? {"));
-      buffer.append(statement(indent(6), "val c = factory(ctx)"));
-      buffer.append(statement(indent(6), "val method = req.method"));
+              "app.services.listOf(io.jooby.jsonrpc.JsonRpcService::class.java).add(this)"));
+      buffer.append(statement(indent(2), "}"));
+      buffer.append(System.lineSeparator());
+
+      buffer.append(statement(indent(2), "override fun getMethods(): List<String> {"));
+      buffer.append(statement(indent(4), "return listOf(", methodListString, ")"));
+      buffer.append(statement(indent(2), "}"));
+      buffer.append(System.lineSeparator());
+
+      buffer.append(statement(indent(2), "@Throws(Exception::class)"));
       buffer.append(
           statement(
-              indent(6),
-              "val parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
+              indent(2),
+              "override fun execute(ctx: io.jooby.Context, req: io.jooby.jsonrpc.JsonRpcRequest):"
+                  + " Any? {"));
+      buffer.append(statement(indent(4), "val c = factory(ctx)"));
+      buffer.append(statement(indent(4), "val method = req.method"));
+      buffer.append(
+          statement(
+              indent(4),
+              var(kt),
+              "parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
-      buffer.append(statement(indent(6), "return when(method) {"));
+      buffer.append(statement(indent(4), "return when(method) {"));
 
-      for (int i = 0; i < getRoutes().size(); i++) {
-        MvcRoute route = getRoutes().get(i);
-        buffer.append(statement(indent(8), "\"", fullMethods.get(i), "\" -> {"));
-
-        route.generateJsonRpcDispatchCase(true).forEach(buffer::append);
-        buffer.append(statement(indent(8), "}"));
+      for (int i = 0; i < rpcRoutes.size(); i++) {
+        buffer.append(statement(indent(6), "\"", fullMethods.get(i), "\" -> {"));
+        rpcRoutes.get(i).generateJsonRpcDispatchCase(true).forEach(buffer::append);
+        buffer.append(statement(indent(6), "}"));
       }
 
       buffer.append(
           statement(
-              indent(8),
+              indent(6),
               "else -> throw io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found:"
                   + " $method\")"));
-      buffer.append(statement(indent(6), "}"));
       buffer.append(statement(indent(4), "}"));
+      buffer.append(statement(indent(2), "}"));
 
     } else {
       buffer.append(
@@ -375,111 +410,118 @@ public class MvcRouter {
               " implements io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension {"));
       buffer.append(
           statement(
-              indent(4),
+              indent(2),
               "protected java.util.function.Function<io.jooby.Context, ",
-              className,
+              generateTypeName,
               "> factory",
               semicolon(kt)));
 
-      // constructors() handles its own internal 4-space indentation and surrounding newlines
-      // naturally
-      buffer.append(constructors(rpcClassName, false));
+      String javaConstructors =
+          constructors(rpcClassName, false).toString().replaceAll("(?m)^  ", "");
+      buffer.append(javaConstructors);
+      buffer.append(System.lineSeparator());
 
-      buffer.append(statement(indent(4), "public ", rpcClassName, "(", className, " instance) {"));
-      buffer.append(statement(indent(7), "setup(ctx -> instance)", semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
+      buffer.append(
+          statement(indent(2), "public ", rpcClassName, "(", generateTypeName, " instance) {"));
+      buffer.append(statement(indent(4), "setup(ctx -> instance)", semicolon(kt)));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
       buffer.append(
           statement(
-              indent(4),
+              indent(2),
               "public ",
               rpcClassName,
               "(io.jooby.SneakyThrows.Supplier<",
-              className,
+              generateTypeName,
               "> provider) {"));
       buffer.append(
-          statement(indent(7), "setup(ctx -> (", className, ") provider.get())", semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
+          statement(
+              indent(4), "setup(ctx -> (", generateTypeName, ") provider.get())", semicolon(kt)));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
       buffer.append(
           statement(
-              indent(4),
+              indent(2),
               "public ",
               rpcClassName,
               "(io.jooby.SneakyThrows.Function<Class<",
-              className,
+              generateTypeName,
               ">, ",
-              className,
+              generateTypeName,
               "> provider) {"));
       buffer.append(
           statement(
-              indent(7), "setup(ctx -> provider.apply(", className, ".class))", semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
+              indent(4),
+              "setup(ctx -> provider.apply(",
+              generateTypeName,
+              ".class))",
+              semicolon(kt)));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
+      buffer.append(
+          statement(
+              indent(2),
+              "private void setup(java.util.function.Function<io.jooby.Context, ",
+              generateTypeName,
+              "> factory) {"));
+      buffer.append(statement(indent(4), "this.factory = factory", semicolon(kt)));
+      buffer.append(statement(indent(2), "}"));
+      buffer.append(System.lineSeparator());
+
+      buffer.append(statement(indent(2), "@Override"));
+      buffer.append(
+          statement(indent(2), "public void install(io.jooby.Jooby app) throws Exception {"));
       buffer.append(
           statement(
               indent(4),
-              "private void setup(java.util.function.Function<io.jooby.Context, ",
-              className,
-              "> factory) {"));
-      buffer.append(statement(indent(8), "this.factory = factory", semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(4), "@Override"));
-      buffer.append(
-          statement(indent(4), "public void install(io.jooby.Jooby app) throws Exception {"));
-      buffer.append(
-          statement(
-              indent(6),
               "app.getServices().listOf(io.jooby.jsonrpc.JsonRpcService.class).add(this)",
               semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
-      buffer.append(statement(indent(4), "@Override"));
-      buffer.append(statement(indent(4), "public java.util.List<String> getMethods() {"));
+      buffer.append(statement(indent(2), "@Override"));
+      buffer.append(statement(indent(2), "public java.util.List<String> getMethods() {"));
       buffer.append(
-          statement(indent(6), "return java.util.List.of(", methodListString, ")", semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
+          statement(indent(4), "return java.util.List.of(", methodListString, ")", semicolon(kt)));
+      buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
-      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(statement(indent(2), "@Override"));
+      buffer.append(
+          statement(
+              indent(2),
+              "public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest req)"
+                  + " throws Exception {"));
+      buffer.append(
+          statement(indent(4), generateTypeName, " c = factory.apply(ctx)", semicolon(kt)));
+      buffer.append(statement(indent(4), "String method = req.getMethod()", semicolon(kt)));
       buffer.append(
           statement(
               indent(4),
-              "public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest req)"
-                  + " throws Exception {"));
-      buffer.append(statement(indent(6), "var c = factory.apply(ctx)", semicolon(kt)));
-      buffer.append(statement(indent(6), "var method = req.getMethod()", semicolon(kt)));
-      buffer.append(
-          statement(
-              indent(6),
-              "var parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
+              var(kt),
+              "parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
-      buffer.append(statement(indent(6), "switch(method) {"));
+      buffer.append(statement(indent(4), "switch(method) {"));
 
-      for (int i = 0; i < getRoutes().size(); i++) {
-        MvcRoute route = getRoutes().get(i);
-        buffer.append(statement(indent(8), "case \"", fullMethods.get(i), "\": {"));
-
-        route.generateJsonRpcDispatchCase(false).forEach(buffer::append);
-        buffer.append(statement(indent(8), "}"));
+      for (int i = 0; i < rpcRoutes.size(); i++) {
+        buffer.append(statement(indent(6), "case \"", fullMethods.get(i), "\": {"));
+        rpcRoutes.get(i).generateJsonRpcDispatchCase(false).forEach(buffer::append);
+        buffer.append(statement(indent(6), "}"));
       }
 
       buffer.append(
           statement(
-              indent(8),
+              indent(6),
               "default: throw new io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found: \""
                   + " + method)",
               semicolon(kt)));
-      buffer.append(statement(indent(6), "}"));
       buffer.append(statement(indent(4), "}"));
+      buffer.append(statement(indent(2), "}"));
     }
 
     buffer.append(statement("}"));

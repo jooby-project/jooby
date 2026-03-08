@@ -129,32 +129,71 @@ public class JoobyProcessor extends AbstractProcessor {
     try {
       if (roundEnv.processingOver()) {
         context.debug("Output:");
-        context.getRouters().forEach(it -> context.debug("  %s", it.getGeneratedType()));
+        // Print all generated types for both REST and RPC
+        context
+            .getRouters()
+            .forEach(
+                it -> {
+                  if (it.hasRestRoutes()) {
+                    context.debug("  %s", it.getRestGeneratedType());
+                  }
+                  if (it.hasJsonRpcRoutes()) {
+                    context.debug("  %s", it.getRpcGeneratedType());
+                  }
+                });
         return false;
       } else {
         var routeMap = buildRouteRegistry(annotations, roundEnv);
         verifyBeanValidationDependency(routeMap.values());
         for (var router : routeMap.values()) {
           try {
-            // Track the router unconditionally so JSON-RPC routes are available in processingOver
+            // Track the router unconditionally so routes are available in processingOver
             context.add(router);
 
-            var sourceCode = router.toSourceCode(null);
-            if (sourceCode != null) {
-              var sourceLocation = router.getGeneratedFilename();
-              onGeneratedSource(
-                  router.getGeneratedType(), toJavaFileObject(sourceLocation, sourceCode));
-              context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
-              router.getRoutes().forEach(it -> context.debug("   %s", it));
-              writeSource(
-                  router.isKt(),
-                  router.getGeneratedType(),
-                  sourceLocation,
-                  sourceCode,
-                  router.getTargetType());
-            } else if (router.isJsonRpc()) {
-              context.debug("jsonrpc router %s", router.getTargetType());
+            // 1. Generate Standard REST/tRPC File (e.g., MovieService_.java)
+            if (router.hasRestRoutes()) {
+              var restSource = router.getRestSourceCode(null);
+              if (restSource != null) {
+                var sourceLocation = router.getRestGeneratedFilename();
+                var generatedType = router.getRestGeneratedType();
+                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, restSource));
+
+                context.debug("router %s: %s", router.getTargetType(), generatedType);
+                router.getRoutes().stream()
+                    .filter(it -> !it.isJsonRpc())
+                    .forEach(it -> context.debug("   %s", it));
+
+                writeSource(
+                    router.isKt(),
+                    generatedType,
+                    sourceLocation,
+                    restSource,
+                    router.getTargetType());
+              }
             }
+
+            // 2. Generate JSON-RPC File (e.g., MovieServiceRpc_.java)
+            if (router.hasJsonRpcRoutes()) {
+              var rpcSource = router.getRpcSourceCode(null);
+              if (rpcSource != null) {
+                var sourceLocation = router.getRpcGeneratedFilename();
+                var generatedType = router.getRpcGeneratedType();
+                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, rpcSource));
+
+                context.debug("jsonrpc router %s: %s", router.getTargetType(), generatedType);
+                router.getRoutes().stream()
+                    .filter(MvcRoute::isJsonRpc)
+                    .forEach(it -> context.debug("   %s", it));
+
+                writeSource(
+                    router.isKt(),
+                    generatedType,
+                    sourceLocation,
+                    rpcSource,
+                    router.getTargetType());
+              }
+            }
+
           } catch (IOException cause) {
             throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
           }

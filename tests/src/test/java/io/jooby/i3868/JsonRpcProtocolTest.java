@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.jayway.jsonpath.JsonPath;
 import io.jooby.jackson3.Jackson3Module;
-import io.jooby.jsonrpc.JsonRpcDispatcher;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.test.WebClient;
@@ -24,8 +23,10 @@ public class JsonRpcProtocolTest {
               // 1. Install JSON engine
               app.install(new Jackson3Module());
 
-              // 3. Install the APT-generated Tier 1 Dispatcher
-              app.install(new JsonRpcDispatcher(new MovieServiceRpc_()));
+              // REST/tRPC
+              app.mvc(new MovieService_());
+              // JSON-RPC
+              app.mvc(new MovieServiceRpc_());
             })
         .ready(this::assertProtocolData);
   }

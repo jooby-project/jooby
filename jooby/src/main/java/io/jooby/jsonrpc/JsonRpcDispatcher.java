@@ -41,14 +41,16 @@ import io.jooby.*;
  * @since 4.0.17
  */
 public class JsonRpcDispatcher implements Extension {
-
   private final Map<String, JsonRpcService> services = new HashMap<>();
+  private final String path;
 
-  public JsonRpcDispatcher(JsonRpcService... services) {
-    for (JsonRpcService service : services) {
-      for (String method : service.getMethods()) {
-        this.services.put(method, service);
-      }
+  public JsonRpcDispatcher(String path) {
+    this.path = path;
+  }
+
+  public void add(JsonRpcService service) {
+    for (var method : service.getMethods()) {
+      this.services.put(method, service);
     }
   }
 
@@ -60,7 +62,7 @@ public class JsonRpcDispatcher implements Extension {
    */
   @Override
   public void install(Jooby app) throws Exception {
-    app.post("/rpc", this::handle);
+    app.post(path, this::handle);
   }
 
   /**
@@ -74,7 +76,7 @@ public class JsonRpcDispatcher implements Extension {
    * @return A single {@link JsonRpcResponse}, a {@code List} of responses for batches, or an empty
    *     string for notifications.
    */
-  public Object handle(Context ctx) {
+  private Object handle(Context ctx) {
     JsonRpcRequest input;
     try {
       input = ctx.body(JsonRpcRequest.class);

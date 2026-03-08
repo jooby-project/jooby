@@ -35,6 +35,8 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
+import io.jooby.jsonrpc.JsonRpcDispatcher;
+import io.jooby.jsonrpc.JsonRpcService;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
 import io.jooby.value.ValueFactory;
@@ -101,6 +103,8 @@ public class Jooby implements Router, Registry {
   private EnvironmentOptions environmentOptions;
 
   private List<Locale> locales;
+
+  private Map<String, JsonRpcDispatcher> dispatchers;
 
   private boolean lateInit;
 
@@ -383,7 +387,7 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return This application.
    */
-  @NonNull public Jooby install(
+  public Jooby install(
       @NonNull String path,
       @NonNull Predicate<Context> predicate,
       @NonNull SneakyThrows.Supplier<Jooby> factory) {
@@ -478,8 +482,7 @@ public class Jooby implements Router, Registry {
   @Override
   public Route.Set mount(@NonNull String path, @NonNull Router router) {
     var rs = this.router.mount(path, router);
-    if (router instanceof Jooby) {
-      Jooby child = (Jooby) router;
+    if (router instanceof Jooby child) {
       child.registry = this.registry;
     }
     return rs;
@@ -490,19 +493,46 @@ public class Jooby implements Router, Registry {
     return mount("/", router);
   }
 
+  public Jooby jsonRpc(String path, @NonNull JsonRpcService service) {
+    if (dispatchers == null) {
+      dispatchers = new HashMap<>();
+    }
+    dispatchers
+        .computeIfAbsent(
+            Router.normalizePath(path),
+            normalizedPath -> {
+              var dispatcher = new JsonRpcDispatcher(normalizedPath);
+              install(dispatcher);
+              return dispatcher;
+            })
+        .add(service);
+    return this;
+  }
+
+  public Jooby jsonRpc(@NonNull JsonRpcService service) {
+    return jsonRpc("/rpc", service);
+  }
+
   /**
    * Add controller routes.
    *
    * @param router Mvc extension.
    * @return Route set.
    */
-  @NonNull public Route.Set mvc(@NonNull Extension router) {
-    try {
-      int start = this.router.getRoutes().size();
-      router.install(this);
-      return new Route.Set(this.router.getRoutes().subList(start, this.router.getRoutes().size()));
-    } catch (Exception cause) {
-      throw SneakyThrows.propagate(cause);
+  public Route.Set mvc(@NonNull Extension router) {
+    if (router instanceof JsonRpcService jsonRpcService) {
+      jsonRpc(jsonRpcService);
+      // NOOP
+      return new Route.Set(Collections.emptyList());
+    } else {
+      try {
+        int start = this.router.getRoutes().size();
+        router.install(this);
+        return new Route.Set(
+            this.router.getRoutes().subList(start, this.router.getRoutes().size()));
+      } catch (Exception cause) {
+        throw SneakyThrows.propagate(cause);
+      }
     }
   }
 
@@ -1455,5 +1485,6 @@ public class Jooby implements Router, Registry {
     dest.readyCallbacks = source.readyCallbacks;
     dest.startingCallbacks = source.startingCallbacks;
     dest.stopCallbacks = source.stopCallbacks;
+    dest.dispatchers = source.dispatchers;
   }
 }

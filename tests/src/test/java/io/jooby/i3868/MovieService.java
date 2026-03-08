@@ -13,12 +13,15 @@ import io.jooby.exception.NotFoundException;
 import io.jooby.i3863.Movie;
 
 @JsonRpc("movies")
+@Path("/api/movies")
 public class MovieService {
 
   private final List<Movie> database =
       List.of(new Movie(1, "The Godfather", 1972), new Movie(2, "Pulp Fiction", 1994));
 
   /** Procedure: movies.create Takes a single complex object. */
+  @POST
+  @Trpc
   public Movie create(Movie movie) {
     // In a real app, save to DB. For now, just return it.
     return movie;
