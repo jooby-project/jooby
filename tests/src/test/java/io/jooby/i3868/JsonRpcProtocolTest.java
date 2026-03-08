@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.i3864;
+package io.jooby.i3868;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

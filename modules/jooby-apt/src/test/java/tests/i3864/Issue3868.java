@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import io.jooby.apt.ProcessorRunner;
 
-public class Issue3864 {
+public class Issue3868 {
   @Test
   public void shouldGenerateJsonRpcService() throws Exception {
     new ProcessorRunner(new C3864())
