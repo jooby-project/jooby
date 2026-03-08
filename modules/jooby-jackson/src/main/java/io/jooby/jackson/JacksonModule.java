@@ -18,10 +18,9 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -31,7 +30,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.internal.jackson.JacksonTrpcParser;
+import io.jooby.internal.jackson.JacksonTrpcResponseSerializer;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson2.
@@ -149,6 +152,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
+
+    // tRPC
+    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
 
     // Filter
     var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
@@ -221,6 +228,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
             .addModule(new JavaTimeModule());
 
     Stream.of(modules).forEach(builder::addModule);
+    // tRPC
+    var trpcModule = new SimpleModule();
+    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    builder.addModule(trpcModule);
 
     return builder.build();
   }

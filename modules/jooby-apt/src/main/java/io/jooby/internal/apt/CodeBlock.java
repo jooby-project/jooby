@@ -35,6 +35,10 @@ public class CodeBlock {
     return kt ? "" : ";";
   }
 
+  public static CharSequence var(boolean kt) {
+    return kt ? "val " : "var ";
+  }
+
   public static String indent(int count) {
     return " ".repeat(count);
   }

@@ -26,6 +26,7 @@ group = "io.jooby"
 dependencies {
   implementation "io.jooby:jooby-run:$version"
   implementation "io.jooby:jooby-openapi:$version"
+  implementation "io.jooby:jooby-trpc:$version"
   implementation "com.github.spotbugs:spotbugs-annotations:4.7.2"
 }
 
@@ -33,9 +34,9 @@ dependencies {
 gradlePlugin {
   website = 'https://jooby.io'
   vcsUrl = 'https://github.com/jooby-project/jooby'
-  description = 'Jooby is a modern, performant and easy to use web framework for Java and Kotlin ' +
-      'built on top of your favorite web server. The joobyRun task allows to restart your ' +
-      'application on code changes without exiting the JVM'
+  description = 'Jooby is a modular, high-performance web framework for Java and Kotlin. Designed ' +
+      'for simplicity and speed, it gives you the freedom to build on your favorite server with a ' +
+      'clean, modern API.'
   plugins {
     joobyRun {
       id = 'io.jooby.run'
@@ -50,6 +51,13 @@ gradlePlugin {
       displayName = 'Jooby OpenAPI plugin'
       tags = ['jooby', 'openAPI']
       description = 'Generates an Open-API compatible output from your application'
+    }
+    trpc {
+      id = 'io.jooby.trpc'
+      implementationClass = 'io.jooby.gradle.JoobyPlugin'
+      displayName = 'Jooby tRPC plugin'
+      tags = ['jooby', 'trpc', 'typescript']
+      description = 'Generates a tRPC-compatible TypeScript API definition from your application'
     }
   }
 }

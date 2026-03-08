@@ -66,8 +66,12 @@ public class MvcRouter {
   }
 
   public MvcRouter put(TypeElement httpMethod, ExecutableElement route) {
-    var routeKey = route.toString();
+    var isTrpc =
+        HttpMethod.findByAnnotationName(httpMethod.getQualifiedName().toString())
+            == HttpMethod.tRPC;
+    var routeKey = (isTrpc ? "trpc" : "") + route.toString();
     var existing = routes.get(routeKey);
+
     if (existing == null) {
       routes.put(routeKey, new MvcRoute(context, this, route).addHttpMethod(httpMethod));
     } else {
@@ -100,7 +104,7 @@ public class MvcRouter {
    *
    * <pre>{@code
    * public class Controller_ implements MvcExtension {
-   *     ....
+   * ....
    * }
    *
    * }</pre>

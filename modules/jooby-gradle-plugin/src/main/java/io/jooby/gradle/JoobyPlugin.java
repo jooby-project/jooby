@@ -28,6 +28,7 @@ public class JoobyPlugin implements Plugin<Project> {
 
   @Override public void apply(Project project) {
     openAPI(project);
+    trpc(project);
 
     joobyRun(project);
     joobyTestRun(project);
@@ -63,5 +64,17 @@ public class JoobyPlugin implements Plugin<Project> {
     openAPIOptions.put(Task.TASK_GROUP, "jooby");
 
     project.getTasks().create(openAPIOptions);
+  }
+
+  private void trpc(Project project) {
+    Map<String, Object> options = new HashMap<>();
+    options.put(Task.TASK_TYPE, OpenAPITask.class);
+    options.put(Task.TASK_DEPENDS_ON, "classes");
+    options.put(Task.TASK_NAME, "tRPC");
+    options
+        .put(Task.TASK_DESCRIPTION, "tRPC Generator");
+    options.put(Task.TASK_GROUP, "jooby");
+
+    project.getTasks().create(options);
   }
 }

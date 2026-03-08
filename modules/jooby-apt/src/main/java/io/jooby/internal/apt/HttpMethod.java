@@ -27,13 +27,23 @@ public enum HttpMethod implements AnnotationSupport {
   OPTIONS,
   PATCH,
   POST,
-  PUT;
+  PUT,
+  // Special
+  tRPC(
+      List.of(
+          "io.jooby.annotation.Trpc",
+          "io.jooby.annotation.Trpc.Mutation",
+          "io.jooby.annotation.Trpc.Query"));
   private final List<String> annotations;
 
   HttpMethod(String... packages) {
     var packageList =
         packages.length == 0 ? List.of("io.jooby.annotation", "jakarta.ws.rs") : List.of(packages);
     this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
+  }
+
+  HttpMethod(List<String> annotations) {
+    this.annotations = annotations;
   }
 
   /**
@@ -74,6 +84,11 @@ public enum HttpMethod implements AnnotationSupport {
    */
   public List<String> produces(Element element) {
     return mediaType(element, HttpMediaType.Produces, "produces"::equals);
+  }
+
+  public boolean matches(Element element) {
+    return annotations.stream()
+        .anyMatch(it -> AnnotationSupport.findAnnotationByName(element, it) != null);
   }
 
   private List<String> mediaType(

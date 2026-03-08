@@ -5,6 +5,8 @@
  */
 package io.jooby.test;
 
+import static okhttp3.RequestBody.create;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -225,10 +228,16 @@ public class WebClient implements AutoCloseable {
   }
 
   public Request invoke(String method, String path, RequestBody body) {
-    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    return invoke(method, path, Map.of(), body);
+  }
+
+  public Request invoke(String method, String path, Map<String, Object> query, RequestBody body) {
+    var req = new okhttp3.Request.Builder();
     req.method(method, body);
     setRequestHeaders(req);
-    req.url(scheme + "://localhost:" + port + path);
+    var url = HttpUrl.parse(scheme + "://localhost:" + port + path).newBuilder();
+    query.forEach((name, value) -> url.addQueryParameter(name, value.toString()));
+    req.url(url.build());
     return new Request(req);
   }
 
@@ -245,7 +254,11 @@ public class WebClient implements AutoCloseable {
   }
 
   public Request get(String path) {
-    return invoke("GET", path, null);
+    return get(path, Map.of());
+  }
+
+  public Request get(String path, Map<String, Object> query) {
+    return invoke("GET", path, query, null);
   }
 
   public ServerSentMessageIterator sse(String path) {
@@ -292,6 +305,11 @@ public class WebClient implements AutoCloseable {
 
   public void get(String path, SneakyThrows.Consumer<Response> callback) {
     get(path).execute(callback);
+  }
+
+  public void get(
+      String path, Map<String, Object> query, SneakyThrows.Consumer<Response> callback) {
+    get(path, query).execute(callback);
   }
 
   public void syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
@@ -357,6 +375,10 @@ public class WebClient implements AutoCloseable {
 
   public void post(String path, RequestBody form, SneakyThrows.Consumer<Response> callback) {
     post(path, form).execute(callback);
+  }
+
+  public void postJson(String path, String json, SneakyThrows.Consumer<Response> callback) {
+    post(path, create(json, MediaType.parse("application/json"))).execute(callback);
   }
 
   public Request put(String path) {

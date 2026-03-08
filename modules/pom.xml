@@ -32,6 +32,9 @@
     <module>jooby-swagger-ui</module>
     <module>jooby-redoc</module>
 
+    <!-- xRCP !-->
+    <module>jooby-trpc</module>
+
     <!-- data -->
     <module>jooby-hikari</module>
     <module>jooby-jdbi</module>
