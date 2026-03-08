@@ -17,8 +17,12 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
+import io.jooby.internal.jackson3.JacksonJsonRpcParser;
+import io.jooby.internal.jackson3.JacksonJsonRpcRequestDeserializer;
 import io.jooby.internal.jackson3.JacksonTrpcParser;
 import io.jooby.internal.jackson3.JacksonTrpcResponseSerializer;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
 import io.jooby.output.Output;
 import io.jooby.trpc.TrpcErrorCode;
 import io.jooby.trpc.TrpcParser;
@@ -147,6 +151,8 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     services.put(ObjectMapper.class, mapper);
     // tRPC
     services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
 
     // Parsing exception as 400
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
@@ -227,9 +233,10 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     JsonMapper.Builder builder = JsonMapper.builder();
 
     Stream.of(modules).forEach(builder::addModule);
-    var trpcModule = new SimpleModule();
-    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
-    builder.addModule(trpcModule);
+    var rpcModule = new SimpleModule();
+    rpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    rpcModule.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
+    builder.addModule(rpcModule);
 
     return builder.build();
   }

@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.apt;
 
+import static io.jooby.internal.apt.AnnotationSupport.VALUE;
 import static io.jooby.internal.apt.AnnotationSupport.findAnnotationByName;
 import static io.jooby.internal.apt.CodeBlock.indent;
 import static io.jooby.internal.apt.CodeBlock.semicolon;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.*;
-import javax.tools.JavaFileObject;
 
 public class MvcRouter {
   private final MvcContext context;
@@ -33,6 +33,58 @@ public class MvcRouter {
   public MvcRouter(MvcContext context, TypeElement clazz) {
     this.context = context;
     this.clazz = clazz;
+
+    // JSON-RPC Method Discovery Logic
+    var classJsonRpcAnno =
+        AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.JsonRpc");
+
+    List<ExecutableElement> explicitlyAnnotated = new ArrayList<>();
+    List<ExecutableElement> allPublicMethods = new ArrayList<>();
+
+    for (var enclosed : clazz.getEnclosedElements()) {
+      if (enclosed.getKind() == ElementKind.METHOD) {
+        var method = (ExecutableElement) enclosed;
+        var modifiers = method.getModifiers();
+
+        // Only consider public, non-static, non-abstract methods
+        if (modifiers.contains(Modifier.PUBLIC)
+            && !modifiers.contains(Modifier.STATIC)
+            && !modifiers.contains(Modifier.ABSTRACT)) {
+
+          // Ignore standard Java Object methods
+          String methodName = method.getSimpleName().toString();
+          if (methodName.equals("toString")
+              || methodName.equals("hashCode")
+              || methodName.equals("equals")
+              || methodName.equals("clone")) {
+            continue;
+          }
+
+          allPublicMethods.add(method);
+          var methodJsonRpcAnno =
+              AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc");
+          if (methodJsonRpcAnno != null) {
+            explicitlyAnnotated.add(method);
+          }
+        }
+      }
+    }
+
+    if (!explicitlyAnnotated.isEmpty()) {
+      // Rule 2: If one or more methods are explicitly annotated, ONLY expose those methods.
+      for (var method : explicitlyAnnotated) {
+        var methodAnno =
+            AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc");
+        TypeElement annoElement = (TypeElement) methodAnno.getAnnotationType().asElement();
+        put(annoElement, method);
+      }
+    } else if (classJsonRpcAnno != null) {
+      // Rule 1: Class is annotated, but no specific methods are. Expose ALL public methods.
+      var annoElement = (TypeElement) classJsonRpcAnno.getAnnotationType().asElement();
+      for (var method : allPublicMethods) {
+        put(annoElement, method);
+      }
+    }
   }
 
   public MvcRouter(TypeElement clazz, MvcRouter parent) {
@@ -57,19 +109,24 @@ public class MvcRouter {
   }
 
   public String getGeneratedType() {
-    return context.generateRouterName(getTargetType().getQualifiedName().toString());
+    String baseName = getTargetType().getQualifiedName().toString();
+    String name = isJsonRpc() ? baseName + "Rpc" : baseName;
+    return context.generateRouterName(name);
   }
 
   public String getGeneratedFilename() {
-    return getGeneratedType().replace('.', '/')
-        + (isKt() ? ".kt" : JavaFileObject.Kind.SOURCE.extension);
+    return getGeneratedType().replace('.', '/') + (isKt() ? ".kt" : ".java");
   }
 
   public MvcRouter put(TypeElement httpMethod, ExecutableElement route) {
     var isTrpc =
         HttpMethod.findByAnnotationName(httpMethod.getQualifiedName().toString())
             == HttpMethod.tRPC;
-    var routeKey = (isTrpc ? "trpc" : "") + route.toString();
+    var isJsonRpc =
+        HttpMethod.findByAnnotationName(httpMethod.getQualifiedName().toString())
+            == HttpMethod.JSON_RPC;
+
+    var routeKey = (isTrpc ? "trpc" : (isJsonRpc ? "jsonrpc" : "")) + route.toString();
     var existing = routes.get(routeKey);
 
     if (existing == null) {
@@ -99,6 +156,20 @@ public class MvcRouter {
     return pkgEnd > 0 ? classname.substring(0, pkgEnd) : "";
   }
 
+  public boolean isJsonRpc() {
+    return getRoutes().stream().anyMatch(MvcRoute::isJsonRpc);
+  }
+
+  public String getJsonRpcNamespace() {
+    var annotation = AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.JsonRpc");
+    if (annotation != null) {
+      return AnnotationSupport.findAnnotationValue(annotation, VALUE).stream()
+          .findFirst()
+          .orElse("");
+    }
+    return "";
+  }
+
   /**
    * Generate the controller extension for MVC controller:
    *
@@ -109,16 +180,26 @@ public class MvcRouter {
    *
    * }</pre>
    *
-   * @return
+   * @return The source code to write, or null if the controller only contains JSON-RPC routes.
    */
   public String toSourceCode(Boolean generateKotlin) throws IOException {
+    if (isJsonRpc()) {
+      return generateJsonRpcService(generateKotlin == Boolean.TRUE || isKt());
+    }
+    var mvcRoutes = this.routes.values().stream().filter(it -> !it.isJsonRpc()).toList();
+
+    // If there are no standard MVC/tRPC routes, we return null to completely
+    // skip generation for this controller. The Global dispatcher handles the JSON-RPC portion.
+    if (mvcRoutes.isEmpty()) {
+      return null;
+    }
+
     var kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = context.generateRouterName(getTargetType().getSimpleName().toString());
     try (var in = getClass().getResourceAsStream("Source" + (kt ? ".kt" : ".java"))) {
       Objects.requireNonNull(in);
-      var routes = this.routes.values();
-      var suspended = routes.stream().filter(MvcRoute::isSuspendFun).toList();
-      var noSuspended = routes.stream().filter(it -> !it.isSuspendFun()).toList();
+      var suspended = mvcRoutes.stream().filter(MvcRoute::isSuspendFun).toList();
+      var noSuspended = mvcRoutes.stream().filter(it -> !it.isSuspendFun()).toList();
       var buffer = new StringBuilder();
       context.generateStaticImports(
           this,
@@ -163,9 +244,10 @@ public class MvcRouter {
           .append(System.lineSeparator());
       // end install
 
-      routes.stream()
+      mvcRoutes.stream()
           .flatMap(it -> it.generateHandlerCall(kt).stream())
           .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
+
       return new String(in.readAllBytes(), StandardCharsets.UTF_8)
           .replace("${packageName}", getPackageName())
           .replace("${imports}", imports)
@@ -174,6 +256,183 @@ public class MvcRouter {
           .replace("${constructors}", constructors(generateTypeName, kt))
           .replace("${methods}", trimr(buffer));
     }
+  }
+
+  private String generateJsonRpcService(boolean kt) {
+    var buffer = new StringBuilder();
+    var rpcClassName =
+        context.generateRouterName(getTargetType().getSimpleName().toString() + "Rpc");
+    var className = getTargetType().getSimpleName().toString();
+    var namespace = getJsonRpcNamespace();
+    var packageName = getPackageName();
+
+    List<String> fullMethods = new ArrayList<>();
+    for (MvcRoute route : getRoutes()) {
+      String routeName = route.getJsonRpcMethodName();
+      fullMethods.add(namespace.isEmpty() ? routeName : namespace + "." + routeName);
+    }
+
+    String methodListString =
+        fullMethods.stream().map(m -> "\"" + m + "\"").collect(Collectors.joining(", "));
+
+    if (kt) {
+      buffer.append("package ").append(packageName).append("\n\n");
+      buffer.append("@io.jooby.annotation.Generated(").append(className).append("::class)\n");
+      // Removed io.jooby.Extension
+      buffer
+          .append("class ")
+          .append(rpcClassName)
+          .append(" : io.jooby.jsonrpc.JsonRpcService {\n\n");
+
+      buffer
+          .append("  protected lateinit var factory: (io.jooby.Context) -> ")
+          .append(className)
+          .append("\n\n");
+
+      buffer.append("  constructor(instance: ").append(className).append(") {\n");
+      buffer.append("    setup { ctx -> instance }\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  constructor(provider: javax.inject.Provider<")
+          .append(className)
+          .append(">) {\n");
+      buffer.append("    setup { ctx -> provider.get() }\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  constructor(provider: java.util.function.Function<Class<")
+          .append(className)
+          .append(">, ")
+          .append(className)
+          .append(">) {\n");
+      buffer
+          .append("    setup { ctx -> provider.apply(")
+          .append(className)
+          .append("::class.java) }\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  private fun setup(factory: (io.jooby.Context) -> ")
+          .append(className)
+          .append(") {\n");
+      buffer.append("    this.factory = factory\n");
+      buffer.append("  }\n\n");
+
+      buffer.append(constructors(rpcClassName, true));
+
+      // Removed install() method
+
+      buffer
+          .append("  override fun getMethods(): List<String> = listOf(")
+          .append(methodListString)
+          .append(")\n\n");
+
+      buffer.append("  @Throws(Exception::class)\n");
+      buffer.append(
+          "  override fun execute(ctx: io.jooby.Context, req: io.jooby.jsonrpc.JsonRpcRequest):"
+              + " Any? {\n");
+      buffer.append("    val delegate = factory(ctx)\n");
+      buffer.append("    val method = req.method\n");
+      buffer.append("    val parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser::class.java)\n");
+      buffer.append("    return when(method) {\n");
+
+      for (int i = 0; i < getRoutes().size(); i++) {
+        MvcRoute route = getRoutes().get(i);
+        buffer.append("      \"").append(fullMethods.get(i)).append("\" -> {\n");
+        route
+            .generateJsonRpcDispatchCase(true)
+            .forEach(line -> buffer.append("        ").append(line).append("\n"));
+        buffer.append("      }\n");
+      }
+
+      buffer.append(
+          "      else -> throw io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found:"
+              + " $method\")\n");
+      buffer.append("    }\n  }\n}");
+    } else {
+      buffer.append("package ").append(packageName).append(";\n\n");
+      buffer.append("@io.jooby.annotation.Generated(").append(className).append(".class)\n");
+      // Removed io.jooby.Extension
+      buffer
+          .append("public class ")
+          .append(rpcClassName)
+          .append(" implements io.jooby.jsonrpc.JsonRpcService {\n");
+
+      buffer
+          .append("  protected java.util.function.Function<io.jooby.Context, ")
+          .append(className)
+          .append("> factory;\n\n");
+
+      buffer
+          .append("  public ")
+          .append(rpcClassName)
+          .append("(")
+          .append(className)
+          .append(" instance) {\n");
+      buffer.append("    setup(ctx -> instance);\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  public ")
+          .append(rpcClassName)
+          .append("(io.jooby.SneakyThrows.Supplier<")
+          .append(className)
+          .append("> provider) {\n");
+      buffer.append("    setup(ctx -> (").append(className).append(") provider.get());\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  public ")
+          .append(rpcClassName)
+          .append("(io.jooby.SneakyThrows.Function<Class<")
+          .append(className)
+          .append(">, ")
+          .append(className)
+          .append("> provider) {\n");
+      buffer.append("    setup(ctx -> provider.apply(").append(className).append(".class));\n");
+      buffer.append("  }\n\n");
+
+      buffer
+          .append("  private void setup(java.util.function.Function<io.jooby.Context, ")
+          .append(className)
+          .append("> factory) {\n");
+      buffer.append("    this.factory = factory;\n");
+      buffer.append("  }\n\n");
+
+      buffer.append(constructors(rpcClassName, false));
+
+      // Removed install() method
+
+      buffer.append("  @Override\n");
+      buffer.append("  public java.util.List<String> getMethods() {\n");
+      buffer.append("    return java.util.List.of(").append(methodListString).append(");\n");
+      buffer.append("  }\n\n");
+
+      buffer.append("  @Override\n");
+      buffer.append(
+          "  public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest req)"
+              + " throws Exception {\n");
+      buffer.append("    ").append(className).append(" delegate = factory.apply(ctx);\n");
+      buffer.append("    String method = req.getMethod();\n");
+      buffer.append("    var parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser.class);\n");
+      buffer.append("    switch(method) {\n");
+
+      for (int i = 0; i < getRoutes().size(); i++) {
+        MvcRoute route = getRoutes().get(i);
+        buffer.append("      case \"").append(fullMethods.get(i)).append("\": {\n");
+        route
+            .generateJsonRpcDispatchCase(false)
+            .forEach(line -> buffer.append("        ").append(line).append("\n"));
+        buffer.append("      }\n");
+      }
+
+      buffer.append(
+          "      default: throw new io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found:"
+              + " \" + method);\n");
+      buffer.append("    }\n  }\n}");
+    }
+    return buffer.toString();
   }
 
   private StringBuilder trimr(StringBuilder buffer) {
