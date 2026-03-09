@@ -254,29 +254,44 @@ public class MvcRoute {
     var buffer = new ArrayList<String>();
     var paramList = new StringJoiner(", ", "(", ")");
 
-    if (!parameters.isEmpty()) {
+    // Check if we have any parameters that actually need to be parsed from the JSON payload.
+    // We ignore Jooby's Context and Kotlin's Continuation since they are provided by the framework.
+    boolean needsReader =
+        parameters.stream()
+            .anyMatch(
+                p -> {
+                  String type = p.getType().toString();
+                  return !type.equals("io.jooby.Context")
+                      && !type.startsWith("kotlin.coroutines.Continuation");
+                });
+
+    if (needsReader) {
       if (kt) {
         buffer.add(statement(indent(8), "parser.reader(req.params).use { reader ->"));
       } else {
-        // Correct inline try-with-resources statement
-        buffer.add(statement(indent(10), "try (var reader = parser.reader(req.getParams())) {"));
+        buffer.add(statement(indent(8), "try (var reader = parser.reader(req.getParams())) {"));
       }
-
-      buffer.addAll(generateRpcParameter(kt, paramList::add, true));
     }
 
-    var call = of("c.", getMethodName(), paramList.toString());
+    // This method will now be responsible for pushing "ctx" directly to paramList
+    // for Context parameters, instead of reading them from the JSON.
+    buffer.addAll(generateRpcParameter(kt, paramList::add, true));
+
+    // Dynamically adjust indentation based on whether the reader block was opened
+    int callIndent = needsReader ? 10 : 8;
+    var call = CodeBlock.of("c.", getMethodName(), paramList.toString());
 
     if (returnType.isVoid()) {
-      buffer.add(statement(indent(12), call, semicolon(kt)));
-      buffer.add(statement(indent(12), kt ? "null" : "return null", semicolon(kt)));
+      buffer.add(statement(indent(callIndent), call, semicolon(kt)));
+      buffer.add(statement(indent(callIndent), kt ? "null" : "return null", semicolon(kt)));
     } else {
-      buffer.add(statement(indent(12), kt ? call : "return " + call, semicolon(kt)));
+      buffer.add(statement(indent(callIndent), kt ? call : "return " + call, semicolon(kt)));
     }
 
-    if (!parameters.isEmpty()) {
-      buffer.add(statement(indent(10), "}"));
+    if (needsReader) {
+      buffer.add(statement(indent(8), "}"));
     }
+
     return buffer;
   }
 
@@ -731,7 +746,7 @@ public class MvcRoute {
     var statements = new ArrayList<String>();
     var decoderInterface =
         isJsonRpc ? "io.jooby.jsonrpc.JsonRpcDecoder" : "io.jooby.trpc.TrpcDecoder";
-    int baseIndent = isJsonRpc ? 12 : 4;
+    int baseIndent = isJsonRpc ? 10 : 4;
 
     for (var parameter : parameters) {
       var paramenterName = parameter.getName();

@@ -13,7 +13,7 @@ import io.jooby.Context;
 /**
  * Interface for generated JSON-RPC service glue code (*Rpc classes).
  *
- * <p>This interface allows the global {@link JsonRpcDispatcher} to coordinate multiple JSON-RPC
+ * <p>This interface allows the global {@link JsonRpcModule} to coordinate multiple JSON-RPC
  * services on a single endpoint by checking which service supports a specific method namespace.
  */
 public interface JsonRpcService {

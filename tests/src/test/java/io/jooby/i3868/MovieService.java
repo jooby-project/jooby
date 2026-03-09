@@ -34,10 +34,8 @@ public class MovieService {
         .orElseThrow(() -> new NotFoundException("Movie not found: " + id));
   }
 
-  public List<Movie> search(String title, Integer year) {
-    return database.stream()
-        .filter(m -> m.title().contains(title) && (year == null || m.year() == year))
-        .toList();
+  public List<Movie> search(String title, int year) {
+    return database.stream().filter(m -> m.title().contains(title) && (m.year() == year)).toList();
   }
 
   public void deleteMovie(@PathParam int id) {}

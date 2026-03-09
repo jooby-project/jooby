@@ -5,11 +5,10 @@
  */
 package io.jooby.internal.jackson3;
 
+import io.jooby.exception.MissingValueException;
 import io.jooby.jsonrpc.JsonRpcDecoder;
 import io.jooby.jsonrpc.JsonRpcReader;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
 
 public class JacksonJsonRpcReader implements JsonRpcReader {
 
@@ -27,9 +26,9 @@ public class JacksonJsonRpcReader implements JsonRpcReader {
       return null;
     }
     if (isArray) {
-      return ((ArrayNode) params).get(index);
+      return params.get(index);
     } else if (params.isObject()) {
-      return ((ObjectNode) params).get(name);
+      return params.get(name);
     }
     return null;
   }
@@ -39,11 +38,19 @@ public class JacksonJsonRpcReader implements JsonRpcReader {
       return null;
     }
     if (isArray) {
-      return ((ArrayNode) params).get(index++);
+      return params.get(index++);
     } else if (params.isObject()) {
-      return ((ObjectNode) params).get(name);
+      return params.get(name);
     }
     return null;
+  }
+
+  private JsonNode requireNode(String name) {
+    JsonNode node = consumeNode(name);
+    if (node == null || node.isNull() || node.isMissingNode()) {
+      throw new MissingValueException(name);
+    }
+    return node;
   }
 
   @Override
@@ -54,37 +61,32 @@ public class JacksonJsonRpcReader implements JsonRpcReader {
 
   @Override
   public int nextInt(String name) {
-    JsonNode node = consumeNode(name);
-    return node == null || node.isNull() ? 0 : node.asInt();
+    return requireNode(name).asInt();
   }
 
   @Override
   public long nextLong(String name) {
-    JsonNode node = consumeNode(name);
-    return node == null || node.isNull() ? 0L : node.asLong();
+    return requireNode(name).asLong();
   }
 
   @Override
   public boolean nextBoolean(String name) {
-    JsonNode node = consumeNode(name);
-    return node != null && !node.isNull() && node.asBoolean();
+    return requireNode(name).asBoolean();
   }
 
   @Override
   public double nextDouble(String name) {
-    JsonNode node = consumeNode(name);
-    return node == null || node.isNull() ? 0.0 : node.asDouble();
+    return requireNode(name).asDouble();
   }
 
   @Override
   public String nextString(String name) {
-    JsonNode node = consumeNode(name);
-    return node == null || node.isNull() ? null : node.asText();
+    return requireNode(name).asText();
   }
 
   @Override
   public <T> T nextObject(String name, JsonRpcDecoder<T> decoder) {
-    JsonNode node = consumeNode(name);
+    JsonNode node = requireNode(name);
     return decoder.decode(name, node);
   }
 

@@ -397,8 +397,9 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(6),
-              "else -> throw io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found:"
-                  + " $method\")"));
+              "else -> throw"
+                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " \"Method not found: $method\")"));
       buffer.append(statement(indent(4), "}"));
       buffer.append(statement(indent(2), "}"));
 
@@ -517,8 +518,9 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(6),
-              "default: throw new io.jooby.jsonrpc.JsonRpcException(-32601, \"Method not found: \""
-                  + " + method)",
+              "default: throw new"
+                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " \"Method not found: \" + method)",
               semicolon(kt)));
       buffer.append(statement(indent(4), "}"));
       buffer.append(statement(indent(2), "}"));

@@ -8,6 +8,7 @@ package io.jooby.internal.jackson3;
 import java.lang.reflect.Type;
 
 import io.jooby.jsonrpc.JsonRpcDecoder;
+import io.jooby.jsonrpc.JsonRpcErrorCode;
 import io.jooby.jsonrpc.JsonRpcException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
@@ -30,12 +31,11 @@ public class JacksonJsonRpcDecoder<T> implements JsonRpcDecoder<T> {
         return null;
       }
       return mapper.treeToValue((JsonNode) node, javaType);
-    } catch (IllegalArgumentException x) {
-      throw new JsonRpcException(
-          -32602, "Invalid params: unable to map parameter '" + name + "'", x.getMessage());
     } catch (Exception x) {
       throw new JsonRpcException(
-          -32602, "Invalid params: unable to map parameter '" + name + "'", x.toString());
+          JsonRpcErrorCode.INVALID_PARAMS,
+          "Invalid params: unable to map parameter '" + name + "'",
+          x);
     }
   }
 }

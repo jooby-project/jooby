@@ -35,7 +35,7 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
-import io.jooby.jsonrpc.JsonRpcDispatcher;
+import io.jooby.jsonrpc.JsonRpcModule;
 import io.jooby.jsonrpc.JsonRpcService;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
@@ -104,7 +104,7 @@ public class Jooby implements Router, Registry {
 
   private List<Locale> locales;
 
-  private Map<String, JsonRpcDispatcher> dispatchers;
+  private Map<String, JsonRpcModule> dispatchers;
 
   private boolean lateInit;
 
@@ -430,7 +430,7 @@ public class Jooby implements Router, Registry {
    * @param factory Application factory.
    * @return This application.
    */
-  @NonNull public Jooby install(
+  public Jooby install(
       @NonNull Predicate<Context> predicate, @NonNull SneakyThrows.Supplier<Jooby> factory) {
     return install("/", predicate, factory);
   }
@@ -501,7 +501,7 @@ public class Jooby implements Router, Registry {
         .computeIfAbsent(
             Router.normalizePath(path),
             normalizedPath -> {
-              var dispatcher = new JsonRpcDispatcher(normalizedPath);
+              var dispatcher = new JsonRpcModule(normalizedPath);
               install(dispatcher);
               return dispatcher;
             })

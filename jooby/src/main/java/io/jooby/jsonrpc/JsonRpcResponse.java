@@ -42,24 +42,19 @@ public class JsonRpcResponse {
    *
    * @param id The id from the corresponding request.
    * @param code The error code.
-   * @param message A short description of the error.
+   * @param data Additional data about the error.
    * @return A populated JsonRpcResponse.
    */
-  public static JsonRpcResponse error(Object id, int code, String message) {
-    return new JsonRpcResponse(id, null, new ErrorDetail(code, message, null));
+  public static JsonRpcResponse error(Object id, JsonRpcErrorCode code, Object data) {
+    return new JsonRpcResponse(
+        id, null, new ErrorDetail(code.getCode(), code.getMessage(), data(data)));
   }
 
-  /**
-   * Creates an error JSON-RPC response with additional data.
-   *
-   * @param id The id from the corresponding request.
-   * @param code The error code.
-   * @param message A short description of the error.
-   * @param data Primitive or Structured value that contains additional information.
-   * @return A populated JsonRpcResponse.
-   */
-  public static JsonRpcResponse error(Object id, int code, String message, Object data) {
-    return new JsonRpcResponse(id, null, new ErrorDetail(code, message, data));
+  private static Object data(Object data) {
+    if (data instanceof Throwable cause) {
+      return cause.getMessage();
+    }
+    return data;
   }
 
   public String getJsonrpc() {

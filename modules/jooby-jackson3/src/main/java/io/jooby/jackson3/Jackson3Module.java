@@ -21,6 +21,7 @@ import io.jooby.internal.jackson3.JacksonJsonRpcParser;
 import io.jooby.internal.jackson3.JacksonJsonRpcRequestDeserializer;
 import io.jooby.internal.jackson3.JacksonTrpcParser;
 import io.jooby.internal.jackson3.JacksonTrpcResponseSerializer;
+import io.jooby.jsonrpc.JsonRpcErrorCode;
 import io.jooby.jsonrpc.JsonRpcParser;
 import io.jooby.jsonrpc.JsonRpcRequest;
 import io.jooby.output.Output;
@@ -151,15 +152,23 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     services.put(ObjectMapper.class, mapper);
     // tRPC
     services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
-    // JSON-RPC
-    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
-
-    // Parsing exception as 400
-    application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
     services
         .mapOf(Class.class, TrpcErrorCode.class)
         .put(StreamReadException.class, TrpcErrorCode.BAD_REQUEST)
-        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST);
+        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST)
+        .put(DatabindException.class, TrpcErrorCode.BAD_REQUEST);
+
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
+    services
+        .mapOf(Class.class, JsonRpcErrorCode.class)
+        .put(StreamReadException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
+
+    // Parsing exception as 400
+    application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(DatabindException.class, StatusCode.BAD_REQUEST);
 
     application.onStarting(() -> onStarting(application, services, mapperType));
 

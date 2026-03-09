@@ -5,13 +5,14 @@
  */
 package tests.i3864;
 
+import io.jooby.Context;
 import io.jooby.annotation.JsonRpc;
 
 @JsonRpc("users")
 public class C3864 {
 
   @JsonRpc
-  public String ping(int year) {
+  public String ping(Context ctx, int year) {
     return null;
   }
 }
