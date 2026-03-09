@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 
 /**
  * Global Tier 1 Dispatcher for JSON-RPC 2.0 requests. *
@@ -69,7 +70,8 @@ public class JsonRpcModule implements Extension {
     // Initialize the custom exception mapping registry
     app.getServices()
         .mapOf(Class.class, JsonRpcErrorCode.class)
-        .put(MissingValueException.class, JsonRpcErrorCode.INVALID_PARAMS);
+        .put(MissingValueException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(TypeMismatchException.class, JsonRpcErrorCode.INVALID_PARAMS);
   }
 
   /**

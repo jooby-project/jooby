@@ -11,15 +11,19 @@ import java.util.List;
 
 import com.jayway.jsonpath.JsonPath;
 import io.jooby.Jooby;
-import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
-public class JsonRpcProtocolTest {
+public abstract class AbstractJsonRpcProtocolTest {
+
+  /**
+   * Subclasses must provide the specific JSON engine module (e.g., JacksonModule, Jackson3Module).
+   */
+  protected abstract void installJsonEngine(Jooby app);
 
   // Helper to keep test setup DRY
   private void setupApp(Jooby app) {
-    app.install(new Jackson3Module());
+    installJsonEngine(app);
     app.mvc(new MovieService_());
     app.mvc(new MovieServiceRpc_());
   }
@@ -198,6 +202,7 @@ public class JsonRpcProtocolTest {
                   """,
                   rsp -> {
                     String json = rsp.body().string();
+                    System.out.println(json);
                     assertThat(rsp.code()).isEqualTo(200);
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
