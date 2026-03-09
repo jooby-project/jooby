@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.jackson;
+package io.jooby.internal.jackson;
 
 import java.io.IOException;
 import java.util.Map;
@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.jooby.Projected;
 import io.jooby.Projection;
+import io.jooby.jackson.JacksonModule;
 
 public class JacksonProjectedSerializer extends JsonSerializer<Projected> {
   private final Map<Projection<?>, ObjectWriter> writerCache = new ConcurrentHashMap<>();

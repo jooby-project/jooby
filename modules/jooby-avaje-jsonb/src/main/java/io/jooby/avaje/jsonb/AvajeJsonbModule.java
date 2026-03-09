@@ -15,9 +15,10 @@ import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.*;
-import io.jooby.internal.avaje.jsonb.AvajeTrpcParser;
-import io.jooby.internal.avaje.jsonb.AvajeTrpcResponseAdapter;
-import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
+import io.jooby.internal.avaje.jsonb.*;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
 import io.jooby.trpc.TrpcErrorCode;
 import io.jooby.trpc.TrpcParser;
@@ -82,7 +83,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
   /** Creates a new Avaje-JsonB module. */
   public AvajeJsonbModule() {
-    this(Jsonb.builder().add(TrpcResponse.class, trpcResponseAdapter()).build());
+    this(builder().build());
   }
 
   @Override
@@ -98,6 +99,8 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     services
         .mapOf(Class.class, TrpcErrorCode.class)
         .put(JsonDataException.class, TrpcErrorCode.BAD_REQUEST);
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new AvajeJsonRpcParser(jsonb));
   }
 
   @Override
@@ -156,12 +159,12 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     view.toJson(value, writer);
   }
 
-  /**
-   * Custom adapter for {@link TrpcResponse}.
-   *
-   * @return Custom adapter for {@link TrpcResponse}.
-   */
-  public static Jsonb.AdapterBuilder trpcResponseAdapter() {
-    return AvajeTrpcResponseAdapter::new;
+  public static Jsonb.Builder builder() {
+    var jsonb = Jsonb.builder();
+    jsonb.add(TrpcResponse.class, AvajeTrpcResponseAdapter::new);
+    jsonb.add(JsonRpcRequest.class, AvajeJsonRpcRequestAdapter::new);
+    jsonb.add(JsonRpcResponse.class, AvajeJsonRpcResponseAdapter::new);
+    jsonb.add(JsonRpcResponse.ErrorDetail.class, AvajeJsonRpcErrorAdapter::new);
+    return jsonb;
   }
 }

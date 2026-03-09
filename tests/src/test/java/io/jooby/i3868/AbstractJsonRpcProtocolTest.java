@@ -8,6 +8,7 @@ package io.jooby.i3868;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import java.util.Map;
 
 import com.jayway.jsonpath.JsonPath;
 import io.jooby.Jooby;
@@ -48,6 +49,11 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    // Spec: Success must have 'result' and must NOT have 'error'
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("result").doesNotContainKey("error");
+
                     assertThat(JsonPath.<Integer>read(json, "$.id")).isEqualTo(1);
                     assertThat(JsonPath.<String>read(json, "$.result.title"))
                         .isEqualTo("The Godfather");
@@ -67,6 +73,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("result").doesNotContainKey("error");
+
                     assertThat(JsonPath.<Integer>read(json, "$.id")).isEqualTo(2);
                     assertThat(JsonPath.<Integer>read(json, "$.result[0].id")).isEqualTo(2);
                     assertThat(JsonPath.<String>read(json, "$.result[0].title"))
@@ -87,6 +97,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("result").doesNotContainKey("error");
+
                     assertThat(JsonPath.<String>read(json, "$.result.title"))
                         .isEqualTo("Goodfellas");
                   });
@@ -135,6 +149,11 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    // Spec: Error must have 'error' and must NOT have 'result'
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32601);
                     assertThat(JsonPath.<String>read(json, "$.error.message"))
                         .contains("Method not found");
@@ -153,6 +172,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32600);
                   });
 
@@ -163,6 +186,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32700);
                   });
 
@@ -180,6 +207,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<String>read(json, "$.error.message"))
                         .contains("Not found");
                     assertThat(JsonPath.<String>read(json, "$.error.data"))
@@ -202,8 +233,11 @@ public abstract class AbstractJsonRpcProtocolTest {
                   """,
                   rsp -> {
                     String json = rsp.body().string();
-                    System.out.println(json);
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
 
@@ -216,6 +250,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
 
@@ -228,6 +266,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
 
@@ -240,6 +282,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
 
@@ -252,6 +298,10 @@ public abstract class AbstractJsonRpcProtocolTest {
                   rsp -> {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
             });
@@ -280,6 +330,14 @@ public abstract class AbstractJsonRpcProtocolTest {
                     // Assert length is exactly 2 (notification should be dropped)
                     assertThat(JsonPath.<Integer>read(json, "$.length()")).isEqualTo(2);
 
+                    // Assert mutual exclusivity on the individual batch elements
+                    Map<String, Object> element0 = JsonPath.read(json, "$[0]");
+                    Map<String, Object> element1 = JsonPath.read(json, "$[1]");
+
+                    // Both should be successes
+                    assertThat(element0).containsKey("result").doesNotContainKey("error");
+                    assertThat(element1).containsKey("result").doesNotContainKey("error");
+
                     // Order-agnostic assertions using JsonPath filters!
                     List<String> req1Title =
                         JsonPath.read(json, "$[?(@.id == 'req-1')].result.title");
@@ -301,9 +359,6 @@ public abstract class AbstractJsonRpcProtocolTest {
         .ready(
             http -> {
               // Edge Case 1: Empty Array
-              // Spec: If the batch rpc call itself fails to be recognized as an valid JSON or as an
-              // Array with at least one value, the response from the Server MUST be a single
-              // Response object.
               http.postJson(
                   "/rpc",
                   "[]",
@@ -311,14 +366,16 @@ public abstract class AbstractJsonRpcProtocolTest {
                     String json = rsp.body().string();
                     assertThat(rsp.code()).isEqualTo(200);
                     assertThat(json).doesNotStartWith("["); // MUST be a single object
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32600);
                     assertThat(JsonPath.<String>read(json, "$.error.message"))
                         .containsIgnoringCase("Invalid Request");
                   });
 
               // Edge Case 2: Array containing completely invalid data
-              // Spec: If the request array contains invalid requests, the server MUST return an
-              // array of errors.
               http.postJson(
                   "/rpc",
                   "[1, 2, 3]",
@@ -327,6 +384,12 @@ public abstract class AbstractJsonRpcProtocolTest {
                     assertThat(rsp.code()).isEqualTo(200);
                     assertThat(json).startsWith("[");
                     assertThat(JsonPath.<Integer>read(json, "$.length()")).isEqualTo(3);
+
+                    // Check mutual exclusivity on all error elements in the batch
+                    List<Map<String, Object>> array = JsonPath.read(json, "$");
+                    for (Map<String, Object> element : array) {
+                      assertThat(element).containsKey("error").doesNotContainKey("result");
+                    }
 
                     // All three elements should be Invalid Request errors
                     List<Integer> errorCodes = JsonPath.read(json, "$[*].error.code");

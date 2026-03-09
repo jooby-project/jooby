@@ -5,8 +5,6 @@
  */
 package io.jooby.jackson;
 
-import static com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter.*;
-
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -30,13 +28,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.internal.jackson.JacksonJsonRpcParser;
-import io.jooby.internal.jackson.JacksonJsonRpcRequestDeserializer;
-import io.jooby.internal.jackson.JacksonTrpcParser;
-import io.jooby.internal.jackson.JacksonTrpcResponseSerializer;
+import io.jooby.internal.jackson.*;
 import io.jooby.jsonrpc.JsonRpcErrorCode;
 import io.jooby.jsonrpc.JsonRpcParser;
 import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
 import io.jooby.trpc.TrpcParser;
 import io.jooby.trpc.TrpcResponse;
@@ -244,6 +240,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     var rpc = new SimpleModule();
     rpc.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
     rpc.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
+    rpc.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
     builder.addModule(rpc);
 
     return builder.build();

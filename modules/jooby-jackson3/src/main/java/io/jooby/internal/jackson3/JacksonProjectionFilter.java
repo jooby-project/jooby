@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.jackson3;
+package io.jooby.internal.jackson3;
 
 import java.util.ArrayList;
 import java.util.Collections;
