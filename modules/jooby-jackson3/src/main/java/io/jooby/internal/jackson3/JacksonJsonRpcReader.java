@@ -6,6 +6,7 @@
 package io.jooby.internal.jackson3;
 
 import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.jsonrpc.JsonRpcDecoder;
 import io.jooby.jsonrpc.JsonRpcReader;
 import tools.jackson.databind.JsonNode;
@@ -61,27 +62,47 @@ public class JacksonJsonRpcReader implements JsonRpcReader {
 
   @Override
   public int nextInt(String name) {
-    return requireNode(name).asInt();
+    var node = requireNode(name);
+    if (node.isInt()) {
+      return node.asInt();
+    }
+    throw new TypeMismatchException(name, int.class);
   }
 
   @Override
   public long nextLong(String name) {
-    return requireNode(name).asLong();
+    var node = requireNode(name);
+    if (node.isLong()) {
+      return node.longValue();
+    }
+    throw new TypeMismatchException(name, long.class);
   }
 
   @Override
   public boolean nextBoolean(String name) {
-    return requireNode(name).asBoolean();
+    var node = requireNode(name);
+    if (node.isBoolean()) {
+      return node.booleanValue();
+    }
+    throw new TypeMismatchException(name, boolean.class);
   }
 
   @Override
   public double nextDouble(String name) {
-    return requireNode(name).asDouble();
+    var node = requireNode(name);
+    if (node.isDouble()) {
+      return node.asDouble();
+    }
+    throw new TypeMismatchException(name, double.class);
   }
 
   @Override
   public String nextString(String name) {
-    return requireNode(name).asText();
+    var node = requireNode(name);
+    if (node.isString()) {
+      return node.asString();
+    }
+    throw new TypeMismatchException(name, String.class);
   }
 
   @Override
