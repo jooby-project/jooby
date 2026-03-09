@@ -10,6 +10,6 @@ include::session.adoc[]
 
 include::server-sent-event.adoc[]
 
-include::tRPC.adoc[]
+include::rpc.adoc[]
 
 include::websocket.adoc[]

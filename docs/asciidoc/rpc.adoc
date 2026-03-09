@@ -1,0 +1,5 @@
+=== RPC
+
+include::json-rpc.adoc[]
+
+include::tRPC.adoc[]
