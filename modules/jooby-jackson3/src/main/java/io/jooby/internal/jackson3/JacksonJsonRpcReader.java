@@ -107,12 +107,10 @@ public class JacksonJsonRpcReader implements JsonRpcReader {
 
   @Override
   public <T> T nextObject(String name, JsonRpcDecoder<T> decoder) {
-    JsonNode node = requireNode(name);
+    var node = requireNode(name);
     return decoder.decode(name, node);
   }
 
   @Override
-  public void close() {
-    // No network resources to release for an in-memory JsonNode tree
-  }
+  public void close() {}
 }

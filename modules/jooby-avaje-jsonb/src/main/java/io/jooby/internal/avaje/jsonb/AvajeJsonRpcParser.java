@@ -22,7 +22,7 @@ public class AvajeJsonRpcParser implements JsonRpcParser {
 
   @Override
   public <T> JsonRpcDecoder<T> decoder(Type type) {
-    return new AvajeJsonRpcDecoder<>(jsonb, jsonb.type(type));
+    return new AvajeJsonRpcDecoder<>(jsonb, type);
   }
 
   @Override

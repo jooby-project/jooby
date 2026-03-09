@@ -7,9 +7,9 @@ package io.jooby.internal.jackson3;
 
 import java.lang.reflect.Type;
 
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcErrorCode;
-import io.jooby.jsonrpc.JsonRpcException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -27,15 +27,12 @@ public class JacksonJsonRpcDecoder<T> implements JsonRpcDecoder<T> {
   @Override
   public T decode(String name, Object node) {
     try {
-      if (node == null || ((JsonNode) node).isNull()) {
-        return null;
+      if (node == null || ((JsonNode) node).isNull() || ((JsonNode) node).isMissingNode()) {
+        throw new MissingValueException(name);
       }
       return mapper.treeToValue((JsonNode) node, javaType);
     } catch (Exception x) {
-      throw new JsonRpcException(
-          JsonRpcErrorCode.INVALID_PARAMS,
-          "Invalid params: unable to map parameter '" + name + "'",
-          x);
+      throw new TypeMismatchException(name, javaType, x);
     }
   }
 }

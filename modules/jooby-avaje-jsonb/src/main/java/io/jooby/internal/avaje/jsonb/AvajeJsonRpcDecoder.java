@@ -5,37 +5,37 @@
  */
 package io.jooby.internal.avaje.jsonb;
 
+import java.lang.reflect.Type;
+
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
+import io.jooby.exception.MissingValueException;
+import io.jooby.exception.TypeMismatchException;
 import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcErrorCode;
-import io.jooby.jsonrpc.JsonRpcException;
 
 public class AvajeJsonRpcDecoder<T> implements JsonRpcDecoder<T> {
 
   private final Jsonb jsonb;
+  private final Type type;
   private final JsonType<T> typeAdapter;
 
-  public AvajeJsonRpcDecoder(Jsonb jsonb, JsonType<T> typeAdapter) {
+  public AvajeJsonRpcDecoder(Jsonb jsonb, Type type) {
     this.jsonb = jsonb;
-    this.typeAdapter = typeAdapter;
+    this.type = type;
+    this.typeAdapter = jsonb.type(type);
   }
 
   @Override
   public T decode(String name, Object node) {
     try {
       if (node == null) {
-        return null;
+        throw new MissingValueException(name);
       }
       // Convert the Map/List/primitive back to JSON, then to the target type
       // This leverages Avaje's exact mappings without needing a tree traversal model
-      String json = jsonb.toJson(node);
-      return typeAdapter.fromJson(json);
+      return typeAdapter.fromJson(jsonb.toJson(node));
     } catch (Exception x) {
-      throw new JsonRpcException(
-          JsonRpcErrorCode.INVALID_PARAMS,
-          "Invalid params: unable to map parameter '" + name + "'",
-          x);
+      throw new TypeMismatchException(name, type, x);
     }
   }
 }

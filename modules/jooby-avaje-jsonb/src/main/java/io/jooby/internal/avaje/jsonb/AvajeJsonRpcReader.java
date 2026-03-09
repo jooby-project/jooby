@@ -99,12 +99,10 @@ public class AvajeJsonRpcReader implements JsonRpcReader {
 
   @Override
   public <T> T nextObject(String name, JsonRpcDecoder<T> decoder) {
-    Object val = require(name);
+    var val = require(name);
     return decoder.decode(name, val);
   }
 
   @Override
-  public void close() {
-    // Nothing to close for in-memory collections
-  }
+  public void close() {}
 }
