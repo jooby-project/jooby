@@ -24,7 +24,7 @@ public enum TrpcErrorCode {
   /** Invalid routing or parameters. Mapped to HTTP 400. */
   BAD_REQUEST(-32600, StatusCode.BAD_REQUEST),
 
-  /** Invalid JSON was received by the server. Mapped to HTTP 400. */
+  /** The server received invalid JSON. Mapped to HTTP 400. */
   PARSE_ERROR(-32700, StatusCode.BAD_REQUEST),
 
   /** Internal server error. Mapped to HTTP 500. */

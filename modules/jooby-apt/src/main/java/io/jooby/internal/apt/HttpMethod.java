@@ -33,7 +33,9 @@ public enum HttpMethod implements AnnotationSupport {
       List.of(
           "io.jooby.annotation.Trpc",
           "io.jooby.annotation.Trpc.Mutation",
-          "io.jooby.annotation.Trpc.Query"));
+          "io.jooby.annotation.Trpc.Query")),
+  JSON_RPC(List.of("io.jooby.annotation.JsonRpc"));
+
   private final List<String> annotations;
 
   HttpMethod(String... packages) {
@@ -46,13 +48,6 @@ public enum HttpMethod implements AnnotationSupport {
     this.annotations = annotations;
   }
 
-  /**
-   * Look at path attribute over HTTP method annotation (like io.jooby.annotation.GET) or fallback
-   * to Path annotation.
-   *
-   * @param element Type or Method.
-   * @return Path.
-   */
   public List<String> path(Element element) {
     var path =
         annotations.stream()
@@ -64,24 +59,10 @@ public enum HttpMethod implements AnnotationSupport {
     return path.isEmpty() ? HttpPath.PATH.path(element) : path;
   }
 
-  /**
-   * Look at consumes attribute over HTTP method annotation (like io.jooby.annotation.GET) or
-   * fallback to Consumes annotation.
-   *
-   * @param element Type or Method.
-   * @return Consumes media type.
-   */
   public List<String> consumes(Element element) {
     return mediaType(element, HttpMediaType.Consumes, "consumes"::equals);
   }
 
-  /**
-   * Look at produces attribute over HTTP method annotation (like io.jooby.annotation.GET) or
-   * fallback to Produces annotation.
-   *
-   * @param element Type or Method.
-   * @return Produces media type.
-   */
   public List<String> produces(Element element) {
     return mediaType(element, HttpMediaType.Produces, "produces"::equals);
   }

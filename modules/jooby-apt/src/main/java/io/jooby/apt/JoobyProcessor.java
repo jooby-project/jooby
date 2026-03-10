@@ -129,21 +129,71 @@ public class JoobyProcessor extends AbstractProcessor {
     try {
       if (roundEnv.processingOver()) {
         context.debug("Output:");
-        context.getRouters().forEach(it -> context.debug("  %s.java", it.getGeneratedType()));
+        // Print all generated types for both REST and RPC
+        context
+            .getRouters()
+            .forEach(
+                it -> {
+                  if (it.hasRestRoutes()) {
+                    context.debug("  %s", it.getRestGeneratedType());
+                  }
+                  if (it.hasJsonRpcRoutes()) {
+                    context.debug("  %s", it.getRpcGeneratedType());
+                  }
+                });
         return false;
       } else {
         var routeMap = buildRouteRegistry(annotations, roundEnv);
         verifyBeanValidationDependency(routeMap.values());
         for (var router : routeMap.values()) {
           try {
+            // Track the router unconditionally so routes are available in processingOver
             context.add(router);
-            var sourceCode = router.toSourceCode(null);
-            var sourceLocation = router.getGeneratedFilename();
-            onGeneratedSource(
-                router.getGeneratedType(), toJavaFileObject(sourceLocation, sourceCode));
-            context.debug("router %s: %s", router.getTargetType(), router.getGeneratedType());
-            router.getRoutes().forEach(it -> context.debug("   %s", it));
-            writeSource(router, sourceLocation, sourceCode);
+
+            // 1. Generate Standard REST/tRPC File (e.g., MovieService_.java)
+            if (router.hasRestRoutes()) {
+              var restSource = router.getRestSourceCode(null);
+              if (restSource != null) {
+                var sourceLocation = router.getRestGeneratedFilename();
+                var generatedType = router.getRestGeneratedType();
+                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, restSource));
+
+                context.debug("router %s: %s", router.getTargetType(), generatedType);
+                router.getRoutes().stream()
+                    .filter(it -> !it.isJsonRpc())
+                    .forEach(it -> context.debug("   %s", it));
+
+                writeSource(
+                    router.isKt(),
+                    generatedType,
+                    sourceLocation,
+                    restSource,
+                    router.getTargetType());
+              }
+            }
+
+            // 2. Generate JSON-RPC File (e.g., MovieServiceRpc_.java)
+            if (router.hasJsonRpcRoutes()) {
+              var rpcSource = router.getRpcSourceCode(null);
+              if (rpcSource != null) {
+                var sourceLocation = router.getRpcGeneratedFilename();
+                var generatedType = router.getRpcGeneratedType();
+                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, rpcSource));
+
+                context.debug("jsonrpc router %s: %s", router.getTargetType(), generatedType);
+                router.getRoutes().stream()
+                    .filter(MvcRoute::isJsonRpc)
+                    .forEach(it -> context.debug("   %s", it));
+
+                writeSource(
+                    router.isKt(),
+                    generatedType,
+                    sourceLocation,
+                    rpcSource,
+                    router.getTargetType());
+              }
+            }
+
           } catch (IOException cause) {
             throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
           }
@@ -157,25 +207,29 @@ public class JoobyProcessor extends AbstractProcessor {
     }
   }
 
-  private void writeSource(MvcRouter router, String sourceLocation, String sourceCode)
+  private void writeSource(
+      boolean isKt,
+      String className,
+      String sourceLocation,
+      String sourceCode,
+      Element... originatingElements)
       throws IOException {
     var environment = context.getProcessingEnvironment();
     var filer = environment.getFiler();
-    if (router.isKt()) {
+    if (isKt) {
       var kapt = environment.getOptions().get("kapt.kotlin.generated");
       if (kapt != null) {
         var output = Paths.get(kapt, sourceLocation);
         Files.createDirectories(output.getParent());
         Files.writeString(output, sourceCode);
       } else {
-        var ktFile =
-            filer.createResource(SOURCE_OUTPUT, "", sourceLocation, router.getTargetType());
+        var ktFile = filer.createResource(SOURCE_OUTPUT, "", sourceLocation, originatingElements);
         try (var writer = ktFile.openWriter()) {
           writer.write(sourceCode);
         }
       }
     } else {
-      var javaFIle = filer.createSourceFile(router.getGeneratedType(), router.getTargetType());
+      var javaFIle = filer.createSourceFile(className, originatingElements);
       try (var writer = javaFIle.openWriter()) {
         writer.write(sourceCode);
       }
@@ -223,12 +277,18 @@ public class JoobyProcessor extends AbstractProcessor {
       for (var element : elements) {
         context.debug("  %s", element);
         if (element instanceof TypeElement typeElement) {
+          // FORCE INIT: Ensures MvcRouter constructor executes our JsonRpc class-level rules
+          registry.computeIfAbsent(typeElement, type -> new MvcRouter(context, type));
           buildRouteRegistry(registry, typeElement);
         } else if (element instanceof ExecutableElement method) {
-          buildRouteRegistry(registry, (TypeElement) method.getEnclosingElement());
+          TypeElement typeElement = (TypeElement) method.getEnclosingElement();
+          // FORCE INIT
+          registry.computeIfAbsent(typeElement, type -> new MvcRouter(context, type));
+          buildRouteRegistry(registry, typeElement);
         }
       }
     }
+
     // Remove all abstract router
     var abstractTypes =
         registry.entrySet().stream()
@@ -344,7 +404,7 @@ public class JoobyProcessor extends AbstractProcessor {
    * <p>Example usage:
    *
    * <pre>public void run() {
-   *     throw sneakyThrow(new IOException("You don't need to catch me!"));
+   * throw sneakyThrow(new IOException("You don't need to catch me!"));
    * }</pre>
    *
    * <p>NB: The exception is not wrapped, ignored, swallowed, or redefined. The JVM actually does

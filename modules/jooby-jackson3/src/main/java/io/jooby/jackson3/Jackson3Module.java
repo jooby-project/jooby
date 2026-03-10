@@ -17,8 +17,11 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.internal.jackson3.JacksonTrpcParser;
-import io.jooby.internal.jackson3.JacksonTrpcResponseSerializer;
+import io.jooby.internal.jackson3.*;
+import io.jooby.jsonrpc.JsonRpcErrorCode;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
 import io.jooby.trpc.TrpcErrorCode;
 import io.jooby.trpc.TrpcParser;
@@ -147,13 +150,23 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     services.put(ObjectMapper.class, mapper);
     // tRPC
     services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
-
-    // Parsing exception as 400
-    application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
     services
         .mapOf(Class.class, TrpcErrorCode.class)
         .put(StreamReadException.class, TrpcErrorCode.BAD_REQUEST)
-        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST);
+        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST)
+        .put(DatabindException.class, TrpcErrorCode.BAD_REQUEST);
+
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
+    services
+        .mapOf(Class.class, JsonRpcErrorCode.class)
+        .put(StreamReadException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
+
+    // Parsing exception as 400
+    application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(DatabindException.class, StatusCode.BAD_REQUEST);
 
     application.onStarting(() -> onStarting(application, services, mapperType));
 
@@ -227,9 +240,11 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     JsonMapper.Builder builder = JsonMapper.builder();
 
     Stream.of(modules).forEach(builder::addModule);
-    var trpcModule = new SimpleModule();
-    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
-    builder.addModule(trpcModule);
+    var rpcModule = new SimpleModule();
+    rpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    rpcModule.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
+    rpcModule.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
+    builder.addModule(rpcModule);
 
     return builder.build();
   }

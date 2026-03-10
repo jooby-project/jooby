@@ -5,8 +5,6 @@
  */
 package io.jooby.jackson;
 
-import static com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter.*;
-
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -30,8 +28,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
-import io.jooby.internal.jackson.JacksonTrpcParser;
-import io.jooby.internal.jackson.JacksonTrpcResponseSerializer;
+import io.jooby.internal.jackson.*;
+import io.jooby.jsonrpc.JsonRpcErrorCode;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
 import io.jooby.trpc.TrpcParser;
 import io.jooby.trpc.TrpcResponse;
@@ -157,6 +158,13 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     // tRPC
     services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
 
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
+    services
+        .mapOf(Class.class, JsonRpcErrorCode.class)
+        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
+
     // Filter
     var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
     mapper.addMixIn(Object.class, ProjectionMixIn.class);
@@ -220,7 +228,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static @NonNull ObjectMapper create(Module... modules) {
+  public static ObjectMapper create(Module... modules) {
     JsonMapper.Builder builder =
         JsonMapper.builder()
             .addModule(new ParameterNamesModule())
@@ -228,10 +236,12 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
             .addModule(new JavaTimeModule());
 
     Stream.of(modules).forEach(builder::addModule);
-    // tRPC
-    var trpcModule = new SimpleModule();
-    trpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
-    builder.addModule(trpcModule);
+    // RPC
+    var rpc = new SimpleModule();
+    rpc.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    rpc.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
+    rpc.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
+    builder.addModule(rpc);
 
     return builder.build();
   }

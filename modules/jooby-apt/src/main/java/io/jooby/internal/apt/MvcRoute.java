@@ -7,7 +7,7 @@ package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.AnnotationSupport.*;
 import static io.jooby.internal.apt.CodeBlock.*;
-import static java.lang.System.*;
+import static java.lang.System.lineSeparator;
 import static java.util.Optional.ofNullable;
 
 import java.util.*;
@@ -33,7 +33,9 @@ public class MvcRoute {
   private boolean uncheckedCast;
   private final boolean hasBeanValidation;
   private final Set<String> pending = new HashSet<>();
+
   private boolean isTrpc = false;
+  private boolean isJsonRpc = false;
   private HttpMethod resolvedTrpcMethod = null;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
@@ -125,6 +127,10 @@ public class MvcRoute {
   }
 
   public List<String> generateMapping(boolean kt) {
+    if (isJsonRpc) {
+      return Collections.emptyList();
+    }
+
     List<String> block = new ArrayList<>();
     var methodName = getGeneratedName();
     var returnType = getReturnType();
@@ -244,7 +250,56 @@ public class MvcRoute {
     return path.charAt(0) == '/' ? path : "/" + path;
   }
 
+  public List<String> generateJsonRpcDispatchCase(boolean kt) {
+    var buffer = new ArrayList<String>();
+    var paramList = new StringJoiner(", ", "(", ")");
+
+    // Check if we have any parameters that actually need to be parsed from the JSON payload.
+    // We ignore Jooby's Context and Kotlin's Continuation since they are provided by the framework.
+    boolean needsReader =
+        parameters.stream()
+            .anyMatch(
+                p -> {
+                  String type = p.getType().toString();
+                  return !type.equals("io.jooby.Context")
+                      && !type.startsWith("kotlin.coroutines.Continuation");
+                });
+
+    if (needsReader) {
+      if (kt) {
+        buffer.add(statement(indent(8), "parser.reader(req.params).use { reader ->"));
+      } else {
+        buffer.add(statement(indent(8), "try (var reader = parser.reader(req.getParams())) {"));
+      }
+    }
+
+    // This method will now be responsible for pushing "ctx" directly to paramList
+    // for Context parameters, instead of reading them from the JSON.
+    buffer.addAll(generateRpcParameter(kt, paramList::add, true));
+
+    // Dynamically adjust indentation based on whether the reader block was opened
+    int callIndent = needsReader ? 10 : 8;
+    var call = CodeBlock.of("c.", getMethodName(), paramList.toString());
+
+    if (returnType.isVoid()) {
+      buffer.add(statement(indent(callIndent), call, semicolon(kt)));
+      buffer.add(statement(indent(callIndent), kt ? "null" : "return null", semicolon(kt)));
+    } else {
+      buffer.add(statement(indent(callIndent), kt ? call : "return " + call, semicolon(kt)));
+    }
+
+    if (needsReader) {
+      buffer.add(statement(indent(8), "}"));
+    }
+
+    return buffer;
+  }
+
   public List<String> generateHandlerCall(boolean kt) {
+    if (isJsonRpc) {
+      return Collections.emptyList();
+    }
+
     var buffer = new ArrayList<String>();
     var methodName =
         isTrpc
@@ -269,7 +324,6 @@ public class MvcRoute {
       var isReactiveVoid = false;
       var innerReactiveType = "Object";
 
-      // 1. Resolve Target Signature
       var methodReturnTypeString = returnTypeString;
       if (isTrpc) {
         if (reactive != null) {
@@ -317,7 +371,6 @@ public class MvcRoute {
                 ")",
                 semicolon(kt)));
 
-        // Calculate actual tRPC payload parameters (ignore Context and Coroutines)
         long trpcPayloadCount =
             parameters.stream()
                 .filter(
@@ -339,7 +392,7 @@ public class MvcRoute {
                   ").value()",
                   semicolon(kt)));
 
-          if (isTuple) { // <-- Use calculated isTuple
+          if (isTuple) {
             if (kt) {
               buffer.add(
                   statement(
@@ -362,7 +415,7 @@ public class MvcRoute {
         } else {
           buffer.add(statement(indent(2), var(kt), "input = ctx.body().bytes()", semicolon(kt)));
 
-          if (isTuple) { // <-- Use calculated isTuple
+          if (isTuple) {
             if (kt) {
               buffer.add(
                   statement(
@@ -399,7 +452,7 @@ public class MvcRoute {
                   ")) {"));
         }
 
-        buffer.addAll(generateTrpcParameter(kt, paramList::add));
+        buffer.addAll(generateRpcParameter(kt, paramList::add, false));
       } else if (!isTrpc) {
         for (var parameter : getParameters(true)) {
           String generatedParameter = parameter.generateMapping(kt);
@@ -414,7 +467,6 @@ public class MvcRoute {
 
       controllerVar(kt, buffer, controllerIndent);
 
-      // 2. Resolve Return Flow
       if (returnType.isVoid()) {
         String statusCode =
             annotationMap.size() == 1
@@ -543,7 +595,6 @@ public class MvcRoute {
 
           if (isTrpc && reactive != null) {
             if (isReactiveVoid) {
-              // Ensure empty void streams systematically resolve into an empty TrpcResponse
               var handler = reactive.handlerType();
               if (handler.contains("Reactor")) {
                 buffer.add(
@@ -620,7 +671,7 @@ public class MvcRoute {
         buffer.add(statement(indent(2), "}"));
       }
 
-      buffer.add(statement("}", System.lineSeparator()));
+      buffer.add(statement("}", lineSeparator()));
 
       if (uncheckedCast) {
         if (kt) {
@@ -690,8 +741,13 @@ public class MvcRoute {
     return nullable;
   }
 
-  private List<String> generateTrpcParameter(boolean kt, Consumer<String> arguments) {
+  private List<String> generateRpcParameter(
+      boolean kt, Consumer<String> arguments, boolean isJsonRpc) {
     var statements = new ArrayList<String>();
+    var decoderInterface =
+        isJsonRpc ? "io.jooby.jsonrpc.JsonRpcDecoder" : "io.jooby.trpc.TrpcDecoder";
+    int baseIndent = isJsonRpc ? 10 : 4;
+
     for (var parameter : parameters) {
       var paramenterName = parameter.getName();
       var type = type(kt, parameter.getType().toString());
@@ -719,7 +775,7 @@ public class MvcRoute {
             if (kt) {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       "val ",
                       paramenterName,
                       " = if (reader.nextIsNull(",
@@ -732,7 +788,7 @@ public class MvcRoute {
             } else {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       var(kt),
                       paramenterName,
                       " = reader.nextIsNull(",
@@ -747,7 +803,7 @@ public class MvcRoute {
           } else {
             statements.add(
                 statement(
-                    indent(4),
+                    indent(baseIndent),
                     var(kt),
                     paramenterName,
                     " = reader.",
@@ -782,7 +838,7 @@ public class MvcRoute {
                           + "()";
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       "val ",
                       paramenterName,
                       " = if (reader.nextIsNull(",
@@ -799,7 +855,7 @@ public class MvcRoute {
               var javaSuffix = isChar ? ".charAt(0)" : "";
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       var(kt),
                       paramenterName,
                       " = reader.nextIsNull(",
@@ -825,7 +881,7 @@ public class MvcRoute {
                           + "()";
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       var(kt),
                       paramenterName,
                       " = reader.",
@@ -841,7 +897,7 @@ public class MvcRoute {
               var javaSuffix = isChar ? ".charAt(0)" : "";
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       var(kt),
                       paramenterName,
                       " = ",
@@ -861,10 +917,12 @@ public class MvcRoute {
           if (kt) {
             statements.add(
                 statement(
-                    indent(4),
+                    indent(baseIndent),
                     "val ",
                     paramenterName,
-                    "Decoder: io.jooby.trpc.TrpcDecoder<",
+                    "Decoder: ",
+                    decoderInterface,
+                    "<",
                     type,
                     "> = parser.decoder(",
                     parameter.getType().toSourceCode(kt),
@@ -873,7 +931,7 @@ public class MvcRoute {
             if (isNullable) {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       "val ",
                       paramenterName,
                       " = if (reader.nextIsNull(",
@@ -886,7 +944,7 @@ public class MvcRoute {
             } else {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       "val ",
                       paramenterName,
                       " = reader.nextObject(",
@@ -899,8 +957,9 @@ public class MvcRoute {
           } else {
             statements.add(
                 statement(
-                    indent(4),
-                    "io.jooby.trpc.TrpcDecoder<",
+                    indent(baseIndent),
+                    decoderInterface,
+                    "<",
                     type,
                     "> ",
                     paramenterName,
@@ -911,7 +970,7 @@ public class MvcRoute {
             if (isNullable) {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       parameter.getType().toString(),
                       " ",
                       paramenterName,
@@ -926,7 +985,7 @@ public class MvcRoute {
             } else {
               statements.add(
                   statement(
-                      indent(4),
+                      indent(baseIndent),
                       parameter.getType().toString(),
                       " ",
                       paramenterName,
@@ -962,15 +1021,26 @@ public class MvcRoute {
   }
 
   public MvcRoute addHttpMethod(TypeElement annotation) {
-    var annotationMirror =
-        ofNullable(findAnnotationByName(this.method, annotation.getQualifiedName().toString()))
-            .orElseThrow(() -> new IllegalArgumentException("Annotation not found: " + annotation));
+    String annotationName = annotation.getQualifiedName().toString();
+    var annotationMirror = findAnnotationByName(this.method, annotationName);
+
+    // Fallback to the class-level annotation if the method isn't explicitly annotated
+    if (annotationMirror == null) {
+      annotationMirror = findAnnotationByName(this.method.getEnclosingElement(), annotationName);
+    }
+
+    if (annotationMirror == null) {
+      throw new IllegalArgumentException("Annotation not found: " + annotation);
+    }
+
     annotationMap.put(annotation, annotationMirror);
 
-    // Eagerly flag as tRPC so equals/hashCode can differentiate hybrid methods early
-    if (HttpMethod.findByAnnotationName(annotation.getQualifiedName().toString())
-        == HttpMethod.tRPC) {
+    var httpMethod = HttpMethod.findByAnnotationName(annotationName);
+    if (httpMethod == HttpMethod.tRPC) {
       this.isTrpc = true;
+    }
+    if (httpMethod == HttpMethod.JSON_RPC) {
+      this.isJsonRpc = true;
     }
     return this;
   }
@@ -1016,15 +1086,31 @@ public class MvcRoute {
     return getMethod().getSimpleName().toString();
   }
 
+  public String getJsonRpcMethodName() {
+    var annotation = AnnotationSupport.findAnnotationByName(method, "io.jooby.jsonrpc.JsonRpc");
+    if (annotation != null) {
+      var val =
+          AnnotationSupport.findAnnotationValue(annotation, VALUE).stream().findFirst().orElse("");
+      if (!val.isEmpty()) return val;
+    }
+    return getMethodName();
+  }
+
+  public boolean isJsonRpc() {
+    return isJsonRpc;
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(method.toString(), isTrpc);
+    return Objects.hash(method.toString(), isTrpc, isJsonRpc);
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof MvcRoute that) {
-      return this.method.toString().equals(that.method.toString()) && this.isTrpc == that.isTrpc;
+      return this.method.toString().equals(that.method.toString())
+          && this.isTrpc == that.isTrpc
+          && this.isJsonRpc == that.isJsonRpc;
     }
     return false;
   }
@@ -1105,7 +1191,6 @@ public class MvcRoute {
   }
 
   private HttpMethod trpcMethod(Element element) {
-    // 1. High Precedence: Explicit tRPC procedure annotations
     if (AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc.Query") != null) {
       return HttpMethod.GET;
     }
@@ -1114,30 +1199,23 @@ public class MvcRoute {
       return HttpMethod.POST;
     }
 
-    // 2. Base Precedence: @Trpc combined with standard HTTP annotations
     var trpc = AnnotationSupport.findAnnotationByName(element, "io.jooby.annotation.Trpc");
     if (trpc != null) {
       if (HttpMethod.GET.matches(element)) {
         return HttpMethod.GET;
       }
-
-      // Map all state-changing HTTP annotations to a tRPC POST mutation
       if (HttpMethod.POST.matches(element)
           || HttpMethod.PUT.matches(element)
           || HttpMethod.PATCH.matches(element)
           || HttpMethod.DELETE.matches(element)) {
         return HttpMethod.POST;
       }
-
-      // 3. Fallback: Missing HTTP Method -> Compilation Error
       throw new IllegalArgumentException(
           "tRPC procedure missing HTTP mapping. Method "
               + element.getSimpleName()
               + "() in "
               + element.getEnclosingElement().getSimpleName()
-              + " is annotated with @Trpc but lacks a valid HTTP method annotation. Please annotate"
-              + " the method with @Trpc.Query, @Trpc.Mutation, or combine @Trpc with @GET, @POST,"
-              + " @PUT, @PATCH, or @DELETE.");
+              + " is annotated with @Trpc but lacks a valid HTTP method annotation.");
     }
     return null;
   }

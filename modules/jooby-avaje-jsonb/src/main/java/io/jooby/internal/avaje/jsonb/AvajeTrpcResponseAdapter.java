@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.avaje.jsonb;
 
-import java.util.Map;
-
 import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
@@ -31,33 +29,7 @@ public class AvajeTrpcResponseAdapter implements JsonAdapter<TrpcResponse> {
 
     if (data != null) {
       writer.name("data");
-      if (data instanceof Iterable<?> iterable) {
-        writer.beginArray();
-        for (var item : iterable) {
-          if (item == null) {
-            writer.nullValue();
-          } else {
-            writePOJO(writer, item);
-          }
-        }
-        writer.endArray();
-      } else if (data instanceof Map<?, ?> map) {
-        writer.beginObject();
-        for (var entry : map.entrySet()) {
-          // JSON keys must be strings
-          writer.name(String.valueOf(entry.getKey()));
-
-          var value = entry.getValue();
-          if (value == null) {
-            writer.nullValue();
-          } else {
-            writePOJO(writer, value);
-          }
-        }
-        writer.endObject();
-      } else {
-        writePOJO(writer, data);
-      }
+      writePOJO(writer, data);
     }
 
     writer.endObject();
@@ -65,9 +37,7 @@ public class AvajeTrpcResponseAdapter implements JsonAdapter<TrpcResponse> {
   }
 
   private void writePOJO(JsonWriter writer, Object item) {
-    // Look up the adapter for the specific element (e.g., Movie.class)
-    @SuppressWarnings("unchecked")
-    JsonAdapter<Object> itemAdapter = (JsonAdapter<Object>) jsonb.adapter(item.getClass());
+    JsonAdapter<Object> itemAdapter = jsonb.adapter(Object.class);
     itemAdapter.toJson(writer, item);
   }
 
