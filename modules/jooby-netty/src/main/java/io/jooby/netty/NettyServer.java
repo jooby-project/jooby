@@ -61,6 +61,7 @@ public class NettyServer extends Server.Base {
   private NettyOutputFactory outputFactory;
   private boolean singleEventLoopGroup =
       System.getProperty("io.netty.eventLoopGroup", "parent-child").equals("single");
+  private NettyDateService dateLoop;
 
   /**
    * Creates a server.
@@ -147,6 +148,7 @@ public class NettyServer extends Server.Base {
             new NettyEventLoopGroupImpl(
                 transport, singleEventLoopGroup, options.getIoThreads(), worker);
       }
+      this.dateLoop = new NettyDateService();
 
       fireStart(List.of(application), eventLoop.worker());
 
@@ -232,7 +234,8 @@ public class NettyServer extends Server.Base {
         options.getDefaultHeaders(),
         http2,
         options.isExpectContinue() == Boolean.TRUE,
-        options.getCompressionLevel());
+        options.getCompressionLevel(),
+        dateLoop);
   }
 
   @Override
@@ -240,6 +243,10 @@ public class NettyServer extends Server.Base {
     fireStop(applications);
     // only for jooby build where close events may take longer.
     NettyWebSocket.all.clear();
+
+    if (this.dateLoop != null) {
+      this.dateLoop.stop();
+    }
 
     if (eventLoop != null) {
       eventLoop.shutdown();
