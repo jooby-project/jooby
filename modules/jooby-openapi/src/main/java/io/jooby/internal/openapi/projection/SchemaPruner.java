@@ -120,7 +120,9 @@ public class SchemaPruner {
     target.setTitle(source.getTitle());
     target.setDescription(source.getDescription());
     target.setFormat(source.getFormat());
-    target.setDefault(source.getDefault());
+    if (source.getDefaultSetFlag()) {
+      target.setDefault(source.getDefault());
+    }
     if (source.getExample() != null) {
       target.setExample(source.getExample());
     }
