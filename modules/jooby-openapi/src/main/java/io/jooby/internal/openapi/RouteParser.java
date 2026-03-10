@@ -195,7 +195,9 @@ public class RouteParser {
         Optional.ofNullable(ctx.schema(javaType))
             .ifPresent(
                 schema -> {
-                  schema.setDefault(paramExt.getDefaultValue());
+                  if (paramExt.isDefaultValueSet()) {
+                    schema.setDefault(paramExt.getDefaultValue());
+                  }
                   parameter.setSchema(schema);
                 });
       }

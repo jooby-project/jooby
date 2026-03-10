@@ -112,8 +112,8 @@
     <vertx.version>5.0.8</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.44</swagger.version>
-    <swagger-parser.version>2.1.38</swagger-parser.version>
+    <swagger.version>2.2.45</swagger.version>
+    <swagger-parser.version>2.1.39</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
