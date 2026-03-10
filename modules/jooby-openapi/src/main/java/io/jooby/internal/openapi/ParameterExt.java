@@ -26,6 +26,8 @@ public class ParameterExt extends Parameter {
 
   @JsonIgnore private List<AnnotationNode> annotations = List.of();
 
+  @JsonIgnore private boolean defaultValueSet;
+
   public void setJavaType(String javaType) {
     this.javaType = javaType;
   }
@@ -43,6 +45,10 @@ public class ParameterExt extends Parameter {
     return defaultValue;
   }
 
+  public boolean isDefaultValueSet() {
+    return defaultValueSet;
+  }
+
   @Override
   public void setSchema(Schema schema) {
     super.setSchema(schema);
@@ -58,6 +64,7 @@ public class ParameterExt extends Parameter {
 
   public void setDefaultValue(Object defaultValue) {
     this.defaultValue = defaultValue;
+    this.defaultValueSet = true;
   }
 
   @Override
