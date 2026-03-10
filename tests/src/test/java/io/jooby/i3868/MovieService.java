@@ -38,5 +38,5 @@ public class MovieService {
     return database.stream().filter(m -> m.title().contains(title) && (m.year() == year)).toList();
   }
 
-  public void deleteMovie(@PathParam int id) {}
+  public void deleteMovie(int id) {}
 }

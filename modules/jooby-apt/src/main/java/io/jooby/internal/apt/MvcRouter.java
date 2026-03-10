@@ -305,7 +305,9 @@ public class MvcRouter {
     buffer.append(statement("package ", packageName, semicolon(kt)));
     buffer.append(System.lineSeparator());
 
-    buffer.append(statement("@io.jooby.annotation.Generated(", generateTypeName, clazz(kt), ")"));
+    buffer.append(
+        statement(
+            "@io.jooby.annotation.Generated(", generateTypeName, kt ? "::class" : ".class", ")"));
 
     if (kt) {
       buffer.append(
@@ -328,7 +330,10 @@ public class MvcRouter {
 
       buffer.append(
           statement(
-              indent(2), "constructor(provider: javax.inject.Provider<", generateTypeName, ">) {"));
+              indent(2),
+              "constructor(provider: io.jooby.SneakyThrows.Supplier<",
+              generateTypeName,
+              ">) {"));
       buffer.append(statement(indent(4), "setup { ctx -> provider.get() }"));
       buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
@@ -336,7 +341,7 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(2),
-              "constructor(provider: java.util.function.Function<Class<",
+              "constructor(provider: io.jooby.SneakyThrows.Function<Class<",
               generateTypeName,
               ">, ",
               generateTypeName,
