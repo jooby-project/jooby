@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.jooby</groupId>
   <artifactId>jooby-project</artifactId>
-  <version>4.0.16</version>
+  <version>4.0.17-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>jooby-project</name>
@@ -78,7 +78,7 @@
     <jdbi.version>3.51.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
-    <lettuce.version>7.4.0.RELEASE</lettuce.version>
+    <lettuce.version>7.5.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
     <kafka.version>4.2.0</kafka.version>
     <caffeine.version>3.2.3</caffeine.version>
@@ -107,13 +107,13 @@
 
     <!-- Server -->
     <undertow.version>2.3.23.Final</undertow.version>
-    <jetty.version>12.1.6</jetty.version>
+    <jetty.version>12.1.7</jetty.version>
     <netty.version>4.2.10.Final</netty.version>
     <vertx.version>5.0.8</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.43</swagger.version>
-    <swagger-parser.version>2.1.38</swagger-parser.version>
+    <swagger.version>2.2.45</swagger.version>
+    <swagger-parser.version>2.1.39</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -122,7 +122,7 @@
     <!-- avaje -->
     <avaje.inject.version>12.4</avaje.inject.version>
     <avaje.jsonb.version>3.11</avaje.jsonb.version>
-    <avaje.validator.version>2.16</avaje.validator.version>
+    <avaje.validator.version>2.17</avaje.validator.version>
 
     <!-- jakarta -->
     <jakarta.inject.version>2.0.1.MR</jakarta.inject.version>
@@ -133,7 +133,7 @@
     <!-- Misc -->
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
-    <pac4j.version>6.3.1</pac4j.version>
+    <pac4j.version>6.3.3</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.16.1</bucket4j-core.version>
@@ -174,18 +174,18 @@
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.43</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <maven-core.version>3.9.12</maven-core.version>
+    <maven-core.version>3.9.13</maven-core.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
-    <maven-plugin-api.version>3.9.12</maven-plugin-api.version>
+    <maven-plugin-api.version>3.9.13</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
-    <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
-    <maven-shade-plugin.version>3.6.1</maven-shade-plugin.version>
+    <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
+    <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
@@ -211,7 +211,7 @@
     <maven.compiler.target>21</maven.compiler.target>
     <maven.compiler.release>21</maven.compiler.release>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ssa</maven.build.timestamp.format>
-    <project.build.outputTimestamp>2026-03-02T16:38:34Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2026-03-02T17:42:39Z</project.build.outputTimestamp>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <pre-commit-hook>etc${file.separator}source${file.separator}formatter.sh</pre-commit-hook>
@@ -1481,21 +1481,21 @@
                     <requireJavaVersion>
                       <version>[${maven.compiler.source},)</version>
                     </requireJavaVersion>
-                      <RestrictImports>
-                        <reason>Use edu.umd.cs.findbugs.annotations.*</reason>
-                        <bannedImport>org.jetbrains.annotations.**</bannedImport>
-                      </RestrictImports>
+                    <RestrictImports>
+                      <reason>Use edu.umd.cs.findbugs.annotations.*</reason>
+                      <bannedImport>org.jetbrains.annotations.**</bannedImport>
+                    </RestrictImports>
                     <banDuplicatePomDependencyVersions/>
                   </rules>
                 </configuration>
               </execution>
             </executions>
             <dependencies>
-                <dependency>
-                  <groupId>de.skuzzle.enforcer</groupId>
-                  <artifactId>restrict-imports-enforcer-rule</artifactId>
-                  <version>3.0.0</version>
-                </dependency>
+              <dependency>
+                <groupId>de.skuzzle.enforcer</groupId>
+                <artifactId>restrict-imports-enforcer-rule</artifactId>
+                <version>3.0.0</version>
+              </dependency>
             </dependencies>
           </plugin>
 
@@ -1533,7 +1533,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.2.1</version>
+            <version>3.3.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
