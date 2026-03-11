@@ -8,14 +8,10 @@ package tests.i3864;
 import io.jooby.Context;
 import io.jooby.annotation.JsonRpc;
 
-@JsonRpc("users")
-public class C3864 {
+@JsonRpc("movies")
+public class WithContext {
 
-  public String ping(Context ctx, int year) {
-    return null;
-  }
-
-  public String createUser(Context ctx, String name) {
-    return null;
+  public String rpcMethod1(Context ctx, Integer value) {
+    return "1";
   }
 }

@@ -1008,10 +1008,6 @@ public class MvcRoute {
     return statements;
   }
 
-  private void controllerVar(boolean kt, List<String> buffer) {
-    controllerVar(kt, buffer, 2);
-  }
-
   private void controllerVar(boolean kt, List<String> buffer, int indent) {
     buffer.add(statement(indent(indent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
   }
@@ -1091,7 +1087,7 @@ public class MvcRoute {
   }
 
   public String getJsonRpcMethodName() {
-    var annotation = AnnotationSupport.findAnnotationByName(method, "io.jooby.jsonrpc.JsonRpc");
+    var annotation = AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc");
     if (annotation != null) {
       var val =
           AnnotationSupport.findAnnotationValue(annotation, VALUE).stream().findFirst().orElse("");
