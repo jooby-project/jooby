@@ -11,8 +11,11 @@ import io.jooby.annotation.JsonRpc;
 @JsonRpc("users")
 public class C3864 {
 
-  @JsonRpc
   public String ping(Context ctx, int year) {
+    return null;
+  }
+
+  public String createUser(Context ctx, String name) {
     return null;
   }
 }

@@ -299,22 +299,51 @@ public class JoobyProcessor extends AbstractProcessor {
 
     // Generate unique method name by router
     for (var router : registry.values()) {
-      // Initialize with supports/create method from MvcFactory (avoid name collision)
-      var names = new HashSet<>();
-      for (var route : router.getRoutes()) {
-        if (!names.add(route.getMethodName())) {
+      // Split routes by their target generated classes to avoid false collisions
+      var restAndTrpcRoutes = router.getRoutes().stream().filter(r -> !r.isJsonRpc()).toList();
+
+      var rpcRoutes = router.getRoutes().stream().filter(MvcRoute::isJsonRpc).toList();
+
+      resolveGeneratedNames(restAndTrpcRoutes);
+      resolveGeneratedNames(rpcRoutes);
+    }
+    return registry;
+  }
+
+  private void resolveGeneratedNames(List<MvcRoute> routes) {
+    // Group by the actual target method name in the generated class
+    var grouped =
+        routes.stream()
+            .collect(
+                Collectors.groupingBy(
+                    route -> {
+                      String baseName = route.getMethodName();
+                      return route.isTrpc()
+                          ? "trpc"
+                              + Character.toUpperCase(baseName.charAt(0))
+                              + baseName.substring(1)
+                          : baseName;
+                    }));
+
+    for (var overloads : grouped.values()) {
+      if (overloads.size() == 1) {
+        // No conflict in this specific output file, use the clean original name
+        overloads.get(0).setGeneratedName(overloads.get(0).getMethodName());
+      } else {
+        // Conflict detected: generate names based on parameter types
+        for (var route : overloads) {
           var paramsString =
               route.getRawParameterTypes(true).stream()
                   .map(it -> it.substring(Math.max(0, it.lastIndexOf(".") + 1)))
                   .map(it -> Character.toUpperCase(it.charAt(0)) + it.substring(1))
                   .collect(Collectors.joining());
+
+          // A 0-arg method gets exactly the base name.
+          // Methods with args get the base name + their parameter types.
           route.setGeneratedName(route.getMethodName() + paramsString);
-        } else {
-          route.setGeneratedName(route.getMethodName());
         }
       }
     }
-    return registry;
   }
 
   /**

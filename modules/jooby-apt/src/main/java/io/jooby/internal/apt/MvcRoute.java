@@ -83,6 +83,10 @@ public class MvcRoute {
     return projection.stream().findFirst().orElse(null);
   }
 
+  public boolean isTrpc() {
+    return isTrpc;
+  }
+
   public boolean isProjection() {
     if (returnType.is(Types.PROJECTED)) {
       return false;
