@@ -22,12 +22,22 @@ public class TypeDefinition {
   private final TypeMirror type;
   private final TypeMirror unwrapType;
   private final TypeMirror rawType;
+  private final boolean projection;
 
   public TypeDefinition(Types types, TypeMirror type) {
+    this(types, type, false);
+  }
+
+  public TypeDefinition(Types types, TypeMirror type, boolean projection) {
     this.typeUtils = types;
     this.type = type;
     this.unwrapType = unwrapType(type);
     this.rawType = typeUtils.erasure(unwrapType);
+    this.projection = projection;
+  }
+
+  public boolean isProjection() {
+    return projection;
   }
 
   public String toSourceCode(boolean kt) {

@@ -8,10 +8,8 @@ package io.jooby.grpc;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HexFormat;
-import java.util.concurrent.Flow;
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +22,11 @@ import io.grpc.stub.ClientCalls;
 import io.grpc.stub.ClientResponseObserver;
 import io.grpc.stub.StreamObserver;
 import io.jooby.Context;
+import io.jooby.Route;
 import io.jooby.Sender;
 
-public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte[]>> {
+public class UnifiedGrpcBridge implements Route.Handler {
+
   // Minimal Marshaller to pass raw bytes through the bridge
   private static class RawMarshaller implements MethodDescriptor.Marshaller<byte[]> {
     @Override
@@ -54,26 +54,20 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
   }
 
   @Override
-  public Flow.Subscriber<byte[]> apply(Context context) {
-    return new GrpcRequestBridge(context.getRequestPath(), startCall(context));
-  }
-
-  /**
-   * Unified entry point to start an internal call. Handles Unary, Bidi, and Streaming via a single
-   * StreamObserver interface.
-   */
-  public StreamObserver<byte[]> startCall(Context ctx) {
+  public Object apply(@NonNull Context ctx) {
     // Setup gRPC response headers
     ctx.setResponseType("application/grpc");
 
-    var path =
-        ctx.getRequestPath(); // ctx.path("service").value() + "/" + ctx.path("method").value();
+    // Route paths: /{package.Service}/{Method}
+    String path = ctx.getRequestPath();
+    // Remove the leading slash to match the gRPC method registry format
     var descriptor = methodRegistry.get(path.substring(1));
+
     if (descriptor == null) {
-      terminateWithStatus(
-          ctx,
-          Status.UNIMPLEMENTED.withDescription("Method not found in bridge registry: " + path));
-      return null;
+      log.warn("Method not found in bridge registry: {}", path);
+      ctx.setResponseTrailer("grpc-status", String.valueOf(Status.UNIMPLEMENTED.getCode().value()));
+      ctx.setResponseTrailer("grpc-message", "Method not found");
+      return ctx.send("");
     }
 
     var method =
@@ -84,18 +78,25 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
             .setResponseMarshaller(new RawMarshaller())
             .build();
 
-    // 2. Prepare Call Options (Propagation of timeouts/metadata could happen here)
-    CallOptions callOptions = CallOptions.DEFAULT;
-    ClientCall<byte[], byte[]> call = channel.newCall(method, callOptions);
+    // 1. Propagate Call Options (Deadlines)
+    CallOptions callOptions = extractCallOptions(ctx);
 
-    ClientResponseObserver<byte[], byte[]> responseObserver;
-    log.info("method type: {}", method.getType());
-    var sender = ctx.responseSender(false);
-    // Atomic guard to prevent multiple terminal calls
-    var isFinished = new AtomicBoolean(false);
-    sender.setTrailer("grpc-status", "0");
-    // 3. Unified Response Observer (Handles data coming BACK from the server)
-    responseObserver =
+    // 2. Propagate HTTP Headers to gRPC Metadata
+    Metadata metadata = extractMetadata(ctx);
+
+    // Attach the metadata to the channel using an interceptor
+    io.grpc.Channel interceptedChannel =
+        io.grpc.ClientInterceptors.intercept(
+            channel, io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(metadata));
+
+    // Create the call using the intercepted channel and the configured options
+    ClientCall<byte[], byte[]> call = interceptedChannel.newCall(method, callOptions);
+
+    Sender sender = ctx.responseSender(false);
+    AtomicBoolean isFinished = new AtomicBoolean(false);
+
+    // Unified Response Observer (Handles data coming BACK from the server)
+    ClientResponseObserver<byte[], byte[]> responseObserver =
         new ClientResponseObserver<>() {
           @Override
           public void beforeStart(ClientCallStreamObserver<byte[]> requestStream) {
@@ -105,9 +106,6 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
           @Override
           public void onNext(byte[] value) {
             if (isFinished.get()) return;
-            log.info("onNext Send {}", HexFormat.of().formatHex(value));
-
-            // Professional Framing: 5-byte header + payload
 
             byte[] framed = addGrpcHeader(value);
             sender.write(
@@ -115,7 +113,6 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
                 new Sender.Callback() {
                   @Override
                   public void onComplete(@NonNull Context ctx, @Nullable Throwable cause) {
-                    log.info("onNext Sent {}", ctx);
                     if (cause != null) {
                       onError(cause);
                     }
@@ -126,41 +123,112 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
           @Override
           public void onError(Throwable t) {
             if (isFinished.compareAndSet(false, true)) {
-              log.info(" error", t);
-              terminateWithStatus(sender, Status.fromThrowable(t));
+              log.debug("gRPC stream error", t);
+              Status status = Status.fromThrowable(t);
+              sender.setTrailer("grpc-status", String.valueOf(status.getCode().value()));
+              if (status.getDescription() != null) {
+                sender.setTrailer("grpc-message", status.getDescription());
+              }
+              sender.close();
             }
           }
 
           @Override
           public void onCompleted() {
             if (isFinished.compareAndSet(false, true)) {
-              log.info("onCompleted");
-              terminateWithStatus(sender, Status.OK);
+              sender.setTrailer("grpc-status", "0");
+              sender.close();
             }
           }
         };
 
-    // 4. Map gRPC Method Type to the correct ClientCalls utility
-    return switch (method.getType()) {
-      case UNARY -> wrapUnary(call, responseObserver);
-      case BIDI_STREAMING, CLIENT_STREAMING ->
-          ClientCalls.asyncBidiStreamingCall(call, responseObserver);
-      case SERVER_STREAMING -> wrapServerStreaming(call, responseObserver);
-      default -> {
-        terminateWithStatus(ctx, Status.INTERNAL.withDescription("Unsupported method type"));
-        yield null;
+    // Map gRPC Method Type to the correct ClientCalls utility
+    StreamObserver<byte[]> requestObserver =
+        switch (method.getType()) {
+          case UNARY -> ClientCalls.asyncBidiStreamingCall(call, responseObserver);
+          case BIDI_STREAMING, CLIENT_STREAMING ->
+              ClientCalls.asyncBidiStreamingCall(call, responseObserver);
+          case SERVER_STREAMING -> wrapServerStreaming(call, responseObserver);
+          default -> null;
+        };
+
+    if (requestObserver == null) {
+      ctx.setResponseTrailer("grpc-status", String.valueOf(Status.INTERNAL.getCode().value()));
+      ctx.setResponseTrailer("grpc-message", "Unsupported method type");
+      return ctx.send("");
+    }
+
+    // Return the reactive subscriber to let Jooby pipe the request stream into it
+    return new GrpcRequestBridge(requestObserver);
+  }
+
+  /**
+   * Extracts the grpc-timeout header and applies it to CallOptions. gRPC timeout format:
+   * {TimeoutValue}{TimeoutUnit} (e.g., 100m = 100 milliseconds, 10S = 10 seconds).
+   */
+  private CallOptions extractCallOptions(Context ctx) {
+    CallOptions options = CallOptions.DEFAULT;
+    String timeout = ctx.header("grpc-timeout").valueOrNull();
+
+    if (timeout == null || timeout.isEmpty()) {
+      return options;
+    }
+
+    try {
+      char unit = timeout.charAt(timeout.length() - 1);
+      long value = Long.parseLong(timeout.substring(0, timeout.length() - 1));
+
+      java.util.concurrent.TimeUnit timeUnit =
+          switch (unit) {
+            case 'H' -> java.util.concurrent.TimeUnit.HOURS;
+            case 'M' -> java.util.concurrent.TimeUnit.MINUTES;
+            case 'S' -> java.util.concurrent.TimeUnit.SECONDS;
+            case 'm' -> java.util.concurrent.TimeUnit.MILLISECONDS;
+            case 'u' -> java.util.concurrent.TimeUnit.MICROSECONDS;
+            case 'n' -> java.util.concurrent.TimeUnit.NANOSECONDS;
+            default -> null;
+          };
+
+      if (timeUnit != null) {
+        options = options.withDeadlineAfter(value, timeUnit);
       }
-    };
+    } catch (Exception e) {
+      log.debug("Failed to parse grpc-timeout header: {}", timeout);
+    }
+
+    return options;
   }
 
-  private boolean isReflectionPath(String path) {
-    return path.contains("ServerReflectionInfo");
-  }
+  /**
+   * Maps standard HTTP headers from Jooby into gRPC Metadata. Skips HTTP/2 pseudo-headers and gRPC
+   * internal headers.
+   */
+  private Metadata extractMetadata(Context ctx) {
+    Metadata metadata = new Metadata();
 
-  private StreamObserver<byte[]> wrapUnary(
-      ClientCall<byte[], byte[]> call, StreamObserver<byte[]> responseObserver) {
-    // Unary expects a single message. We use the Bidi utility but logic ensures 1:1.
-    return ClientCalls.asyncBidiStreamingCall(call, responseObserver);
+    for (java.util.Map.Entry<String, String> header : ctx.headerMap().entrySet()) {
+      String key = header.getKey().toLowerCase();
+
+      // Ignore internal HTTP/2 and gRPC headers
+      if (key.startsWith(":")
+          || key.startsWith("grpc-")
+          || key.equals("content-type")
+          || key.equals("te")) {
+        continue;
+      }
+
+      // If binary header (ends with -bin), gRPC requires base64 decoding.
+      // Standard string headers are passed directly.
+      if (key.endsWith("-bin")) {
+        Metadata.Key<byte[]> metaKey = Metadata.Key.of(key, Metadata.BINARY_BYTE_MARSHALLER);
+        byte[] decoded = java.util.Base64.getDecoder().decode(header.getValue());
+        metadata.put(metaKey, decoded);
+      } else {
+        Metadata.Key<String> metaKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
+        metadata.put(metaKey, header.getValue());
+      }
+    }
+    return metadata;
   }
 
   private StreamObserver<byte[]> wrapServerStreaming(
@@ -189,34 +257,21 @@ public class UnifiedGrpcBridge implements Function<Context, Flow.Subscriber<byte
     };
   }
 
-  private void terminateWithStatus(Sender ctx, Status status) {
-    ctx.setTrailer("grpc-status", String.valueOf(status.getCode().value()));
-    if (status.getDescription() != null) {
-      ctx.setTrailer("grpc-message", status.getDescription());
-    }
-    ctx.close();
-  }
-
   /**
-   * Professional Status Termination. Sets gRPC trailers and closes the Jetty response correctly.
+   * Prepends the 5-byte gRPC header to the payload using a ByteBuffer.
+   *
+   * @param payload The raw binary message from the internal gRPC service.
+   * @return A new byte array containing [Flag][Length][Payload].
    */
-  private void terminateWithStatus(Context ctx, Status status) {
-    ctx.setResponseTrailer("grpc-status", String.valueOf(status.getCode().value()));
-    if (status.getDescription() != null) {
-      ctx.setResponseTrailer("grpc-message", status.getDescription());
-    }
-    ctx.send("");
-  }
-
   private byte[] addGrpcHeader(byte[] payload) {
-    int len = payload.length;
-    byte[] framed = new byte[5 + len];
-    framed[0] = 0; // Uncompressed
-    framed[1] = (byte) (len >> 24);
-    framed[2] = (byte) (len >> 16);
-    framed[3] = (byte) (len >> 8);
-    framed[4] = (byte) len;
-    System.arraycopy(payload, 0, framed, 5, len);
-    return framed;
+    ByteBuffer buffer = ByteBuffer.allocate(5 + payload.length);
+    // 1. Compression Flag (0 = none)
+    buffer.put((byte) 0);
+    // 2. Encode Length as 4-byte Big Endian integer
+    buffer.putInt(payload.length);
+    // 3. Copy the actual payload
+    buffer.put(payload);
+
+    return buffer.array();
   }
 }

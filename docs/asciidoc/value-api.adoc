@@ -1,18 +1,17 @@
-=== Value API
+==== Value API
 
-The javadoc:value.Value[Value] is an unified and type-safe API across all parameter types:
+The javadoc:value.Value[Value] is a unified, type-safe API for accessing all parameter types:
 
-- Header
-- Path
-- Query
-- Formdata/Multipart
+* Header
+* Path
+* Query
+* Formdata/Multipart
 
-For learning purpose we are going to show all the javadoc:value.Value[Value] features using query
-parameters, but keep in mind these features apply to all the parameter types.
+For learning purposes, we will demonstrate the javadoc:value.Value[Value] features using query parameters, but keep in mind that these features apply to all parameter types.
 
-==== Single value
+===== Single value
 
-Single value is available via `value()` or `[type]Value()` functions: 
+Single values are retrieved via the `value()` or `[type]Value()` functions:
 
 .Java
 [source, java, role="primary"]
@@ -20,13 +19,10 @@ Single value is available via `value()` or `[type]Value()` functions:
 {
   get("/", ctx -> {
     String name = ctx.query("name").value();                          // <1>
-
     float score = ctx.query("score").floatValue();                    // <2>
-
     boolean enabled = ctx.query("enabled").booleanValue();            // <3>
-    
     BigDecimal decimal = ctx.query("decimal").value(BigDecimal::new); // <4>
-    ...
+    // ...
   });
 }
 ----
@@ -37,62 +33,47 @@ Single value is available via `value()` or `[type]Value()` functions:
 {
   get("/") {
     val name = ctx.query("name").value()                     // <1>
-
     val score = ctx.query("score").floatValue()              // <2>
-
     val enabled = ctx.query("enabled").booleanValue()        // <3>
-    
     val decimal = ctx.query("decimal").value(::BigDecimal)   // <4>
-    ...
-  });
+    // ...
+  }
 }
 ----
 
-The `value()` family methods always retrieve a `value`. If there is no value, a
-`BadRequest(400)` response is generated. So single value parameters *are required*: 
+The `value()` family of methods **always** expects a value to exist. If the value is missing or cannot be converted to the requested type, a `400 Bad Request` response is generated. Therefore, single-value parameters are implicitly **required**:
 
-<1> Access to query parameter `q` and convert to `String`:
+<1> Access parameter `name` as `String`:
+* `/?name=foo` => `foo`
+* `/` => `Bad Request(400): Missing value: "name"`
 
-- `/?name=foo` => `foo`
-- `/`          => `Bad Request(400): Missing value: "q"`
+<2> Access parameter `score` as `float`:
+* `/?score=1` => `1.0`
+* `/?score=string` => `Bad Request(400)` (Type mismatch)
+* `/` => `Bad Request(400)`
 
-<2> Access to query parameter `score` and convert to `float`:
+<3> Access parameter `enabled` as `boolean`:
+* `/?enabled=true` => `true`
+* `/?enabled=string` => `Bad Request(400)`
+* `/` => `Bad Request(400)`
 
-- `/?score=1`      => `1.0`
-- `/?score=string` => `Bad Request(400)` (Type mismatch: cannot convert to number)
-- `/`              => `Bad Request(400)` (Required parameter `score` is not present)
+<4> Access parameter `decimal` and convert it to a custom type (`BigDecimal`):
+* `/?decimal=2.3` => `2.3`
+* `/?decimal=string` => `Bad Request(400)`
+* `/` => `Bad Request(400)`
 
-<3> Access to query parameter `enabled` and convert to `boolean`:
+===== Default and Optional value
 
-- `/?enabled=true`   => `true`
-- `/?enabled=string` => `Bad Request(400)` (Type mismatch: cannot convert to boolean)
-- `/`                => `Bad Request(400): Missing value: "enabled"`
-
-<4> Access to query parameter `decimal` and convert to `BigDecimal`:
-
-- `/?decimal=2.3`    => `2.3`
-- `/?decimal=string` => `Bad Request(400)` (Type mismatch: cannot convert to BigDecimal)
-- `/`                => `Bad Request(400): Missing value: "decimal"`
-
-==== Default and Optional value
-
-Default and optional value are available in two different ways:
-
-- Providing a default value
-- Requesting an `java.util.Optional` object
+You can handle optional parameters by providing a default value or requesting an `Optional` object:
 
 .Java
 [source, java,role="primary"]
 ----
 {
   get("/search", ctx -> {
-    String q = ctx.query("q").value("*:*");             // <1>
-    return q;
-  });
-
-  get("/search", ctx -> {
-    Optional<String> q = ctx.query("q").toOptional();   // <2>
-    return q;
+    String q1 = ctx.query("q").value("*:*");           // <1>
+    Optional<String> q2 = ctx.query("q").toOptional(); // <2>
+    return q1;
   });
 }
 ----
@@ -102,46 +83,37 @@ Default and optional value are available in two different ways:
 ----
 {
   get("/search") {
-    val q = ctx.query("q").value("*:*")    // <1>
-    q
-  });
-
-  get("/search") {
-    val q = ctx.query("q").toOptional();   // <2>
-    q
-  });
+    val q1 = ctx.query("q").value("*:*")     // <1>
+    val q2 = ctx.query("q").toOptional()     // <2>
+    q1
+  }
 }
 ----
 
-<1> Access to query variable `q` and convert to `String` with a default value of `*:*`.
+<1> Retrieve variable `q` as a `String` with a fallback default value of `*:*`.
+* `/search?q=foo` => `foo`
+* `/search` => `*:*`
 
-- `/search?q=foo` => `foo`
-- `/search`       => `*:*`
+<2> Retrieve variable `q` wrapped in an `Optional<String>`:
+* `/search?q=foo` => `Optional[foo]`
+* `/search` => `Optional.empty`
 
-<2> Access to query variable `q` and convert to `Optional<String>`:
+===== Multiple values
 
-- `/search?q=foo` => `Optional[foo]`
-- `/search`       => `Optional.empty`
+Multiple values for a single parameter key can be retrieved as Collections:
 
-==== Multiple values
-
-Multiple values are available via functions:
-
-- javadoc:value.Value[toList]: Returns a `java.util.List` of values
-- javadoc:value.Value[toSet]: Returns a `java.util.Set` of values
+* javadoc:value.Value[toList]: Returns a `java.util.List`
+* javadoc:value.Value[toSet]: Returns a `java.util.Set`
 
 .Java
 [source, java,role="primary"]
 ----
 {
   get("/", ctx -> {
-    List<String> q = ctx.query("q").toList();                            // <1>
-
-    List<Integer> n = ctx.query("n").toList(Integer.class);              // <2>
-
-    List<BigDecimal> decimals = ctx.query("d").toList(BigDecimal::new);  // <3>
-
-    ...
+    List<String> q = ctx.query("q").toList();                           // <1>
+    List<Integer> n = ctx.query("n").toList(Integer.class);             // <2>
+    List<BigDecimal> d = ctx.query("d").toList(BigDecimal::new);        // <3>
+    // ...
   });
 }
 ----
@@ -152,41 +124,31 @@ Multiple values are available via functions:
 {
   get("/") {
     val q = ctx.query("q").toList()                     // <1>
-
-    val n = ctx.query("n").toList(Integer.class)        // <2>
-
-    val decimals = ctx.query("d").toList(::BigDecimal)  // <3>
-
-    ...
-  });
+    val n = ctx.query("n").toList(Integer::class.java)  // <2>
+    val d = ctx.query("d").toList(::BigDecimal)         // <3>
+    // ...
+  }
 }
 ----
 
-<1> Multi-value query parameter `q` as `List<String>`:
+<1> Parameter `q` as `List<String>`:
+* `/` => `[]`
+* `/?q=foo` => `[foo]`
+* `/?q=foo&q=bar` => `[foo, bar]`
 
-- `/`             => `[]` (empty list)
-- `/?q=foo`       => `[foo]`
-- `/?q=foo&q=bar` => `[foo, bar]`
+<2> Parameter `n` as `List<Integer>`:
+* `/` => `[]`
+* `/?n=1&n=2` => `[1, 2]`
 
-<2> Multi-value query parameter as `List<Integer>`
+<3> Parameter `d` mapped to `List<BigDecimal>`:
+* `/` => `[]`
+* `/?d=1.5&d=2.0` => `[1.5, 2.0]`
 
-- `/`         => `[]` (empty list)
-- `/?n=1`     => `[1]`
-- `/?n=1&n=2` => `[1, 2]`
+===== Structured data
 
-<3> Multi-value query parameter as `List<BigDecimal>`
+The javadoc:value.Value[Value API] allows you to traverse and parse deeply nested structured data from a request.
 
-- `/`         => `[]` (empty list)
-- `/?d=1`     => `[1]`
-- `/?d=1&n=2` => `[1, 2]`
-
-==== Structured data
-
-The javadoc:value.Value[Value API] provides a way to traverse and parse structured data:
-
-----
-/?user.name=root&user.pass=pass
-----
+Given the query: `/?user.name=root&user.pass=pass`
 
 .Traversal
 [source, java, role="primary"]
@@ -197,8 +159,8 @@ The javadoc:value.Value[Value API] provides a way to traverse and parse structur
     String name  = user.get("name").value();         // <2>
     String pass  = user.get("pass").value();         // <3>
     String email = user.get("email").value("none");  // <4>
-    ...
-  }}
+    // ...
+  });
 }
 ----
 
@@ -211,22 +173,21 @@ The javadoc:value.Value[Value API] provides a way to traverse and parse structur
     val name  = user["name"].value()          // <2>
     val pass  = user["pass"].value()          // <3>
     val email = user["email"].value("none")   // <4>
-    ...
-  }}
+    // ...
+  }
 }
 ----
 
-<1> Get the `user` node
-<2> Get the `name` value from `user` node
-<3> Get the `pass` value from `user` node
-<4> Get the `mail` value from `user` node. This is an optional value.
+<1> Retrieves the `user` node.
+<2> Extracts `name` from the `user` node.
+<3> Extracts `pass` from the `user` node.
+<4> Safely extracts `email` with a fallback default.
 
-The javadoc:value.Value[get, java.lang.String] takes a `path` and returns another value. The returning
-value may or may not exists.
+The javadoc:value.Value[get, java.lang.String] method takes a `path` and returns a nested `Value` node, which may or may not exist.
 
-===== Syntax
+====== Syntax
 
-Structured data decoder supports `dot` and `bracket` notation:
+The structured data decoder supports both `dot` and `bracket` notation:
 
 .Dot notation
 ----
@@ -243,22 +204,20 @@ Structured data decoder supports `dot` and `bracket` notation:
 ?members[0]firstname=Pedro&members[0]lastname=Picapiedra
 ----
 
-===== POJO
+====== POJO Binding
 
-Structured data decoder is able to reconstruct a POJO (Plain Old Java Object) from:
+The data decoder can automatically reconstruct POJOs (Plain Old Java Objects) from:
 
-- <<context-parameters-query, Query>> encoded as https://tools.ietf.org/html/rfc3986#section-2[RFC 3986]
-- <<context-parameters-formdata, Formdata>> encoded as `application/x-www-form-urlencoded`
-- <<context-parameters-multipart, Multipart>> encoded as `multipart/form-data`
+* URL-encoded Queries
+* `application/x-www-form-urlencoded` Form data
+* `multipart/form-data` Forms
 
-We are going to use a `Group` and `Member` objects to demonstrate how the decoder works:
-
-.Example
+.Example Models
 [source, java, role="primary"]
 ----
 class Member {
   public final String firstname;
-  public final String lastName;
+  public final String lastname;
 
   public Member(String firstname, String lastname) {
     this.firstname = firstname;
@@ -270,7 +229,7 @@ class Group {
   public final String id;
   public final List<Member> members;
 
-  public Member(String id, List<Member> members) {
+  public Group(String id, List<Member> members) {
     this.id = id;
     this.members = members;
   }
@@ -280,15 +239,13 @@ class Group {
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
-class Member (val firstname: String, lastName: String)
+class Member(val firstname: String, val lastname: String)
 
-class Group (val id: String, val members: List<Member>)
+class Group(val id: String, val members: List<Member>)
 ----
 
-.Member parsing example:
-----
-/?firstname=Pedro&lastName=Picapiedra
-----
+**Binding a single Member:**
+`/?firstname=Pedro&lastname=Picapiedra`
 
 .Java
 [source, java,role="primary"]
@@ -296,7 +253,7 @@ class Group (val id: String, val members: List<Member>)
 {
   get("/", ctx -> {
     Member member = ctx.query(Member.class);
-    ...
+    // ...
   });
 }
 ----
@@ -307,15 +264,13 @@ class Group (val id: String, val members: List<Member>)
 {
   get("/") {
     val member = ctx.query<Member>()
-    ...
+    // ...
   }
 }
 ----
 
-.Member parsing example from base node:
-----
-/?member.firstname=Pedro&member.lastName=Picapiedra
-----
+**Binding a nested Member from a root node:**
+`/?member.firstname=Pedro&member.lastname=Picapiedra`
 
 .Java
 [source, java,role="primary"]
@@ -323,7 +278,7 @@ class Group (val id: String, val members: List<Member>)
 {
   get("/", ctx -> {
     Member member = ctx.query("member").to(Member.class);
-    ...
+    // ...
   });
 }
 ----
@@ -334,17 +289,13 @@ class Group (val id: String, val members: List<Member>)
 {
   get("/") {
     val member = ctx.query("member").to<Member>()
-    ...
-  });
+    // ...
+  }
 }
 ----
 
-Tabular data uses the bracket array notation:
-
-.Member as tabular data:
-----
-/?[0]firstname=Pedro&[0]lastName=Picapiedra&[1]firstname=Pablo&[2]lastname=Marmol
-----
+**Binding tabular/array data:**
+`/?[0]firstname=Pedro&[0]lastname=Picapiedra&[1]firstname=Pablo&[1]lastname=Marmol`
 
 .Java
 [source, java,role="primary"]
@@ -352,7 +303,7 @@ Tabular data uses the bracket array notation:
 {
   get("/", ctx -> {
     List<Member> members = ctx.query().toList(Member.class);
-    ...
+    // ...
   });
 }
 ----
@@ -363,15 +314,13 @@ Tabular data uses the bracket array notation:
 {
   get("/") {
     val members = ctx.query<List<Member>>()
-    ...
-  });
+    // ...
+  }
 }
 ----
 
-.Group with members as tabular data:
-----
-/?id=flintstones&members[0]firstname=Pedro&members[0]lastName=Picapiedra
-----
+**Binding complex nested hierarchies:**
+`/?id=flintstones&members[0]firstname=Pedro&members[0]lastname=Picapiedra`
 
 .Java
 [source, java,role="primary"]
@@ -379,7 +328,7 @@ Tabular data uses the bracket array notation:
 {
   get("/", ctx -> {
     Group group = ctx.query(Group.class);
-    ...
+    // ...
   });
 }
 ----
@@ -390,34 +339,34 @@ Tabular data uses the bracket array notation:
 {
   get("/") {
     val group = ctx.query<Group>()
-    ...
-  });
+    // ...
+  }
 }
 ----
 
-The target `POJO` must follow one of these rules:
+**POJO Binding Rules:**
+The target POJO must follow one of these rules:
 
-- Has a zero argguments/default constructor, or
-- Has only one constructor
-- Has multiple constructors, but only one is annotated with https://javadoc.io/doc/jakarta.inject/jakarta.inject-api/2.0.1/jakarta.inject/jakarta/inject/Inject.html[Inject]
+* Have a zero-argument (default) constructor.
+* Have exactly one constructor.
+* Have multiple constructors, but only one is annotated with `@Inject`.
 
-The decoder matches HTTP parameters in the following order:
+The decoder maps HTTP parameters in the following order:
+1. Constructor arguments
+2. Setter methods
 
-- As constructor arguments
-- As setter method
-
-HTTP parameter name which are not a valid Java identifier must be annotated with https://javadoc.io/doc/jakarta.inject/jakarta.inject-api/2.0.1/jakarta.inject/jakarta/inject/Named.html[Named]:
+If an HTTP parameter name is not a valid Java identifier (e.g., `first-name`), you must map it using the `@Named` annotation:
 
 .Java
 [source, java,role="primary"]
 ----
 class Member {
   public final String firstname;
-  
   public final String lastname;
   
   public Member(@Named("first-name") String firstname, @Named("last-name") String lastname) {
-    ....
+    this.firstname = firstname;
+    this.lastname = lastname;
   }
 }
 ----
@@ -425,14 +374,15 @@ class Member {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-class Member (@Named("first-name") val firstname: String, @Named("last-name") val lastName: String)
+class Member(@Named("first-name") val firstname: String, @Named("last-name") val lastname: String)
 ----
 
-==== Value Factory
+===== Value Factory
 
-The javadoc:value.ValueFactory[] class allow you to register new types for conversion (or even override).
+The javadoc:value.ValueFactory[] allows you to register new type conversions or override existing ones globally.
 
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 {
     var valueFactory = getValueFactory();
@@ -442,8 +392,27 @@ The javadoc:value.ValueFactory[] class allow you to register new types for conve
 import io.jooby.value.ValueConverter;
   
 class MyBeanConverter implements ValueConverter {
+  @Override
   public Object convert(Type type, Value node, ConversionHint hint) {
-    // convert node to MyBean.class
+    // Logic to convert the 'node' into MyBean.class
+    return new MyBean();
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+{
+    valueFactory.put(MyBean::class.java, MyBeanConverter())
+}
+
+import io.jooby.value.ValueConverter
+  
+class MyBeanConverter : ValueConverter {
+  override fun convert(type: Type, node: Value, hint: ConversionHint): Any {
+    // Logic to convert the 'node' into MyBean::class.java
+    return MyBean()
   }
 }
 ----

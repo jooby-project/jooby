@@ -1,6 +1,6 @@
-== Handlers
+=== Built-in Handlers
 
-This section describes some built-in handler provided by Jooby.
+This section describes some built-in handlers provided by Jooby.
 
 include::handlers/access-log.adoc[]
 

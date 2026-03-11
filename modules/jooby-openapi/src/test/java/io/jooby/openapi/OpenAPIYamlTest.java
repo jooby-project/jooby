@@ -161,21 +161,7 @@ public class OpenAPIYamlTest {
             + "          type: integer\n"
             + "          format: int64\n"
             + "        name:\n"
-            + "          type: string\n"
-            + "    PetQuery:\n"
-            + "      type: object\n"
-            + "      properties:\n"
-            + "        id:\n"
-            + "          type: integer\n"
-            + "          format: int64\n"
-            + "        name:\n"
-            + "          type: string\n"
-            + "        start:\n"
-            + "          type: integer\n"
-            + "          format: int32\n"
-            + "        max:\n"
-            + "          type: integer\n"
-            + "          format: int32\n",
+            + "          type: string\n",
         result.toYaml());
   }
 
@@ -326,21 +312,7 @@ public class OpenAPIYamlTest {
             + "          type: integer\n"
             + "          format: int64\n"
             + "        name:\n"
-            + "          type: string\n"
-            + "    PetQuery:\n"
-            + "      type: object\n"
-            + "      properties:\n"
-            + "        id:\n"
-            + "          type: integer\n"
-            + "          format: int64\n"
-            + "        name:\n"
-            + "          type: string\n"
-            + "        start:\n"
-            + "          type: integer\n"
-            + "          format: int32\n"
-            + "        max:\n"
-            + "          type: integer\n"
-            + "          format: int32\n",
+            + "          type: string\n",
         result.toYaml());
   }
 

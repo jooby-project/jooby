@@ -127,6 +127,10 @@ public class MvcContext {
     return entry != null;
   }
 
+  public ReactiveType getReactiveType(TypeMirror type) {
+    return findMappingHandler(type);
+  }
+
   private ReactiveType findMappingHandler(TypeMirror type) {
     for (var e : reactiveTypeMap.entrySet()) {
       var that = e.getKey();

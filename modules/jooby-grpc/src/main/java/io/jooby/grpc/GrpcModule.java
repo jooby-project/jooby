@@ -6,13 +6,15 @@
 package io.jooby.grpc;
 
 import java.util.List;
-import java.util.function.Function;
 
-import io.grpc.*;
+import edu.umd.cs.findbugs.annotations.NonNull;
+import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
-import io.jooby.*;
+import io.grpc.protobuf.services.ProtoReflectionServiceV1;
+import io.jooby.Extension;
+import io.jooby.Jooby;
 
 public class GrpcModule implements Extension {
   private final List<BindableService> services;
@@ -25,25 +27,28 @@ public class GrpcModule implements Extension {
   }
 
   @Override
-  public void install(Jooby app) throws Exception {
-    // 1. Start an In-Process gRPC Server (Memory only)
+  public void install(@NonNull Jooby app) throws Exception {
     var builder = InProcessServerBuilder.forName(serverName).directExecutor();
+
+    // 1. Register user-provided services
     for (BindableService service : services) {
       builder.addService(service);
       methodRegistry.registerService(service);
     }
 
+    // 2. Register stable gRPC Server Reflection (v1)
+    BindableService reflectionService = ProtoReflectionServiceV1.newInstance();
+    builder.addService(reflectionService);
+    methodRegistry.registerService(reflectionService);
+
     this.grpcServer = builder.build().start();
 
-    // 2. Create the Channel to talk to it
     var channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
 
-    var handler = new UnifiedGrpcBridge(channel, methodRegistry);
-    app.getServices().put(ServiceKey.key(Function.class, "gRPC"), handler);
-    // 3. Register the bridge route
-    // gRPC paths are always /{package.Service}/{Method}
-    // app.post("/{service}/{method}", ReactiveSupport.concurrent(new GrpcHandler(channel,
-    // methodRegistry)));
+    UnifiedGrpcBridge bridge = new UnifiedGrpcBridge(channel, methodRegistry);
+
+    // Mount the bridge.
+    app.post("/*", bridge);
 
     app.onStop(
         () -> {

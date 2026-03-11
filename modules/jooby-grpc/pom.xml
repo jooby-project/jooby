@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-grpc</artifactId>
   <name>jooby-grpc</name>
@@ -31,6 +31,11 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-inprocess</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-services</artifactId>
       <version>${grpc.version}</version>
     </dependency>
 

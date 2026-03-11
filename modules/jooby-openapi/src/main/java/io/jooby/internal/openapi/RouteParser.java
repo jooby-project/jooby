@@ -195,7 +195,9 @@ public class RouteParser {
         Optional.ofNullable(ctx.schema(javaType))
             .ifPresent(
                 schema -> {
-                  schema.setDefault(paramExt.getDefaultValue());
+                  if (paramExt.isDefaultValueSet()) {
+                    schema.setDefault(paramExt.getDefaultValue());
+                  }
                   parameter.setSchema(schema);
                 });
       }
@@ -271,7 +273,7 @@ public class RouteParser {
       return "";
     }
     return Stream.of(pattern.split("\\W+"))
-        .filter(s -> s.length() > 0)
+        .filter(s -> !s.isEmpty())
         .map(
             segment ->
                 Character.toUpperCase(segment.charAt(0))

@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>tests</artifactId>
   <name>tests</name>
@@ -34,6 +34,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-jackson</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jackson3</artifactId>
       <version>${jooby.version}</version>
     </dependency>
     <dependency>
@@ -225,7 +230,12 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>com.jayway.jsonpath</groupId>
+      <artifactId>json-path</artifactId>
+      <version>3.0.0</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
@@ -235,7 +245,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-pg-client</artifactId>
-      <version>5.0.7</version>
+      <version>5.0.8</version>
     </dependency>
 
     <dependency>
@@ -267,13 +277,13 @@
     <dependency>
       <groupId>org.asynchttpclient</groupId>
       <artifactId>async-http-client</artifactId>
-      <version>3.0.6</version>
+      <version>3.0.7</version>
     </dependency>
 
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.20.0</version>
+      <version>1.21.0</version>
     </dependency>
 
     <dependency>
@@ -366,6 +376,11 @@
                     <groupId>io.avaje</groupId>
                     <artifactId>avaje-validator-generator</artifactId>
                     <version>${avaje.validator.version}</version>
+                </annotationProcessorPath>
+                <annotationProcessorPath>
+                  <groupId>io.avaje</groupId>
+                  <artifactId>avaje-jsonb-generator</artifactId>
+                  <version>${avaje.jsonb.version}</version>
                 </annotationProcessorPath>
                 <annotationProcessorPath>
                   <groupId>org.openjdk.jmh</groupId>

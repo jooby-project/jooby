@@ -11,31 +11,34 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
-import io.jooby.StatusCode;
+import io.jooby.*;
+import io.jooby.internal.jackson.*;
+import io.jooby.jsonrpc.JsonRpcErrorCode;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 
 /**
- * JSON module using Jackson: https://jooby.io/modules/jackson.
+ * JSON module using Jackson: https://jooby.io/modules/jackson2.
  *
  * <p>Usage:
  *
@@ -72,12 +75,20 @@ import io.jooby.output.Output;
  * }
  * }</pre>
  *
- * Complete documentation is available at: https://jooby.io/modules/jackson.
+ * Complete documentation is available at: https://jooby.io/modules/jackson2.
  *
  * @author edgar
  * @since 2.0.0
  */
 public class JacksonModule implements Extension, MessageDecoder, MessageEncoder {
+  public static final String FILTER_ID = "jooby.projection";
+
+  // Cache for ObjectWriters tied to specific projection strings
+  private final Map<String, ObjectWriter> writerCache = new ConcurrentHashMap<>();
+
+  @JsonFilter(FILTER_ID)
+  private interface ProjectionMixIn {}
+
   private final MediaType mediaType;
 
   private final ObjectMapper mapper;
@@ -142,6 +153,25 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
+    application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
+
+    // tRPC
+    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
+
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
+    services
+        .mapOf(Class.class, JsonRpcErrorCode.class)
+        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
+        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
+
+    // Filter
+    var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
+    mapper.addMixIn(Object.class, ProjectionMixIn.class);
+    mapper.setFilterProvider(defaultProvider);
+    var projectionModule = new SimpleModule();
+    projectionModule.addSerializer(Projected.class, new JacksonProjectedSerializer(mapper));
+    mapper.registerModule(projectionModule);
 
     application.onStarting(
         () -> {
@@ -156,6 +186,19 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
   public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
+    if (value instanceof Projected<?> projected) {
+      var p = projected.getProjection();
+      var writer =
+          writerCache.computeIfAbsent(
+              p.getType().getName() + p.toView(),
+              k -> {
+                // Use a specialized ObjectWriter with our custom path filter
+                var filters =
+                    new SimpleFilterProvider().addFilter(FILTER_ID, new JacksonProjectionFilter(p));
+                return mapper.writer(filters);
+              });
+      return factory.wrap(writer.writeValueAsBytes(projected.getValue()));
+    }
     // let jackson uses his own cache, so wrap the bytes
     return factory.wrap(mapper.writeValueAsBytes(value));
   }
@@ -185,7 +228,7 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static @NonNull ObjectMapper create(Module... modules) {
+  public static ObjectMapper create(Module... modules) {
     JsonMapper.Builder builder =
         JsonMapper.builder()
             .addModule(new ParameterNamesModule())
@@ -193,6 +236,12 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
             .addModule(new JavaTimeModule());
 
     Stream.of(modules).forEach(builder::addModule);
+    // RPC
+    var rpc = new SimpleModule();
+    rpc.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
+    rpc.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
+    rpc.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
+    builder.addModule(rpc);
 
     return builder.build();
   }

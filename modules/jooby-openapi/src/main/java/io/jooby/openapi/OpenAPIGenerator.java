@@ -23,11 +23,9 @@ import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
 import io.jooby.internal.openapi.javadoc.JavaDocParser;
+import io.jooby.internal.openapi.projection.ProjectionParser;
 import io.swagger.v3.core.util.*;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.SpecVersion;
+import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
@@ -144,7 +142,7 @@ public class OpenAPIGenerator {
     }
   }
 
-  private Logger log = LoggerFactory.getLogger(getClass());
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private Set<DebugOption> debug;
 
@@ -262,8 +260,6 @@ public class OpenAPIGenerator {
 
     defaults(classname, contextPath, openapi);
 
-    ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
-
     Map<String, Tag> globalTags = new LinkedHashMap<>();
     var paths = new Paths();
     for (var operation : operations) {
@@ -318,7 +314,20 @@ public class OpenAPIGenerator {
       openapi.setJsonSchemaDialect(null);
     }
 
+    // Put schemas so far
+    ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
+
+    ProjectionParser.parse(ctx, openapi);
+
+    // Save schemas after projection in case a new one was created
+    ctx.schemas().forEach(schema -> openapi.schema(schema.getName(), schema));
+
+    finish(openapi);
     return openapi;
+  }
+
+  private void finish(OpenAPIExt openapi) {
+    SchemaPurger.purgeUnused(openapi);
   }
 
   ObjectMapper yamlMapper() {

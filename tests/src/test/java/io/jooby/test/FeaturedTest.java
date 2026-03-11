@@ -67,6 +67,7 @@ import io.jooby.handler.HeadHandler;
 import io.jooby.handler.TraceHandler;
 import io.jooby.handler.WebVariables;
 import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.netty.NettyServer;
@@ -912,7 +913,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson3Module());
 
               app.post("/map", ctx -> ctx.body(Map.class));
 
@@ -971,7 +972,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson3Module());
 
               app.path(
                   "/api/pets",
@@ -1211,7 +1212,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson3Module());
 
               app.get(
                   "/",

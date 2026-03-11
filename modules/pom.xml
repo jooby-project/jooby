@@ -4,7 +4,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
 
   <artifactId>modules</artifactId>
@@ -32,6 +32,9 @@
     <module>jooby-swagger-ui</module>
     <module>jooby-redoc</module>
 
+    <!-- xRCP !-->
+    <module>jooby-trpc</module>
+
     <!-- data -->
     <module>jooby-hikari</module>
     <module>jooby-jdbi</module>
@@ -48,6 +51,7 @@
     <module>jooby-caffeine</module>
 
     <module>jooby-jackson</module>
+    <module>jooby-jackson3</module>
     <module>jooby-gson</module>
     <module>jooby-avaje-jsonb</module>
     <module>jooby-yasson</module>

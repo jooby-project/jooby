@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-mutiny</artifactId>
   <name>jooby-mutiny</name>
@@ -26,7 +26,7 @@
     <dependency>
       <groupId>io.smallrye.reactive</groupId>
       <artifactId>mutiny</artifactId>
-      <version>3.1.0</version>
+      <version>3.1.1</version>
     </dependency>
 
     <!-- Test dependencies -->

@@ -7,19 +7,22 @@ package io.jooby.avaje.jsonb;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.avaje.json.JsonDataException;
+import io.avaje.json.JsonWriter;
+import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
-import io.jooby.Body;
-import io.jooby.Context;
-import io.jooby.Extension;
-import io.jooby.Jooby;
-import io.jooby.MediaType;
-import io.jooby.MessageDecoder;
-import io.jooby.MessageEncoder;
-import io.jooby.ServiceRegistry;
-import io.jooby.internal.avaje.jsonb.BufferedJsonOutput;
+import io.jooby.*;
+import io.jooby.internal.avaje.jsonb.*;
+import io.jooby.jsonrpc.JsonRpcParser;
+import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
+import io.jooby.trpc.TrpcErrorCode;
+import io.jooby.trpc.TrpcParser;
+import io.jooby.trpc.TrpcResponse;
 
 /**
  * JSON module using Avaje-JsonB: <a
@@ -72,7 +75,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   /**
    * Creates a new module and use an Avaje-JsonB instance.
    *
-   * @param jsonb Gson to use.
+   * @param jsonb JsonB to use.
    */
   public AvajeJsonbModule(@NonNull Jsonb jsonb) {
     this.jsonb = jsonb;
@@ -80,7 +83,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
   /** Creates a new Avaje-JsonB module. */
   public AvajeJsonbModule() {
-    this(Jsonb.builder().build());
+    this(builder().build());
   }
 
   @Override
@@ -88,11 +91,19 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
-    ServiceRegistry services = application.getServices();
+    var services = application.getServices();
     services.put(Jsonb.class, jsonb);
+    // tRpc
+    services.put(TrpcParser.class, new AvajeTrpcParser(jsonb));
+    application.errorCode(JsonDataException.class, StatusCode.BAD_REQUEST);
+    services
+        .mapOf(Class.class, TrpcErrorCode.class)
+        .put(JsonDataException.class, TrpcErrorCode.BAD_REQUEST);
+    // JSON-RPC
+    services.put(JsonRpcParser.class, new AvajeJsonRpcParser(jsonb));
   }
 
-  @NonNull @Override
+  @Override
   public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
@@ -104,14 +115,56 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
     }
   }
 
-  @NonNull @Override
+  @Override
   public Output encode(@NonNull Context ctx, @NonNull Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
     var buffer = factory.allocate();
     try (var writer = jsonb.writer(new BufferedJsonOutput(buffer))) {
-      jsonb.toJson(value, writer);
+      if (value instanceof Projected<?> projected) {
+        encodeProjection(writer, projected);
+      } else {
+        jsonb.toJson(value, writer);
+      }
       return buffer;
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void encodeProjection(JsonWriter writer, Projected<?> projected) {
+    var value = projected.getValue();
+    if (value instanceof Optional<?> optional) {
+      if (optional.isEmpty()) {
+        writer.serializeNulls(true);
+        writer.nullValue();
+        return;
+      }
+      value = optional.get();
+    }
+    if (value instanceof Collection<?> collection && collection.isEmpty()) {
+      writer.emptyArray();
+      return;
+    }
+    var projection = projected.getProjection();
+    var viewString = projection.toView();
+    var type = projection.getType();
+    var jsonbType = jsonb.type(type);
+    jsonbType =
+        switch (value) {
+          case Set<?> ignored -> jsonbType.set();
+          case Collection<?> ignored -> jsonbType.list();
+          default -> jsonbType;
+        };
+    var view = (JsonView<Object>) jsonbType.view(viewString);
+    view.toJson(value, writer);
+  }
+
+  public static Jsonb.Builder builder() {
+    var jsonb = Jsonb.builder();
+    jsonb.add(TrpcResponse.class, AvajeTrpcResponseAdapter::new);
+    jsonb.add(JsonRpcRequest.class, AvajeJsonRpcRequestAdapter::new);
+    jsonb.add(JsonRpcResponse.class, AvajeJsonRpcResponseAdapter::new);
+    jsonb.add(JsonRpcResponse.ErrorDetail.class, AvajeJsonRpcErrorAdapter::new);
+    return jsonb;
   }
 }

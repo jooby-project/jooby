@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.openapi;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 import io.jooby.SneakyThrows;
@@ -31,15 +29,6 @@ public class ClassSource {
       return stream.readAllBytes();
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
-    }
-  }
-
-  public byte[] loadResource(String path) throws IOException {
-    try (InputStream stream = classLoader.getResourceAsStream(path)) {
-      if (stream == null) {
-        throw new FileNotFoundException(path);
-      }
-      return stream.readAllBytes();
     }
   }
 }

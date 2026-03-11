@@ -818,6 +818,19 @@ public interface Context extends Registry {
   Value form(@NonNull String name);
 
   /**
+   * Get a form field that matches the given name.
+   *
+   * <p>File upload retrieval is available using {@link Context#file(String)}.
+   *
+   * <p>Only for <code>multipart/form-data</code> request.
+   *
+   * @param name Field name.
+   * @param defaultValue Default value.
+   * @return Multipart value.
+   */
+  Value form(@NonNull String name, @NonNull String defaultValue);
+
+  /**
    * Convert form data to the given type.
    *
    * <p>Only for <code>application/x-www-form-urlencoded</code> or <code>multipart/form-data</code>

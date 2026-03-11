@@ -7,7 +7,7 @@
 
 # &infin; do more, more easily
 
-[Jooby](https://jooby.io) is a modern, high-performance web framework for Java and Kotlin, designed to run seamlessly atop your preferred web server.
+[Jooby](https://jooby.io) is a modular, high-performance web framework for Java and Kotlin. Designed for simplicity and speed, it gives you the freedom to build on your favorite server with a clean, modern API.
 
 ## 🚀 Built for Speed
 - **High Performance**: Consistently ranks among the fastest Java frameworks in TechEmpower benchmarks.

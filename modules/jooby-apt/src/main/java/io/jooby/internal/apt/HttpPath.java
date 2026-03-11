@@ -32,10 +32,14 @@ public enum HttpPath implements AnnotationSupport {
    * @return Path or empty list.
    */
   public List<String> path(Collection<TypeElement> hierarchy) {
+    return path(hierarchy, getAnnotations());
+  }
+
+  private List<String> path(Collection<TypeElement> hierarchy, List<String> annotations) {
     var prefix = Collections.<String>emptyList();
     var it = hierarchy.iterator();
     while (prefix.isEmpty() && it.hasNext()) {
-      prefix = path(it.next());
+      prefix = path(it.next(), annotations);
     }
     return prefix;
   }
@@ -47,7 +51,17 @@ public enum HttpPath implements AnnotationSupport {
    * @return Path or empty list.
    */
   public List<String> path(Element element) {
-    return getAnnotations().stream()
+    return path(element, getAnnotations());
+  }
+
+  /**
+   * Find Path from method or class.
+   *
+   * @param element Method or Class.
+   * @return Path or empty list.
+   */
+  private List<String> path(Element element, List<String> annotations) {
+    return annotations.stream()
         .map(it -> AnnotationSupport.findAnnotationByName(element, it))
         .filter(Objects::nonNull)
         .findFirst()

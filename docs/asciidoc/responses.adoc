@@ -1,17 +1,17 @@
-== Responses
+=== Responses
 
-This chapter covers some special response types, like `raw responses`, `streaming`, `file download`, `non-blocking`, etc...
+This chapter covers special response types, including raw responses, streaming, file downloads, and non-blocking responses.
 
-=== Raw
+==== Raw
 
-Raw responses are NOT processed by a <<context-response-body-message-encoder, message encoder>>. These response types are considered `raw`:
+Raw responses are **not** processed by a <<core-context-response-body-message-encoder, message encoder>>. The following types are considered `raw`:
 
-- String/CharSequence
-- byte[]
-- java.nio.ByteBuffer/io.netty.buffer.ByteBuf
-- java.io.File/java.io.InputStream/java.nio.file.Path/java.nio.channels.FileChannel
+* `String` / `CharSequence`
+* `byte[]`
+* `java.nio.ByteBuffer` / `io.netty.buffer.ByteBuf`
+* `java.io.File` / `java.io.InputStream` / `java.nio.file.Path` / `java.nio.channels.FileChannel`
 
-.Generate a JSON String from handler
+.Generate a JSON String from a handler
 [source,java,role="primary"]
 ----
 {
@@ -35,20 +35,85 @@ Raw responses are NOT processed by a <<context-response-body-message-encoder, me
 }
 ----
 
-No matter if there is a JSON encoder installed, a raw response is always send directly to client.
+Even if a JSON encoder is installed, a raw response is always sent directly to the client bypassing the encoder.
 
-=== Streaming / Chunked
+==== Projections
 
-Streaming/chunked API is available via:
+Projections allow API consumers to request a partial representation of a resource. This feature is a more flexible, dynamic, and powerful alternative to the standard Jackson `@JsonView` annotation.
 
-- javadoc:Context[responseStream]: blocking API that provides an `OutputStream`
-- javadoc:Context[responseWriter]: blocking API that provides a `PrintWriter`
-- javadoc:Context[responseSender]: non-blocking API that provides a javadoc:Sender[]
+While inspired by the "selection set" philosophy of **GraphQL**, it is important to note that this is **not** a GraphQL implementation. Instead, it provides a "Light GraphQL" experience for RESTful endpoints, allowing you to define exactly which fields should be serialized in the JSON response without the overhead of a full GraphQL engine.
 
-Only one of these methods must be call it per request. At the time you call one of these methods Jooby
-automatically adds the `Transfer-Encoding: chunked` header when `Content-Length` is missing.
+===== Basic Usage
 
-All the three APIs have a `close` method. You must call it once you finish.
+To enable a projection, you wrap your response object using the `Projected.wrap` utility. The projection syntax is parsed and applied to the underlying object or collection.
+
+[source,java]
+----
+get("/users/{id}", ctx -> {
+  User user = repository.findById(ctx.path("id").value());
+  
+  return Projected.wrap(user)
+      .include("(id, name, email)");
+});
+----
+
+===== Comparison with @JsonView
+
+If you have used Jackson's `@JsonView`, you will find Projections far more capable:
+
+* **Dynamic**: Unlike `@JsonView`, which requires static class markers defined at compile-time, Projections are defined at runtime.
+* **Ad-hoc**: You can create any combination of fields on the fly without adding new Java interfaces or classes.
+* **Deep Nesting**: Projections easily handle deeply nested object graphs, whereas `@JsonView` can become difficult to manage with complex relationships.
+
+===== Projection DSL
+
+The `include` method accepts a string using a simple, nested syntax:
+
+* **Field Selection**: `(id, name)` returns only those two fields.
+* **Nested Selection**: `(id, address(city, country))` selects the `id` and specific fields from the nested `address` object.
+* **Wildcards**: `(id, address(*))` selects the `id` and all available fields within the `address` object.
+* **Deep Nesting**: `(id, orders(id, items(name, price)))` allows for recursion into the object graph.
+
+===== Validation
+
+By default, the projection engine **does not validate** that requested fields exist on the target class (`failOnMissingProperty` is `false`). This allows for maximum flexibility, especially when working with polymorphic types or dynamic data where certain fields may only exist on specific subclasses.
+
+If you prefer strict enforcement to prevent API consumers from requesting non-existent fields, you can enable validation:
+
+[source,java]
+----
+return Projected.wrap(data)
+    .failOnMissingProperty(true)
+    .include("(id, name, strictFieldOnly)");
+----
+
+===== More Information
+
+Support for Projections extends beyond core scripting to include high-level annotations and documentation generation.
+
+* **MVC Support**: Projections can be applied to controller methods using the `@Project` annotation. See the <<web-mvc-api-responses-projections, MVC documentation>> for details.
+* **OpenAPI Support**: Jooby automatically generates pruned schemas for your Swagger documentation. See the link:modules/openapi[OpenAPI documentation] for details.
+
+[NOTE]
+====
+**Implementation Note:**
+The `Projection` core API defines the structure and the DSL. The actual runtime filtering is performed by your chosen JSON module:
+
+1. link:modules/avaje-jsonb[Avaje Jsonb]
+2. link:modules/jackson2[Jackson 2]/link:modules/jackson3[Jackson 3]
+====
+
+==== Streaming / Chunked
+
+The Streaming/Chunked API is available via:
+
+* javadoc:Context[responseStream]: A blocking API that provides an `OutputStream`.
+* javadoc:Context[responseWriter]: A blocking API that provides a `PrintWriter`.
+* javadoc:Context[responseSender]: A non-blocking API that provides a javadoc:Sender[].
+
+You can only call **one** of these methods per request. When you call one of them, Jooby automatically adds the `Transfer-Encoding: chunked` header if the `Content-Length` is missing.
+
+All three APIs have a `close` method, which you must call when finished.
 
 .Writer example
 [source,java,role="primary"]
@@ -57,7 +122,7 @@ All the three APIs have a `close` method. You must call it once you finish.
   get("/chunk", ctx -> {
     try(Writer writer = ctx.responseWriter()) { // <1>
       writer.write("chunk1");                   // <2>
-      ...
+      // ...
       writer.write("chunkN");
     }
 
@@ -73,7 +138,7 @@ All the three APIs have a `close` method. You must call it once you finish.
   get("/chunk") {
     ctx.responseWriter().use {                  // <1>
       writer.write("chunk1")                    // <2>
-      ...
+      // ...
       writer.write("chunkN")
     }
     ctx                                         // <3>
@@ -81,21 +146,20 @@ All the three APIs have a `close` method. You must call it once you finish.
 }
 ----
 
-<1> Get the `Writer` inside a try-with-resources statement, so close it automatically. 
-<2> Write chunks
-<3> Return the `Context`
+<1> Get the `Writer` inside a try-with-resources (or `use` in Kotlin) block so it closes automatically.
+<2> Write chunks of data.
+<3> Return the `Context`.
 
-There is an overloaded version (for Java mainly) that let you skip the try-with-resources and
-automatically close the writer/stream:
+There is an overloaded version (primarily for Java) that lets you skip the try-with-resources block and automatically closes the writer/stream for you:
 
-.Writer example
+.Auto-closing Writer example
 [source,java,role="primary"]
 ----
 {
   get("/chunk", ctx -> {
     return ctx.responseWriter(writer -> { // <1>
       writer.write("chunk1");             // <2>
-      ...
+      // ...
       writer.write("chunkN");
     });
   });
@@ -109,18 +173,16 @@ automatically close the writer/stream:
   get("/chunk") {
     ctx.responseWriter {                  // <1>
       writer.write("chunk1")              // <2>
-      ...
+      // ...
       writer.write("chunkN")
     }
   }
 }
 ----
 
-=== File download
+==== File Download
 
-The javadoc:FileDownload[] is used to generate file downloads, i.e. responses with 
-`Content-Disposition` header. You can use the convenience subclasses javadoc:AttachedFile[]
-or javadoc:InlineFile[] to set the header value to `attachment` or `inline` respectively.
+Use javadoc:FileDownload[] to generate file downloads (responses with a `Content-Disposition` header). You can use the convenience subclasses javadoc:AttachedFile[] or javadoc:InlineFile[] to set the header value to `attachment` or `inline`, respectively.
 
 .File download example
 [source,java,role="primary"]
@@ -128,7 +190,7 @@ or javadoc:InlineFile[] to set the header value to `attachment` or `inline` resp
 {
   get("/download-file", ctx -> {
     Path source = Paths.get("logo.png");
-    return new AttachedFile(source);               // <1>
+    return new AttachedFile(source);             // <1>
   });
   
   get("/view-stream", ctx -> {
@@ -149,16 +211,15 @@ or javadoc:InlineFile[] to set the header value to `attachment` or `inline` resp
 
   get("/view-stream") {
     val source = ...
-    InlineFile("myfile.txt", source)  // <2>
+    InlineFile("myfile.txt", source)    // <2>
   }
 }
 ----
 
-<1> Send a download from an `InputStream`
-<2> Send a download from a `File`
+<1> Send a download from a `Path` as an attachment.
+<2> Send a download from an `InputStream` inline.
 
-Another possibility is to use one of the static builder methods of `FileDownload` and specify
-the download type (attachment or inline) later.
+Alternatively, you can use the static builder methods on `FileDownload` and specify the download type later.
 
 .File download with builder method
 [source,java,role="primary"]
@@ -190,31 +251,23 @@ fun produceDownload(ctx: Context) = FileDownload.build(...)
 }
 ----
 
-=== NonBlocking
+==== NonBlocking
 
-Non-blocking responses are a new feature of Jooby 2.x.
+From the user's perspective, there is nothing special about writing non-blocking responses—you write your route handler the same way you usually do. However, it's important to understand how they execute in the pipeline based on your application's mode.
 
-From user point of view there is nothing special about them, you just write your route handler as
-usually do with blocking types.
-
-Before we jump to each of the supported types, we need to learn what occurs in the pipeline when
-there is a non-blocking route handler.
-
-.In event loop
+.In event loop mode
 [source,java,role="primary"]
 ----
 {
   mode(EVENT_LOOP);                  // <1>
-
   use(ReactiveSupport.concurrent()); // <2>
 
   get("/non-blocking", ctx -> {
-
     return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                        // <4>
+          // ...                     // <4>
         });
-  })
+  });
 }
 ----
 
@@ -223,41 +276,37 @@ there is a non-blocking route handler.
 ----
 {
   mode(EVENT_LOOP)                   // <1>
-
-  use(ReactiveSupport.concurrent()); // <2>
+  use(ReactiveSupport.concurrent())  // <2>
 
   get("/non-blocking") {
-
     CompletableFuture                // <3>
         .supplyAsync {
-          ...                        // <4>
+          // ...                     // <4>
         }
   }
 }
 ----
 
-<1> App run in *event loop*
+<1> The application runs in the **event loop**.
 <2> Indicates we want to go non-blocking and handle CompletableFuture responses.
-<3> Value is provided from *event loop*. No blocking code is permitted
-<4> Value is computed/produces from completable future context
+<3> The value is provided from the event loop. **No blocking code is permitted.**
+<4> The value is computed asynchronously.
 
-Running your `App3508` in *worker* mode works identically, except for we are able to do blocking calls:
+Running your application in **worker** mode works identically, except you are allowed to make blocking calls:
 
 .In worker mode
 [source,java,role="primary"]
 ----
 {
   mode(WORKER);                      // <1>
-
   use(ReactiveSupport.concurrent()); // <2>
 
   get("/blocking", ctx -> {
-
     return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                        // <4>
+          // ...                     // <4>
         });
-  })
+  });
 }
 ----
 
@@ -266,41 +315,37 @@ Running your `App3508` in *worker* mode works identically, except for we are abl
 ----
 {
   mode(WORKER)                       // <1>
-
   use(ReactiveSupport.concurrent())  // <2>
 
   get("/blocking") {
-
     CompletableFuture                // <3>
         .supplyAsync {
-          ...                        // <4>
+          // ...                     // <4>
         }
   }
 }
 ----
 
-<1> App run in *worker mode*
-<2> Indicates we want to go non-blocking and handle CompletableFuture responses.
-<3> Value is provided from *worker mode*. Blocking code is permitted
-<4> Value is computed/produces from completable future context
+<1> The application runs in **worker mode**.
+<2> Indicates we want to go non-blocking.
+<3> The value is provided from the worker thread. **Blocking code is permitted.**
+<4> The value is computed asynchronously.
 
-Running your `App3508` in *default* mode works identically to running in the *event loop* mode:
+The **default** mode mimics the event loop mode when a route produces a non-blocking type:
 
 .In default mode
 [source,java,role="primary"]
 ----
 {
   mode(DEFAULT);                     // <1>
-
   use(ReactiveSupport.concurrent()); // <2>
 
   get("/non-blocking", ctx -> {
-
     return CompletableFuture         // <3>
         .supplyAsync(() -> {
-          ...                        // <4>
+          // ...                     // <4>
         });
-  })
+  });
 }
 ----
 
@@ -311,27 +356,23 @@ Running your `App3508` in *default* mode works identically to running in the *ev
   mode(DEFAULT)                     // <1>
 
   get("/non-blocking") {
-
-    ...                             // <2>
-
+    // ...                          // <2>
     CompletableFuture               // <3>
         .supplyAsync {
-          ...                       // <4>
+          // ...                    // <4>
         }
   }
 }
 ----
 
-<1> App run in *worker mode*
-<2> Indicates we want to go non-blocking and handle CompletableFuture responses.
-<3> Value is provided from *worker mode*. Blocking code is permitted
-<4> Value is computed/produces from completable future context
+[NOTE]
+====
+For all reactive frameworks below, explicit handler setup (e.g., `use(Reactivex.rx())`) is **only** required for Script/Lambda routes. For MVC routes, Jooby automatically configures the handler based on the route's return type.
+====
 
-The *default* mode mimics the *event loop* mode execution when route produces a *non-blocking* type.
+===== CompletableFuture
 
-==== CompletableFuture
-
-CompletableFuture is considered a non-blocking type which is able to produces a single result:
+CompletableFuture is a non-blocking type that produces a single result:
 
 .Java
 [source,java, role="primary"]
@@ -343,7 +384,7 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
     return CompletableFuture
         .supplyAsync(() -> "Completable Future!")
         .thenApply(it -> "Hello " + it);
-  })
+  });
 }
 ----
 
@@ -361,38 +402,27 @@ CompletableFuture is considered a non-blocking type which is able to produces a 
 }
 ----
 
-[NOTE]
-=====
-Completable future responses require explicit handler setup ONLY in script/lambda routes. For MVC
-routes you don't need to setup any handler. It is done automatically based on route response type.
-=====
-
-==== Mutiny
+===== Mutiny
 
 1) Add the https://smallrye.io/smallrye-mutiny[SmallRye Mutiny] dependency:
-
 [dependency, artifactId="jooby-mutiny"]
-.
 
-2) Write code:
+2) Write the code:
 
-===== Uni
-
-.Java
+.Uni (Single Value)
 [source,java, role="primary"]
 ----
 import io.jooby.mutiny;
 import io.smallrye.mutiny.Uni;
 
 {
-  // Add response handler:
   use(Mutiny.mutiny());
 
   get("/non-blocking", ctx -> {
     return Uni.createFrom()
        .completionStage(supplyAsync(() -> "Uni"))
        .map(it -> "Hello " + it);
-  })
+  });
 }
 ----
 
@@ -403,33 +433,29 @@ import io.jooby.mutiny
 import io.smallrye.mutiny.Uni
 
 {
-  // Add response handler:
   use(Mutiny.mutiny())
 
   get("/non-blocking") {
     Uni.createFrom()
-      .completionStage{ supplyAsync { "Uni" }}
-      .map{"Hello $it"}
+      .completionStage { supplyAsync { "Uni" } }
+      .map { "Hello $it" }
   }
 }
 ----
 
-===== Multi
-
-.Java
+.Multi (Chunked Stream)
 [source,java, role="primary"]
 ----
 import io.jooby.mutiny;
 import io.smallrye.mutiny.Multi;
 
 {
-  // Add response handler:
   use(Mutiny.mutiny());
 
   get("/non-blocking", ctx -> {
     return Multi.createFrom().range(1, 11)
         .map(it -> it + ", ");
-  })
+  });
 }
 ----
 
@@ -440,36 +466,25 @@ import io.jooby.mutiny
 import io.smallrye.mutiny.Multi
 
 {
+  use(Mutiny.mutiny())
+
   get("/non-blocking") {
     Multi.createFrom().range(1, 11)
-        .map{ "$it, " }
+        .map { "$it, " }
   }
 }
 ----
 
-For Multi, Jooby builds a `chunked` response. That:
+For `Multi`, Jooby automatically builds a chunked response. Each item in the stream is sent to the client as a new HTTP chunk.
 
-. Set the `Transfer-Encoding: chunked` header
-. Each item means new `chunk` send it to client
-
-[NOTE]
-=====
-Mutiny responses require explicit handler setup ONLY in script/lambda routes. For MVC
-routes you don't need to setup any handler. It is done automatically based on route response type.
-=====
-
-==== RxJava
+===== RxJava
 
 1) Add the https://github.com/ReactiveX/RxJava[RxJava] dependency:
-
 [dependency, artifactId="jooby-rxjava3"]
-.
 
-2) Write code:
+2) Write the code:
 
-===== Single
-
-.Java
+.Single
 [source,java, role="primary"]
 ----
 import io.jooby.rxjava3.Reactivex;
@@ -481,7 +496,7 @@ import io.jooby.rxjava3.Reactivex;
     return Single
         .fromCallable(() -> "Single")
         .map(it -> "Hello " + it);
-  })
+  });
 }
 ----
 
@@ -501,9 +516,7 @@ import io.jooby.rxjava3.Reactivex
 }
 ----
 
-===== Flowable
-
-.Java
+.Flowable (Chunked Stream)
 [source,java, role="primary"]
 ----
 import io.jooby.rxjava3.Reactivex;
@@ -514,7 +527,7 @@ import io.jooby.rxjava3.Reactivex;
   get("/non-blocking", ctx -> {
     return Flowable.range(1, 10)
         .map(it -> it + ", ");
-  })
+  });
 }
 ----
 
@@ -528,34 +541,21 @@ import io.jooby.rxjava3.Reactivex
 
   get("/non-blocking") {
     Flowable.range(1, 10)
-        .map{ "$it, " }
+        .map { "$it, " }
   }
 }
 ----
 
-For Flowable, Jooby builds a `chunked` response. That:
+For `Flowable`, Jooby builds a chunked response, sending each item as a separate chunk.
 
-. Set the `Transfer-Encoding: chunked` header
-. Each item means new `chunk` send it to client
-
-[NOTE]
-=====
-Rx responses require explicit handler setup ONLY in script/lambda routes. For MVC
-routes you don't need to setup any handler. It is done automatically based on route response type.
-=====
-
-==== Reactor
+===== Reactor
 
 1) Add the https://projectreactor.io/[Reactor] dependency:
-
 [dependency, artifactId="jooby-reactor"]
-.
 
-2) Write code:
+2) Write the code:
 
-===== Mono
-
-.Java
+.Mono (Single Value)
 [source,java, role="primary"]
 ----
 import io.jooby.Reactor;
@@ -567,7 +567,7 @@ import io.jooby.Reactor;
     return Mono
         .fromCallable(() -> "Mono")
         .map(it -> "Hello " + it);
-  })
+  });
 }
 ----
 
@@ -587,20 +587,18 @@ import io.jooby.Reactor
 }
 ----
 
-===== Flux
-
-.Java
+.Flux (Chunked Stream)
 [source,java, role="primary"]
 ----
 import io.jooby.Reactor;
 
 {
-  use(Reactor.reactor())
+  use(Reactor.reactor());
 
   get("/non-blocking", ctx -> {
     return Flux.range(1, 10)
         .map(it -> it + ", ");
-  })
+  });
 }
 ----
 
@@ -614,23 +612,16 @@ import io.jooby.Reactor
 
   get("/non-blocking") {
     Flux.range(1, 10)
-        .map{ "$it, " }
+        .map { "$it, " }
   }
 }
 ----
 
-For Flux, Jooby builds a `chunked` response. That:
+For `Flux`, Jooby builds a chunked response, sending each item as a separate chunk.
 
-. Set the `Transfer-Encoding: chunked` header
-. Each item means new `chunk` send it to client
+===== Kotlin Coroutines
 
-[NOTE]
-=====
-Reactor responses require explicit handler setup ONLY in script/lambda routes. For MVC
-routes you don't need to setup any handler. It is done automatically based on route response type.
-=====
-
-==== Kotlin Coroutines
+*(Note: Coroutines are exclusive to Kotlin, so there is no Java equivalent for this section).*
 
 .Coroutine handler:
 [source, kotlin]
@@ -645,10 +636,10 @@ routes you don't need to setup any handler. It is done automatically based on ro
 }
 ----
 
-<1> Call a suspending function
-<2> Send response to client
+<1> Call a suspending function.
+<2> Send the response to the client.
 
-.Here is another example with an extension and suspending function:
+.Using an extension and suspending function:
 [source, kotlin]
 ----
 {
@@ -665,17 +656,15 @@ suspend fun Context.doSomething(): String {
 }
 ----
 
-<1> Call extension suspending function
-<2> Call a suspending function or do a blocking call
-<3> Send response to client
+<1> Call an extension suspending function.
+<2> Safely perform a suspending or blocking call.
+<3> Send the response to the client.
 
-A coroutine works like any of the other non-blocking types. You start Jooby using the **event loop**
-or **default mode**, Jooby creates a coroutine context to execute it.
+Coroutines work like any other non-blocking type. If you start Jooby using the **event loop** or **default mode**, Jooby creates a coroutine context to execute it.
 
-Jooby uses the *worker executor* to creates a coroutine context. As described in <<execution-model-worker-executor, worker executor section>>
-this is provided by the web server implementation unless you provided your own.
+Jooby uses the **worker executor** to create a coroutine context. This executor is provided by the web server implementation, unless you provide a custom one:
 
-.Coroutines with custom executor:
+.Coroutines with a custom executor:
 [source, kotlin]
 ----
 {
@@ -691,16 +680,13 @@ this is provided by the web server implementation unless you provided your own.
 }
 ----
 
-<1> Statement run in the *worker executor* (cached thread pool)
-<2> Call a suspending function
-<3> Produces a response
+<1> Statement runs in the worker executor (cached thread pool).
+<2> Calls a suspending function.
+<3> Produces a response.
 
-Coroutines always run in the <<execution-model-worker-executor, worker executor>>. There is an experimental API where
-coroutines run in the *caller thread*(event loop in this case) until a suspending function is found.
+By default, Coroutines always run in the worker executor. However, Jooby provides an experimental API where coroutines run in the **caller thread** (the event loop) until a suspending function is found. You can enable this by setting the `coroutineStart` option:
 
-Jooby allows you to use this experimental API by setting the `coroutineStart` option:
-
-.UNDISPATCHED
+.UNDISPATCHED Start
 [source, kotlin]
 ----
 {
@@ -714,13 +700,13 @@ Jooby allows you to use this experimental API by setting the `coroutineStart` op
 }
 ----
 
-<1> Statement run in the *event loop* (caller thread)
-<2> Call a suspending function and dispatch to *worker executor*
-<3> Produces a response from *worker executor*
+<1> Statement runs in the event loop (caller thread).
+<2> Calls a suspending function and dispatches to the worker executor.
+<3> Produces a response from the worker executor.
 
-You can also extend the `CoroutineContext` in which the coroutine routes run:
+You can also extend the `CoroutineContext` in which the routes run:
 
-.launchContext
+.Customizing the Context
 [source, kotlin]
 ----
 {
@@ -728,20 +714,17 @@ You can also extend the `CoroutineContext` in which the coroutine routes run:
     launchContext { MDCContext() } // <1>
   
     get("/") {
-      ...
+      // ...
     }
   }
 }
 ----
 
-<1> The lambda is run before launching each coroutine, so it can customize the `CoroutineContext` for
-the request, e.g. store/restore MDC, transaction, or anything else that your handlers need. 
+<1> The `launchContext` lambda runs before launching each coroutine. It allows you to customize the `CoroutineContext` for the request (e.g., to store/restore MDC, transactions, or other request-scoped data).
 
-{love} {love}!
+==== Send Methods
 
-=== Send methods
-
-Jooby provides a family of `send()` methods that produces a response via side effects.
+Jooby provides a family of `send()` methods that produce a response via side-effects.
 
 .send text
 [source,java,role="primary"]
@@ -763,24 +746,20 @@ Jooby provides a family of `send()` methods that produces a response via side ef
 }
 ----
 
-Beside we operate via side effects, the route still returns something. This is required because a route
-handler is a function which always produces a result.
+Although these methods operate via side-effects, the route handler must still return a value. All `send` methods return the current `Context`. Returning the context signals to Jooby that the response was already handled and the standard route output should be ignored.
 
-All the send methods returns the current `Context`, this signal Jooby that we want to operate via
-side effects ignoring the output of the route handler.
+The family of send methods includes:
 
-Family of send methods include:
-
-- javadoc:Context[send, byte[\]]
-- javadoc:Context[send, byte[\]...]
-- javadoc:Context[send, io.jooby.buffer.DataBuffer]
-- javadoc:Context[send, io.jooby.FileDownload]
-- javadoc:Context[send, io.jooby.StatusCode]
-- javadoc:Context[send, java.io.InputStream]
-- javadoc:Context[send, java.lang.String]
-- javadoc:Context[send, java.lang.String, java.nio.charset.Charset]
-- javadoc:Context[send, java.nio.ByteBuffer]
-- javadoc:Context[send, java.nio.ByteBuffer[\]]
-- javadoc:Context[send, java.nio.channels.FileChannel]
-- javadoc:Context[send, java.nio.channels.ReadableByteChannel]
-- javadoc:Context[send, java.nio.file.Path]
+* javadoc:Context[send, byte[\]]
+* javadoc:Context[send, byte[\]...]
+* javadoc:Context[send, io.jooby.buffer.DataBuffer]
+* javadoc:Context[send, io.jooby.FileDownload]
+* javadoc:Context[send, io.jooby.StatusCode]
+* javadoc:Context[send, java.io.InputStream]
+* javadoc:Context[send, java.lang.String]
+* javadoc:Context[send, java.lang.String, java.nio.charset.Charset]
+* javadoc:Context[send, java.nio.ByteBuffer]
+* javadoc:Context[send, java.nio.ByteBuffer[\]]
+* javadoc:Context[send, java.nio.channels.FileChannel]
+* javadoc:Context[send, java.nio.channels.ReadableByteChannel]
+* javadoc:Context[send, java.nio.file.Path]

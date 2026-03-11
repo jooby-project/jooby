@@ -14,7 +14,8 @@ module io.jooby {
   exports io.jooby.problem;
   exports io.jooby.value;
   exports io.jooby.output;
-  exports io.jooby.internal.output;
+  exports io.jooby.jsonrpc;
+  exports io.jooby.trpc;
 
   uses io.jooby.Server;
   uses io.jooby.SslProvider;

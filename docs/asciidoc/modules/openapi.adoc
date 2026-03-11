@@ -407,7 +407,7 @@ Whitespaces (including new lines) are ignored. To introduce a new line, you must
 
 ==== Supported OpenAPI tags
 
-[cols="3,1,1,1,4"]
+[cols="1,1,1,1,4"]
 |===
 | Tag | Main | Controller | Method | Description
 
@@ -600,7 +600,7 @@ Keep in mind that any section found here in the template overrides existing meta
 
 === Swagger Annotations
 
-Optionally this plugin depends on some OpenAPI annotations. To use them, you need to add a dependency to your project:
+Optionally, this plugin depends on some OpenAPI annotations. To use them, you need to add a dependency to your project:
 
 [dependency, artifactId="swagger-annotations"]
 .

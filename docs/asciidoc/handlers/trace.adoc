@@ -1,44 +1,38 @@
-=== TraceHandler
+==== TraceHandler
 
-Jooby doesn't support `HTTP Trace` requests by default. To support them you have two options:
+By default, Jooby does not support `HTTP TRACE` requests. To enable them for debugging or diagnostic purposes, you can use the javadoc:handler.TraceHandler[].
 
-- Use the built-in `TraceHandler`
-- Write your own trace handler
+The javadoc:handler.TraceHandler[] implements a loop-back test by returning the received request message back to the client as the entity body of a 200 (OK) response.
 
-The javadoc:handler.TraceHandler[] supports `TRACE` requests over existing handlers.
-
-.Head Example
+.Usage
 [source, java, role = "primary"]
 ----
-import io.jooby.Jooby;
 import io.jooby.handler.TraceHandler;
-...
+
 {
+  use(new TraceHandler()); // <1>
   
-  use(new TraceHandler()); <1>
-  
-  get("/", ctx -> {
-    ...
-  });
+  get("/", ctx -> "Hello World");
 }
 ----
 
 .Kotlin
 [source, kotlin, role = "secondary"]
 ----
-import io.jooby.Jooby
 import io.jooby.handler.TraceHandler
-...
+
 {
-  use(TraceHandler())      <1>
+  use(TraceHandler())      // <1>
   
-  get("/") {
-    ...
-  }
+  get("/") { "Hello World" }
 }
 ----
 
-<1> Install TraceHandler
+<1> Install the `TraceHandler` as a decorator.
 
-`TRACE /` performs a message loop-back test along the path to the target resource, providing a
-useful debugging mechanism.
+When a `TRACE` request is received, the handler bypasses the normal route logic and echoes the request headers and body back to the client. This is useful for seeing what transformations are being applied to the request by intermediate proxies or firewalls.
+
+[WARNING]
+====
+`HTTP TRACE` can potentially expose sensitive information (like cookies or authentication headers) to malicious scripts (Cross-Site Tracing). It is generally recommended to enable this handler only in development or strictly controlled diagnostic environments.
+====

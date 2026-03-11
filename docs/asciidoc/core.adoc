@@ -1,0 +1,15 @@
+== Core
+[.lead]
+The heart of the Jooby development experience. This section defines the Request-Response Pipeline, covering everything from expressive routing and path patterns to managing the Context and crafting fluid responses. It is the essential guide to building the logic that powers your web applications.
+
+include::routing.adoc[]
+
+include::context.adoc[]
+
+include::responses.adoc[]
+
+include::handlers.adoc[]
+
+include::error-handler.adoc[]
+
+include::execution-model.adoc[]

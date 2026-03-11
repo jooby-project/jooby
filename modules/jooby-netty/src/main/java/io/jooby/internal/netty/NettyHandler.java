@@ -65,6 +65,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
     if (isHttpRequest(msg)) {
       this.read = true;
+      this.chunkSize = 0;
       var req = (HttpRequest) msg;
       var path = pathOnly(req.uri());
       var app = contextSelector.select(path);
@@ -150,8 +151,14 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
       channelContext.write(header, voidPromise);
       // Body
       channelContext.write(body, voidPromise);
+
       // Finish
-      channelContext.writeAndFlush(last, promise);
+      if (this.read) {
+        this.flush = true;
+        channelContext.write(last, promise); // Defer flush
+      } else {
+        channelContext.writeAndFlush(last, promise); // Immediate flush
+      }
     } else {
       this.channelContext.executor().execute(() -> writeChunks(header, body, last, promise));
     }
@@ -169,8 +176,14 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     if (this.channelContext.executor().inEventLoop()) {
       // Headers
       channelContext.write(header, channelContext.voidPromise());
+
       // Body + Last
-      channelContext.writeAndFlush(body, promise);
+      if (this.read) {
+        this.flush = true;
+        channelContext.write(body, promise); // Defer flush
+      } else {
+        channelContext.writeAndFlush(body, promise); // Immediate flush
+      }
     } else {
       this.channelContext.executor().execute(() -> writeChunks(header, body, promise));
     }
@@ -227,7 +240,13 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         }
       }
     } finally {
-      ctx.close();
+      try {
+        if (context != null) {
+          resetDecoderState(context, true); // Force decoder cleanup on failure
+        }
+      } finally {
+        ctx.close();
+      }
     }
   }
 

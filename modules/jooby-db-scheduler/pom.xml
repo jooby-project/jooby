@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-db-scheduler</artifactId>
   <name>jooby-db-scheduler</name>
@@ -22,7 +22,7 @@
     <dependency>
       <groupId>com.github.kagkarlsson</groupId>
       <artifactId>db-scheduler</artifactId>
-      <version>16.7.0</version>
+      <version>16.7.1</version>
     </dependency>
 
     <!-- Test dependencies -->

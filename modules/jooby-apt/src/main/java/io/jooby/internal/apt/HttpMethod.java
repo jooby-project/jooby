@@ -27,7 +27,15 @@ public enum HttpMethod implements AnnotationSupport {
   OPTIONS,
   PATCH,
   POST,
-  PUT;
+  PUT,
+  // Special
+  tRPC(
+      List.of(
+          "io.jooby.annotation.Trpc",
+          "io.jooby.annotation.Trpc.Mutation",
+          "io.jooby.annotation.Trpc.Query")),
+  JSON_RPC(List.of("io.jooby.annotation.JsonRpc"));
+
   private final List<String> annotations;
 
   HttpMethod(String... packages) {
@@ -36,13 +44,10 @@ public enum HttpMethod implements AnnotationSupport {
     this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
   }
 
-  /**
-   * Look at path attribute over HTTP method annotation (like io.jooby.annotation.GET) or fallback
-   * to Path annotation.
-   *
-   * @param element Type or Method.
-   * @return Path.
-   */
+  HttpMethod(List<String> annotations) {
+    this.annotations = annotations;
+  }
+
   public List<String> path(Element element) {
     var path =
         annotations.stream()
@@ -54,26 +59,17 @@ public enum HttpMethod implements AnnotationSupport {
     return path.isEmpty() ? HttpPath.PATH.path(element) : path;
   }
 
-  /**
-   * Look at consumes attribute over HTTP method annotation (like io.jooby.annotation.GET) or
-   * fallback to Consumes annotation.
-   *
-   * @param element Type or Method.
-   * @return Consumes media type.
-   */
   public List<String> consumes(Element element) {
     return mediaType(element, HttpMediaType.Consumes, "consumes"::equals);
   }
 
-  /**
-   * Look at produces attribute over HTTP method annotation (like io.jooby.annotation.GET) or
-   * fallback to Produces annotation.
-   *
-   * @param element Type or Method.
-   * @return Produces media type.
-   */
   public List<String> produces(Element element) {
     return mediaType(element, HttpMediaType.Produces, "produces"::equals);
+  }
+
+  public boolean matches(Element element) {
+    return annotations.stream()
+        .anyMatch(it -> AnnotationSupport.findAnnotationByName(element, it) != null);
   }
 
   private List<String> mediaType(

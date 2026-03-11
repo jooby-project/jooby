@@ -908,7 +908,7 @@ public interface Router extends Registry {
    * @param path Path to process.
    * @return Path without trailing slashes.
    */
-  static @NonNull String noTrailingSlash(@NonNull String path) {
+  static String noTrailingSlash(@NonNull String path) {
     StringBuilder buff = new StringBuilder(path);
     int i = buff.length() - 1;
     while (i > 0 && buff.charAt(i) == '/') {
@@ -927,7 +927,7 @@ public interface Router extends Registry {
    * @param path Path to process.
    * @return Safe path pattern.
    */
-  static @NonNull String normalizePath(@Nullable String path) {
+  static String normalizePath(@Nullable String path) {
     if (path == null || path.length() == 0 || path.equals("/")) {
       return "/";
     }

@@ -18,17 +18,23 @@ public class GrpcDeframer {
   private final ByteBuffer headerBuffer = ByteBuffer.allocate(5);
   private ByteBuffer payloadBuffer;
 
-  public void process(byte[] data, Consumer<byte[]> onMessage) {
-    ByteBuffer input = ByteBuffer.wrap(data);
+  /** Processes a chunk of data directly from the server's native ByteBuffer. */
+  public void process(ByteBuffer input, Consumer<byte[]> onMessage) {
     while (input.hasRemaining()) {
       if (state == State.HEADER) {
-        while (headerBuffer.hasRemaining() && input.hasRemaining()) {
-          headerBuffer.put(input.get());
-        }
+        int toRead = Math.min(headerBuffer.remaining(), input.remaining());
+
+        // Bulk read into header buffer
+        int oldLimit = input.limit();
+        input.limit(input.position() + toRead);
+        headerBuffer.put(input);
+        input.limit(oldLimit);
+
         if (!headerBuffer.hasRemaining()) {
           headerBuffer.flip();
           headerBuffer.get(); // skip compressed flag
           int length = headerBuffer.getInt();
+
           if (length == 0) {
             onMessage.accept(new byte[0]);
             headerBuffer.clear();
@@ -38,10 +44,16 @@ public class GrpcDeframer {
           }
         }
       } else if (state == State.PAYLOAD) {
-        while (payloadBuffer.hasRemaining() && input.hasRemaining()) {
-          payloadBuffer.put(input.get());
-        }
+        int toRead = Math.min(payloadBuffer.remaining(), input.remaining());
+
+        // Bulk read into payload buffer
+        int oldLimit = input.limit();
+        input.limit(input.position() + toRead);
+        payloadBuffer.put(input);
+        input.limit(oldLimit);
+
         if (!payloadBuffer.hasRemaining()) {
+          // The full gRPC message is assembled. Emit it.
           onMessage.accept(payloadBuffer.array());
           headerBuffer.clear();
           payloadBuffer = null;

@@ -1,7 +1,6 @@
-==== Hidden Method
+===== Hidden Method
 
-The javadoc:Router[setHiddenMethod, java.lang.String] option allow clients to override the HTTP
-method using a hidden form field.
+The javadoc:Router[setHiddenMethod, java.lang.String] option allows clients to override the HTTP method. This is especially useful for HTML forms, which natively only support `GET` and `POST`.
 
 .Client
 [source, html]
@@ -17,11 +16,10 @@ method using a hidden form field.
 import io.jooby.Jooby;
 ...
 {
+  setHiddenMethod("_method"); // <1>
 
-  setHiddenMethod("_method");                         <1>
-
-  put("/form", ctx -> {                               <2>
-    
+  put("/form", ctx -> {       // <2>
+    return "Updated!";
   });
 }
 ----
@@ -32,28 +30,28 @@ import io.jooby.Jooby;
 import io.jooby.Jooby
 ...
 {
-  setHiddenMethod("_method")                          <1>
+  setHiddenMethod("_method")  // <1>
   
-  put("/form", ctx -> {                               <2>
-    
-  });
+  put("/form") {              // <2>
+    "Updated!"
+  }
 }
 ----
 
-<1> Configure hidden method property to read the form field: `_method`
-<2> Execute the put version of `/form`
+<1> Configures the router to look for a form field named `_method`.
+<2> Executes the `PUT` handler for `/form` instead of the standard `POST`.
 
-The default implementation looks for a form field from POST form/multipart request. You can provide
-a different strategy.
+*(Note: I fixed a small bug in your Kotlin snippet where you were using Java lambda syntax inside the `put` route).*
 
-.HTTP Header
+The default implementation looks for the specified hidden field in `POST` forms or multipart requests. Alternatively, you can provide a custom strategy, such as reading an HTTP header:
+
+.HTTP Header Strategy
 [source, java, role = "primary"]
 ----
 import io.jooby.Jooby;
 ...
 {
-
-  setHiddenMethod(ctx -> ctx.header("X-HTTP-Method-Override").toOptional());  <1>
+  setHiddenMethod(ctx -> ctx.header("X-HTTP-Method-Override").toOptional()); // <1>
 }
 ----
 
@@ -63,8 +61,8 @@ import io.jooby.Jooby;
 import io.jooby.Jooby
 ...
 {
-  setHiddenMethod {ctx -> ctx.header("X-HTTP-Method-Override").toOptional()}  <1>
+  setHiddenMethod { ctx -> ctx.header("X-HTTP-Method-Override").toOptional() } // <1>
 }
 ----
 
-<1> Look for a request header: `X-HTTP-Method-Override`
+<1> Overrides the HTTP method by extracting it from the `X-HTTP-Method-Override` request header.

@@ -3,13 +3,19 @@ package io.jooby.adoc;
 import static java.util.function.Predicate.not;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
+
+import edu.umd.cs.findbugs.annotations.NonNull;
 import org.asciidoctor.extension.Postprocessor;
+import org.jcodings.util.Hash;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Document.OutputSettings;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class DocPostprocessor extends Postprocessor {
 
@@ -18,6 +24,7 @@ public class DocPostprocessor extends Postprocessor {
     try {
       Document doc = Jsoup.parse(output, "UTF-8");
 
+      toc(doc);
       headerIds(doc);
       languageTab(doc);
       clipboard(doc);
@@ -79,6 +86,38 @@ public class DocPostprocessor extends Postprocessor {
     headerIds(doc, 3);
     headerIds(doc, 4);
     headerIds(doc, 5);
+    headerIds(doc, 6);
+  }
+
+  private static void toc(Document doc) {
+    var rootUl = doc.selectFirst("#toc > ul");
+    if (rootUl != null) {
+      tocList("", rootUl);
+    }
+  }
+
+  private static void tocList(String prefix, Element parent) {
+    // In Jsoup, to get direct children of the current element,
+    // start the query with the '>' combinator.
+    var items = parent.select("> li");
+
+    for (var item : items) {
+      // Get the direct anchor child
+      var link = item.selectFirst("> a");
+
+      if (link != null) {
+        var currentId = link.attr("href").replace("#", "");
+        var newFullId = cleanId( prefix + currentId);
+
+        link.attr("href", "#" + newFullId);
+
+        // Recurse into the direct nested list
+        var nestedUl = item.selectFirst("> ul");
+        if (nestedUl != null) {
+          tocList(newFullId + "-", nestedUl);
+        }
+      }
+    }
   }
 
   private static void headerIds(Document doc, int level) {
@@ -95,7 +134,7 @@ public class DocPostprocessor extends Postprocessor {
               name.add(parentId);
             }
           }
-          name.add(id.replaceAll("([a-zA-Z0-9-]+)-\\d+$", "$1"));
+          name.add(cleanId(id));
           String newId = String.join("-", name);
           if (!id.equals(newId)) {
             h.attr("id", newId);
@@ -104,6 +143,11 @@ public class DocPostprocessor extends Postprocessor {
                 .forEach(a -> a.attr("href", "#" + newId));
           }
         });
+  }
+
+  @NonNull
+  private static String cleanId(String id) {
+    return id.replaceAll("-\\d+$", "");
   }
 
   private static boolean isDiscrete(Element e) {

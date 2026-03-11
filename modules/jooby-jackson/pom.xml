@@ -6,7 +6,7 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.0.16-SNAPSHOT</version>
+    <version>4.0.17-SNAPSHOT</version>
   </parent>
   <artifactId>jooby-jackson</artifactId>
   <name>jooby-jackson</name>
@@ -70,6 +70,10 @@
       <artifactId>jmh-core</artifactId>
       <version>1.37</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.json.bind</groupId>
+      <artifactId>jakarta.json.bind-api</artifactId>
     </dependency>
   </dependencies>
 

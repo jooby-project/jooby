@@ -79,7 +79,7 @@ public class ProcessorRunner {
       javaFiles.put(classname, source);
       try {
         // Generate kotlin source code inside the compiler scope... avoid false positive errors
-        kotlinFiles.put(classname, context.getRouters().get(0).toSourceCode(true));
+        kotlinFiles.put(classname, context.getRouters().get(0).getRestSourceCode(true));
       } catch (IOException e) {
         SneakyThrows.propagate(e);
       }

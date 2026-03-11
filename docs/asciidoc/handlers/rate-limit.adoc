@@ -1,38 +1,56 @@
-=== RateLimitHandler
+==== RateLimitHandler
 
-Rate limit handler using https://github.com/vladimir-bukhtoyarov/bucket4j[Bucket4j].
+The javadoc:handler.RateLimitHandler[] provides request throttling using the popular https://github.com/vladimir-bukhtoyarov/bucket4j[Bucket4j] library.
 
-Add the dependency to your project:
+To use this handler, add the following dependency to your project:
 
 [dependency, artifactId="bucket4j_jdk17-core", subs="verbatim,attributes"]
 .
 
-.10 requests per minute
+===== Basic Usage
+
+The simplest configuration applies a global limit to all incoming requests.
+
+.10 requests per minute (Global)
 [source, java, role="primary"]
 ----
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
+import io.jooby.handler.RateLimitHandler;
+
 {
   Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
-  Bucket bucket = Bucket4j.builder().addLimit(limit).build();     <1>
+  Bucket bucket = Bucket4j.builder().addLimit(limit).build();     // <1>
 
-  before(new RateLimitHandler(bucket));                           <2>
+  before(new RateLimitHandler(bucket));                           // <2>
 }
 ----
 
 .Kotlin
 [source, kotlin, role="secondary"]
 ----
+import io.github.bucket4j.Bandwidth
+import io.github.bucket4j.Bucket4j
+import io.jooby.handler.RateLimitHandler
+import java.time.Duration
+
 {
   val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
-  val bucket = Bucket4j.builder().addLimit(limit).build()         <1>
+  val bucket = Bucket4j.builder().addLimit(limit).build()         // <1>
 
-  before(RateLimitHandler(bucket))                                <2>
+  before(RateLimitHandler(bucket))                                // <2>
 }
 ----
 
-<1> Creates a bucket
-<2> Install the RateLimitHandler
+<1> Create a bucket with the desired capacity and refill rate.
+<2> Install the `RateLimitHandler` as a `before` filter.
 
-.10 requests per minute per ip/remote address
+===== Throttling by Key
+
+Often, you want to limit requests per user, API key, or IP address rather than globally.
+
+.Throttling by Remote IP
 [source, java, role="primary"]
 ----
 {
@@ -47,21 +65,21 @@ Add the dependency to your project:
 [source, kotlin, role="secondary"]
 ----
 {
-  before(RateLimitHandler {remoteAddress -> 
+  before(RateLimitHandler { remoteAddress -> 
     val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
     Bucket4j.builder().addLimit(limit).build()
   })
 }
 ----
 
-.10 requests per minute per header value
+.Throttling by API Key Header
 [source, java, role="primary"]
 ----
 {
   before(new RateLimitHandler(key -> {
-    Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
+    Bandwidth limit = Bandwidth.simple(50, Duration.ofHours(1));
     return Bucket4j.builder().addLimit(limit).build();
-  }, "ApiKey"));
+  }, "X-API-Key"));
 }
 ----
 
@@ -69,46 +87,28 @@ Add the dependency to your project:
 [source, kotlin, role="secondary"]
 ----
 {
-  before(RateLimitHandler {key -> 
-    val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
+  before(RateLimitHandler({ key -> 
+    val limit = Bandwidth.simple(50, Duration.ofHours(1))
     Bucket4j.builder().addLimit(limit).build()
-  }, "ApiKey")
+  }, "X-API-Key"))
 }
 ----
 
-.10 requests per minute
+===== Clustered Rate Limiting
+
+If you are running multiple Jooby instances, you can use a distributed bucket using Bucket4j's `ProxyManager`. This allows the rate limit state to be shared across the cluster via a backend like Redis or Hazelcast.
+
+.Cluster Support
 [source, java, role="primary"]
 ----
 {
-  Bandwidth limit = Bandwidth.simple(10, Duration.ofMinutes(1));
-  Bucket bucket = Bucket4j.builder().addLimit(limit).build();     <1>
-
-  before(new RateLimitHandler(bucket));                           <2>
-}
-----
-
-.Kotlin
-[source, kotlin, role="secondary"]
-----
-{
-  val limit = Bandwidth.simple(10, Duration.ofMinutes(1))
-  val bucket = Bucket4j.builder().addLimit(limit).build()         <1>
-
-  before(RateLimitHandler(bucket))                                <2>
-}
-----
-
-<1> Creates a bucket
-<2> Install the RateLimitHandler
-
-.Rate limit in a cluster
-[source, java, role="primary"]
-----
-{
-  ProxyManager<String> buckets = ...;
+  ProxyManager<String> buckets = ...; // Configure your backend (Redis, etc.)
+  
   before(RateLimitHandler.cluster(key -> {
     return buckets.getProxy(key, () -> {
-      return ...;
+      return Bucket4j.configurationBuilder()
+          .addLimit(Bandwidth.simple(100, Duration.ofMinutes(1)))
+          .build();
     });
   }));
 }
@@ -118,13 +118,16 @@ Add the dependency to your project:
 [source, kotlin, role="secondary"]
 ----
 {
-  val buckets = ...;
-  before(RateLimitHandler.cluster {key -> 
+  val buckets: ProxyManager<String> = ... // Configure backend
+  
+  before(RateLimitHandler.cluster { key -> 
     buckets.getProxy(key) {
-      ....
+      Bucket4j.configurationBuilder()
+          .addLimit(Bandwidth.simple(100, Duration.ofMinutes(1)))
+          .build()
     }
   })
 }
 ----
 
-For using it inside a cluster you need to configure one of the bucket4j options for https://github.com/vladimir-bukhtoyarov/bucket4j#supported-back-ends[clustering].
+For more details on setting up backends like Redis, Hazelcast, or Infinispan, refer to the https://github.com/vladimir-bukhtoyarov/bucket4j#supported-back-ends[Bucket4j documentation].

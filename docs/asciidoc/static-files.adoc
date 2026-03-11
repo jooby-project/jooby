@@ -1,14 +1,12 @@
-== Static Files
+=== Static Files
 
-// Not sure on this one
-Static files are available via javadoc:Router[assets, java.lang.String, java.nio.file.Path] route. The `assets` route
-supports classpath and file-system resources.
+Static files are served using the javadoc:Router[assets, java.lang.String, java.nio.file.Path] method. The `assets` route supports serving resources from both the classpath and the file system.
 
-.Classpath resources:
+.Serving a directory:
 [source, java, role="primary"]
 ----
 {
-  assets("/static/*", "/source"); <1>
+  assets("/static/*", "/source"); // <1>
 }
 ----
 
@@ -16,24 +14,26 @@ supports classpath and file-system resources.
 [source, kotlin, role="secondary"]
 ----
 {
-  assets("/static/*", "/source")  <1>
+  assets("/static/*", "/source")  // <1>
 }
 ----
 
-<1> Map all the incoming request starting with `/static/` to the `/source` classpath or file system location.
+<1> Maps all incoming requests starting with `/static/` to the `/source` location.
 
-- GET `/static/index.html`     => `/source/index.html`
-- GET `/static/js/file.js`     => `/source/js/file.js`
-- GET `/static/css/styles.css` => `/source/css/styles.css`
+For example:
+* `GET /static/index.html` => `/source/index.html`
+* `GET /static/js/file.js` => `/source/js/file.js`
+* `GET /static/css/styles.css` => `/source/css/styles.css`
 
-The `/source` is resolved against the file system by prepending the `user.dir` path when exists
-it favors the file system source, otherwise the `/source` directory must be present on classpath.
+When passing a string as the source (`"/source"`), Jooby attempts to resolve it against the file system first (by prepending the `user.dir` path). If the directory exists on the file system, it uses it; otherwise, it falls back to looking for the `/source` directory on the classpath.
 
-.File system resources:
+To explicitly serve from the file system, pass a `Path` object:
+
+.Explicit File System Resources:
 [source, java, role="primary"]
 ----
 {
-  assets("/static/*", Paths.get("www")); <1>
+  assets("/static/*", Paths.get("www")); // <1>
 }
 ----
 
@@ -41,45 +41,24 @@ it favors the file system source, otherwise the `/source` directory must be pres
 [source, kotlin, role="secondary"]
 ----
 {
-  assets("/static/*", Paths.get("www"))  <1>
+  assets("/static/*", Paths.get("www"))  // <1>
 }
 ----
 
-<1> Map all the incoming request starting with `/static/` to a file system directory `www`
+<1> Maps all incoming requests starting with `/static/` directly to the `www` directory on the file system.
 
-- GET `/static/index.html`     => `www/index.html`
-- GET `/static/js/file.js`     => `www/js/file.js`
-- GET `/static/css/styles.css` => `www/css/styles.css`
+You can also map individual files rather than entire directories:
 
-Individual file mapping is supported too:
-
-.Classpath:
-[source, role="primary"]
+.Single File Mapping
+[source, java, role="primary"]
 ----
 {
+  // Classpath
   assets("/myfile.js", "/static/myfile.js");
-}
-----
-
-.File system
-[source, role="secondary"]
-----
-{
-  Path basedir = ...;
-  assets("/myfile.js", basedire.resolve("/myfile.js"));
-}
-----
-
-=== Static Site
-
-The `assets` route works for static sites too. Just need to use a special path mapping:
- 
-.Classpath resources:
-[source, java, role="primary"]
-----
-{
-  Path docs = Paths.get("docs"); <1>
-  assets("/docs/?*", docs);      <2>
+  
+  // File System
+  Path basedir = Paths.get("www");
+  assets("/myfile.js", basedir.resolve("myfile.js"));
 }
 ----
 
@@ -87,31 +66,25 @@ The `assets` route works for static sites too. Just need to use a special path m
 [source, kotlin, role="secondary"]
 ----
 {
-  val docs = Paths.get("docs")   <1>
-  assets("/docs/?*", docs)       <2>
+  // Classpath
+  assets("/myfile.js", "/static/myfile.js")
+  
+  // File System
+  val basedir = Paths.get("www")
+  assets("/myfile.js", basedir.resolve("myfile.js"))
 }
 ----
 
-<1> Serve from `docs` directory
-<2> Use the `/?*` mapping
+==== Static Sites
 
-The key difference is the `/?*` mapping. This mapping add support for base root mapping:
+The `assets` route can also serve full static websites (like generated documentation). To enable automatic resolution of `index.html` files, use the special `/?*` path mapping:
 
-- GET `/docs`            => `/docs/index.html`
-- GET `/docs/index.html` => `/docs/index.html`
-- GET `/docs/about.html` => `/docs/about.html`
-- GET `/docs/note`        => `/docs/note/index.html`
-
-=== SPAs
-
-The `assets` route works for single page applications (SPAs) too. Just need to use a special path mapping plus a fallback asset:
- 
-.Classpath resources:
+.Static Site Directory
 [source, java, role="primary"]
 ----
 {
-  AssetSource docs = AssetSource.create(Paths.get("docs")); <1>
-  assets("/docs/?*", new AssetHandler("index.html", docs)); <2>
+  Path docs = Paths.get("docs"); // <1>
+  assets("/docs/?*", docs);      // <2>
 }
 ----
 
@@ -119,22 +92,54 @@ The `assets` route works for single page applications (SPAs) too. Just need to u
 [source, kotlin, role="secondary"]
 ----
 {
-  val docs = AssetSource.create(Paths.get("docs"))          <1>
-  assets("/docs/?*", AssetHandler("index.html", docs))      <2>
+  val docs = Paths.get("docs")   // <1>
+  assets("/docs/?*", docs)       // <2>
 }
 ----
 
-<1> Serve from `docs` directory
-<2> Use the `/?*` mapping and uses `index.html` as fallback asset
+<1> Serve from the `docs` directory.
+<2> Use the `/?*` mapping to enable automatic root resolution.
 
-SPAs mode never generates a `NOT FOUND (404)` response, unresolved assets fallback to `index.html`
+The `/?*` syntax automatically resolves root paths to their underlying `index.html`:
+* `GET /docs` => `/docs/index.html`
+* `GET /docs/index.html` => `/docs/index.html`
+* `GET /docs/about.html` => `/docs/about.html`
+* `GET /docs/note` => `/docs/note/index.html`
 
-=== Options
+==== SPAs
 
-The javadoc:handler.AssetHandler[] automatically handles `E-Tag` and `Last-Modified` headers. You can
-control these headers programmatically:
+The `assets` route also supports Single Page Applications (SPAs) built with React, Vue, or Angular.
 
-.Asset handler options:
+For an SPA to handle client-side routing properly, the server must return the main `index.html` file whenever a requested asset or route is not found. You can configure this using the `AssetHandler`:
+
+.SPA Routing
+[source, java, role="primary"]
+----
+{
+  AssetSource buildDir = AssetSource.create(Paths.get("build")); // <1>
+  assets("/?*", new AssetHandler("index.html", buildDir));       // <2>
+}
+----
+
+.Kotlin
+[source, kotlin, role="secondary"]
+----
+{
+  val buildDir = AssetSource.create(Paths.get("build"))          // <1>
+  assets("/?*", AssetHandler("index.html", buildDir))            // <2>
+}
+----
+
+<1> Define the source directory containing the built SPA.
+<2> Map the root using `/?*` and provide `index.html` as the fallback asset.
+
+In SPA mode, the server never generates a `404 NOT FOUND` response for missing files; it simply falls back to serving the `index.html` so the client-side router can take over.
+
+==== Options
+
+The javadoc:handler.AssetHandler[] automatically generates and handles `ETag` and `Last-Modified` headers. You can control this behavior programmatically:
+
+.Disable ETag and Last-Modified:
 [source, java, role="primary"]
 ----
 {
@@ -154,14 +159,14 @@ control these headers programmatically:
 }
 ----
 
-The `maxAge` option set a `Cache-Control` header:
+You can also set a `Cache-Control` header using the `maxAge` option:
 
-.Cache control:
+.Cache Control:
 [source, java, role="primary"]
 ----
 {
   assets("/static/*", Paths.get("www"))
-    .setMaxAge(Duration.ofDays(365))
+    .setMaxAge(Duration.ofDays(365));
 }
 ----
 
@@ -174,26 +179,24 @@ The `maxAge` option set a `Cache-Control` header:
 }
 ----
 
-There is also a javadoc:handler.AssetHandler[setNoCache] method that explicitly forbids web browsers
-to cache assets.
+To explicitly forbid web browsers from caching assets, use the javadoc:handler.AssetHandler[setNoCache] method.
 
-You can use different cache configurations for different assets based on asset name if you
-specify a function via javadoc:handler.AssetHandler[cacheControl, java.util.Function]:
+If you need different cache configurations for different files, you can provide a function via javadoc:handler.AssetHandler[cacheControl, java.util.Function]:
 
-.Per-asset cache control:
+.Per-Asset Cache Control:
 [source, java, role="primary"]
 ----
 {
   assets("/static/*", Paths.get("www"))
       .cacheControl(path -> {
         if (path.endsWith("dont-cache-me.html")) {
-          return CacheControl.noCache(); // disable caching
+          return CacheControl.noCache(); // Disable caching
         } else if (path.equals("foo.js")) {
           return CacheControl.defaults()
               .setETag(false)
               .setMaxAge(Duration.ofDays(365));
         } else {
-          return CacheControl.defaults(); // AssetHandler defaults
+          return CacheControl.defaults(); // Use default AssetHandler caching
         }
       });
 }
@@ -204,23 +207,21 @@ specify a function via javadoc:handler.AssetHandler[cacheControl, java.util.Func
 ----
 {
   assets("/static/*", Paths.get("www"))
-      .cacheControl {
+      .cacheControl { path ->
         when {
-          it.endsWith("dont-cache-me.html") -> CacheControl.noCache() // disable caching
-          it == "foo.js" -> CacheControl.defaults()
+          path.endsWith("dont-cache-me.html") -> CacheControl.noCache() // Disable caching
+          path == "foo.js" -> CacheControl.defaults()
               .setETag(false)
               .setMaxAge(Duration.ofDays(365))
-          else -> CacheControl.defaults() // AssetHandler defaults
+          else -> CacheControl.defaults() // Use default AssetHandler caching
         }
       }
 }
 ----
 
-The asset handler generates a `404` response code when requested path is not found. You can change this by throwing
-an exception or generating any other content you want:
+By default, the asset handler generates a `404` response if the requested file is not found (unless you are using the SPA fallback). You can override this behavior by throwing a custom exception or generating alternative content:
 
-
-.Custom not found:
+.Custom Not Found Behavior:
 [source, java, role="primary"]
 ----
 {
@@ -230,7 +231,7 @@ an exception or generating any other content you want:
       });
 
   error(MyAssetException.class, (ctx, cause, code) -> {
-    // render MyAssetException as you want
+    // Render MyAssetException the way you want
   });
 }
 ----
@@ -243,8 +244,9 @@ an exception or generating any other content you want:
     .notFound { _ ->
         throw MyAssetException()
     }
-  error(MyAssetException::class) {
-    // render MyAssetException as you want
+    
+  error(MyAssetException::class) { ctx, cause, code ->
+    // Render MyAssetException the way you want
   }
 }
 ----

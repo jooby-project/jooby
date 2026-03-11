@@ -32,6 +32,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final boolean http2;
   private final boolean expectContinue;
   private final Integer compressionLevel;
+  private final NettyDateService dateService;
 
   public NettyPipeline(
       SslContext sslContext,
@@ -43,7 +44,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       boolean defaultHeaders,
       boolean http2,
       boolean expectContinue,
-      Integer compressionLevel) {
+      Integer compressionLevel,
+      NettyDateService dateService) {
     this.sslContext = sslContext;
     this.decoderConfig = decoderConfig;
     this.contextSelector = contextSelector;
@@ -54,6 +56,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.http2 = http2;
     this.expectContinue = expectContinue;
     this.compressionLevel = compressionLevel;
+    this.dateService = dateService;
   }
 
   @Override
@@ -128,7 +131,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
 
   private NettyHandler createHandler(ScheduledExecutorService executor) {
     return new NettyHandler(
-        new NettyDateService(executor),
+        dateService,
         contextSelector,
         maxRequestSize,
         maxFormFields,

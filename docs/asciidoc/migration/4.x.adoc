@@ -65,18 +65,20 @@ runApp(args, new NettyServer(new ServerOptions()), App::new);
 |===
 
 ==== Classes
+[cols="1,1,1,4"]
 |===
-|3.x|4.x|Description|Module
-|io.jooby.buffer.*|-| removed | jooby (core)
-||io.jooby.output.*| new output API | jooby (core)
-|io.jooby.MvcFactory|-| was deprecated and now removed | jooby (core)
-|io.jooby.annotation.ResultType|-| removed | jooby (core)
-|io.jooby.ValueNode|io.jooby.value.Value| replaced/merged | jooby (core)
-|io.jooby.ValueNodeConverter|io.jooby.value.ValueConverter| replaced/merged | jooby (core)
-|io.jooby.RouteSet|io.jooby.Route.Set| moved into Route and renamed to Set | jooby (core)
+|3.x|4.x|Module|Description
+|io.jooby.buffer.*|-| jooby (core) | removed
+||io.jooby.output.*| jooby (core) | new output API
+|io.jooby.MvcFactory|-| jooby (core) | was deprecated and now removed 
+|io.jooby.annotation.ResultType|-| jooby (core) | removed
+|io.jooby.ValueNode|io.jooby.value.Value | jooby (core) | replaced/merged 
+|io.jooby.ValueNodeConverter|io.jooby.value.ValueConverter| jooby (core) | replaced/merged
+|io.jooby.RouteSet|io.jooby.Route.Set | jooby (core) | moved into Route and renamed to Set
 |===
 
 ==== Method
+[cols="1,1,2"]
 |===
 |3.x|4.x|Description
 |io.jooby.Jooby.setServerOptions()|Server.setOptions()| removed in favor of `Server.setOptions()`

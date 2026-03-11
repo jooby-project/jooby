@@ -57,4 +57,14 @@ public @interface PUT {
    * @return Consume types.
    */
   String[] consumes() default {};
+
+  /**
+   * Field paths to include. Supports dot-notation and avaje-notation. It is a shortcut for {@link
+   * Project}.
+   *
+   * <p>Example: <code>id, name, address(city, zip)</code>
+   *
+   * @return Field paths to include. Supports dot-notation and avaje-notation.
+   */
+  String projection() default "";
 }

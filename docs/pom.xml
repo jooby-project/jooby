@@ -10,7 +10,7 @@
 
   <properties>
     <application.class>io.jooby.adoc.DocApp</application.class>
-    <jooby.version>4.0.7</jooby.version>
+    <jooby.version>4.0.15</jooby.version>
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.release>17</maven.compiler.release>

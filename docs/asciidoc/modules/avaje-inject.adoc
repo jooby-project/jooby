@@ -57,7 +57,7 @@ Please note that the order of annotation processors is important. For example, i
 public class App extends Jooby {
 
   {
-    install(AvajeInjectModule.of());                     <1>
+    install(AvajeInjectModule.of());                <1>
         
     get("/", ctx -> {
       MyService service = require(MyService.class); <2>
