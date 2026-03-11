@@ -6,6 +6,7 @@
 package io.jooby.internal.netty;
 
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
@@ -76,7 +77,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private void setupHttp11(ChannelPipeline p) {
     p.addLast("codec", createServerCodec());
     addCommonHandlers(p);
-    p.addLast("handler", createHandler());
+    p.addLast("handler", createHandler(p.channel().eventLoop()));
   }
 
   private void setupHttp2(ChannelPipeline pipeline) {
@@ -102,7 +103,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
             (int) maxRequestSize));
 
     addCommonHandlers(pipeline);
-    pipeline.addLast("handler", createHandler());
+    pipeline.addLast("handler", createHandler(pipeline.channel().eventLoop()));
   }
 
   private ChannelInboundHandler setupHttp2Handshake(boolean secure) {
@@ -128,7 +129,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
         new Http2MultiplexHandler(new Http2StreamInitializer(this)));
   }
 
-  private NettyHandler createHandler() {
+  private NettyHandler createHandler(ScheduledExecutorService executor) {
     return new NettyHandler(
         dateService,
         contextSelector,
@@ -195,7 +196,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(Channel ch) {
       ch.pipeline().addLast("http2", new Http2StreamFrameToHttpObjectCodec(true));
-      ch.pipeline().addLast("handler", pipeline.createHandler());
+      ch.pipeline().addLast("handler", pipeline.createHandler(ch.eventLoop()));
     }
   }
 }
