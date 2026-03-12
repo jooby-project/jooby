@@ -5,35 +5,48 @@
  */
 package io.jooby.internal.jetty;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.Flow;
-import java.util.function.Function;
 
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.Context;
+import io.jooby.GrpcExchange;
+import io.jooby.GrpcProcessor;
 
-/** A professional Jetty Handler that bridges HTTP/2 streams to a gRPC Subscriber. */
-public class JettyGrpcHandler extends Handler.Abstract {
+public class JettyGrpcHandler extends Handler.Wrapper {
 
-  private final Function<Context, Flow.Subscriber<byte[]>> subscriberFactory;
-  private final Context ctx;
+  private final GrpcProcessor processor;
 
-  public JettyGrpcHandler(
-      io.jooby.Context ctx, Function<Context, Flow.Subscriber<byte[]>> subscriberFactory) {
-    this.ctx = ctx;
-    this.subscriberFactory = subscriberFactory;
+  public JettyGrpcHandler(Handler next, GrpcProcessor processor) {
+    this.processor = processor;
+    setHandler(next);
   }
 
   @Override
-  public boolean handle(Request request, Response response, Callback callback) {
-    Flow.Subscriber<byte[]> subscriber = subscriberFactory.apply(ctx);
+  public boolean handle(Request request, Response response, Callback callback) throws Exception {
+    String contentType = request.getHeaders().get("Content-Type");
 
-    JettyRequestPublisher publisher = new JettyRequestPublisher(request);
-    publisher.subscribe(subscriber);
+    if (contentType != null && contentType.startsWith("application/grpc")) {
 
-    return true;
+      if (!"HTTP/2.0".equals(request.getConnectionMetaData().getProtocol())) {
+        response.setStatus(426); // Upgrade Required
+        response.getHeaders().put("Connection", "Upgrade");
+        response.getHeaders().put("Upgrade", "h2c");
+        callback.succeeded();
+        return true;
+      }
+
+      GrpcExchange exchange = new JettyGrpcExchange(request, response, callback);
+      Flow.Subscriber<ByteBuffer> subscriber = processor.process(exchange);
+
+      new JettyGrpcInputBridge(request, subscriber, callback).start();
+
+      return true;
+    }
+
+    return super.handle(request, response, callback);
   }
 }

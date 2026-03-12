@@ -1097,12 +1097,6 @@ public class ForwardingContext implements Context {
   }
 
   @Override
-  public Context setResponseTrailer(@NonNull String name, @NonNull String value) {
-    ctx.setResponseHeader(name, value);
-    return this;
-  }
-
-  @Override
   public Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
     ctx.setResponseHeader(name, value);
     return this;
@@ -1226,11 +1220,6 @@ public class ForwardingContext implements Context {
   @Override
   public Sender responseSender() {
     return ctx.responseSender();
-  }
-
-  @Override
-  public Sender responseSender(boolean startResponse) {
-    return ctx.responseSender(startResponse);
   }
 
   @Override

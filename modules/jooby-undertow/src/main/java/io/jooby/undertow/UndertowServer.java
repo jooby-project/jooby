@@ -18,6 +18,7 @@ import org.xnio.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
+import io.jooby.internal.undertow.UndertowGrpcHandler;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.jooby.internal.undertow.UndertowWebSocket;
 import io.jooby.output.OutputFactory;
@@ -100,6 +101,13 @@ public class UndertowServer extends Server.Base {
               getOptions().getOutput().getSize(),
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
+
+      GrpcProcessor grpcProcessor =
+          applications.get(0).getServices().getOrNull(GrpcProcessor.class);
+
+      if (grpcProcessor != null) {
+        handler = new UndertowGrpcHandler(handler, grpcProcessor);
+      }
 
       if (options.getCompressionLevel() != null) {
         int compressionLevel = options.getCompressionLevel();

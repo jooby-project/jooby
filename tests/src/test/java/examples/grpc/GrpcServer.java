@@ -8,7 +8,6 @@ package examples.grpc;
 import java.io.IOException;
 import java.util.List;
 
-import io.grpc.protobuf.services.ProtoReflectionServiceV1;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.StartupSummary;
@@ -21,9 +20,7 @@ public class GrpcServer extends Jooby {
   {
     setStartupSummary(List.of(StartupSummary.VERBOSE));
     use(new AccessLogHandler());
-    install(
-        new GrpcModule(
-            new GreeterService(), new ChatServiceImpl(), ProtoReflectionServiceV1.newInstance()));
+    install(new GrpcModule(new GreeterService(), new ChatServiceImpl()));
   }
 
   //  INFO  [2026-01-15 10:19:29,307] [worker-55] UnifiedGrpcBridge method type: BIDI_STREAMING

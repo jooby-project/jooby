@@ -32,9 +32,7 @@ import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
-import io.jooby.internal.jetty.JettyHandler;
-import io.jooby.internal.jetty.JettyHttpExpectAndContinueHandler;
-import io.jooby.internal.jetty.PrefixHandler;
+import io.jooby.internal.jetty.*;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 import io.jooby.output.OutputFactory;
 
@@ -303,12 +301,17 @@ public class JettyServer extends io.jooby.Server.Base {
               if (options.isExpectContinue() == Boolean.TRUE) {
                 handler = new JettyHttpExpectAndContinueHandler(handler);
               }
+              GrpcProcessor grpcProcessor =
+                  application.getServices().getOrNull(GrpcProcessor.class);
+              if (grpcProcessor != null) {
+                handler = new JettyGrpcHandler(handler, grpcProcessor);
+              }
               return Map.entry(application.getContextPath(), handler);
             })
         .toList();
   }
 
-  @NonNull @Override
+  @Override
   public List<String> getLoggerOff() {
     return List.of(
         "org.eclipse.jetty.server.Server",

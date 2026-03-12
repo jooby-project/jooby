@@ -5,16 +5,12 @@
  */
 package io.jooby.internal.jetty;
 
-import java.util.function.Function;
-
-import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
 import io.jooby.Router;
-import io.jooby.ServiceKey;
 import io.jooby.internal.jetty.http2.JettyHeaders;
 
 public class JettyHandler extends Handler.Abstract {
@@ -47,13 +43,7 @@ public class JettyHandler extends Handler.Abstract {
       var context =
           new JettyContext(
               getInvocationType(), request, response, callback, router, bufferSize, maxRequestSize);
-      if (!"POST".equalsIgnoreCase(request.getMethod())
-          || !request.getHeaders().contains(HttpHeader.CONTENT_TYPE, "application/grpc")) {
-        router.match(context).execute(context);
-      } else {
-        var subscriber = router.require(ServiceKey.key(Function.class, "gRPC"));
-        new JettyGrpcHandler(context, subscriber).handle(request, response, callback);
-      }
+      router.match(context).execute(context);
     } catch (JettyStopPipeline ignored) {
       // handled already,
     }

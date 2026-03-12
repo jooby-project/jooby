@@ -560,11 +560,6 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Sender responseSender() {
-    return responseSender(true);
-  }
-
-  @Override
   default OutputStream responseStream(@NonNull MediaType contentType) {
     setResponseType(contentType);
     return responseStream();
