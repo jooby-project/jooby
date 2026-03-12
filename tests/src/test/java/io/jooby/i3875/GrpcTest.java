@@ -130,10 +130,20 @@ public class GrpcTest {
 
                 requestObserver.onNext(
                     ChatMessage.newBuilder().setUser("JavaClient").setText("Ping 1").build());
+
+                // Add a tiny delay to prevent CI thread-scheduler race conditions
+                // where the server closes the stream before Undertow finishes flushing Ping 2.
+                Thread.sleep(50);
+
                 requestObserver.onNext(
                     ChatMessage.newBuilder().setUser("JavaClient").setText("Ping 2").build());
+
+                // Allow Ping 2 to reach the server before sending the close signal
+                Thread.sleep(50);
+
                 requestObserver.onCompleted();
 
+                // Wait for the server stream to gracefully complete
                 boolean completed = latch.await(5, TimeUnit.SECONDS);
 
                 assertThat(completed).isTrue();
