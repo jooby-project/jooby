@@ -5,10 +5,6 @@
  */
 package io.jooby.internal.undertow;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.Flow;
-
-import io.jooby.GrpcExchange;
 import io.jooby.GrpcProcessor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -27,9 +23,11 @@ public class UndertowGrpcHandler implements HttpHandler {
 
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    String contentType = exchange.getRequestHeaders().getFirst(Headers.CONTENT_TYPE);
+    var contentType = exchange.getRequestHeaders().getFirst(Headers.CONTENT_TYPE);
 
-    if (contentType != null && contentType.startsWith("application/grpc")) {
+    if (processor.isGrpcMethod(exchange.getRequestPath())
+        && contentType != null
+        && contentType.startsWith("application/grpc")) {
 
       // gRPC strictly requires HTTP/2
       if (!exchange.getProtocol().equals(Protocols.HTTP_2_0)) {
@@ -40,15 +38,11 @@ public class UndertowGrpcHandler implements HttpHandler {
         return;
       }
 
-      // Note: We DO NOT call exchange.dispatch() here.
-      // Undertow knows we are handling this asynchronously because
-      // the InputBridge will acquire the RequestChannel natively.
-
-      GrpcExchange grpcExchange = new UndertowGrpcExchange(exchange);
-      Flow.Subscriber<ByteBuffer> subscriber = processor.process(grpcExchange);
+      var grpcExchange = new UndertowGrpcExchange(exchange);
+      var subscriber = processor.process(grpcExchange);
 
       // Starts the reactive pipeline and acquires the XNIO channel
-      UndertowGrpcInputBridge inputBridge = new UndertowGrpcInputBridge(exchange, subscriber);
+      var inputBridge = new UndertowGrpcInputBridge(exchange, subscriber);
       inputBridge.start();
 
       return; // Fully handled, do not pass to the standard router

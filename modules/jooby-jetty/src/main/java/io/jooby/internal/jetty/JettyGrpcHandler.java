@@ -5,15 +5,11 @@
  */
 package io.jooby.internal.jetty;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.Flow;
-
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.GrpcExchange;
 import io.jooby.GrpcProcessor;
 
 public class JettyGrpcHandler extends Handler.Wrapper {
@@ -27,9 +23,11 @@ public class JettyGrpcHandler extends Handler.Wrapper {
 
   @Override
   public boolean handle(Request request, Response response, Callback callback) throws Exception {
-    String contentType = request.getHeaders().get("Content-Type");
+    var contentType = request.getHeaders().get("Content-Type");
 
-    if (contentType != null && contentType.startsWith("application/grpc")) {
+    if (processor.isGrpcMethod(request.getHttpURI().getPath())
+        && contentType != null
+        && contentType.startsWith("application/grpc")) {
 
       if (!"HTTP/2.0".equals(request.getConnectionMetaData().getProtocol())) {
         response.setStatus(426); // Upgrade Required
@@ -39,14 +37,15 @@ public class JettyGrpcHandler extends Handler.Wrapper {
         return true;
       }
 
-      GrpcExchange exchange = new JettyGrpcExchange(request, response, callback);
-      Flow.Subscriber<ByteBuffer> subscriber = processor.process(exchange);
+      var exchange = new JettyGrpcExchange(request, response, callback);
+      var subscriber = processor.process(exchange);
 
       new JettyGrpcInputBridge(request, subscriber, callback).start();
 
       return true;
     }
 
+    // not grpc, move next
     return super.handle(request, response, callback);
   }
 }

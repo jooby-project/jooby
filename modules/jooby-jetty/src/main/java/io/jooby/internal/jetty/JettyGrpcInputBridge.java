@@ -10,7 +10,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.util.Callback;
 
@@ -54,7 +53,7 @@ public class JettyGrpcInputBridge implements Flow.Subscription, Runnable {
   public void run() {
     try {
       while (demand.get() > 0) {
-        Content.Chunk chunk = request.read();
+        var chunk = request.read();
 
         if (chunk == null) {
           request.demand(this);
@@ -62,14 +61,14 @@ public class JettyGrpcInputBridge implements Flow.Subscription, Runnable {
         }
 
         try {
-          Throwable failure = chunk.getFailure();
+          var failure = chunk.getFailure();
           if (failure != null) {
             subscriber.onError(failure);
             callback.failed(failure);
             return;
           }
 
-          ByteBuffer buffer = chunk.getByteBuffer();
+          var buffer = chunk.getByteBuffer();
           if (buffer != null && buffer.hasRemaining()) {
             subscriber.onNext(buffer);
             demand.decrementAndGet();

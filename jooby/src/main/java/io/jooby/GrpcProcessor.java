@@ -12,6 +12,10 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 
 /** Intercepts and processes gRPC exchanges. */
 public interface GrpcProcessor {
+
+  /** Checks if the given URI path exactly matches a registered gRPC method. */
+  boolean isGrpcMethod(String path);
+
   /**
    * @return A subscriber that the server will feed ByteBuffer chunks into, or null if the exchange
    *     was rejected/unimplemented.

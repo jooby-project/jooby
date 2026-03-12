@@ -34,7 +34,7 @@ public class JettyGrpcExchange implements GrpcExchange {
 
     response.getHeaders().put("Content-Type", "application/grpc");
 
-    // CRITICAL FIX: Register the supplier BEFORE the response commits
+    // Register the supplier BEFORE the response commits
     response.setTrailersSupplier(() -> trailers);
   }
 

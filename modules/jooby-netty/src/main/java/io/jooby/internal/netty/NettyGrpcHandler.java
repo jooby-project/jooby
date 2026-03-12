@@ -5,10 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.Flow;
-
-import io.jooby.GrpcExchange;
 import io.jooby.GrpcProcessor;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,9 +31,14 @@ public class NettyGrpcHandler extends ChannelInboundHandlerAdapter {
 
     // 1. Intercept the initial Request headers
     if (msg instanceof HttpRequest req) {
-      String contentType = req.headers().get(HttpHeaderNames.CONTENT_TYPE);
+      var contentType = req.headers().get(HttpHeaderNames.CONTENT_TYPE);
+      var path = req.uri();
+      int queryIndex = path.indexOf('?');
+      path = queryIndex > 0 ? path.substring(0, queryIndex) : path;
 
-      if (contentType != null && contentType.startsWith("application/grpc")) {
+      if (processor.isGrpcMethod(path)
+          && contentType != null
+          && contentType.startsWith("application/grpc")) {
         isGrpc = true;
 
         if (!isHttp2) {
@@ -53,15 +54,11 @@ public class NettyGrpcHandler extends ChannelInboundHandlerAdapter {
         }
 
         // We will implement NettyGrpcExchange in the next step
-        GrpcExchange exchange = new NettyGrpcExchange(ctx, req);
-        Flow.Subscriber<ByteBuffer> subscriber = processor.process(exchange);
+        var exchange = new NettyGrpcExchange(ctx, req);
+        var subscriber = processor.process(exchange);
 
-        if (subscriber != null) {
-          inputBridge = new NettyGrpcInputBridge(ctx, subscriber);
-          inputBridge.start();
-        } else {
-          // Exchange was rejected/closed internally by processor (e.g. Unimplemented)
-        }
+        inputBridge = new NettyGrpcInputBridge(ctx, subscriber);
+        inputBridge.start();
 
         ReferenceCountUtil.release(msg); // We consumed the headers
         return;

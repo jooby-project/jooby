@@ -2,21 +2,11 @@
 <configuration>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>[%d{ISO8601}]-[%thread] %-5level %logger - %msg%n</pattern>
+      <pattern>%-5p [%d{ISO8601}] [%thread] %msg %ex{0}%n</pattern>
     </encoder>
   </appender>
 
   <variable name="BUILD_LOG_LEVEL" value="${BUILD_LOG_LEVEL:-INFO}" />
-
-  <logger name="io.grpc" level="DEBUG" />
-
-  <logger name="io.grpc.netty.shaded" level="INFO" />
-
-  <logger name="org.xnio" level="TRACE" />
-  <logger name="io.undertow" level="TRACE" />
-
-  <logger name="io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler" level="DEBUG" />
-
 
   <root level="${BUILD_LOG_LEVEL}">
     <appender-ref ref="STDOUT"/>

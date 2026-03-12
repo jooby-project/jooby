@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.grpc;
+package io.jooby.internal.grpc;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Flow.Subscriber;

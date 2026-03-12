@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package test;
+package io.jooby.i3875;
 
-option java_package = "com.example.grpc";
+option java_package = "io.jooby.i3875";
 option java_multiple_files = true;
 
 service ChatService {

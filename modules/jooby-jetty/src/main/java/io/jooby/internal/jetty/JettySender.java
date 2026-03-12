@@ -5,11 +5,11 @@
  */
 package io.jooby.internal.jetty;
 
+import static io.jooby.internal.jetty.JettyCallbacks.fromOutput;
+
 import java.nio.ByteBuffer;
 
-import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.server.Response;
-import org.eclipse.jetty.util.Callback;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
@@ -18,92 +18,22 @@ import io.jooby.output.Output;
 public class JettySender implements Sender {
   private final JettyContext ctx;
   private final Response response;
-  private HttpFields.Mutable trailers;
-  private ByteBuffer pending;
-  private org.eclipse.jetty.util.Callback pendingCallback;
 
-  public JettySender(JettyContext ctx) {
+  public JettySender(JettyContext ctx, Response response) {
     this.ctx = ctx;
-    this.response = ctx.response;
-    this.trailers = ctx.trailers;
-  }
-
-  @Override
-  public Sender setTrailer(@NonNull String name, @NonNull String value) {
-    if (trailers == null) {
-      trailers = HttpFields.build();
-    }
-    trailers.put(name, value);
-    return this;
+    this.response = response;
   }
 
   @Override
   public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
-    return write(ByteBuffer.wrap(data), callback);
+    response.write(false, ByteBuffer.wrap(data), toJettyCallback(ctx, callback));
+    return this;
   }
 
   @NonNull @Override
   public Sender write(@NonNull Output output, @NonNull Callback callback) {
-    return write(output.asByteBuffer(), callback);
-  }
-
-  public Sender write(@NonNull ByteBuffer buffer, @NonNull Callback callback) {
-    if (trailers != null) {
-      var copy = HttpFields.build(trailers);
-      response.setTrailersSupplier(() -> copy);
-      this.trailers = null;
-    }
-    response.write(
-        false,
-        buffer,
-        new org.eclipse.jetty.util.Callback() {
-          @Override
-          public void succeeded() {
-            org.eclipse.jetty.util.Callback.super.succeeded();
-          }
-
-          @Override
-          public void failed(Throwable x) {
-            org.eclipse.jetty.util.Callback.super.failed(x);
-          }
-        });
-    //    if (trailers == null) {
-    //      response.write(false, buffer, toJettyCallback(ctx, callback));
-    //    } else {
-    //      if (pending != null) {
-    //        response.write(false, pending, pendingCallback);
-    //      }
-    //      pending = buffer;
-    //      pendingCallback = toJettyCallback(ctx, callback);
-    //    }
+    fromOutput(response, toJettyCallback(ctx, callback), output).send(false);
     return this;
-  }
-
-  @Override
-  public void close() {
-    //    if (trailers != null) {
-    //      response.setTrailersSupplier(() -> trailers);
-    //      response.write(true, null, new org.eclipse.jetty.util.Callback() {
-    //        @Override
-    //        public void succeeded() {
-    //          System.out.println("Succeed");
-    //        }
-    //
-    //        @Override
-    //        public void failed(Throwable throwable) {
-    //          System.out.println("Failed");
-    //          throwable.printStackTrace();
-    //        }
-    //      });
-    //    } else {
-    response.write(true, null, ctx);
-    //    }
-    //    if (pending != null) {
-    //      response.setTrailersSupplier(() -> trailers);
-    //      response.write(true, pending, ctx);
-    //    } else {
-    //      response.write(true, null, ctx);
-    //    }
   }
 
   private static org.eclipse.jetty.util.Callback toJettyCallback(
@@ -120,5 +50,10 @@ public class JettySender implements Sender {
         callback.onComplete(ctx, x);
       }
     };
+  }
+
+  @Override
+  public void close() {
+    response.write(false, null, ctx);
   }
 }

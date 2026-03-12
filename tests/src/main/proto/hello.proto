@@ -1,6 +1,8 @@
 syntax = "proto3";
 
-option java_package = "com.example.grpc";
+package io.jooby.i3875;
+
+option java_package = "io.jooby.i3875";
 option java_multiple_files = true;
 
 // The request message containing the user's name.

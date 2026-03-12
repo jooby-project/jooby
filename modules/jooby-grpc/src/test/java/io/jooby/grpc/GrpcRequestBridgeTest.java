@@ -5,120 +5,155 @@
  */
 package io.jooby.grpc;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Flow.Subscription;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import io.grpc.ClientCall;
+import io.grpc.MethodDescriptor;
 import io.grpc.stub.ClientCallStreamObserver;
+import io.grpc.stub.ClientResponseObserver;
+import io.jooby.internal.grpc.GrpcRequestBridge;
 
 public class GrpcRequestBridgeTest {
 
-  private ClientCallStreamObserver<byte[]> grpcObserver;
+  private ClientCall<byte[], byte[]> call;
   private Subscription subscription;
+  private ClientCallStreamObserver<byte[]> requestObserver;
+  private ClientResponseObserver<byte[], byte[]> responseObserver;
   private GrpcRequestBridge bridge;
 
   @BeforeEach
   @SuppressWarnings("unchecked")
   public void setUp() {
-    grpcObserver = mock(ClientCallStreamObserver.class);
+    call = mock(ClientCall.class);
     subscription = mock(Subscription.class);
-    bridge = new GrpcRequestBridge(grpcObserver);
+    requestObserver = mock(ClientCallStreamObserver.class);
+    responseObserver = mock(ClientResponseObserver.class);
+
+    // Default to BIDI_STREAMING to test standard flow-control and backpressure
+    bridge = new GrpcRequestBridge(call, MethodDescriptor.MethodType.BIDI_STREAMING);
+    bridge.setRequestObserver(requestObserver);
+    bridge.setResponseObserver(responseObserver);
   }
 
   @Test
+  @DisplayName("Should request initial demand (1) upon subscription")
   public void shouldRequestInitialDemandOnSubscribe() {
     bridge.onSubscribe(subscription);
 
-    // Verify gRPC readiness handler is registered
-    verify(grpcObserver).setOnReadyHandler(any(Runnable.class));
-
-    // Verify initial demand of 1 is requested from Jooby
     verify(subscription).request(1);
   }
 
   @Test
-  public void shouldDelegateOnNextAndRequestMoreIfReady() {
+  @DisplayName("Should forward payload to requestObserver and request more if gRPC buffer is ready")
+  public void shouldSendMessageAndRequestMoreIfReady() {
     bridge.onSubscribe(subscription);
+    reset(subscription); // Clear the initial request(1) counter
 
-    // Reset the mock to clear the initial request(1) from onSubscribe
-    reset(subscription);
+    when(requestObserver.isReady()).thenReturn(true);
 
-    // Simulate gRPC being ready to receive more data
-    when(grpcObserver.isReady()).thenReturn(true);
-
-    // Send a complete gRPC frame: Compressed Flag (0) + Length (4) + Payload ("test")
     byte[] payload = "test".getBytes();
-    ByteBuffer frame = ByteBuffer.allocate(5 + payload.length);
-    frame.put((byte) 0).putInt(payload.length).put(payload).flip();
+    ByteBuffer frame = createFrame(payload);
 
     bridge.onNext(frame);
 
-    // Verify the deframed payload was passed to gRPC
-    verify(grpcObserver).onNext(payload);
+    ArgumentCaptor<byte[]> captor = ArgumentCaptor.forClass(byte[].class);
+    verify(requestObserver).onNext(captor.capture());
+    assertArrayEquals(payload, captor.getValue(), "The deframed payload should match exactly");
 
-    // Verify backpressure: since gRPC was ready, it should request the next chunk
+    // Because isReady() is true, it should demand the next network chunk
     verify(subscription).request(1);
   }
 
   @Test
-  public void shouldDelegateOnNextButSuspendDemandIfNotReady() {
+  @DisplayName(
+      "Should forward payload but apply backpressure (do not request) if gRPC is not ready")
+  public void shouldNotRequestMoreIfNotReady() {
     bridge.onSubscribe(subscription);
     reset(subscription);
 
-    // Simulate gRPC internal buffer being full (not ready)
-    when(grpcObserver.isReady()).thenReturn(false);
+    when(requestObserver.isReady()).thenReturn(false);
 
     byte[] payload = "test".getBytes();
-    ByteBuffer frame = ByteBuffer.allocate(5 + payload.length);
-    frame.put((byte) 0).putInt(payload.length).put(payload).flip();
+    bridge.onNext(createFrame(payload));
 
-    bridge.onNext(frame);
+    verify(requestObserver).onNext(any());
 
-    verify(grpcObserver).onNext(payload);
-
-    // Verify backpressure: gRPC is NOT ready, so we MUST NOT request more from Jooby
+    // Since isReady() is false, it should NOT request more data, effectively applying backpressure
     verify(subscription, never()).request(anyLong());
   }
 
   @Test
-  public void shouldResumeDemandWhenGrpcBecomesReady() {
+  @DisplayName("Should complete the requestObserver when the network stream completes")
+  public void shouldCompleteRequestObserverOnComplete() {
+    bridge.onSubscribe(subscription);
+    bridge.onComplete();
+
+    verify(requestObserver).onCompleted();
+  }
+
+  @Test
+  @DisplayName("Should propagate network errors to the requestObserver")
+  public void shouldPropagateErrorToObserver() {
+    bridge.onSubscribe(subscription);
+    Throwable error = new RuntimeException("Stream network failure");
+
+    bridge.onError(error);
+
+    verify(requestObserver).onError(error);
+  }
+
+  @Test
+  @DisplayName("Unary calls should accumulate payload without forwarding until EOF")
+  public void shouldHandleUnaryCallsDifferently() {
+    bridge = new GrpcRequestBridge(call, MethodDescriptor.MethodType.UNARY);
+    bridge.setResponseObserver(responseObserver);
     bridge.onSubscribe(subscription);
     reset(subscription);
 
-    // Capture the readiness handler registered during onSubscribe
-    ArgumentCaptor<Runnable> handlerCaptor = ArgumentCaptor.forClass(Runnable.class);
-    verify(grpcObserver).setOnReadyHandler(handlerCaptor.capture());
-    Runnable onReadyHandler = handlerCaptor.getValue();
+    byte[] payload = "unary".getBytes();
+    bridge.onNext(createFrame(payload));
 
-    // Simulate gRPC signaling that it is now ready
-    when(grpcObserver.isReady()).thenReturn(true);
-    onReadyHandler.run();
+    // For Unary and Server Streaming, chunks are NOT passed via onNext
+    verify(requestObserver, never()).onNext(any());
 
-    // Verify backpressure: the handler should resume demanding data
+    // It should keep requesting data from the network until EOF is reached
     verify(subscription).request(1);
   }
 
   @Test
-  public void shouldCancelSubscriptionAndDelegateOnError() {
+  @DisplayName("onGrpcReady callback should trigger network demand if stream is active")
+  public void shouldRequestMoreOnGrpcReady() {
     bridge.onSubscribe(subscription);
+    reset(subscription);
 
-    Throwable error = new RuntimeException("Network failure");
-    bridge.onError(error);
+    when(requestObserver.isReady()).thenReturn(true);
 
-    verify(grpcObserver).onError(error);
+    bridge.onGrpcReady();
+
+    verify(subscription).request(1);
   }
 
-  @Test
-  public void shouldDelegateOnCompleteIdempotently() {
-    bridge.onComplete();
-    bridge.onComplete(); // Second call should be ignored
-
-    verify(grpcObserver, times(1)).onCompleted();
+  private ByteBuffer createFrame(byte[] payload) {
+    ByteBuffer frame = ByteBuffer.allocate(5 + payload.length);
+    frame.put((byte) 0); // Uncompressed flag
+    frame.putInt(payload.length);
+    frame.put(payload);
+    frame.flip(); // Prepare buffer for reading
+    return frame;
   }
 }

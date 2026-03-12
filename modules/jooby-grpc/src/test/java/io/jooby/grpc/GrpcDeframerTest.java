@@ -14,6 +14,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.jooby.internal.grpc.GrpcDeframer;
+
 public class GrpcDeframerTest {
 
   private GrpcDeframer deframer;

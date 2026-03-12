@@ -113,7 +113,6 @@ public class NettyContext implements DefaultContext {
   private static final String STREAM_ID = "x-http2-stream-id";
 
   private String streamId;
-  HeadersMultiMap trailers;
   HeadersMultiMap setHeaders = HEADERS.newHeaders();
   private int bufferSize;
   InterfaceHttpPostRequestDecoder decoder;
@@ -382,9 +381,7 @@ public class NettyContext implements DefaultContext {
     if (decoder != null && decoder.hasNext()) {
       return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
     }
-    return (req instanceof DefaultFullHttpRequest full)
-        ? new NettyByteBufBody(this, full.content())
-        : Body.empty(this);
+    return Body.empty(this);
   }
 
   @Override
@@ -499,15 +496,6 @@ public class NettyContext implements DefaultContext {
   }
 
   @NonNull @Override
-  public Context setResponseTrailer(@NonNull String name, @NonNull String value) {
-    if (trailers == null) {
-      trailers = HEADERS.newHeaders();
-    }
-    trailers.set(name, value);
-    return this;
-  }
-
-  @NonNull @Override
   public Context removeResponseHeader(@NonNull String name) {
     setHeaders.remove(name);
     return this;
@@ -587,11 +575,9 @@ public class NettyContext implements DefaultContext {
         new NettyWriter(newOutputStream(), ofNullable(type.getCharset()).orElse(UTF_8)));
   }
 
-  @Override
-  public Sender responseSender(boolean startResponse) {
-    if (startResponse) {
-      prepareChunked();
-    }
+  @NonNull @Override
+  public Sender responseSender() {
+    prepareChunked();
     ctx.write(new DefaultHttpResponse(HTTP_1_1, status, setHeaders));
     return new NettySender(this);
   }
@@ -645,9 +631,7 @@ public class NettyContext implements DefaultContext {
     try {
       responseStarted = true;
       setHeaders.set(CONTENT_LENGTH, contentLength);
-      var response =
-          new DefaultFullHttpResponse(
-              HTTP_1_1, status, data, setHeaders, trailers == null ? NO_TRAILING : trailers);
+      var response = new DefaultFullHttpResponse(HTTP_1_1, status, data, setHeaders, NO_TRAILING);
       connection.writeMessage(response, promise());
       return this;
     } finally {

@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.grpc;
+package io.jooby.internal.grpc;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.CallOptions;
-import io.grpc.ClientCall;
 import io.grpc.ManagedChannel;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
@@ -27,7 +27,7 @@ import io.grpc.stub.ClientResponseObserver;
 import io.jooby.GrpcExchange;
 import io.jooby.GrpcProcessor;
 
-public class UnifiedGrpcBridge implements GrpcProcessor {
+public class DefaultGrpcProcessor implements GrpcProcessor {
 
   // Minimal Marshaller to pass raw bytes through the bridge
   private static class RawMarshaller implements MethodDescriptor.Marshaller<byte[]> {
@@ -48,24 +48,39 @@ public class UnifiedGrpcBridge implements GrpcProcessor {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final ManagedChannel channel;
-  private final GrpcMethodRegistry methodRegistry;
+  private final Map<String, MethodDescriptor<?, ?>> registry;
 
-  public UnifiedGrpcBridge(ManagedChannel channel, GrpcMethodRegistry methodRegistry) {
+  public DefaultGrpcProcessor(
+      ManagedChannel channel, Map<String, MethodDescriptor<?, ?>> registry) {
     this.channel = channel;
-    this.methodRegistry = methodRegistry;
+    this.registry = registry;
   }
 
   @Override
-  public Flow.Subscriber<ByteBuffer> process(GrpcExchange exchange) {
+  public boolean isGrpcMethod(String path) {
+    // gRPC paths typically come in as "/package.Service/Method"
+    // Our registry stores them as "package.Service/Method"
+    String methodName = path.startsWith("/") ? path.substring(1) : path;
+
+    // Quick O(1) hash map lookup
+    return registry.get(methodName) != null;
+  }
+
+  @Override
+  public @NonNull Flow.Subscriber<ByteBuffer> process(@NonNull GrpcExchange exchange) {
     // Route paths: /{package.Service}/{Method}
     String path = exchange.getRequestPath();
     // Remove the leading slash to match the gRPC method registry format
-    var descriptor = methodRegistry.get(path.substring(1));
+    var descriptor = registry.get(path.substring(1));
 
     if (descriptor == null) {
-      log.warn("Method not found in bridge registry: {}", path);
-      exchange.close(Status.UNIMPLEMENTED.getCode().value(), "Method not found");
-      return null;
+      // MUST never occur, it is guarded by {@link #isGrpcMethod}
+      throw new IllegalStateException(
+          "Unregistered gRPC method: '"
+              + path
+              + "'. "
+              + "This request bypassed the GrpcProcessor.isGrpcMethod() guard, "
+              + "indicating a bug or misconfiguration in the native server interceptor.");
     }
 
     var method =
@@ -76,25 +91,24 @@ public class UnifiedGrpcBridge implements GrpcProcessor {
             .setResponseMarshaller(new RawMarshaller())
             .build();
 
-    CallOptions callOptions = extractCallOptions(exchange);
-    io.grpc.Metadata metadata = extractMetadata(exchange);
+    var callOptions = extractCallOptions(exchange);
+    var metadata = extractMetadata(exchange);
 
-    io.grpc.Channel interceptedChannel =
+    var interceptedChannel =
         io.grpc.ClientInterceptors.intercept(
             channel, io.grpc.stub.MetadataUtils.newAttachHeadersInterceptor(metadata));
 
-    ClientCall<byte[], byte[]> call = interceptedChannel.newCall(method, callOptions);
-    AtomicBoolean isFinished = new AtomicBoolean(false);
+    var call = interceptedChannel.newCall(method, callOptions);
+    var isFinished = new AtomicBoolean(false);
 
     boolean isUnaryOrServerStreaming =
         method.getType() == MethodDescriptor.MethodType.UNARY
             || method.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
 
-    // 1. Create the effectively final bridge
-    GrpcRequestBridge requestBridge = new GrpcRequestBridge(call, method.getType());
+    var requestBridge = new GrpcRequestBridge(call, method.getType());
 
-    ClientResponseObserver<byte[], byte[]> responseObserver =
-        new ClientResponseObserver<>() {
+    var responseObserver =
+        new ClientResponseObserver<byte[], byte[]>() {
 
           @Override
           public void beforeStart(ClientCallStreamObserver<byte[]> requestStream) {
@@ -158,10 +172,10 @@ public class UnifiedGrpcBridge implements GrpcProcessor {
     }
 
     try {
-      char unit = timeout.charAt(timeout.length() - 1);
-      long value = Long.parseLong(timeout.substring(0, timeout.length() - 1));
+      var unit = timeout.charAt(timeout.length() - 1);
+      var value = Long.parseLong(timeout.substring(0, timeout.length() - 1));
 
-      java.util.concurrent.TimeUnit timeUnit =
+      var timeUnit =
           switch (unit) {
             case 'H' -> java.util.concurrent.TimeUnit.HOURS;
             case 'M' -> java.util.concurrent.TimeUnit.MINUTES;
@@ -184,10 +198,10 @@ public class UnifiedGrpcBridge implements GrpcProcessor {
 
   /** Maps standard HTTP headers from the GrpcExchange into gRPC Metadata. */
   private io.grpc.Metadata extractMetadata(GrpcExchange exchange) {
-    io.grpc.Metadata metadata = new io.grpc.Metadata();
+    var metadata = new io.grpc.Metadata();
 
-    for (Map.Entry<String, String> header : exchange.getHeaders().entrySet()) {
-      String key = header.getKey().toLowerCase();
+    for (var header : exchange.getHeaders().entrySet()) {
+      var key = header.getKey().toLowerCase();
 
       if (key.startsWith(":")
           || key.startsWith("grpc-")
@@ -212,7 +226,7 @@ public class UnifiedGrpcBridge implements GrpcProcessor {
 
   /** Prepends the 5-byte gRPC header and returns a ready-to-write ByteBuffer. */
   private ByteBuffer addGrpcHeader(byte[] payload) {
-    ByteBuffer buffer = ByteBuffer.allocate(5 + payload.length);
+    var buffer = ByteBuffer.allocate(5 + payload.length);
     buffer.put((byte) 0); // Compressed flag (0 = none)
     buffer.putInt(payload.length);
     buffer.put(payload);

@@ -9,12 +9,14 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import edu.umd.cs.findbugs.annotations.Nullable;
+
 /** Server-agnostic abstraction for HTTP/2 trailing-header exchanges. */
 public interface GrpcExchange {
 
   String getRequestPath();
 
-  String getHeader(String name);
+  @Nullable String getHeader(String name);
 
   Map<String, String> getHeaders();
 
