@@ -47,13 +47,15 @@ public class DefaultGrpcProcessor implements GrpcProcessor {
   }
 
   private final Logger log = LoggerFactory.getLogger(getClass());
-  private final ManagedChannel channel;
+  private ManagedChannel channel;
   private final Map<String, MethodDescriptor<?, ?>> registry;
 
-  public DefaultGrpcProcessor(
-      ManagedChannel channel, Map<String, MethodDescriptor<?, ?>> registry) {
-    this.channel = channel;
+  public DefaultGrpcProcessor(Map<String, MethodDescriptor<?, ?>> registry) {
     this.registry = registry;
+  }
+
+  public void setChannel(ManagedChannel channel) {
+    this.channel = channel;
   }
 
   @Override

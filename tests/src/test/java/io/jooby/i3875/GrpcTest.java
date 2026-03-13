@@ -23,17 +23,18 @@ import io.grpc.stub.StreamObserver;
 import io.jooby.Jooby;
 import io.jooby.ServerOptions;
 import io.jooby.grpc.GrpcModule;
+import io.jooby.guice.GuiceModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
 public class GrpcTest {
 
   private void setupApp(Jooby app) {
+    app.install(new GuiceModule());
+
     app.install(
-        new GrpcModule(
-            new EchoGreeterService(),
-            new EchoChatService(),
-            ProtoReflectionServiceV1.newInstance()));
+        new GrpcModule(new EchoChatService(), ProtoReflectionServiceV1.newInstance())
+            .bind(EchoGreeterService.class));
   }
 
   @ServerTest
@@ -50,9 +51,10 @@ public class GrpcTest {
 
               try {
                 var stub = GreeterGrpc.newBlockingStub(channel);
-                var response = stub.sayHello(HelloRequest.newBuilder().setName("Edgar").build());
+                var response =
+                    stub.sayHello(HelloRequest.newBuilder().setName("Pablo Marmol").build());
 
-                assertThat(response.getMessage()).isEqualTo("Hello Edgar");
+                assertThat(response.getMessage()).isEqualTo("Hello Pablo Marmol");
               } finally {
                 channel.shutdown();
               }
@@ -80,7 +82,9 @@ public class GrpcTest {
                 var exception =
                     org.junit.jupiter.api.Assertions.assertThrows(
                         StatusRuntimeException.class,
-                        () -> stub.sayHello(HelloRequest.newBuilder().setName("Edgar").build()));
+                        () ->
+                            stub.sayHello(
+                                HelloRequest.newBuilder().setName("Pablo Marmol").build()));
 
                 // Assert that the bridge correctly caught the timeout and returned Status 4
                 assertThat(exception.getStatus().getCode())
@@ -352,7 +356,7 @@ public class GrpcTest {
                                 channel,
                                 unknownMethod,
                                 io.grpc.CallOptions.DEFAULT,
-                                HelloRequest.newBuilder().setName("Edgar").build()));
+                                HelloRequest.newBuilder().setName("Pablo Marmol").build()));
 
                 // 3. Assert that Jooby's HTTP 404 is correctly translated by the gRPC client into
                 // UNIMPLEMENTED

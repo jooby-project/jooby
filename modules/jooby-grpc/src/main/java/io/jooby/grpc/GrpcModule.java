@@ -5,25 +5,21 @@
  */
 package io.jooby.grpc;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
-import io.grpc.Server;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.jooby.*;
 import io.jooby.internal.grpc.DefaultGrpcProcessor;
 
 public class GrpcModule implements Extension {
-  private final List<BindableService> services;
-  private final Map<String, MethodDescriptor<?, ?>> registry = new HashMap<>();
-  private Server grpcServer;
+  private final List<BindableService> services = new ArrayList<>();
+  private final List<Class<? extends BindableService>> serviceClasses = new ArrayList<>();
 
   static {
     // Optionally remove existing handlers attached to the j.u.l root logger
@@ -33,52 +29,78 @@ public class GrpcModule implements Extension {
   }
 
   public GrpcModule(BindableService... services) {
-    this.services = List.of(services);
+    this.services.addAll(Arrays.asList(services));
+  }
+
+  @SafeVarargs
+  public GrpcModule(Class<? extends BindableService>... serviceClasses) {
+    bind(serviceClasses);
+  }
+
+  @SafeVarargs
+  public final GrpcModule bind(Class<? extends BindableService>... serviceClasses) {
+    this.serviceClasses.addAll(List.of(serviceClasses));
+    return this;
   }
 
   @Override
   public void install(@NonNull Jooby app) throws Exception {
     var serverName = app.getName();
     var builder = InProcessServerBuilder.forName(serverName);
+    final Map<String, MethodDescriptor<?, ?>> registry = new HashMap<>();
 
     // 1. Register user-provided services
     for (var service : services) {
-      builder.addService(service);
-      for (var method : service.bindService().getMethods()) {
-        var descriptor = method.getMethodDescriptor();
-        String methodFullName = descriptor.getFullMethodName();
-        registry.put(methodFullName, descriptor);
-        String routePath = "/" + methodFullName;
-
-        //
-        app.post(
-            routePath,
-            ctx -> {
-              throw new IllegalStateException(
-                  "gRPC request reached the standard HTTP router for path: "
-                      + routePath
-                      + ". "
-                      + "This means the native gRPC server interceptor was bypassed. "
-                      + "Ensure you are running Jetty, Netty, or Undertow with HTTP/2 enabled, "
-                      + "and that the GrpcProcessor SPI is correctly loaded.");
-            });
-      }
+      bindService(app, builder, registry, service);
     }
 
-    this.grpcServer = builder.build().start();
-
-    // KEEP .directExecutor() here!
-    // This ensures that when the background gRPC worker finishes, it instantly pushes
-    // the response back to Undertow/Netty without wasting time on another thread hop.
-    var channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
     var services = app.getServices();
-    var bridge = new DefaultGrpcProcessor(channel, registry);
+    var processor = new DefaultGrpcProcessor(registry);
+    services.put(GrpcProcessor.class, processor);
 
-    // Register it in the Service Registry so the server layer can find it
-    services.put(DefaultGrpcProcessor.class, bridge);
-    services.put(GrpcProcessor.class, bridge);
+    // Lazy init service from DI.
+    app.onStarting(
+        () -> {
+          for (Class<? extends BindableService> serviceClass : serviceClasses) {
+            var service = app.require(serviceClass);
+            bindService(app, builder, registry, service);
+          }
+          var grpcServer = builder.build().start();
 
-    app.onStop(channel::shutdownNow);
-    app.onStop(grpcServer::shutdownNow);
+          // KEEP .directExecutor() here!
+          // This ensures that when the background gRPC worker finishes, it instantly pushes
+          // the response back to Undertow/Netty without wasting time on another thread hop.
+          var channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+          processor.setChannel(channel);
+
+          app.onStop(channel::shutdownNow);
+          app.onStop(grpcServer::shutdownNow);
+        });
+  }
+
+  private static void bindService(
+      Jooby app,
+      InProcessServerBuilder server,
+      Map<String, MethodDescriptor<?, ?>> registry,
+      BindableService service) {
+    server.addService(service);
+    for (var method : service.bindService().getMethods()) {
+      var descriptor = method.getMethodDescriptor();
+      String methodFullName = descriptor.getFullMethodName();
+      registry.put(methodFullName, descriptor);
+      String routePath = "/" + methodFullName;
+      //
+      app.post(
+          routePath,
+          ctx -> {
+            throw new IllegalStateException(
+                "gRPC request reached the standard HTTP router for path: "
+                    + routePath
+                    + ". "
+                    + "This means the native gRPC server interceptor was bypassed. "
+                    + "Ensure you are running Jetty, Netty, or Undertow with HTTP/2 enabled, "
+                    + "and that the GrpcProcessor SPI is correctly loaded.");
+          });
+    }
   }
 }

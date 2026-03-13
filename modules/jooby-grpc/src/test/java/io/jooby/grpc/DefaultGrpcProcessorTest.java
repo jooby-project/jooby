@@ -54,7 +54,8 @@ public class DefaultGrpcProcessorTest {
     // The interceptor wraps the channel, but eventually delegates to the real one
     when(channel.newCall(any(MethodDescriptor.class), any(CallOptions.class))).thenReturn(call);
 
-    bridge = new DefaultGrpcProcessor(channel, registry);
+    bridge = new DefaultGrpcProcessor(registry);
+    bridge.setChannel(channel);
   }
 
   @Test
