@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.jooby.Context;
+import io.jooby.GrpcProcessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;
@@ -33,6 +34,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private final boolean expectContinue;
   private final Integer compressionLevel;
   private final NettyDateService dateService;
+  private final GrpcProcessor grpcProcessor;
 
   public NettyPipeline(
       SslContext sslContext,
@@ -45,7 +47,8 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
       boolean http2,
       boolean expectContinue,
       Integer compressionLevel,
-      NettyDateService dateService) {
+      NettyDateService dateService,
+      GrpcProcessor grpcProcessor) {
     this.sslContext = sslContext;
     this.decoderConfig = decoderConfig;
     this.contextSelector = contextSelector;
@@ -57,6 +60,7 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     this.expectContinue = expectContinue;
     this.compressionLevel = compressionLevel;
     this.dateService = dateService;
+    this.grpcProcessor = grpcProcessor;
   }
 
   @Override
@@ -77,6 +81,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
   private void setupHttp11(ChannelPipeline p) {
     p.addLast("codec", createServerCodec());
     addCommonHandlers(p);
+
+    // Inject gRPC handler (isHttp2 = false to trigger 426 Upgrade Required)
+    if (grpcProcessor != null) {
+      p.addLast("grpc", new NettyGrpcHandler(grpcProcessor, false));
+    }
+
     p.addLast("handler", createHandler(p.channel().eventLoop()));
   }
 
@@ -103,6 +113,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
             (int) maxRequestSize));
 
     addCommonHandlers(pipeline);
+
+    // Inject gRPC handler (isHttp2 = false to trigger 426 Upgrade Required)
+    if (grpcProcessor != null) {
+      pipeline.addLast("grpc", new NettyGrpcHandler(grpcProcessor, false));
+    }
+
     pipeline.addLast("handler", createHandler(pipeline.channel().eventLoop()));
   }
 
@@ -196,6 +212,12 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(Channel ch) {
       ch.pipeline().addLast("http2", new Http2StreamFrameToHttpObjectCodec(true));
+
+      // Inject gRPC handler (isHttp2 = true). This handles the actual multiplexed gRPC traffic.
+      if (pipeline.grpcProcessor != null) {
+        ch.pipeline().addLast("grpc", new NettyGrpcHandler(pipeline.grpcProcessor, true));
+      }
+
       ch.pipeline().addLast("handler", pipeline.createHandler(ch.eventLoop()));
     }
   }

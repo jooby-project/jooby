@@ -5,14 +5,15 @@
  */
 package io.jooby.internal.apt;
 
-import javax.lang.model.element.*;
+import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
+import static io.jooby.internal.apt.Types.BUILT_IN;
+import static java.util.stream.Collectors.joining;
+
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static io.jooby.internal.apt.AnnotationSupport.findAnnotationValue;
-import static io.jooby.internal.apt.Types.BUILT_IN;
-import static java.util.stream.Collectors.joining;
+import javax.lang.model.element.*;
 
 public enum ParameterGenerator {
   ContextParam("getAttribute", "io.jooby.annotation.ContextParam", "jakarta.ws.rs.core.Context") {
@@ -440,11 +441,13 @@ public enum ParameterGenerator {
       var sources = findAnnotationValue(annotation, AnnotationSupport.VALUE);
       return sources.isEmpty() ? "" : CodeBlock.of(", ", CodeBlock.string(sources.getFirst()));
     } else if (annotationType.startsWith("jakarta.ws.rs")) {
-      var defaultValueAnnotation = AnnotationSupport.findAnnotationByName(
-          parameter, "jakarta.ws.rs.DefaultValue");
+      var defaultValueAnnotation =
+          AnnotationSupport.findAnnotationByName(parameter, "jakarta.ws.rs.DefaultValue");
       if (defaultValueAnnotation != null) {
         var defaultValue = findAnnotationValue(defaultValueAnnotation, AnnotationSupport.VALUE);
-        return defaultValue.isEmpty() ? "" : CodeBlock.of(", ", CodeBlock.string(defaultValue.getFirst()));
+        return defaultValue.isEmpty()
+            ? ""
+            : CodeBlock.of(", ", CodeBlock.string(defaultValue.getFirst()));
       }
     }
     return "";

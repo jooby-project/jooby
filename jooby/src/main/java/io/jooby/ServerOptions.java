@@ -290,7 +290,7 @@ public class ServerOptions {
    * @return True when SSL is enabled. Either bc the secure port, httpsOnly or SSL options are set.
    */
   public boolean isSSLEnabled() {
-    return securePort != null || ssl != null || httpsOnly;
+    return securePort != null || ssl != null || http2 == Boolean.TRUE || httpsOnly;
   }
 
   /**

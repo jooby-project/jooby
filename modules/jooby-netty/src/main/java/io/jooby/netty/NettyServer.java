@@ -155,9 +155,16 @@ public class NettyServer extends Server.Base {
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
+
+      // Retrieve the GrpcProcessor from the application's service registry
+      GrpcProcessor grpcProcessor =
+          http2 ? applications.get(0).getServices().getOrNull(GrpcProcessor.class) : null;
+
       /* Bootstrap: */
       if (!options.isHttpsOnly()) {
-        var http = newBootstrap(allocator, transport, newPipeline(options, null, http2), eventLoop);
+        var http =
+            newBootstrap(
+                allocator, transport, newPipeline(options, null, http2, grpcProcessor), eventLoop);
         http.bind(options.getHost(), options.getPort()).get();
       }
 
@@ -170,7 +177,11 @@ public class NettyServer extends Server.Base {
         var clientAuth = sslOptions.getClientAuth();
         var sslContext = wrap(javaSslContext, toClientAuth(clientAuth), protocol, http2);
         var https =
-            newBootstrap(allocator, transport, newPipeline(options, sslContext, http2), eventLoop);
+            newBootstrap(
+                allocator,
+                transport,
+                newPipeline(options, sslContext, http2, grpcProcessor),
+                eventLoop);
         portInUse = options.getSecurePort();
         https.bind(options.getHost(), portInUse).get();
       } else if (options.isHttpsOnly()) {
@@ -216,7 +227,8 @@ public class NettyServer extends Server.Base {
     };
   }
 
-  private NettyPipeline newPipeline(ServerOptions options, SslContext sslContext, boolean http2) {
+  private NettyPipeline newPipeline(
+      ServerOptions options, SslContext sslContext, boolean http2, GrpcProcessor grpcProcessor) {
     var decoderConfig =
         new HttpDecoderConfig()
             .setMaxInitialLineLength(_4KB)
@@ -235,7 +247,8 @@ public class NettyServer extends Server.Base {
         http2,
         options.isExpectContinue() == Boolean.TRUE,
         options.getCompressionLevel(),
-        dateLoop);
+        dateLoop,
+        grpcProcessor);
   }
 
   @Override

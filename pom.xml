@@ -87,6 +87,7 @@
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
+    <grpc.version>1.78.0</grpc.version>
 
     <!-- logging -->
     <logback-classic.version>1.5.32</logback-classic.version>

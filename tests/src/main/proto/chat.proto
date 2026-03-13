@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package io.jooby.i3875;
+
+option java_package = "io.jooby.i3875";
+option java_multiple_files = true;
+
+service ChatService {
+  // BiDi: Client sends a stream of messages,
+  // Server responds to each one individually.
+  rpc ChatStream (stream ChatMessage) returns (stream ChatMessage);
+}
+
+message ChatMessage {
+  string user = 1;
+  string text = 2;
+}

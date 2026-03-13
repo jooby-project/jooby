@@ -130,7 +130,8 @@ public class AnnotationParser {
           Stream.of(annotations()).filter(it -> it.getName().startsWith("jakarta.ws.rs")).toList();
       for (var a : annotations) {
         if (a.values != null) {
-          var matches = names.stream().anyMatch(it -> "Ljakarta/ws/rs/DefaultValue;".equals(a.desc));
+          var matches =
+              names.stream().anyMatch(it -> "Ljakarta/ws/rs/DefaultValue;".equals(a.desc));
           if (matches) {
             return AnnotationUtils.findAnnotationValue(a, "value").map(Objects::toString);
           }

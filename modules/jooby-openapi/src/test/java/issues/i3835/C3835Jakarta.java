@@ -5,13 +5,13 @@
  */
 package issues.i3835;
 
+import java.util.List;
+import java.util.Map;
+
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-
-import java.util.List;
-import java.util.Map;
 
 @Path("/3835")
 public class C3835Jakarta {

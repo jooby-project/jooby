@@ -8,8 +8,8 @@ package tests.i3761;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.QueryParam;
 
 @Path("/3761")
 public class C3761Jakarta {

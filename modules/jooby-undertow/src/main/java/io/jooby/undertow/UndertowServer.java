@@ -18,6 +18,7 @@ import org.xnio.*;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
+import io.jooby.internal.undertow.UndertowGrpcHandler;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.jooby.internal.undertow.UndertowWebSocket;
 import io.jooby.output.OutputFactory;
@@ -101,6 +102,13 @@ public class UndertowServer extends Server.Base {
               options.getMaxRequestSize(),
               options.getDefaultHeaders());
 
+      GrpcProcessor grpcProcessor =
+          applications.get(0).getServices().getOrNull(GrpcProcessor.class);
+
+      if (grpcProcessor != null) {
+        handler = new UndertowGrpcHandler(handler, grpcProcessor);
+      }
+
       if (options.getCompressionLevel() != null) {
         int compressionLevel = options.getCompressionLevel();
         handler =
@@ -154,7 +162,7 @@ public class UndertowServer extends Server.Base {
         builder.addHttpListener(options.getPort(), options.getHost());
       }
 
-      // HTTP @
+      // HTTP/2
       builder.setServerOption(ENABLE_HTTP2, options.isHttp2() == Boolean.TRUE);
       var classLoader = this.applications.get(0).getClassLoader();
       SSLContext sslContext = options.getSSLContext(classLoader);

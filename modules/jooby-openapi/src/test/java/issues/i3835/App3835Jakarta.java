@@ -5,9 +5,9 @@
  */
 package issues.i3835;
 
-import io.jooby.Jooby;
-
 import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
+import io.jooby.Jooby;
 
 public class App3835Jakarta extends Jooby {
   {

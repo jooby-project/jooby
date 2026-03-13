@@ -85,9 +85,19 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
         // possibly body:
         long contentLength = contentLength(req);
         if (contentLength > 0 || isTransferEncodingChunked(req)) {
-          context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
-          context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
-          context.setDecoder(newDecoder(req, context.httpDataFactory, maxFormFields));
+          if (req.getClass() == DefaultFullHttpRequest.class) {
+            // HTTP2 aggregates all into a full http request.
+            if (((DefaultFullHttpRequest) req).content().readableBytes() > maxRequestSize) {
+              router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
+              return;
+            }
+            // full body is here move
+            router.match(context).execute(context);
+          } else {
+            context.httpDataFactory = new DefaultHttpDataFactory(bufferSize);
+            context.httpDataFactory.setBaseDir(app.getTmpdir().toString());
+            context.setDecoder(newDecoder(req, context.httpDataFactory, maxFormFields));
+          }
         } else {
           // no body, move on
           router.match(context).execute(context);

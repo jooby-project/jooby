@@ -42,7 +42,7 @@ public class Http2Test {
   @ServerTest
   public void h2body(ServerTestRunner runner) {
     runner
-        .options(new ServerOptions().setHttp2(true).setSecurePort(8443))
+        .options(new ServerOptions().setHttp2(true))
         .define(
             app -> {
               app.install(new JacksonModule());

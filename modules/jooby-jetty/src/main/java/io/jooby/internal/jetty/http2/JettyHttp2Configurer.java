@@ -5,8 +5,6 @@
  */
 package io.jooby.internal.jetty.http2;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jetty.alpn.server.ALPNServerConnectionFactory;
@@ -25,13 +23,23 @@ public class JettyHttp2Configurer {
   public List<ConnectionFactory> configure(HttpConfiguration input) {
     if (input.getCustomizer(SecureRequestCustomizer.class) != null) {
       ALPNServerConnectionFactory alpn = new ALPNServerConnectionFactory(H2, H2_17, HTTP_1_1);
-      alpn.setDefaultProtocol(HTTP_1_1);
+      alpn.setDefaultProtocol(H2);
 
-      HTTP2ServerConnectionFactory https2 = new HTTP2ServerConnectionFactory(input);
+      HTTP2ServerConnectionFactory h2 = new HTTP2ServerConnectionFactory(input);
+      h2.setInitialStreamRecvWindow(1024 * 1024);
+      h2.setInitialSessionRecvWindow(10 * 1024 * 1024);
 
-      return Arrays.asList(alpn, https2);
+      // FIX: Set Max Concurrent Streams higher if you have many bidi clients
+      h2.setMaxConcurrentStreams(1000);
+      return List.of(alpn, h2);
     } else {
-      return Collections.singletonList(new HTTP2CServerConnectionFactory(input));
+      var h2c = new HTTP2CServerConnectionFactory(input);
+      h2c.setInitialStreamRecvWindow(1024 * 1024);
+      h2c.setInitialSessionRecvWindow(10 * 1024 * 1024);
+
+      // FIX: Set Max Concurrent Streams higher if you have many bidi clients
+      h2c.setMaxConcurrentStreams(1000);
+      return List.of(h2c);
     }
   }
 }
