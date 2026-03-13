@@ -343,10 +343,10 @@ public class MvcRoute {
             innerReactiveType = kt ? "Unit" : "Void";
           }
           methodReturnTypeString =
-              rawReactiveType + "<io.jooby.trpc.TrpcResponse<" + innerReactiveType + ">>";
+              rawReactiveType + "<io.jooby.rpc.trpc.TrpcResponse<" + innerReactiveType + ">>";
         } else {
           methodReturnTypeString =
-              "io.jooby.trpc.TrpcResponse<"
+              "io.jooby.rpc.trpc.TrpcResponse<"
                   + (returnType.isVoid() ? (kt ? "Unit" : "Void") : returnTypeString)
                   + ">";
         }
@@ -370,7 +370,7 @@ public class MvcRoute {
             statement(
                 indent(2),
                 var(kt),
-                "parser = ctx.require(io.jooby.trpc.TrpcParser",
+                "parser = ctx.require(io.jooby.rpc.trpc.TrpcParser",
                 clazz(kt),
                 ")",
                 semicolon(kt)));
@@ -523,7 +523,7 @@ public class MvcRoute {
           buffer.add(
               statement(
                   indent(controllerIndent),
-                  "return io.jooby.trpc.TrpcResponse.empty()",
+                  "return io.jooby.rpc.trpc.TrpcResponse.empty()",
                   semicolon(kt)));
         } else {
           buffer.add(
@@ -545,7 +545,7 @@ public class MvcRoute {
           buffer.add(
               statement(
                   indent(controllerIndent),
-                  "return io.jooby.trpc.TrpcResponse.of(statusCode)",
+                  "return io.jooby.rpc.trpc.TrpcResponse.of(statusCode)",
                   semicolon(kt)));
         } else {
           buffer.add(statement(indent(controllerIndent), "return statusCode", semicolon(kt)));
@@ -582,7 +582,7 @@ public class MvcRoute {
             buffer.add(
                 statement(
                     indent(controllerIndent),
-                    "return io.jooby.trpc.TrpcResponse.of(",
+                    "return io.jooby.rpc.trpc.TrpcResponse.of(",
                     projected,
                     ")",
                     semicolon(kt)));
@@ -606,7 +606,7 @@ public class MvcRoute {
                         indent(controllerIndent),
                         "return ",
                         call,
-                        ".then(reactor.core.publisher.Mono.just(io.jooby.trpc.TrpcResponse.empty()))",
+                        ".then(reactor.core.publisher.Mono.just(io.jooby.rpc.trpc.TrpcResponse.empty()))",
                         semicolon(kt)));
               } else if (handler.contains("Mutiny")) {
                 buffer.add(
@@ -614,7 +614,7 @@ public class MvcRoute {
                         indent(controllerIndent),
                         "return ",
                         call,
-                        ".replaceWith(io.jooby.trpc.TrpcResponse.empty())",
+                        ".replaceWith(io.jooby.rpc.trpc.TrpcResponse.empty())",
                         semicolon(kt)));
               } else if (handler.contains("ReactiveSupport")) {
                 buffer.add(
@@ -622,7 +622,7 @@ public class MvcRoute {
                         indent(controllerIndent),
                         "return ",
                         call,
-                        ".thenApply(x -> io.jooby.trpc.TrpcResponse.empty())",
+                        ".thenApply(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
                         semicolon(kt)));
               } else if (handler.contains("Reactivex")) {
                 buffer.add(
@@ -630,7 +630,7 @@ public class MvcRoute {
                         indent(controllerIndent),
                         "return ",
                         call,
-                        ".toSingleDefault(io.jooby.trpc.TrpcResponse.empty())",
+                        ".toSingleDefault(io.jooby.rpc.trpc.TrpcResponse.empty())",
                         semicolon(kt)));
               } else {
                 buffer.add(
@@ -638,7 +638,7 @@ public class MvcRoute {
                         indent(controllerIndent),
                         "return ",
                         call,
-                        ".map(x -> io.jooby.trpc.TrpcResponse.empty())",
+                        ".map(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
                         semicolon(kt)));
               }
             } else {
@@ -654,7 +654,7 @@ public class MvcRoute {
             buffer.add(
                 statement(
                     indent(controllerIndent),
-                    "return io.jooby.trpc.TrpcResponse.of(",
+                    "return io.jooby.rpc.trpc.TrpcResponse.of(",
                     call,
                     kt && nullable ? "!!" : "",
                     ")",
@@ -749,7 +749,7 @@ public class MvcRoute {
       boolean kt, Consumer<String> arguments, boolean isJsonRpc) {
     var statements = new ArrayList<String>();
     var decoderInterface =
-        isJsonRpc ? "io.jooby.jsonrpc.JsonRpcDecoder" : "io.jooby.trpc.TrpcDecoder";
+        isJsonRpc ? "io.jooby.rpc.jsonrpc.JsonRpcDecoder" : "io.jooby.rpc.trpc.TrpcDecoder";
     int baseIndent = isJsonRpc ? 10 : 4;
 
     for (var parameter : parameters) {

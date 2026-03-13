@@ -11,7 +11,7 @@ To expose a JSON-RPC endpoint, annotate your controller or service with `@JsonRp
 .JSON-RPC
 [source,java,role="primary"]
 ----
-import io.jooby.jsonrpc.JsonRpc;
+import io.jooby.rpc.jsonrpc.JsonRpc;
 
 @JsonRpc("movies")
 public class MovieService {
@@ -28,7 +28,7 @@ public class MovieService {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.jsonrpc.JsonRpc
+import io.jooby.rpc.jsonrpc.JsonRpc
 
 @JsonRpc("movies")
 class MovieService {
@@ -41,7 +41,7 @@ class MovieService {
 }
 ----
 
-When the Jooby APT detects the `@JsonRpc` annotation, it generates a class ending in `Rpc_` (e.g., `MovieServiceRpc_`) that implements the `io.jooby.jsonrpc.JsonRpcService` interface.
+When the Jooby APT detects the `@JsonRpc` annotation, it generates a class ending in `Rpc_` (e.g., `MovieServiceRpc_`) that implements the `io.jooby.rpc.jsonrpc.JsonRpcService` interface.
 
 The annotation dictates how the protocol methods are named and exposed:
 

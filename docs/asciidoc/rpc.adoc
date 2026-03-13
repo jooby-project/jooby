@@ -1,4 +1,16 @@
-=== RPC
+=== Remote Procedure Calls (RPC)
+
+While standard REST architectures focus on mapping HTTP methods to resources, Remote Procedure Call (RPC) architectures are designed around executing explicit actions or functions. RPC is often the preferred choice for strictly-typed client-server contracts, high-performance microservice communication, and scenarios where a strict resource-based REST model feels overly restrictive.
+
+Jooby provides first-class support for several RPC protocols. You can run any of these seamlessly alongside your standard HTTP routes on the exact same server instance, sharing the same underlying thread pools and I/O event loops.
+
+Depending on your client ecosystem and performance requirements, Jooby supports:
+
+* **gRPC**: A high-performance, strictly-typed protocol utilizing Protocol Buffers and HTTP/2 multiplexing. Ideal for backend-to-backend communication and polyglot microservices.
+* **JSON-RPC**: A lightweight, stateless, and simple JSON-encoded protocol. Excellent for rapid integrations and environments where standard JSON is preferred.
+* **tRPC**: A RPC implementation that provides end-to-end type safety directly between your Java backend and TypeScript clients, without requiring intermediate build steps or code generation.
+
+include::gRPC.adoc[]
 
 include::json-rpc.adoc[]
 

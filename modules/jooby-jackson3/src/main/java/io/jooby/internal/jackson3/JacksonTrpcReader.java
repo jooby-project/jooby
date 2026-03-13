@@ -6,8 +6,8 @@
 package io.jooby.internal.jackson3;
 
 import io.jooby.exception.MissingValueException;
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcReader;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 

@@ -45,25 +45,25 @@ public class ReactiveType {
             "io.jooby.ReactiveSupport",
             "concurrent",
             Set.of("java.util.concurrent.Flow", "java.util.concurrent.CompletionStage"),
-            ".thenApply(io.jooby.trpc.TrpcResponse::of)"),
+            ".thenApply(io.jooby.rpc.trpc.TrpcResponse::of)"),
         // Vertx
         new ReactiveType(
             "io.jooby.vertx.VertxHandler",
             "vertx",
             Set.of("io.vertx.core.Future", "io.vertx.core.Promise", "io.vertx.core.buffer.Buffer"),
-            ".map(io.jooby.trpc.TrpcResponse::of)"),
+            ".map(io.jooby.rpc.trpc.TrpcResponse::of)"),
         // Mutiny
         new ReactiveType(
             "io.jooby.mutiny.Mutiny",
             "mutiny",
             Set.of("io.smallrye.mutiny.Uni", "io.smallrye.mutiny.Multi"),
-            ".map(io.jooby.trpc.TrpcResponse::of)"),
+            ".map(io.jooby.rpc.trpc.TrpcResponse::of)"),
         // Reactor
         new ReactiveType(
             "io.jooby.reactor.Reactor",
             "reactor",
             Set.of("reactor.core.publisher.Flux", "reactor.core.publisher.Mono"),
-            ".map(io.jooby.trpc.TrpcResponse::of)"),
+            ".map(io.jooby.rpc.trpc.TrpcResponse::of)"),
         // Rxjava
         new ReactiveType(
             "io.jooby.rxjava3.Reactivex",
@@ -74,6 +74,6 @@ public class ReactiveType {
                 "io.reactivex.rxjava3.core.Single",
                 "io.reactivex.rxjava3.core.Observable",
                 "io.reactivex.rxjava3.core.Completable"),
-            ".map(io.jooby.trpc.TrpcResponse::of)"));
+            ".map(io.jooby.rpc.trpc.TrpcResponse::of)"));
   }
 }

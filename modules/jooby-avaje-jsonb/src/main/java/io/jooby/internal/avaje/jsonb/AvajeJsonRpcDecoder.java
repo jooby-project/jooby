@@ -11,7 +11,7 @@ import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
 
 public class AvajeJsonRpcDecoder<T> implements JsonRpcDecoder<T> {
 

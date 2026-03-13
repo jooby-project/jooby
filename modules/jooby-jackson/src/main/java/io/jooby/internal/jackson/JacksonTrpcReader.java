@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.jooby.SneakyThrows;
 import io.jooby.exception.MissingValueException;
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcReader;
 
 public class JacksonTrpcReader implements TrpcReader {
   private final JsonParser parser;

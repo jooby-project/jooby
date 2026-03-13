@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.netty;
 
-import io.jooby.GrpcProcessor;
+import io.jooby.rpc.grpc.GrpcProcessor;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;

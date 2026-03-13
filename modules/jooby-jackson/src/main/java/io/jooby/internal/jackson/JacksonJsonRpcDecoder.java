@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
 
 public class JacksonJsonRpcDecoder<T> implements JsonRpcDecoder<T> {
 

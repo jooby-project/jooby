@@ -16,13 +16,13 @@ import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.*;
 import io.jooby.internal.avaje.jsonb.*;
-import io.jooby.jsonrpc.JsonRpcParser;
-import io.jooby.jsonrpc.JsonRpcRequest;
-import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
-import io.jooby.trpc.TrpcErrorCode;
-import io.jooby.trpc.TrpcParser;
-import io.jooby.trpc.TrpcResponse;
+import io.jooby.rpc.jsonrpc.JsonRpcParser;
+import io.jooby.rpc.jsonrpc.JsonRpcRequest;
+import io.jooby.rpc.jsonrpc.JsonRpcResponse;
+import io.jooby.rpc.trpc.TrpcErrorCode;
+import io.jooby.rpc.trpc.TrpcParser;
+import io.jooby.rpc.trpc.TrpcResponse;
 
 /**
  * JSON module using Avaje-JsonB: <a

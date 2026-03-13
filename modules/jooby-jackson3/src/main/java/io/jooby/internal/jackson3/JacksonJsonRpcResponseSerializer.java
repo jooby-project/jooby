@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.jackson3;
 
-import io.jooby.jsonrpc.JsonRpcResponse;
+import io.jooby.rpc.jsonrpc.JsonRpcResponse;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.SerializationContext;

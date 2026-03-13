@@ -9,7 +9,7 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.jooby.jsonrpc.JsonRpcResponse.ErrorDetail;
+import io.jooby.rpc.jsonrpc.JsonRpcResponse.ErrorDetail;
 
 public class AvajeJsonRpcErrorAdapter implements JsonAdapter<ErrorDetail> {
 

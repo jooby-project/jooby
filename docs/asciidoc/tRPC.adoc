@@ -15,7 +15,7 @@ NOTE: Currently, Jooby only provides the required `TrpcParser` SPI implementatio
 ----
 import io.jooby.Jooby;
 import io.jooby.json.JacksonModule;
-import io.jooby.trpc.TrpcModule;
+import io.jooby.rpc.trpc.TrpcModule;
 
 public class App extends Jooby {
   {
@@ -33,7 +33,7 @@ public class App extends Jooby {
 ----
 import io.jooby.kt.Kooby
 import io.jooby.json.JacksonModule
-import io.jooby.trpc.TrpcModule
+import io.jooby.rpc.trpc.TrpcModule
 
 class App : Kooby({
   install(JacksonModule()) // <1>
@@ -197,7 +197,7 @@ If you throw custom domain exceptions, you can map them directly to tRPC error c
 .Java
 [source,java,role="primary"]
 ----
-import io.jooby.trpc.TrpcErrorCode;
+import io.jooby.rpc.trpc.TrpcErrorCode;
 
 {
   install(new TrpcModule());
@@ -213,8 +213,8 @@ import io.jooby.trpc.TrpcErrorCode;
 [source,kotlin,role="secondary"]
 ----
 import io.jooby.kt.Kooby
-import io.jooby.trpc.TrpcModule
-import io.jooby.trpc.TrpcErrorCode
+import io.jooby.rpc.trpc.TrpcModule
+import io.jooby.rpc.trpc.TrpcErrorCode
 
 class App : Kooby({
   install(TrpcModule())

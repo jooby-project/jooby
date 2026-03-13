@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 import org.xnio.channels.StreamSinkChannel;
 
-import io.jooby.GrpcExchange;
+import io.jooby.rpc.grpc.GrpcExchange;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.protocol.http.HttpAttachments;
 import io.undertow.util.HeaderMap;

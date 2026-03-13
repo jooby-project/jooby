@@ -29,13 +29,13 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson.*;
-import io.jooby.jsonrpc.JsonRpcErrorCode;
-import io.jooby.jsonrpc.JsonRpcParser;
-import io.jooby.jsonrpc.JsonRpcRequest;
-import io.jooby.jsonrpc.JsonRpcResponse;
 import io.jooby.output.Output;
-import io.jooby.trpc.TrpcParser;
-import io.jooby.trpc.TrpcResponse;
+import io.jooby.rpc.jsonrpc.JsonRpcErrorCode;
+import io.jooby.rpc.jsonrpc.JsonRpcParser;
+import io.jooby.rpc.jsonrpc.JsonRpcRequest;
+import io.jooby.rpc.jsonrpc.JsonRpcResponse;
+import io.jooby.rpc.trpc.TrpcParser;
+import io.jooby.rpc.trpc.TrpcResponse;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson2.

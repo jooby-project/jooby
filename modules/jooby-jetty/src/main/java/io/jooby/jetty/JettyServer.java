@@ -35,6 +35,7 @@ import io.jooby.exception.StartupException;
 import io.jooby.internal.jetty.*;
 import io.jooby.internal.jetty.http2.JettyHttp2Configurer;
 import io.jooby.output.OutputFactory;
+import io.jooby.rpc.grpc.GrpcProcessor;
 
 /**
  * Web server implementation using <a href="https://www.eclipse.org/jetty/">Jetty</a>.

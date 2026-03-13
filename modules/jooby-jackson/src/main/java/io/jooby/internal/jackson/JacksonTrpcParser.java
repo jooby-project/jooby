@@ -11,9 +11,9 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.SneakyThrows;
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcParser;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcParser;
+import io.jooby.rpc.trpc.TrpcReader;
 
 public class JacksonTrpcParser implements TrpcParser {
 

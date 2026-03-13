@@ -9,9 +9,9 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcParser;
-import io.jooby.jsonrpc.JsonRpcReader;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcParser;
+import io.jooby.rpc.jsonrpc.JsonRpcReader;
 
 public class JacksonJsonRpcParser implements JsonRpcParser {
 

@@ -13,7 +13,7 @@ import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.JsonType;
 import io.avaje.jsonb.Jsonb;
-import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.rpc.jsonrpc.JsonRpcRequest;
 
 public class AvajeJsonRpcRequestAdapter implements JsonAdapter<JsonRpcRequest> {
 

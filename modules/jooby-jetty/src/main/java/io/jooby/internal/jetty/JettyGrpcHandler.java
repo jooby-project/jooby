@@ -10,7 +10,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.GrpcProcessor;
+import io.jooby.rpc.grpc.GrpcProcessor;
 
 public class JettyGrpcHandler extends Handler.Wrapper {
 

@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.jackson3;
 
-import io.jooby.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcDecoder;
 import tools.jackson.databind.ObjectReader;
 
 public class JacksonTrpcDecoder<T> implements TrpcDecoder<T> {

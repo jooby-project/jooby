@@ -19,14 +19,14 @@ public class Issue3868 {
             source -> {
               assertThat(source)
                   .contains(
-                      "public class DefaultMappingRpc_ implements io.jooby.jsonrpc.JsonRpcService,"
-                          + " io.jooby.Extension {")
+                      "public class DefaultMappingRpc_ implements"
+                          + " io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension {")
                   .contains("public java.util.List<String> getMethods() {")
                   .contains(
                       "return java.util.List.of(\"default.rpcMethod1\", \"default.rpcMethod2\")")
                   .contains(
-                      "public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest"
-                          + " req) throws Exception {");
+                      "public Object execute(io.jooby.Context ctx,"
+                          + " io.jooby.rpc.jsonrpc.JsonRpcRequest req) throws Exception {");
             });
   }
 

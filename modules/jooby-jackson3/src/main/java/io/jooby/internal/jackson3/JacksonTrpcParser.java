@@ -7,9 +7,9 @@ package io.jooby.internal.jackson3;
 
 import java.lang.reflect.Type;
 
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcParser;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcParser;
+import io.jooby.rpc.trpc.TrpcReader;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 

@@ -8,8 +8,8 @@ package io.jooby.internal.jackson;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcReader;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcReader;
 
 public class JacksonJsonRpcReader implements JsonRpcReader {
 

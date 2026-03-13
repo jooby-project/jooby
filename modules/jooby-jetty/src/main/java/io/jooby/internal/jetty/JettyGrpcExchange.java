@@ -15,7 +15,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import io.jooby.GrpcExchange;
+import io.jooby.rpc.grpc.GrpcExchange;
 
 public class JettyGrpcExchange implements GrpcExchange {
 

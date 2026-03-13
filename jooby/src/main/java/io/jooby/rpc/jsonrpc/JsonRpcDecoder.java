@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.jsonrpc;
+package io.jooby.rpc.jsonrpc;
 
 /**
  * A pre-resolved decoder used at runtime to deserialize JSON-RPC parameter nodes into complex Java

@@ -10,8 +10,8 @@ import java.util.Map;
 
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcReader;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcReader;
 
 public class AvajeJsonRpcReader implements JsonRpcReader {
 

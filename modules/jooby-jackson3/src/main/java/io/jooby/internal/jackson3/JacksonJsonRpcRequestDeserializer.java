@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.jackson3;
 
-import io.jooby.jsonrpc.JsonRpcRequest;
+import io.jooby.rpc.jsonrpc.JsonRpcRequest;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JsonNode;

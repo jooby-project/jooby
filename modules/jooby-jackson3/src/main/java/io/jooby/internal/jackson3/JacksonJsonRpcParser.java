@@ -7,9 +7,9 @@ package io.jooby.internal.jackson3;
 
 import java.lang.reflect.Type;
 
-import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcParser;
-import io.jooby.jsonrpc.JsonRpcReader;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcParser;
+import io.jooby.rpc.jsonrpc.JsonRpcReader;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 

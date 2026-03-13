@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.jooby.Context;
-import io.jooby.GrpcProcessor;
+import io.jooby.rpc.grpc.GrpcProcessor;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.socket.SocketChannel;

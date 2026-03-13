@@ -13,7 +13,7 @@ import com.jayway.jsonpath.JsonPath;
 import io.jooby.Jooby;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
-import io.jooby.trpc.TrpcModule;
+import io.jooby.rpc.trpc.TrpcModule;
 
 public abstract class AbstractTrpcProtocolTest {
 

@@ -35,10 +35,10 @@ import io.jooby.internal.LocaleUtils;
 import io.jooby.internal.MutedServer;
 import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
-import io.jooby.jsonrpc.JsonRpcModule;
-import io.jooby.jsonrpc.JsonRpcService;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
+import io.jooby.rpc.jsonrpc.JsonRpcModule;
+import io.jooby.rpc.jsonrpc.JsonRpcService;
 import io.jooby.value.ValueFactory;
 
 /**

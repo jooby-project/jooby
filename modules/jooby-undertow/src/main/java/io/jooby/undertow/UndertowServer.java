@@ -22,6 +22,7 @@ import io.jooby.internal.undertow.UndertowGrpcHandler;
 import io.jooby.internal.undertow.UndertowHandler;
 import io.jooby.internal.undertow.UndertowWebSocket;
 import io.jooby.output.OutputFactory;
+import io.jooby.rpc.grpc.GrpcProcessor;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;

@@ -7,8 +7,8 @@ package io.jooby.internal.avaje.jsonb;
 
 import io.avaje.json.JsonReader;
 import io.jooby.exception.MissingValueException;
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcReader;
 
 public class AvajeTrpcReader implements TrpcReader {
   private final JsonReader reader;

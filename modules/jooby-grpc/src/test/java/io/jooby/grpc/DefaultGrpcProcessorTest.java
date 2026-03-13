@@ -31,9 +31,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import io.jooby.GrpcExchange;
 import io.jooby.internal.grpc.DefaultGrpcProcessor;
 import io.jooby.internal.grpc.GrpcRequestBridge;
+import io.jooby.rpc.grpc.GrpcExchange;
 
 public class DefaultGrpcProcessorTest {
 

@@ -8,9 +8,9 @@ package io.jooby.internal.avaje.jsonb;
 import java.lang.reflect.Type;
 
 import io.avaje.jsonb.Jsonb;
-import io.jooby.trpc.TrpcDecoder;
-import io.jooby.trpc.TrpcParser;
-import io.jooby.trpc.TrpcReader;
+import io.jooby.rpc.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcParser;
+import io.jooby.rpc.trpc.TrpcReader;
 
 public class AvajeTrpcParser implements TrpcParser {
 

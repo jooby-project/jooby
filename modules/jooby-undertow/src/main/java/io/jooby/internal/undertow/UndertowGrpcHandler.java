@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.undertow;
 
-import io.jooby.GrpcProcessor;
+import io.jooby.rpc.grpc.GrpcProcessor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;

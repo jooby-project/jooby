@@ -8,9 +8,9 @@ package io.jooby.internal.avaje.jsonb;
 import java.lang.reflect.Type;
 
 import io.avaje.jsonb.Jsonb;
-import io.jooby.jsonrpc.JsonRpcDecoder;
-import io.jooby.jsonrpc.JsonRpcParser;
-import io.jooby.jsonrpc.JsonRpcReader;
+import io.jooby.rpc.jsonrpc.JsonRpcDecoder;
+import io.jooby.rpc.jsonrpc.JsonRpcParser;
+import io.jooby.rpc.jsonrpc.JsonRpcReader;
 
 public class AvajeJsonRpcParser implements JsonRpcParser {
 

@@ -22,6 +22,7 @@ import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
 import io.jooby.output.OutputFactory;
+import io.jooby.rpc.grpc.GrpcProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelOption;

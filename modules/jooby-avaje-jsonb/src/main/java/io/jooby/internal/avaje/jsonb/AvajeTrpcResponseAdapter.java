@@ -9,7 +9,7 @@ import io.avaje.json.JsonAdapter;
 import io.avaje.json.JsonReader;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.Jsonb;
-import io.jooby.trpc.TrpcResponse;
+import io.jooby.rpc.trpc.TrpcResponse;
 
 public class AvajeTrpcResponseAdapter implements JsonAdapter<TrpcResponse> {
 

@@ -312,7 +312,9 @@ public class MvcRouter {
     if (kt) {
       buffer.append(
           statement(
-              "class ", rpcClassName, " : io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension {"));
+              "class ",
+              rpcClassName,
+              " : io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension {"));
       buffer.append(
           statement(
               indent(2),
@@ -366,7 +368,7 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(4),
-              "app.services.listOf(io.jooby.jsonrpc.JsonRpcService::class.java).add(this)"));
+              "app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)"));
       buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
 
@@ -379,15 +381,15 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(2),
-              "override fun execute(ctx: io.jooby.Context, req: io.jooby.jsonrpc.JsonRpcRequest):"
-                  + " Any? {"));
+              "override fun execute(ctx: io.jooby.Context, req:"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {"));
       buffer.append(statement(indent(4), "val c = factory(ctx)"));
       buffer.append(statement(indent(4), "val method = req.method"));
       buffer.append(
           statement(
               indent(4),
               var(kt),
-              "parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
+              "parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
@@ -403,7 +405,7 @@ public class MvcRouter {
           statement(
               indent(6),
               "else -> throw"
-                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
                   + " \"Method not found: $method\")"));
       buffer.append(statement(indent(4), "}"));
       buffer.append(statement(indent(2), "}"));
@@ -413,7 +415,7 @@ public class MvcRouter {
           statement(
               "public class ",
               rpcClassName,
-              " implements io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension {"));
+              " implements io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension {"));
       buffer.append(
           statement(
               indent(2),
@@ -483,7 +485,7 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(4),
-              "app.getServices().listOf(io.jooby.jsonrpc.JsonRpcService.class).add(this)",
+              "app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this)",
               semicolon(kt)));
       buffer.append(statement(indent(2), "}"));
       buffer.append(System.lineSeparator());
@@ -499,7 +501,7 @@ public class MvcRouter {
       buffer.append(
           statement(
               indent(2),
-              "public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest req)"
+              "public Object execute(io.jooby.Context ctx, io.jooby.rpc.jsonrpc.JsonRpcRequest req)"
                   + " throws Exception {"));
       buffer.append(
           statement(indent(4), generateTypeName, " c = factory.apply(ctx)", semicolon(kt)));
@@ -508,7 +510,7 @@ public class MvcRouter {
           statement(
               indent(4),
               var(kt),
-              "parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser",
+              "parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
@@ -524,7 +526,7 @@ public class MvcRouter {
           statement(
               indent(6),
               "default: throw new"
-                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
                   + " \"Method not found: \" + method)",
               semicolon(kt)));
       buffer.append(statement(indent(4), "}"));

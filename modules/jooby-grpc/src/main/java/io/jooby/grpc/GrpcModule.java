@@ -16,6 +16,7 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.jooby.*;
 import io.jooby.internal.grpc.DefaultGrpcProcessor;
+import io.jooby.rpc.grpc.GrpcProcessor;
 
 /**
  * Native gRPC extension for Jooby. *

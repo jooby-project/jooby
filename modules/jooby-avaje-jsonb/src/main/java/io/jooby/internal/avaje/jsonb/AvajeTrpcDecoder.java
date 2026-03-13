@@ -6,7 +6,7 @@
 package io.jooby.internal.avaje.jsonb;
 
 import io.avaje.jsonb.JsonType;
-import io.jooby.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcDecoder;
 
 public class AvajeTrpcDecoder<T> implements TrpcDecoder<T> {
 

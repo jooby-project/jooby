@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.jooby.SneakyThrows;
-import io.jooby.trpc.TrpcDecoder;
+import io.jooby.rpc.trpc.TrpcDecoder;
 
 public class JacksonTrpcDecoder<T> implements TrpcDecoder<T> {
 

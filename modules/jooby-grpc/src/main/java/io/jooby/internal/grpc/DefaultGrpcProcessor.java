@@ -24,8 +24,8 @@ import io.grpc.Status;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientCalls;
 import io.grpc.stub.ClientResponseObserver;
-import io.jooby.GrpcExchange;
-import io.jooby.GrpcProcessor;
+import io.jooby.rpc.grpc.GrpcExchange;
+import io.jooby.rpc.grpc.GrpcProcessor;
 
 public class DefaultGrpcProcessor implements GrpcProcessor {
 
