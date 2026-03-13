@@ -37,7 +37,6 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 
 import org.slf4j.Logger;
 
-import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
@@ -51,7 +50,6 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.codec.http.websocketx.WebSocketDecoderConfig;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedNioFile;
@@ -412,16 +410,65 @@ public class NettyContext implements DefaultContext {
     return this;
   }
 
+  //  @NonNull @Override
+  //  public Context upgrade(WebSocket.Initializer handler) {
+  //    try {
+  //      responseStarted = true;
+  //      Config conf = getRouter().getConfig();
+  //      int maxSize =
+  //          conf.hasPath("websocket.maxSize")
+  //              ? conf.getBytes("websocket.maxSize").intValue()
+  //              : WebSocket.MAX_BUFFER_SIZE;
+  //      String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) +
+  // path;
+  //      var config =
+  //          WebSocketDecoderConfig.newBuilder()
+  //              .allowExtensions(true)
+  //              .allowMaskMismatch(false)
+  //              .withUTF8Validator(false)
+  //              .maxFramePayloadLength(maxSize)
+  //              .build();
+  //      webSocket = new NettyWebSocket(this);
+  //      handler.init(Context.readOnly(this), webSocket);
+  //      var webSocketRequest =
+  //          new DefaultFullHttpRequest(
+  //              HTTP_1_1,
+  //              req.method(),
+  //              req.uri(),
+  //              Unpooled.EMPTY_BUFFER,
+  //              req.headers(),
+  //              EmptyHttpHeaders.INSTANCE);
+  //      var codec = ctx.pipeline().get(NettyServerCodec.class);
+  //      codec.webSocketHandshake(ctx);
+  //      WebSocketServerHandshakerFactory factory =
+  //          new WebSocketServerHandshakerFactory(webSocketURL, null, config);
+  //      WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
+  //      handshaker.handshake(ctx.channel(), webSocketRequest);
+  //      webSocket.fireConnect();
+  //      long timeout =
+  //          conf.hasPath("websocket.idleTimeout")
+  //              ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
+  //              : MINUTES.toMillis(5);
+  //      if (timeout > 0) {
+  //        IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, MILLISECONDS);
+  //        ctx.pipeline().addBefore("handler", "idle", idle);
+  //      }
+  //    } catch (Throwable x) {
+  //      sendError(x);
+  //    }
+  //    return this;
+  //  }
   @NonNull @Override
   public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
-      Config conf = getRouter().getConfig();
+      var conf = getRouter().getConfig();
       int maxSize =
           conf.hasPath("websocket.maxSize")
               ? conf.getBytes("websocket.maxSize").intValue()
               : WebSocket.MAX_BUFFER_SIZE;
-      String webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
+      var webSocketURL = getProtocol() + "://" + req.headers().get(HttpHeaderNames.HOST) + path;
+
       var config =
           WebSocketDecoderConfig.newBuilder()
               .allowExtensions(true)
@@ -429,8 +476,10 @@ public class NettyContext implements DefaultContext {
               .withUTF8Validator(false)
               .maxFramePayloadLength(maxSize)
               .build();
+
       webSocket = new NettyWebSocket(this);
       handler.init(Context.readOnly(this), webSocket);
+
       var webSocketRequest =
           new DefaultFullHttpRequest(
               HTTP_1_1,
@@ -439,21 +488,36 @@ public class NettyContext implements DefaultContext {
               Unpooled.EMPTY_BUFFER,
               req.headers(),
               EmptyHttpHeaders.INSTANCE);
+
       var codec = ctx.pipeline().get(NettyServerCodec.class);
       codec.webSocketHandshake(ctx);
-      WebSocketServerHandshakerFactory factory =
-          new WebSocketServerHandshakerFactory(webSocketURL, null, config);
-      WebSocketServerHandshaker handshaker = factory.newHandshaker(webSocketRequest);
+
+      var factory = new WebSocketServerHandshakerFactory(webSocketURL, null, config);
+      var handshaker = factory.newHandshaker(webSocketRequest);
+
+      if (handshaker == null) {
+        WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
+        return this;
+      }
+
       handshaker.handshake(ctx.channel(), webSocketRequest);
       webSocket.fireConnect();
+
       long timeout =
           conf.hasPath("websocket.idleTimeout")
               ? conf.getDuration("websocket.idleTimeout", MILLISECONDS)
               : MINUTES.toMillis(5);
+
       if (timeout > 0) {
         IdleStateHandler idle = new IdleStateHandler(timeout, 0, 0, MILLISECONDS);
-        ctx.pipeline().addBefore("handler", "idle", idle);
+        // If the global server timeout is already there, replace it. Otherwise, add it.
+        if (ctx.pipeline().get(IdleStateHandler.class) != null) {
+          ctx.pipeline().replace(IdleStateHandler.class, "idle", idle);
+        } else {
+          ctx.pipeline().addBefore("handler", "idle", idle);
+        }
       }
+
     } catch (Throwable x) {
       sendError(x);
     }

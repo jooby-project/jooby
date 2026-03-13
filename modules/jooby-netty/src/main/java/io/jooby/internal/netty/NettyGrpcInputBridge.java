@@ -50,20 +50,27 @@ public class NettyGrpcInputBridge implements Flow.Subscription {
     ctx.close(); // Abort the connection
   }
 
-  /** Called by the NettyGrpcHandler when a new chunk arrives from the network. */
   public void onChunk(HttpContent chunk) {
     try {
       ByteBuf content = chunk.content();
       if (content.isReadable()) {
-        // Convert Netty ByteBuf to standard Java ByteBuffer
-        ByteBuffer buffer = content.nioBuffer();
 
-        // Pass to the gRPC deframer
+        // Copy the bytes. content.nioBuffer() shares memory with the ByteBuf,
+        // which gets released in the finally block of NettyGrpcHandler.
+        // We must copy it to an unmanaged heap buffer to prevent use-after-free corruption.
+        byte[] bytes = new byte[content.readableBytes()];
+        content.readBytes(bytes);
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+        // If onNext synchronously calls request(1), that request() will see demand transition
+        // from 0 to 1 and safely trigger ctx.read().
+        long currentDemand = demand.decrementAndGet();
+
+        // Pass the isolated buffer to the gRPC deframer
         subscriber.onNext(buffer);
 
-        long currentDemand = demand.decrementAndGet();
         if (currentDemand > 0) {
-          // Still have demand, ask Netty for the next chunk
+          // Still have demand from previous requests, ask Netty for the next chunk
           ctx.read();
         }
       }

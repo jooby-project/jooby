@@ -5,9 +5,12 @@
  */
 package io.jooby.internal.netty;
 
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import io.jooby.rpc.grpc.GrpcExchange;
@@ -17,7 +20,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -29,7 +31,8 @@ public class NettyGrpcExchange implements GrpcExchange {
 
   private final ChannelHandlerContext ctx;
   private final HttpRequest request;
-  private boolean headersSent = false;
+
+  private final AtomicBoolean headersSent = new AtomicBoolean(false);
 
   public NettyGrpcExchange(ChannelHandlerContext ctx, HttpRequest request) {
     this.ctx = ctx;
@@ -58,12 +61,11 @@ public class NettyGrpcExchange implements GrpcExchange {
   }
 
   private void sendHeadersIfNecessary() {
-    if (!headersSent) {
+    if (headersSent.compareAndSet(false, true)) {
       // Send the initial HTTP/2 HEADERS frame (Status 200)
       HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
       response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/grpc");
       ctx.write(response);
-      headersSent = true;
     }
   }
 
@@ -72,7 +74,7 @@ public class NettyGrpcExchange implements GrpcExchange {
     sendHeadersIfNecessary();
 
     // Wrap the NIO ByteBuffer in a Netty ByteBuf without copying
-    HttpContent chunk = new DefaultHttpContent(Unpooled.wrappedBuffer(payload));
+    var chunk = new DefaultHttpContent(Unpooled.wrappedBuffer(payload));
 
     // Write and flush, then map Netty's Future to your single-lambda callback
     ctx.writeAndFlush(chunk)
@@ -88,28 +90,41 @@ public class NettyGrpcExchange implements GrpcExchange {
 
   @Override
   public void close(int statusCode, String description) {
-    if (headersSent) {
-      // Trailers-Appended: Send the final HTTP/2 HEADERS frame with END_STREAM flag
+    var encodedDescription = encodeGrpcMessage(description);
+
+    // If headers were already sent, we just need to send the final trailers
+    if (headersSent.get()) {
       LastHttpContent lastContent = new DefaultLastHttpContent();
       lastContent.trailingHeaders().set("grpc-status", String.valueOf(statusCode));
-      if (description != null) {
-        lastContent.trailingHeaders().set("grpc-message", description);
+
+      if (encodedDescription != null) {
+        lastContent.trailingHeaders().set("grpc-message", encodedDescription);
       }
-      // writeAndFlush the LastHttpContent, then close the Netty stream channel
+
       ctx.writeAndFlush(lastContent).addListener(ChannelFutureListener.CLOSE);
+
     } else {
-      // Trailers-Only: No body was sent, so standard headers become the trailers
-      HttpResponse response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+      // Trailers-Only fast path: Headers and trailers combined
+      var response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
       response.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/grpc");
       response.headers().set("grpc-status", String.valueOf(statusCode));
-      if (description != null) {
-        response.headers().set("grpc-message", description);
-      }
-      ctx.write(response);
 
-      // Close out the stream with an empty DATA frame possessing the END_STREAM flag
+      if (encodedDescription != null) {
+        response.headers().set("grpc-message", encodedDescription);
+      }
+
+      ctx.write(response);
       ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
           .addListener(ChannelFutureListener.CLOSE);
     }
+  }
+
+  /** gRPC specification requires the grpc-message trailer to be percent-encoded. */
+  private static String encodeGrpcMessage(String description) {
+    if (description == null) {
+      return null;
+    }
+    // URLEncoder uses '+' for spaces, but gRPC strictly expects '%20'
+    return URLEncoder.encode(description, StandardCharsets.UTF_8).replace("+", "%20");
   }
 }

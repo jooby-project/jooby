@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 
 public class NettyHandler extends ChannelInboundHandlerAdapter {
   private final Logger log = LoggerFactory.getLogger(NettyServer.class);
@@ -88,6 +89,7 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
           if (req.getClass() == DefaultFullHttpRequest.class) {
             // HTTP2 aggregates all into a full http request.
             if (((DefaultFullHttpRequest) req).content().readableBytes() > maxRequestSize) {
+              release(req);
               router.match(context).execute(context, Route.REQUEST_ENTITY_TOO_LARGE);
               return;
             }
@@ -127,6 +129,8 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     } else if (isWebSocketFrame(msg)) {
       if (context.webSocket != null) {
         context.webSocket.handleFrame((WebSocketFrame) msg);
+      } else {
+        release(msg);
       }
     }
   }
@@ -189,9 +193,9 @@ public class NettyHandler extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private void release(HttpContent ref) {
-    if (ref.refCnt() > 0) {
-      ref.release();
+  private void release(Object ref) {
+    if (ReferenceCountUtil.refCnt(ref) > 0) {
+      ReferenceCountUtil.release(ref);
     }
   }
 

@@ -112,6 +112,29 @@ public class NettyPipeline extends ChannelInitializer<SocketChannel> {
             protocol -> "h2c".equals(protocol.toString()) ? createH2CUpgradeCodec() : null,
             (int) maxRequestSize));
 
+    pipeline.addLast(
+        "h2upgrade-cleaner",
+        new ChannelInboundHandlerAdapter() {
+          @Override
+          public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
+              ChannelPipeline p = ctx.pipeline();
+
+              // Strip out HTTP/1.1 handlers that are no longer needed on the parent channel.
+              // The Http2StreamInitializer will attach new ones for the multiplexed child channels.
+              if (p.context("grpc") != null) p.remove("grpc");
+              if (p.context("handler") != null) p.remove("handler");
+              if (p.context("expect-continue") != null) p.remove("expect-continue");
+              if (p.context("compressor") != null) p.remove("compressor");
+              if (p.context("ws-compressor") != null) p.remove("ws-compressor");
+
+              // Remove this cleaner itself so it doesn't linger
+              p.remove(this);
+            }
+            super.userEventTriggered(ctx, evt);
+          }
+        });
+
     addCommonHandlers(pipeline);
 
     // Inject gRPC handler (isHttp2 = false to trigger 426 Upgrade Required)

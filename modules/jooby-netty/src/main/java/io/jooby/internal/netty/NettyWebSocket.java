@@ -273,8 +273,9 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
         netty
             .ctx
             .channel()
-            .writeAndFlush(new PongWebSocketFrame(frame.content()))
+            .writeAndFlush(new PongWebSocketFrame(frame.content().retain()))
             .addListener(new WriteCallbackAdaptor(this, WriteCallback.NOOP));
+        frame.release();
       } else if (frame instanceof CloseWebSocketFrame) {
         handleClose(toWebSocketCloseStatus((CloseWebSocketFrame) frame));
       }
