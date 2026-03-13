@@ -13,22 +13,21 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 /**
  * Core Service Provider Interface (SPI) for the gRPC extension.
  *
- * <p>This processor acts as the bridge between the native HTTP/2 web servers (Undertow, Netty,
- * Jetty) and the embedded gRPC engine. It is designed to intercept and process gRPC exchanges at
- * the lowest possible network level, completely bypassing Jooby's standard HTTP/1.1 routing
- * pipeline. This architecture ensures strict HTTP/2 specification compliance, zero-copy buffering,
- * and reactive backpressure.
+ * <p>This processor acts as the bridge between the native HTTP/2 web servers and the embedded gRPC
+ * engine. It is designed to intercept and process gRPC exchanges at the lowest possible network
+ * level, completely bypassing Jooby's standard HTTP/1.1 routing pipeline. This architecture ensures
+ * strict HTTP/2 specification compliance, zero-copy buffering, and reactive backpressure.
  */
 public interface GrpcProcessor {
 
   /**
    * Checks if the given URI path exactly matches a registered gRPC method.
    *
-   * <p>Native server interceptors (Undertow, Netty, Jetty) use this method as a lightweight,
-   * fail-fast guard. If this returns {@code true}, the server will hijack the request and upgrade
-   * it to a native gRPC stream. If {@code false}, the request safely falls through to the standard
-   * Jooby router (typically resulting in a standard HTTP 404 Not Found, which gRPC clients
-   * gracefully translate to Status 12 UNIMPLEMENTED).
+   * <p>Native server interceptors use this method as a lightweight, fail-fast guard. If this
+   * returns {@code true}, the server will hijack the request and upgrade it to a native gRPC
+   * stream. If {@code false}, the request safely falls through to the standard Jooby router
+   * (typically resulting in a standard HTTP 404 Not Found, which gRPC clients gracefully translate
+   * to Status 12 UNIMPLEMENTED).
    *
    * @param path The incoming request path (e.g., {@code /fully.qualified.Service/MethodName}).
    * @return {@code true} if the path is mapped to an active gRPC service; {@code false} otherwise.

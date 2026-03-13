@@ -23,12 +23,12 @@ import io.jooby.internal.grpc.DefaultGrpcProcessor;
  * <p>This module allows you to run strictly-typed gRPC services alongside standard Jooby HTTP
  * routes on the exact same port. It completely bypasses standard HTTP/1.1 pipelines in favor of a
  * highly optimized, reactive, native interceptor tailored for HTTP/2 multiplexing and trailing
- * headers. *
+ * headers.
  *
  * <h3>Usage</h3>
  *
  * <p>gRPC requires HTTP/2. Ensure your Jooby application is configured to use a supported server
- * (Undertow, Netty, or Jetty) with HTTP/2 enabled. *
+ * with HTTP/2 enabled.
  *
  * <pre>{@code
  * import io.jooby.Jooby;
@@ -43,13 +43,11 @@ import io.jooby.internal.grpc.DefaultGrpcProcessor;
  * }
  * }</pre>
  *
- * *
- *
  * <h3>Dependency Injection</h3>
  *
  * <p>If your gRPC services require external dependencies (like repositories or configuration), you
  * can register the service classes instead of instances. The module will automatically provision
- * them using Jooby's DI registry (e.g., Guice, Spring) during the application startup phase. *
+ * them using Jooby's DI registry (e.g., Guice, Spring) during the application startup phase.
  *
  * <pre>{@code
  * public class App extends Jooby {
@@ -65,7 +63,7 @@ import io.jooby.internal.grpc.DefaultGrpcProcessor;
  *
  * <p><strong>Note:</strong> gRPC services are inherently registered as Singletons. Ensure your
  * service implementations are thread-safe and do not hold request-scoped state in instance
- * variables. *
+ * variables.
  *
  * <h3>Logging</h3>
  *
@@ -159,8 +157,9 @@ public class GrpcModule implements Extension {
 
   /**
    * Internal helper to register a service with the gRPC builder, extract its method descriptors,
-   * and map a fail-fast route in the Jooby router. * @param app The target Jooby application.
+   * and map a fail-fast route in the Jooby router.
    *
+   * @param app The target Jooby application.
    * @param server The in-process server builder.
    * @param registry The method descriptor registry.
    * @param service The provisioned gRPC service to bind.
@@ -183,11 +182,11 @@ public class GrpcModule implements Extension {
           routePath,
           ctx -> {
             throw new IllegalStateException(
-                "gRPC request reached the standard HTTP router for path: "
+                "gRPC request reached the standard HTTP router for: "
                     + routePath
                     + ". "
                     + "This means the native gRPC server interceptor was bypassed. "
-                    + "Ensure you are running Jetty, Netty, or Undertow with HTTP/2 enabled, "
+                    + "Ensure you are running with HTTP/2 enabled, "
                     + "and that the GrpcProcessor SPI is correctly loaded.");
           });
     }
