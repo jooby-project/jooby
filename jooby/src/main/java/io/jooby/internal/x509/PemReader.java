@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyException;
-import java.security.KeyStore;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -21,8 +20,7 @@ import java.util.regex.Pattern;
 import io.jooby.internal.IOUtils;
 
 /**
- * Reads a PEM file and converts it into a list of DERs so that they are imported into a {@link
- * KeyStore} easily.
+ * Reads a PEM file and converts it into a list of DERs.
  *
  * <p>Borrowed from <a href="http://netty.io">Netty</a>
  */
@@ -36,6 +34,7 @@ final class PemReader {
               + // Base64 text
               "-+END\\s+.*CERTIFICATE[^-]*-+", // Footer
           Pattern.CASE_INSENSITIVE);
+
   private static final Pattern KEY_PATTERN =
       Pattern.compile(
           "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+"
@@ -49,13 +48,12 @@ final class PemReader {
       throws CertificateException, IOException {
     String content = IOUtils.toString(file, StandardCharsets.UTF_8);
 
-    List<ByteBuffer> certs = new ArrayList<ByteBuffer>();
+    List<ByteBuffer> certs = new ArrayList<>();
     Matcher m = CERT_PATTERN.matcher(content);
     int start = 0;
     while (m.find(start)) {
       ByteBuffer buffer = ByteBuffer.wrap(decode(m.group(1)));
       certs.add(buffer);
-
       start = m.end();
     }
 
@@ -67,7 +65,8 @@ final class PemReader {
   }
 
   private static byte[] decode(String value) {
-    return Base64.getDecoder().decode(value.replaceAll("(?:\\r\\n|\\n\\r|\\n|\\r)", ""));
+    // MimeDecoder automatically strips out \r and \n characters
+    return Base64.getMimeDecoder().decode(value);
   }
 
   static ByteBuffer readPrivateKey(final InputStream file) throws KeyException, IOException {

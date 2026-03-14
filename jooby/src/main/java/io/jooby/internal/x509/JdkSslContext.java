@@ -51,7 +51,6 @@ public abstract class JdkSslContext extends SslContext {
 
   static {
     SSLContext context;
-    int i;
     try {
       context = SSLContext.getInstance(PROTOCOL);
       context.init(null, null, null);
@@ -63,12 +62,11 @@ public abstract class JdkSslContext extends SslContext {
 
     // Choose the sensible default list of protocols.
     final String[] supportedProtocols = engine.getSupportedProtocols();
-    Set<String> supportedProtocolsSet = new HashSet<String>(supportedProtocols.length);
-    for (i = 0; i < supportedProtocols.length; ++i) {
-      supportedProtocolsSet.add(supportedProtocols[i]);
-    }
-    List<String> protocols = new ArrayList<String>();
-    addIfSupported(supportedProtocolsSet, protocols, "TLSv1.2", "TLSv1.1", "TLSv1");
+    Set<String> supportedProtocolsSet = new HashSet<>(Arrays.asList(supportedProtocols));
+    List<String> protocols = new ArrayList<>();
+
+    // Modernized for Java 21: prioritize TLS 1.3 and TLS 1.2
+    addIfSupported(supportedProtocolsSet, protocols, "TLSv1.3", "TLSv1.2");
 
     if (!protocols.isEmpty()) {
       PROTOCOLS = protocols.toArray(new String[0]);
@@ -78,26 +76,26 @@ public abstract class JdkSslContext extends SslContext {
 
     // Choose the sensible default list of cipher suites.
     final String[] supportedCiphers = engine.getSupportedCipherSuites();
-    SUPPORTED_CIPHERS = new HashSet<String>(supportedCiphers.length);
-    for (i = 0; i < supportedCiphers.length; ++i) {
-      SUPPORTED_CIPHERS.add(supportedCiphers[i]);
-    }
-    List<String> ciphers = new ArrayList<String>();
+    SUPPORTED_CIPHERS = new HashSet<>(Arrays.asList(supportedCiphers));
+    List<String> ciphers = new ArrayList<>();
+
     addIfSupported(
         SUPPORTED_CIPHERS,
         ciphers,
-        // XXX: Make sure to sync this list with OpenSslEngineFactory.
-        // GCM (Galois/Counter Mode) requires JDK 8.
+        // TLS 1.3 Ciphers
+        "TLS_AES_256_GCM_SHA384",
+        "TLS_AES_128_GCM_SHA256",
+        "TLS_CHACHA20_POLY1305_SHA256",
+        // Modern TLS 1.2 Ciphers
+        "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
         "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
         "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
-        // AES256 requires JCE unlimited strength jurisdiction policy files.
         "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
-        // GCM (Galois/Counter Mode) requires JDK 8.
         "TLS_RSA_WITH_AES_128_GCM_SHA256",
         "TLS_RSA_WITH_AES_128_CBC_SHA",
-        // AES256 requires JCE unlimited strength jurisdiction policy files.
-        "TLS_RSA_WITH_AES_256_CBC_SHA",
-        "SSL_RSA_WITH_3DES_EDE_CBC_SHA");
+        "TLS_RSA_WITH_AES_256_CBC_SHA");
 
     if (ciphers.isEmpty()) {
       // Use the default from JDK as fallback.
@@ -125,7 +123,6 @@ public abstract class JdkSslContext extends SslContext {
     }
   }
 
-  /** Returns the JDK {@link SSLSessionContext} object held by this context. */
   @Override
   public final SSLSessionContext sessionContext() {
     return context().getServerSessionContext();
@@ -141,18 +138,6 @@ public abstract class JdkSslContext extends SslContext {
     return sessionContext().getSessionTimeout();
   }
 
-  /**
-   * Build a {@link KeyManagerFactory} based upon a key file, key file password, and a certificate
-   * chain.
-   *
-   * @param certChainFile a X.509 certificate chain file in PEM format
-   * @param keyFile a PKCS#8 private key file in PEM format
-   * @param keyPassword the password of the {@code keyFile}. {@code null} if it's not
-   *     password-protected.
-   * @param kmf The existing {@link KeyManagerFactory} that will be used if not {@code null}
-   * @return A {@link KeyManagerFactory} based upon a key file, key file password, and a certificate
-   *     chain.
-   */
   protected static KeyManagerFactory buildKeyManagerFactory(
       final InputStream certChainFile, final InputStream keyFile, final String keyPassword)
       throws UnrecoverableKeyException,
@@ -171,19 +156,6 @@ public abstract class JdkSslContext extends SslContext {
     return buildKeyManagerFactory(certChainFile, algorithm, keyFile, keyPassword);
   }
 
-  /**
-   * Build a {@link KeyManagerFactory} based upon a key algorithm, key file, key file password, and
-   * a certificate chain.
-   *
-   * @param certChainFile a X.509 certificate chain file in PEM format
-   * @param keyAlgorithm the standard name of the requested algorithm. See the Java Secure Socket
-   *     Extension Reference Guide for information about standard algorithm names.
-   * @param keyFile a PKCS#8 private key file in PEM format
-   * @param keyPassword the password of the {@code keyFile}. {@code null} if it's not
-   *     password-protected.
-   * @return A {@link KeyManagerFactory} based upon a key algorithm, key file, key file password,
-   *     and a certificate chain.
-   */
   protected static KeyManagerFactory buildKeyManagerFactory(
       final InputStream certChainFile,
       final String keyAlgorithm,
