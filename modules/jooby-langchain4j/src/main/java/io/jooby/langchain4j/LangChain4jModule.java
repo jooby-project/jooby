@@ -15,6 +15,8 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.internal.langchain4j.BuiltInModel;
+import io.jooby.internal.langchain4j.FallbackChatModel;
+import io.jooby.internal.langchain4j.FallbackStreamingChatModel;
 
 /**
  * Jooby Extension for LangChain4j.
@@ -22,7 +24,7 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * <p>This module provides seamless integration between Jooby and the LangChain4j 1.x ecosystem,
  * automatically instantiating and registering {@link dev.langchain4j.model.chat.ChatModel} and
  * {@link dev.langchain4j.model.chat.StreamingChatModel} components based on your application
- * configuration. *
+ * configuration.
  *
  * <h3>Installation</h3>
  *
@@ -37,8 +39,6 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * });
  * }
  * }</pre>
- *
- * *
  *
  * <h3>Configuration</h3>
  *
@@ -61,8 +61,6 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * }
  * }</pre>
  *
- * *
- *
  * <h3>Resilience & Fallback Routing</h3>
  *
  * <p>You can define a chain of fallbacks to ensure high availability. If the primary model fails
@@ -76,7 +74,7 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * api-key = "..."
  * fallback = ["local-failover"]
  * }
- * * local-failover {
+ * local-failover {
  * provider = "jlama"
  * model-name = "tjake/Llama-3.2-1B-Instruct-JQ4"
  * }
@@ -92,8 +90,6 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * })
  * );
  * }</pre>
- *
- * *
  *
  * <h3>Custom Providers</h3>
  *
@@ -114,8 +110,6 @@ import io.jooby.internal.langchain4j.BuiltInModel;
  * })
  * );
  * }</pre>
- *
- * *
  *
  * <h3>Dependency Management</h3>
  *

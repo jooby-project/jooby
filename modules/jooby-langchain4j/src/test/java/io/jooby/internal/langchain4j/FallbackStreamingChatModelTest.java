@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.langchain4j;
+package io.jooby.internal.langchain4j;
 
 import static org.mockito.Mockito.*;
 
@@ -15,6 +15,7 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import io.jooby.langchain4j.FailoverListener;
 
 class FallbackStreamingChatModelTest {
 

@@ -22,6 +22,7 @@ import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
+import io.jooby.internal.langchain4j.FallbackChatModel;
 
 class LangChain4jModuleTest {
 
