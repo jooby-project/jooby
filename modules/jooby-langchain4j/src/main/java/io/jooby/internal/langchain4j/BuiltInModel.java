@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.langchain4j;
 
-import java.nio.file.Paths;
 import java.time.Duration;
 
 import com.typesafe.config.Config;
@@ -106,10 +105,7 @@ public enum BuiltInModel implements ChatModelFactory {
       check("dev.langchain4j.model.jlama.JlamaChatModel", "langchain4j-jlama");
       return JlamaChatModel.builder()
           .modelName(config.getString("model-name"))
-          .workingDirectory(
-              config.hasPath("working-dir")
-                  ? Paths.get(config.getString("working-dir"))
-                  : Paths.get(System.getProperty("user.dir"), "./models"))
+          .workingDirectory(getOrCreateWorkingDir(config))
           .build();
     }
 
@@ -117,10 +113,7 @@ public enum BuiltInModel implements ChatModelFactory {
     public StreamingChatModel createStreamingModel(@NonNull Config config) {
       return JlamaStreamingChatModel.builder()
           .modelName(config.getString("model-name"))
-          .workingDirectory(
-              config.hasPath("working-dir")
-                  ? Paths.get(config.getString("working-dir"))
-                  : Paths.get(System.getProperty("user.dir"), "./models"))
+          .workingDirectory(getOrCreateWorkingDir(config))
           .build();
     }
   };
@@ -163,5 +156,22 @@ public enum BuiltInModel implements ChatModelFactory {
 
   protected double getTemp(Config config) {
     return config.hasPath("temperature") ? config.getDouble("temperature") : 0.7;
+  }
+
+  protected java.nio.file.Path getOrCreateWorkingDir(Config config) {
+    java.nio.file.Path path =
+        config.hasPath("working-dir")
+            ? java.nio.file.Paths.get(config.getString("working-dir"))
+            : java.nio.file.Paths.get(System.getProperty("user.dir"), "models");
+
+    try {
+      // Jlama explicitly requires the directory to exist before booting
+      if (!java.nio.file.Files.exists(path)) {
+        java.nio.file.Files.createDirectories(path);
+      }
+      return path;
+    } catch (java.io.IOException e) {
+      throw new IllegalStateException("Failed to create a working directory at: " + path, e);
+    }
   }
 }
