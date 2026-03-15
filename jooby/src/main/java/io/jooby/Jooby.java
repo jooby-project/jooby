@@ -493,6 +493,18 @@ public class Jooby implements Router, Registry {
     return mount("/", router);
   }
 
+  /**
+   * Mounts and registers a JSON-RPC service at the specified custom path.
+   *
+   * <p>This method initializes a JSON-RPC dispatcher for the given path if one does not already
+   * exist, installs the dispatcher module into the application, and binds the provided {@link
+   * JsonRpcService} to it. Multiple services can be added to the same path.
+   *
+   * @param path The URL path where the JSON-RPC endpoint will be exposed (e.g., "/api/rpc").
+   * @param service The {@link JsonRpcService} instance containing the RPC methods to expose. Must
+   *     not be null.
+   * @return This {@link Jooby} instance to allow for method chaining.
+   */
   public Jooby jsonRpc(String path, @NonNull JsonRpcService service) {
     if (dispatchers == null) {
       dispatchers = new HashMap<>();
@@ -509,6 +521,16 @@ public class Jooby implements Router, Registry {
     return this;
   }
 
+  /**
+   * Mounts and registers a JSON-RPC service at the default path {@code "/rpc"}.
+   *
+   * <p>This is a convenience method that delegates to {@link #jsonRpc(String, JsonRpcService)}
+   * using the default endpoint path.
+   *
+   * @param service The {@link JsonRpcService} instance containing the RPC methods to expose. Must
+   *     not be null.
+   * @return This {@link Jooby} instance to allow for method chaining.
+   */
   public Jooby jsonRpc(@NonNull JsonRpcService service) {
     return jsonRpc("/rpc", service);
   }

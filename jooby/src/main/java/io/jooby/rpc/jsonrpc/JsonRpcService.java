@@ -18,6 +18,11 @@ import io.jooby.Context;
  */
 public interface JsonRpcService {
 
+  /**
+   * List all RPC method exposed by this service.
+   *
+   * @return All RPC method exposed by this service.
+   */
   List<String> getMethods();
 
   /**
