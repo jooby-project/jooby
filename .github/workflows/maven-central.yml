@@ -29,7 +29,7 @@ jobs:
         run: mvn clean install -DskipTests -q
       - name: Set up Maven Central
         uses: actions/setup-java@v4
-        with: # running setup-java again overwrites the settings.xml
+        with:
           java-version: 21
           distribution: 'temurin'
           server-id: central
@@ -44,3 +44,60 @@ jobs:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+  update-release-notes:
+    name: Update GitHub Release Notes
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate and Update Release Notes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_TAG=${{ github.ref_name }}
+          VERSION_NUM=${CURRENT_TAG#v}
+
+          # Calculate previous tag using version sorting
+          git fetch --tags --force
+          PREV_TAG=$(git tag --sort=-v:refname | grep -A 1 "^${CURRENT_TAG}$" | tail -n 1)
+
+          # Fetch milestone ID for the link
+          MILESTONE_ID=$(gh api repos/${{ github.repository }}/milestones -q ".[] | select(.title==\"$VERSION_NUM\") | .number")
+
+          # Fetch closed issues and PRs for this milestone, excluding the dependencies label
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\" is:closed -label:dependencies" \
+            --limit 100 \
+            --json title,url \
+            --jq '.[] | "- [\(.title)](\(.url))"' > milestone_issues.md
+
+          # Assemble the final changelog.md
+          cat << EOF > changelog.md
+          $(cat milestone_issues.md)
+
+          ## Changes
+          - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
+          - [Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
+          - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
+          - [Dependencies](https://github.com/jooby-project/jooby/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
+
+          ## Support my work
+          - [Sponsor](https://github.com/sponsors/jknack)
+
+          ### Sponsors
+          - [@premium-minds](https://github.com/premium-minds)
+          - [@agentgt](https://github.com/agentgt)
+          - [@tipsy](https://github.com/tipsy)
+          EOF
+
+          # Overwrite the existing release notes
+          gh release edit $CURRENT_TAG --notes-file changelog.md
