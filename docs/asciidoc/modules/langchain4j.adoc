@@ -1,0 +1,298 @@
+== LangChain4j
+
+AI and Large Language Model (LLM) integration using the https://github.com/langchain4j/langchain4j[LangChain4j] framework.
+
+This module automates the instantiation and registration of `ChatModel` and `StreamingChatModel` components based on your application configuration. It supports built-in providers (OpenAI, Anthropic, Ollama, Jlama), seamless fallback routing for high availability, and custom provider registration.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-langchain4j"]
+.
+
+2) Add the dependency for your chosen AI provider (e.g., OpenAI):
+
+[dependency, groupId="dev.langchain4j", artifactId="langchain4j-open-ai", version="${langchain4j.version}"]
+.
+
+3) Configure your models in `application.conf`:
+
+[source, hocon]
+----
+langchain4j {
+  models {
+    gpt-assistant {
+      provider = "openai"
+      api-key = ${OPENAI_API_KEY}
+      model-name = "gpt-4o-mini"
+      timeout = 30s
+    }
+  }
+}
+----
+
+4) Install the module and require the model:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.langchain4j.LangChain4jModule;
+import dev.langchain4j.model.chat.ChatModel;
+
+{
+  install(new LangChain4jModule());                                 <1>
+
+  get("/chat", ctx -> {
+    ChatModel ai = require(ChatModel.class);                        <2>
+    String prompt = ctx.query("q").value("Tell me a joke");
+    
+    return ai.chat(prompt);                                         <3>
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.langchain4j.LangChain4jModule
+import dev.langchain4j.model.chat.ChatModel
+
+{
+  install(LangChain4jModule())                                      <1>
+
+  get("/chat") {
+    val ai = require<ChatModel>()                                   <2>
+    val prompt = ctx.query("q").value("Tell me a joke")
+    
+    ai.chat(prompt)                                                 <3>
+  }
+}
+----
+
+<1> Install the LangChain4j module. It will automatically parse the configuration and build the models.
+<2> Request the default `ChatModel` from the service registry.
+<3> Execute the blocking chat request.
+
+=== Streaming Responses
+
+If your provider supports streaming, the module automatically registers a `StreamingChatModel` which pairs perfectly with Jooby's Server-Sent Events (SSE).
+
+.Java
+[source, java, role="primary"]
+----
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
+import dev.langchain4j.model.chat.response.ChatResponse;
+
+{
+  sse("/chat/stream", sse -> {
+    StreamingChatModel ai = require(StreamingChatModel.class);
+
+    ai.chat("Write a long story", new StreamingChatResponseHandler() {
+      @Override
+      public void onPartialResponse(String token) {
+        sse.send(token);                                            <1>
+      }
+
+      @Override
+      public void onCompleteResponse(ChatResponse response) {
+        sse.close();                                                <2>
+      }
+
+      @Override
+      public void onError(Throwable error) {
+        sse.send("[ERROR] " + error.getMessage());
+        sse.close();
+      }
+    });
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import dev.langchain4j.model.chat.StreamingChatModel
+import dev.langchain4j.model.chat.response.StreamingChatResponseHandler
+import dev.langchain4j.model.chat.response.ChatResponse
+
+{
+  sse("/chat/stream") { sse ->
+    val ai = require<StreamingChatModel>()
+
+    ai.chat("Write a long story", object : StreamingChatResponseHandler {
+      override fun onPartialResponse(token: String) {
+        sse.send(token)                                             <1>
+      }
+
+      override fun onCompleteResponse(response: ChatResponse) {
+        sse.close()                                                 <2>
+      }
+
+      override fun onError(error: Throwable) {
+        sse.send("[ERROR] ${error.message}")
+        sse.close()
+      }
+    })
+  }
+}
+----
+
+<1> Stream partial tokens back to the client as they are generated.
+<2> Close the SSE connection when the model finishes.
+
+=== Resilience & Fallbacks
+
+Network timeouts and API rate limits happen. You can configure a chain of fallbacks to ensure high availability. If the primary model fails, the module automatically routes the request to the next configured fallback.
+
+1) Configure the fallback chain in `application.conf`:
+
+[source, hocon]
+----
+langchain4j.models {
+  primary-agent {
+    provider = "openai"
+    api-key = ${OPENAI_API_KEY}
+    fallback = ["local-failover"]                                   <1>
+  }
+
+  local-failover {
+    provider = "jlama"
+    model-name = "tjake/Llama-3.2-1B-Instruct-JQ4"
+  }
+}
+----
+<1> Instructs the module to wrap `primary-agent` with a fallback decorator pointing to `local-failover`.
+
+2) Attach a listener to monitor when failovers occur:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.langchain4j.LangChain4jModule;
+
+{
+  install(new LangChain4jModule()
+    .failoverListener((modelName, error) -> {
+      System.err.println("Model " + modelName + " failed: " + error.getMessage());
+    })
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.langchain4j.LangChain4jModule
+
+{
+  install(LangChain4jModule()
+    .failoverListener { modelName, error -> 
+      println("Model $modelName failed: ${error.message}")
+    }
+  )
+}
+----
+
+=== Registering Custom Providers
+
+The module includes built-in support for `openai`, `anthropic`, `ollama`, and `jlama`. To add support for an unlisted provider (e.g., Google Vertex AI), you can register a custom `ChatModelFactory`.
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.langchain4j.LangChain4jModule;
+import io.jooby.langchain4j.ChatModelFactory;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import com.typesafe.config.Config;
+
+{
+  install(new LangChain4jModule()
+    .register("vertex", new ChatModelFactory() {                    <1>
+      @Override
+      public ChatModel createChatModel(Config config) {
+        return VertexAiGeminiChatModel.builder()
+          .project(config.getString("project"))
+          .location(config.getString("location"))
+          .build();
+      }
+
+      @Override
+      public StreamingChatModel createStreamingModel(Config config) {
+        return VertexAiGeminiStreamingChatModel.builder()           <2>
+          .project(config.getString("project"))
+          .location(config.getString("location"))
+          .build();
+      }
+    })
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.langchain4j.LangChain4jModule
+import io.jooby.langchain4j.ChatModelFactory
+import dev.langchain4j.model.chat.ChatModel
+import dev.langchain4j.model.chat.StreamingChatModel
+import com.typesafe.config.Config
+
+{
+  install(LangChain4jModule()
+    .register("vertex", object : ChatModelFactory {                 <1>
+      override fun createChatModel(config: Config): ChatModel {
+        return VertexAiGeminiChatModel.builder()
+          .project(config.getString("project"))
+          .location(config.getString("location"))
+          .build()
+      }
+
+      override fun createStreamingModel(config: Config): StreamingChatModel {
+        return VertexAiGeminiStreamingChatModel.builder()           <2>
+          .project(config.getString("project"))
+          .location(config.getString("location"))
+          .build()
+      }
+    })
+  )
+}
+----
+<1> Register the custom provider name matching the `provider` key in your `.conf` file.
+<2> `createStreamingModel` is implemented as an optional default method in the interface. Not all providers support streaming. If your chosen provider does not support it, simply do not override this method (it returns `null` by default).
+
+==== Accessing the Concrete Implementation
+
+While you should generally interact with models via the standard `ChatModel` and `StreamingChatModel` interfaces, the module also registers the exact class implementation in Jooby's Service Registry.
+
+If you need to access provider-specific methods on the actual builder output, you can require the concrete class directly:
+
+.Java
+[source, java, role="primary"]
+----
+import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel;
+
+{
+  get("/vertex-specific", ctx -> {
+    // Retrieve the exact underlying implementation
+    VertexAiGeminiChatModel gemini = require(VertexAiGeminiChatModel.class);
+    // ...
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import dev.langchain4j.model.vertexai.VertexAiGeminiChatModel
+
+{
+  get("/vertex-specific") {
+    // Retrieve the exact underlying implementation
+    val gemini = require<VertexAiGeminiChatModel>()
+    // ...
+  }
+}
+----

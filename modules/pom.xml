@@ -32,7 +32,9 @@
     <module>jooby-swagger-ui</module>
     <module>jooby-redoc</module>
 
-    <!-- xRCP !-->
+    <module>jooby-langchain4j</module>
+
+    <!-- tRCP !-->
     <module>jooby-trpc</module>
 
     <!-- data -->

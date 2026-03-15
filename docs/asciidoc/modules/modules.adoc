@@ -6,6 +6,9 @@ Unlike other frameworks, Jooby modules **do not** create new layers of abstracti
 
 Modules are distributed as separate dependencies. Below is the catalog of officially supported Jooby modules:
 
+==== AI
+  * link:{uiVersion}/modules/langchain4j[LangChain4j]: Supercharge your Java application with the power of LLMs.
+
 ==== Cloud
   * link:{uiVersion}/modules/awssdkv2[AWS-SDK v2]: Amazon Web Service module SDK 2.
   * link:{uiVersion}/modules/aws[AWS SDK v1]: Amazon Web Service module SDK 1.
