@@ -12,12 +12,12 @@
  *
  * <pre>{@code
  * {
- * install(new LangChain4jModule());
- * * get("/chat", ctx -> {
- * ChatModel ai = require(ChatModel.class);
- * return ai.chat("Hello world!");
- * });
- * }
+ *   install(new LangChain4jModule());
+ *   get("/chat", ctx -> {
+ *     ChatModel ai = require(ChatModel.class);
+ *     return ai.chat("Hello world!");
+ *   });
+ *   }
  * }</pre>
  *
  * <h3>Configuration</h3>
@@ -28,16 +28,16 @@
  *
  * <pre>{@code
  * langchain4j {
- * models {
- * # The name of the registered service will be "gpt-assistant"
- * gpt-assistant {
- * provider = "openai"
- * api-key = ${OPENAI_API_KEY}
- * model-name = "gpt-4o-mini"
- * timeout = 30s
- * temperature = 0.7
- * }
- * }
+ *   models {
+ *   # The name of the registered service will be "gpt-assistant"
+ *     gpt-assistant {
+ *       provider = "openai"
+ *       api-key = ${OPENAI_API_KEY}
+ *       model-name = "gpt-4o-mini"
+ *       timeout = 30s
+ *       temperature = 0.7
+ *    }
+ *   }
  * }
  * }</pre>
  *
@@ -49,15 +49,15 @@
  *
  * <pre>{@code
  * langchain4j.models {
- * primary-agent {
- * provider = "openai"
- * api-key = "..."
- * fallback = ["local-failover"]
- * }
- * local-failover {
- * provider = "jlama"
- * model-name = "tjake/Llama-3.2-1B-Instruct-JQ4"
- * }
+ *   primary-agent {
+ *     provider = "openai"
+ *     api-key = "..."
+ *     fallback = ["local-failover"]
+ *   }
+ *   local-failover {
+ *     provider = "jlama"
+ *     model-name = "tjake/Llama-3.2-1B-Instruct-JQ4"
+ *   }
  * }
  * }</pre>
  *
@@ -65,9 +65,9 @@
  *
  * <pre>{@code
  * install(new LangChain4jModule()
- * .failoverListener((modelName, error) -> {
- * log.warn("Model {} failed, switching to fallback. Reason: {}", modelName, error.getMessage());
- * })
+ *   .failoverListener((modelName, error) -> {
+ *     log.warn("Model {} failed, switching to fallback. Reason: {}", modelName, error.getMessage());
+ *    })
  * );
  * }</pre>
  *
@@ -79,16 +79,15 @@
  *
  * <pre>{@code
  * install(new LangChain4jModule()
- * .register("vertex", new ChatModelFactory() {
- * @Override
- * public ChatModel createChatModel(Config config) {
- * return VertexAiGeminiChatModel.builder()
- * .project(config.getString("project"))
- * .location(config.getString("location"))
- * .build();
- * }
- * })
- * );
+ *   .register("vertex", new ChatModelFactory() {
+ *     @Override
+ *     public ChatModel createChatModel(Config config) {
+ *       return VertexAiGeminiChatModel.builder()
+ *          .project(config.getString("project"))
+ *          .location(config.getString("location"))
+ *          .build();
+ *     }
+ *   }));
  * }</pre>
  *
  * <h3>Dependency Management</h3>
