@@ -13,7 +13,6 @@ import io.jooby.junit.ServerTestRunner;
 import okhttp3.FormBody;
 
 public class Issue3783 {
-
   @ServerTest
   public void shouldAllowToSetMaxFormFields(ServerTestRunner runner) {
     runner

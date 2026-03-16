@@ -27,8 +27,6 @@ jobs:
       - name: Install
         run: mvn install -DskipTests -q -B
         env:
-          BUILD_PORT: 0
-          BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
       - name: Build
         run: mvn package

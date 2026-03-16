@@ -166,7 +166,15 @@ public class NettyServer extends Server.Base {
         var http =
             newBootstrap(
                 allocator, transport, newPipeline(options, null, http2, grpcProcessor), eventLoop);
-        http.bind(options.getHost(), options.getPort()).get();
+
+        var httpFuture = http.bind(options.getHost(), options.getPort());
+        if (options.getPort() == 0) {
+          httpFuture.get(); // Wait for bind to complete
+          java.net.SocketAddress address = httpFuture.channel().localAddress();
+          if (address instanceof java.net.InetSocketAddress) {
+            options.setPort(((java.net.InetSocketAddress) address).getPort());
+          }
+        }
       }
 
       if (options.isSSLEnabled()) {
@@ -184,7 +192,14 @@ public class NettyServer extends Server.Base {
                 newPipeline(options, sslContext, http2, grpcProcessor),
                 eventLoop);
         portInUse = options.getSecurePort();
-        https.bind(options.getHost(), portInUse).get();
+        var httpsFuture = https.bind(options.getHost(), portInUse);
+        if (portInUse == 0) {
+          httpsFuture.get();
+          var address = httpsFuture.channel().localAddress();
+          if (address instanceof java.net.InetSocketAddress inetSocketAddress) {
+            options.setSecurePort(inetSocketAddress.getPort());
+          }
+        }
       } else if (options.isHttpsOnly()) {
         throw new StartupException("Server configured for httpsOnly, but ssl options not set");
       }

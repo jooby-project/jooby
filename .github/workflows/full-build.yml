@@ -26,8 +26,6 @@ jobs:
       - name: Build
         run: mvn -B package -P gradlePlugin
         env:
-          BUILD_PORT: 0
-          BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
       - name: Tests
         uses: mikepenz/action-junit-report@v5

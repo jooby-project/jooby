@@ -8,8 +8,6 @@ package io.jooby;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static java.util.stream.StreamSupport.stream;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -271,7 +269,7 @@ public class ServerOptions {
    * @return This options.
    */
   public @NonNull ServerOptions setPort(int port) {
-    this.port = port == 0 ? randomPort() : port;
+    this.port = Math.max(0, port);
     return this;
   }
 
@@ -303,7 +301,7 @@ public class ServerOptions {
     if (securePort == null) {
       this.securePort = null;
     } else {
-      this.securePort = securePort == 0 ? randomPort() : securePort;
+      this.securePort = Math.max(0, securePort);
     }
     return this;
   }
@@ -656,14 +654,5 @@ public class ServerOptions {
       return sslContext;
     }
     return null;
-  }
-
-  private static int randomPort() {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      socket.setReuseAddress(true);
-      return socket.getLocalPort();
-    } catch (IOException x) {
-      throw SneakyThrows.propagate(x);
-    }
   }
 }

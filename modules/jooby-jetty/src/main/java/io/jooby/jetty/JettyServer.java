@@ -163,19 +163,21 @@ public class JettyServer extends io.jooby.Server.Base {
         connectionFactories.addAll(http2.configure(httpConf));
       }
 
+      ServerConnector httpConector = null;
       if (!options.isHttpsOnly()) {
-        var http =
+        httpConector =
             new ServerConnector(
                 server,
                 acceptors,
                 selectors,
                 connectionFactories.toArray(new ConnectionFactory[0]));
-        http.setPort(options.getPort());
-        http.setHost(options.getHost());
+        httpConector.setPort(options.getPort());
+        httpConector.setHost(options.getHost());
 
-        server.addConnector(http);
+        server.addConnector(httpConector);
       }
 
+      ServerConnector secureConnector = null;
       if (options.isSSLEnabled()) {
         var classLoader = applications.get(0).getClassLoader();
         var sslContextFactory = new SslContextFactory.Server();
@@ -208,7 +210,7 @@ public class JettyServer extends io.jooby.Server.Base {
         }
         secureConnectionFactories.add(new HttpConnectionFactory(httpsConf));
 
-        var secureConnector =
+        secureConnector =
             new ServerConnector(
                 server,
                 acceptors,
@@ -271,6 +273,15 @@ public class JettyServer extends io.jooby.Server.Base {
       }
       server.setHandler(context);
       server.start();
+
+      // --- EXTRACT OS-ASSIGNED PORTS ---
+      if (httpConector != null) {
+        options.setPort(httpConector.getLocalPort());
+      }
+      if (secureConnector != null) {
+        options.setSecurePort(secureConnector.getLocalPort());
+      }
+      // ---------------------------------
 
       fireReady(applications);
     } catch (Exception x) {

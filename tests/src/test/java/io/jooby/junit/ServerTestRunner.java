@@ -103,18 +103,19 @@ public class ServerTestRunner {
       // HTTP/2 is off while testing unless explicit set
       ServerOptions options = server.getOptions();
       options.setHttp2(Optional.ofNullable(options.isHttp2()).orElse(Boolean.FALSE));
-      options.setPort(Integer.parseInt(System.getenv().getOrDefault("BUILD_PORT", "9999")));
-      this.allocatedPort = options.getPort();
-      WebClient https;
+      options.setPort(0);
       if (options.isSSLEnabled()) {
-        options.setSecurePort(
-            Integer.parseInt(System.getenv().getOrDefault("BUILD_SECURE_PORT", "9443")));
-        https = new WebClient("https", options.getSecurePort(), followRedirects);
-      } else {
-        https = null;
+        options.setSecurePort(0);
       }
+      WebClient https = null;
       try {
         MutedServer.mute(server).start(app);
+        this.allocatedPort = options.getPort();
+        if (options.isSSLEnabled()) {
+          https = new WebClient("https", options.getSecurePort(), followRedirects);
+        } else {
+          https = null;
+        }
         if (options.isHttpsOnly()) {
           onReady.accept(null, https);
         } else {

@@ -178,11 +178,26 @@ public class UndertowServer extends Server.Base {
             .ifPresent(
                 clientAuth -> builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, clientAuth));
       } else if (options.isHttpsOnly()) {
-        throw new StartupException("Server configured for httpsOnly, but ssl options not set");
+        throw new StartupException("Server configured for httpsOnly, but ssl options are not set");
       }
       fireStart(applications, worker);
       server = builder.build();
       server.start();
+
+      // --- EXTRACT OS-ASSIGNED PORTS ---
+      for (var info : server.getListenerInfo()) {
+        var address = info.getAddress();
+        if (address instanceof java.net.InetSocketAddress inetSocketAddress) {
+          int actualPort = inetSocketAddress.getPort();
+
+          if ("https".equalsIgnoreCase(info.getProtcol())) {
+            options.setSecurePort(actualPort);
+          } else {
+            options.setPort(actualPort);
+          }
+        }
+      }
+      // ---------------------------------
 
       fireReady(applications);
 
