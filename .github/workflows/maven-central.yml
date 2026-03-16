@@ -93,27 +93,34 @@ jobs:
           # 3. Initialize the changelog file
           > changelog.md
 
-          # 4. Conditionally add "What is new?" only if new_issues.md has content (-s)
+          # 4. Conditionally add "What's New" if new_issues.md has content (-s)
           if [ -s new_issues.md ]; then
-            echo "## What is new?" >> changelog.md
+            echo "## 🚀 What's New" >> changelog.md
+            echo "" >> changelog.md
             cat new_issues.md >> changelog.md
             echo "" >> changelog.md
           fi
 
-          # 5. Build the rest of the changelog ("Changes" is always present)
+          # 5. Conditionally add "Other Changes" if other_issues.md has content
+          if [ -s other_issues.md ]; then
+            echo "## 🛠️ Changes" >> changelog.md
+            echo "" >> changelog.md
+            cat other_issues.md >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 6. Build the rest of the changelog (Links & Sponsors)
           cat << EOF >> changelog.md
-          ## Changes
-          $(cat other_issues.md)
-
+          ### 🔗 Links & Resources
           - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
-          - [Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
+          - [Closed Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
           - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
-          - [Dependencies](https://github.com/jooby-project/jooby/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
+          - [Dependency Updates](https://github.com/jooby-project/jooby/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
 
-          ## Support my work
-          - [Sponsor](https://github.com/sponsors/jknack)
+          ## 💖 Support my work
+          - [Sponsor Jooby](https://github.com/sponsors/jknack)
 
-          ### Sponsors
+          ### 🏆 Sponsors
           - [@premium-minds](https://github.com/premium-minds)
           - [@agentgt](https://github.com/agentgt)
           - [@tipsy](https://github.com/tipsy)
