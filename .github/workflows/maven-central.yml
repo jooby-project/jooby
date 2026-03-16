@@ -72,19 +72,37 @@ jobs:
           # Fetch milestone ID for the link
           MILESTONE_ID=$(gh api repos/${{ github.repository }}/milestones -q ".[] | select(.title==\"$VERSION_NUM\") | .number")
 
-          # Fetch closed issues and PRs for this milestone, excluding the dependencies label
+          # 1. Fetch NEW features (requires the 'feature' label)
           gh issue list \
             --repo ${{ github.repository }} \
-            --search "milestone:\"$VERSION_NUM\" is:closed -label:dependencies" \
+            --search "milestone:\"$VERSION_NUM\" label:feature" \
             --limit 100 \
             --json title,url \
-            --jq '.[] | "- [\(.title)](\(.url))"' > milestone_issues.md
+            --jq '.[] | "- [\(.title)](\(.url))"' > new_issues.md
 
-          # Assemble the final changelog.md
-          cat << EOF > changelog.md
-          $(cat milestone_issues.md)
+          # 2. Fetch OTHER changes (excludes 'feature' and 'dependencies')
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\" -label:feature -label:dependencies" \
+            --limit 100 \
+            --json title,url \
+            --jq '.[] | "- [\(.title)](\(.url))"' > other_issues.md
 
+          # 3. Initialize the changelog file
+          > changelog.md
+
+          # 4. Conditionally add "What is new?" only if new_issues.md has content (-s)
+          if [ -s new_issues.md ]; then
+            echo "## What is new?" >> changelog.md
+            cat new_issues.md >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 5. Build the rest of the changelog ("Changes" is always present)
+          cat << EOF >> changelog.md
           ## Changes
+          $(cat other_issues.md)
+
           - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
           - [Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
           - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
