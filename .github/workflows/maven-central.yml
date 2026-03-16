@@ -76,6 +76,7 @@ jobs:
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" label:feature" \
+            --state all \
             --limit 100 \
             --json title,url \
             --jq '.[] | "- [\(.title)](\(.url))"' > new_issues.md
@@ -84,6 +85,7 @@ jobs:
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" -label:feature -label:dependencies" \
+            --state all \
             --limit 100 \
             --json title,url \
             --jq '.[] | "- [\(.title)](\(.url))"' > other_issues.md
