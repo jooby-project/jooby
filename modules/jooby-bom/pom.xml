@@ -7,14 +7,14 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.1-SNAPSHOT</version>
   </parent>
 
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <name>jooby-bom</name>
   <packaging>pom</packaging>
-  <version>4.1.0</version>
+  <version>4.1.1-SNAPSHOT</version>
   <description>Jooby (Bill of Materials)</description>
   <url>https://jooby.io</url>
 
@@ -157,6 +157,11 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-jackson3</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-jasypt</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -193,6 +198,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-kotlin</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-langchain4j</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -293,6 +303,11 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-thymeleaf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-trpc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
