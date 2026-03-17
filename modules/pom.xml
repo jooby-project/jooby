@@ -28,6 +28,7 @@
     <module>jooby-undertow</module>
     <module>jooby-vertx</module>
 
+    <module>jooby-javadoc</module>
     <module>jooby-openapi</module>
     <module>jooby-swagger-ui</module>
     <module>jooby-redoc</module>
