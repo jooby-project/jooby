@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.jooby.internal.openapi.javadoc.JavaDocNode;
-import io.jooby.internal.openapi.javadoc.MethodDoc;
-import io.jooby.internal.openapi.javadoc.ScriptDoc;
+import io.jooby.javadoc.JavaDocNode;
+import io.jooby.javadoc.MethodDoc;
+import io.jooby.javadoc.ScriptDoc;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 public class JavaDocSetter {
@@ -20,7 +20,7 @@ public class JavaDocSetter {
   public static void setPath(OperationExt operation, JavaDocNode doc) {
     operation.setPathDescription(doc.getDescription());
     operation.setPathSummary(doc.getSummary());
-    doc.getTags().forEach(operation::addTag);
+    JavaDocMapper.toTags(doc.getTags()).forEach(operation::addTag);
     if (!doc.getExtensions().isEmpty()) {
       operation.setPathExtensions(doc.getExtensions());
     }
@@ -48,8 +48,9 @@ public class JavaDocSetter {
     if (!doc.getExtensions().isEmpty()) {
       operation.setExtensions(doc.getExtensions());
     }
-    doc.getSecurityRequirements().forEach(operation::addSecurityItem);
-    doc.getTags().forEach(operation::addTag);
+    JavaDocMapper.toSecurityRequirements(doc.getSecurityRequirements())
+        .forEach(operation::addSecurityItem);
+    JavaDocMapper.toTags(doc.getTags()).forEach(operation::addTag);
     // Parameters
     for (var parameterName : parameterNames) {
       var paramExt =
@@ -78,12 +79,12 @@ public class JavaDocSetter {
       defaultResponse.setExamples(doc.getReturnExample());
       defaultResponse.setDescription(doc.getReturnDoc());
     }
-    for (var throwsDoc : doc.getThrows().values()) {
-      var response = operation.getResponse(throwsDoc.getCode());
+    for (var throwsDoc : doc.getThrows().entrySet()) {
+      var response = operation.getResponse(Integer.toString(throwsDoc.getKey()));
       if (response == null) {
-        response = operation.addResponse(throwsDoc.getCode());
+        response = operation.addResponse(Integer.toString(throwsDoc.getKey()));
       }
-      response.setDescription(throwsDoc.getDescription());
+      response.setDescription(throwsDoc.getValue());
     }
   }
 }

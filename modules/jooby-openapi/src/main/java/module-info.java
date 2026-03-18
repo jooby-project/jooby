@@ -3,6 +3,7 @@ module io.jooby.openapi {
   exports io.jooby.openapi;
 
   requires io.jooby;
+  requires io.jooby.javadoc;
   requires static com.github.spotbugs.annotations;
   requires typesafe.config;
   requires org.slf4j;

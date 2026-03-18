@@ -18,44 +18,38 @@
       <version>${jooby.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-javadoc</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+
     <!-- JAXRS -->
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
     </dependency>
-
     <dependency>
       <groupId>jakarta.validation</groupId>
       <artifactId>jakarta.validation-api</artifactId>
     </dependency>
-
     <!-- ASM -->
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm</artifactId>
     </dependency>
-
     <dependency>
       <groupId>org.ow2.asm</groupId>
       <artifactId>asm-util</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
     </dependency>
-
     <dependency>
       <groupId>io.swagger.core.v3</groupId>
       <artifactId>swagger-models</artifactId>
     </dependency>
-
-    <dependency>
-      <groupId>com.puppycrawl.tools</groupId>
-      <artifactId>checkstyle</artifactId>
-      <version>13.3.0</version>
-    </dependency>
-
     <dependency>
       <groupId>org.asciidoctor</groupId>
       <artifactId>asciidoctorj</artifactId>
@@ -206,13 +200,6 @@
             <id>default-testCompile</id>
             <phase>none</phase>
           </execution>
-<!--          <execution>-->
-<!--            <id>java-compile</id>-->
-<!--            <goals>-->
-<!--              <goal>compile</goal>-->
-<!--            </goals>-->
-<!--            <phase>compile</phase>-->
-<!--          </execution>-->
           <execution>
             <id>java-test-compile</id>
             <goals>

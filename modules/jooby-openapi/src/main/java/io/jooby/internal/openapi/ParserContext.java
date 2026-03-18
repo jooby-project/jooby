@@ -54,7 +54,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import io.jooby.*;
-import io.jooby.internal.openapi.javadoc.JavaDocParser;
+import io.jooby.javadoc.JavaDocParser;
 import io.jooby.openapi.DebugOption;
 import io.swagger.v3.core.util.RefUtils;
 import io.swagger.v3.oas.models.SpecVersion;

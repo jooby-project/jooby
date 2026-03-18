@@ -5,6 +5,8 @@
  */
 package io.jooby.openapi;
 
+import static io.jooby.internal.openapi.JavaDocMapper.*;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,8 +24,8 @@ import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
 import io.jooby.internal.openapi.asciidoc.AsciiDocContext;
-import io.jooby.internal.openapi.javadoc.JavaDocParser;
 import io.jooby.internal.openapi.projection.ProjectionParser;
+import io.jooby.javadoc.JavaDocParser;
 import io.swagger.v3.core.util.*;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.info.Info;
@@ -237,11 +239,11 @@ public class OpenAPIGenerator {
                 if (!doc.getExtensions().isEmpty()) {
                   info.setExtensions(doc.getExtensions());
                 }
-                doc.getSecuritySchemes().forEach(openapi::addSecuritySchemes);
-                doc.getServers().forEach(openapi::addServersItem);
-                doc.getContact().forEach(info::setContact);
-                doc.getLicense().forEach(info::setLicense);
-                doc.getTags().forEach(openapi::addTagsItem);
+                toSecuritySchemes(doc.getSecuritySchemes()).forEach(openapi::addSecuritySchemes);
+                toServers(doc.getServers()).forEach(openapi::addServersItem);
+                toContact(doc.getContact()).ifPresent(info::setContact);
+                toLicense(doc.getLicense()).ifPresent(info::setLicense);
+                toTags(doc.getTags()).forEach(openapi::addTagsItem);
               });
     }
 

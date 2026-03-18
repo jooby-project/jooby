@@ -1318,6 +1318,14 @@
         <configuration>
           <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <useModulePath>false</useModulePath>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
