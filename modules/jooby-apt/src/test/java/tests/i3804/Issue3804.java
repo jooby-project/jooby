@@ -17,6 +17,7 @@ public class Issue3804 {
     new ProcessorRunner(new C3804())
         .withSourceCode(
             source -> {
+              System.out.println(source);
               assertTrue(source.contains("setup(ctx -> ctx.require(type));"));
             });
   }

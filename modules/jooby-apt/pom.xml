@@ -27,6 +27,13 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-mcp</artifactId>
+      <version>${jooby.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-jackson3</artifactId>
       <version>${jooby.version}</version>
       <scope>test</scope>
@@ -44,7 +51,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Test dependencies -->
     <dependency>
       <groupId>com.google.testing.compile</groupId>
       <artifactId>compile-testing</artifactId>
@@ -55,6 +61,12 @@
     <dependency>
       <groupId>jakarta.ws.rs</groupId>
       <artifactId>jakarta.ws.rs-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.modelcontextprotocol.sdk</groupId>
+      <artifactId>mcp-core</artifactId>
       <scope>test</scope>
     </dependency>
 

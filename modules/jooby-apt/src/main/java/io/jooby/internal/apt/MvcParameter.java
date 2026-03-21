@@ -41,6 +41,23 @@ public class MvcParameter {
     return parameter.getSimpleName().toString();
   }
 
+  public String getMcpName() {
+    var annotation = annotations.get("io.jooby.annotation.McpParam");
+    if (annotation != null) {
+      var customName =
+          io.jooby.internal.apt.AnnotationSupport.findAnnotationValue(annotation, "name"::equals)
+              .stream()
+              .findFirst()
+              .orElse("");
+
+      if (!customName.isEmpty()) {
+        return customName;
+      }
+    }
+    // Fallback to the actual Java parameter name
+    return getName();
+  }
+
   public String generateMapping(boolean kt) {
     var strategy =
         annotations.entrySet().stream()

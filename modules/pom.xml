@@ -108,6 +108,7 @@
     <module>jooby-stork</module>
 
     <module>jooby-gradle-setup</module>
+    <module>jooby-mcp</module>
   </modules>
 
 </project>

@@ -38,7 +38,7 @@ import io.jooby.internal.apt.*;
   ROUTER_SUFFIX,
   SKIP_ATTRIBUTE_ANNOTATIONS
 })
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class JoobyProcessor extends AbstractProcessor {
   /** Available options. */
   public interface Options {
@@ -190,6 +190,24 @@ public class JoobyProcessor extends AbstractProcessor {
                     generatedType,
                     sourceLocation,
                     rpcSource,
+                    router.getTargetType());
+              }
+            }
+            // 3. Generate MCP Server File (e.g., WeatherServerMcp_.java)
+            if (router.hasMcpRoutes()) {
+              var mcpSource = router.getMcpSourceCode(null);
+              if (mcpSource != null) {
+                var sourceLocation = router.getMcpGeneratedFilename();
+                var generatedType = router.getMcpGeneratedType();
+                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, mcpSource));
+
+                context.debug("mcp router %s: %s", router.getTargetType(), generatedType);
+
+                writeSource(
+                    router.isKt(),
+                    generatedType,
+                    sourceLocation,
+                    mcpSource,
                     router.getTargetType());
               }
             }
@@ -401,6 +419,11 @@ public class JoobyProcessor extends AbstractProcessor {
     var supportedTypes = new HashSet<String>();
     supportedTypes.addAll(HttpPath.PATH.getAnnotations());
     supportedTypes.addAll(HttpMethod.annotations());
+    // Add MCP Annotations
+    supportedTypes.add("io.jooby.annotation.McpTool");
+    supportedTypes.add("io.jooby.annotation.McpPrompt");
+    supportedTypes.add("io.jooby.annotation.McpResource");
+    supportedTypes.add("io.jooby.annotation.McpServer");
     return supportedTypes;
   }
 

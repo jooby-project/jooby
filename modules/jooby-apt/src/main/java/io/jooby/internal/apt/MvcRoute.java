@@ -36,6 +36,11 @@ public class MvcRoute {
 
   private boolean isTrpc = false;
   private boolean isJsonRpc = false;
+  private boolean isMcpTool = false;
+  private boolean isMcpPrompt = false;
+  private boolean isMcpResource = false;
+  private boolean isMcpResourceTemplate = false;
+  private boolean isMcpCompletion = false;
   private HttpMethod resolvedTrpcMethod = null;
 
   public MvcRoute(MvcContext context, MvcRouter router, ExecutableElement method) {
@@ -51,6 +56,7 @@ public class MvcRoute {
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
+    this.checkMcpAnnotations();
   }
 
   public MvcRoute(MvcContext context, MvcRouter router, MvcRoute route) {
@@ -64,6 +70,14 @@ public class MvcRoute {
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
     this.suspendFun = route.suspendFun;
+    // from here
+    this.isJsonRpc = route.isJsonRpc;
+    this.isTrpc = route.isTrpc;
+    this.isMcpTool = route.isMcpTool;
+    this.isMcpPrompt = route.isMcpPrompt;
+    this.isMcpResource = route.isMcpResource;
+    this.isMcpResourceTemplate = route.isMcpResourceTemplate;
+    this.isMcpCompletion = route.isMcpCompletion;
     route.annotationMap.keySet().forEach(this::addHttpMethod);
   }
 
@@ -85,6 +99,66 @@ public class MvcRoute {
 
   public boolean isTrpc() {
     return isTrpc;
+  }
+
+  // Inside the constructor or addHttpMethod equivalent, scan for the annotations:
+  public MvcRoute checkMcpAnnotations() {
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpTool")
+        != null) {
+      this.isMcpTool = true;
+    }
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpPrompt")
+        != null) {
+      this.isMcpPrompt = true;
+    }
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpResource")
+        != null) {
+      this.isMcpResource = true;
+    }
+    var resourceAnno =
+        AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpResource");
+    if (resourceAnno != null) {
+      String uri =
+          AnnotationSupport.findAnnotationValue(resourceAnno, "value"::equals).stream()
+              .findFirst()
+              .orElse("");
+      if (uri.contains("{") && uri.contains("}")) {
+        this.isMcpResourceTemplate = true;
+      } else {
+        this.isMcpResource = true;
+      }
+    }
+
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpCompletion")
+        != null) {
+      this.isMcpCompletion = true;
+    }
+    return this;
+  }
+
+  // Add getters
+  public boolean isMcpTool() {
+    return isMcpTool;
+  }
+
+  public boolean isMcpPrompt() {
+    return isMcpPrompt;
+  }
+
+  public boolean isMcpResource() {
+    return isMcpResource;
+  }
+
+  public boolean isMcpResourceTemplate() {
+    return isMcpResourceTemplate;
+  }
+
+  public boolean isMcpCompletion() {
+    return isMcpCompletion;
+  }
+
+  public boolean isMcpRoute() {
+    return isMcpTool || isMcpPrompt || isMcpResource || isMcpResourceTemplate || isMcpCompletion;
   }
 
   public boolean isProjection() {
