@@ -11,7 +11,6 @@ import static io.jooby.internal.apt.CodeBlock.*;
 import static java.util.Collections.emptyList;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -21,6 +20,59 @@ import java.util.stream.Stream;
 import javax.lang.model.element.*;
 
 public class MvcRouter {
+  public static final String JAVA =
+      """
+      package ${packageName};
+      ${imports}
+      @io.jooby.annotation.Generated(${className}.class)
+      public class ${generatedClassName} implements ${implements} {
+          protected java.util.function.Function<io.jooby.Context, ${className}> factory;
+      ${constructors}
+          public ${generatedClassName}(${className} instance) {
+             setup(ctx -> instance);
+          }
+
+          public ${generatedClassName}(io.jooby.SneakyThrows.Supplier<${className}> provider) {
+             setup(ctx -> (${className}) provider.get());
+          }
+
+          public ${generatedClassName}(io.jooby.SneakyThrows.Function<Class<${className}>, ${className}> provider) {
+             setup(ctx -> provider.apply(${className}.class));
+          }
+
+          private void setup(java.util.function.Function<io.jooby.Context, ${className}> factory) {
+              this.factory = factory;
+          }
+
+      ${methods}
+      }
+
+      """;
+  public static final String KOTLIN =
+      """
+      package ${packageName}
+          ${imports}
+          @io.jooby.annotation.Generated(${className}::class)
+          open class ${generatedClassName} : ${implements} {
+              private lateinit var factory: java.util.function.Function<io.jooby.Context, ${className}>
+
+              ${constructors}
+              constructor(instance: ${className}) { setup { instance } }
+
+              constructor(provider: io.jooby.SneakyThrows.Supplier<${className}>) { setup { provider.get() } }
+
+              constructor(provider: (Class<${className}>) -> ${className}) { setup { provider(${className}::class.java) } }
+
+              constructor(provider:  io.jooby.SneakyThrows.Function<Class<${className}>, ${className}>) { setup { provider.apply(${className}::class.java) } }
+
+              private fun setup(factory: java.util.function.Function<io.jooby.Context, ${className}>) {
+                this.factory = factory
+              }
+          ${methods}
+          }
+
+      """;
+
   private final MvcContext context;
 
   /** MVC router class. */
@@ -202,7 +254,8 @@ public class MvcRouter {
    * @return The source code to write, or null if the controller only contains JSON-RPC routes.
    */
   public String getRestSourceCode(Boolean generateKotlin) throws IOException {
-    var mvcRoutes = this.routes.values().stream().filter(it -> !it.isJsonRpc()).toList();
+    var mvcRoutes =
+        this.routes.values().stream().filter(it -> !it.isJsonRpc() && !it.isMcpRoute()).toList();
 
     if (mvcRoutes.isEmpty()) {
       return null; // Safety check if called on a JSON-RPC-only controller
@@ -212,72 +265,252 @@ public class MvcRouter {
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = context.generateRouterName(generateTypeName);
 
-    try (var in = getClass().getResourceAsStream("Source" + (kt ? ".kt" : ".java"))) {
-      Objects.requireNonNull(in);
-      var suspended = mvcRoutes.stream().filter(MvcRoute::isSuspendFun).toList();
-      var noSuspended = mvcRoutes.stream().filter(it -> !it.isSuspendFun()).toList();
-      var buffer = new StringBuilder();
-      context.generateStaticImports(
-          this,
-          (owner, fn) ->
-              buffer.append(
-                  statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
-      var imports = buffer.toString();
-      buffer.setLength(0);
+    var template = kt ? KOTLIN : JAVA;
+    var suspended = mvcRoutes.stream().filter(MvcRoute::isSuspendFun).toList();
+    var noSuspended = mvcRoutes.stream().filter(it -> !it.isSuspendFun()).toList();
+    var buffer = new StringBuilder();
+    context.generateStaticImports(
+        this,
+        (owner, fn) ->
+            buffer.append(
+                statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
+    var imports = buffer.toString();
+    buffer.setLength(0);
 
-      // begin install
-      if (kt) {
-        buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
-        buffer
-            .append(indent(4))
-            .append("override fun install(app: io.jooby.Jooby) {")
-            .append(System.lineSeparator());
-      } else {
-        buffer
-            .append(indent(4))
-            .append("public void install(io.jooby.Jooby app) throws Exception {")
-            .append(System.lineSeparator());
-      }
-      if (!suspended.isEmpty()) {
-        buffer.append(statement(indent(6), "val kooby = app as io.jooby.kt.Kooby"));
-        buffer.append(statement(indent(6), "kooby.coroutine {"));
-        suspended.stream()
-            .flatMap(it -> it.generateMapping(kt).stream())
-            .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
-        trimr(buffer);
-        buffer.append(System.lineSeparator()).append(statement(indent(6), "}"));
-      }
-      noSuspended.stream()
-          .flatMap(it -> it.generateMapping(kt).stream())
-          .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
-      trimr(buffer);
+    // begin install
+    if (kt) {
+      buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
       buffer
-          .append(System.lineSeparator())
+          .append(indent(4))
+          .append("override fun install(app: io.jooby.Jooby) {")
+          .append(System.lineSeparator());
+    } else {
+      buffer
+          .append(indent(4))
+          .append("public void install(io.jooby.Jooby app) throws Exception {")
+          .append(System.lineSeparator());
+    }
+    if (!suspended.isEmpty()) {
+      buffer.append(statement(indent(6), "val kooby = app as io.jooby.kt.Kooby"));
+      buffer.append(statement(indent(6), "kooby.coroutine {"));
+      suspended.stream()
+          .flatMap(it -> it.generateMapping(kt).stream())
+          .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
+      trimr(buffer);
+      buffer.append(System.lineSeparator()).append(statement(indent(6), "}"));
+    }
+    noSuspended.stream()
+        .flatMap(it -> it.generateMapping(kt).stream())
+        .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
+    trimr(buffer);
+    buffer
+        .append(System.lineSeparator())
+        .append(indent(4))
+        .append("}")
+        .append(System.lineSeparator())
+        .append(System.lineSeparator());
+    // end install
+
+    mvcRoutes.stream()
+        .flatMap(it -> it.generateHandlerCall(kt).stream())
+        .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
+
+    return template
+        .replace("${packageName}", getPackageName())
+        .replace("${imports}", imports)
+        .replace("${className}", generateTypeName)
+        .replace("${generatedClassName}", generatedClass)
+        .replace("${implements}", "io.jooby.Extension")
+        .replace("${constructors}", constructors(generatedClass, kt))
+        .replace("${methods}", trimr(buffer));
+  }
+
+  public String getRpcSourceCode(Boolean generateKotlin) {
+    var rpcRoutes = getRoutes().stream().filter(MvcRoute::isJsonRpc).toList();
+    if (rpcRoutes.isEmpty()) {
+      return null;
+    }
+
+    var kt = generateKotlin == Boolean.TRUE || isKt();
+    var generateTypeName = getTargetType().getSimpleName().toString();
+    var generatedClass = context.generateRouterName(generateTypeName + "Rpc");
+    var namespace = getJsonRpcNamespace();
+
+    var template = kt ? KOTLIN : JAVA;
+    var buffer = new StringBuilder();
+
+    context.generateStaticImports(
+        this,
+        (owner, fn) ->
+            buffer.append(
+                statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
+    var imports = buffer.toString();
+    buffer.setLength(0);
+
+    List<String> fullMethods = new ArrayList<>();
+    for (MvcRoute route : rpcRoutes) {
+      String routeName = route.getJsonRpcMethodName();
+      fullMethods.add(namespace.isEmpty() ? routeName : namespace + "." + routeName);
+    }
+
+    String methodListString =
+        fullMethods.stream().map(m -> "\"" + m + "\"").collect(Collectors.joining(", "));
+
+    if (kt) {
+      buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("override fun install(app: io.jooby.Jooby) {")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)")
+          .append(System.lineSeparator());
+      buffer
           .append(indent(4))
           .append("}")
           .append(System.lineSeparator())
           .append(System.lineSeparator());
-      // end install
 
-      mvcRoutes.stream()
-          .flatMap(it -> it.generateHandlerCall(kt).stream())
-          .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
+      buffer
+          .append(indent(4))
+          .append("override fun getMethods(): List<String> {")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("return listOf(")
+          .append(methodListString)
+          .append(")")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("}")
+          .append(System.lineSeparator())
+          .append(System.lineSeparator());
 
-      return new String(in.readAllBytes(), StandardCharsets.UTF_8)
-          .replace("${packageName}", getPackageName())
-          .replace("${imports}", imports)
-          .replace("${className}", generateTypeName)
-          .replace("${generatedClassName}", generatedClass)
-          .replace("${constructors}", constructors(generatedClass, kt))
-          .replace("${methods}", trimr(buffer));
+      buffer
+          .append(indent(4))
+          .append(
+              "override fun execute(ctx: io.jooby.Context, req:"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {")
+          .append(System.lineSeparator());
+      buffer.append(indent(6)).append("val c = factory.apply(ctx)").append(System.lineSeparator());
+      buffer.append(indent(6)).append("val method = req.method").append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("val parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser::class.java)")
+          .append(System.lineSeparator());
+      buffer.append(indent(6)).append("return when(method) {").append(System.lineSeparator());
+
+      for (int i = 0; i < rpcRoutes.size(); i++) {
+        buffer
+            .append(indent(8))
+            .append("\"")
+            .append(fullMethods.get(i))
+            .append("\" -> {")
+            .append(System.lineSeparator());
+        rpcRoutes.get(i).generateJsonRpcDispatchCase(true).forEach(buffer::append);
+        buffer.append(indent(8)).append("}").append(System.lineSeparator());
+      }
+
+      buffer
+          .append(indent(8))
+          .append(
+              "else -> throw"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " \"Method not found: $method\")")
+          .append(System.lineSeparator());
+      buffer.append(indent(6)).append("}").append(System.lineSeparator());
+      buffer.append(indent(4)).append("}").append(System.lineSeparator());
+
+    } else {
+      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("public void install(io.jooby.Jooby app) throws Exception {")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this);")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("}")
+          .append(System.lineSeparator())
+          .append(System.lineSeparator());
+
+      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("public java.util.List<String> getMethods() {")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("return java.util.List.of(")
+          .append(methodListString)
+          .append(");")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append("}")
+          .append(System.lineSeparator())
+          .append(System.lineSeparator());
+
+      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
+      buffer
+          .append(indent(4))
+          .append(
+              "public Object execute(io.jooby.Context ctx, io.jooby.rpc.jsonrpc.JsonRpcRequest req)"
+                  + " throws Exception {")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append(generateTypeName)
+          .append(" c = factory.apply(ctx);")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append("String method = req.getMethod();")
+          .append(System.lineSeparator());
+      buffer
+          .append(indent(6))
+          .append(
+              "io.jooby.rpc.jsonrpc.JsonRpcParser parser ="
+                  + " ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);")
+          .append(System.lineSeparator());
+      buffer.append(indent(6)).append("switch(method) {").append(System.lineSeparator());
+
+      for (int i = 0; i < rpcRoutes.size(); i++) {
+        buffer
+            .append(indent(8))
+            .append("case \"")
+            .append(fullMethods.get(i))
+            .append("\": {")
+            .append(System.lineSeparator());
+        rpcRoutes.get(i).generateJsonRpcDispatchCase(false).forEach(buffer::append);
+        buffer.append(indent(8)).append("}").append(System.lineSeparator());
+      }
+
+      buffer.append(indent(8)).append("default:").append(System.lineSeparator());
+      buffer
+          .append(indent(10))
+          .append(
+              "throw new"
+                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " \"Method not found: \" + method);")
+          .append(System.lineSeparator());
+      buffer.append(indent(6)).append("}").append(System.lineSeparator());
+      buffer.append(indent(4)).append("}").append(System.lineSeparator());
     }
-  }
 
-  public String getRpcSourceCode(Boolean generateKotlin) {
-    if (!hasJsonRpcRoutes()) {
-      return null;
-    }
-    return generateJsonRpcService(generateKotlin == Boolean.TRUE || isKt());
+    return template
+        .replace("${packageName}", getPackageName())
+        .replace("${imports}", imports)
+        .replace("${className}", generateTypeName)
+        .replace("${generatedClassName}", generatedClass)
+        .replace("${implements}", "io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension")
+        .replace("${constructors}", constructors(generatedClass, kt))
+        .replace("${methods}", trimr(buffer));
   }
 
   public boolean hasMcpRoutes() {
@@ -308,60 +541,42 @@ public class MvcRouter {
     }
 
     boolean kt = generateKotlin == Boolean.TRUE || isKt();
-    var buffer = new StringBuilder();
     var generateTypeName = getTargetType().getSimpleName().toString();
     var mcpClassName = context.generateRouterName(generateTypeName + "Mcp");
     var packageName = getPackageName();
 
-    // FIXED: Read directly from getRoutes() since we are keeping a unified map
+    var template = kt ? KOTLIN : JAVA;
+    var buffer = new StringBuilder();
+
+    context.generateStaticImports(
+        this,
+        (owner, fn) ->
+            buffer.append(
+                statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
+    var imports = buffer.toString();
+    buffer.setLength(0);
+
     var tools = getRoutes().stream().filter(MvcRoute::isMcpTool).toList();
     var prompts = getRoutes().stream().filter(MvcRoute::isMcpPrompt).toList();
     var resources = getRoutes().stream().filter(MvcRoute::isMcpResource).toList();
     var templates = getRoutes().stream().filter(MvcRoute::isMcpResourceTemplate).toList();
     var completions = getRoutes().stream().filter(MvcRoute::isMcpCompletion).toList();
 
-    buffer.append(CodeBlock.statement("package ", packageName, CodeBlock.semicolon(kt)));
-    buffer.append(System.lineSeparator());
+    // The dispatchers map directly to the interface methods required by McpService
+    buffer.append(generateMcpDispatcher("invokeTool", tools, kt, generateTypeName));
+    buffer.append(generateMcpDispatcher("invokePrompt", prompts, kt, generateTypeName));
+    buffer.append(generateMcpDispatcher("readResource", resources, kt, generateTypeName));
+    buffer.append(generateResourceTemplateDispatcher(templates, kt, generateTypeName));
+    buffer.append(generateCompletionDispatcher(completions, kt, generateTypeName));
 
-    if (kt) {
-      // Kotlin setup...
-    } else {
-      buffer.append(
-          CodeBlock.statement(
-              "public class ", mcpClassName, " implements io.jooby.mcp.McpService {"));
-
-      // 1. Declare the factory field
-      buffer.append(
-          CodeBlock.statement(
-              CodeBlock.indent(2),
-              "protected java.util.function.Function<io.jooby.Context, ",
-              generateTypeName,
-              "> factory",
-              CodeBlock.semicolon(kt)));
-
-      // 2. Use the EXISTING constructors() method
-      buffer.append(constructors(mcpClassName, false).toString().replaceAll("(?m)^  ", ""));
-
-      // 3. Generate the setup() method required by the constructors() output
-      buffer
-          .append(CodeBlock.indent(2))
-          .append("private void setup(java.util.function.Function<io.jooby.Context, ")
-          .append(generateTypeName)
-          .append("> factory) {\n");
-      buffer.append(CodeBlock.indent(4)).append("this.factory = factory;\n");
-      buffer.append(CodeBlock.indent(2)).append("}\n\n");
-
-      // --- THE DISPATCHER GENERATORS ---
-      buffer.append(generateMcpDispatcher("invokeTool", tools, kt, generateTypeName));
-      buffer.append(generateMcpDispatcher("invokePrompt", prompts, kt, generateTypeName));
-      buffer.append(generateMcpDispatcher("readResource", resources, kt, generateTypeName));
-      buffer.append(generateResourceTemplateDispatcher(templates, kt, generateTypeName));
-      buffer.append(generateCompletionDispatcher(completions, kt, generateTypeName));
-
-      buffer.append(CodeBlock.statement("}"));
-    }
-
-    return buffer.toString();
+    return template
+        .replace("${packageName}", packageName)
+        .replace("${imports}", imports)
+        .replace("${className}", generateTypeName)
+        .replace("${generatedClassName}", mcpClassName)
+        .replace("${implements}", "io.jooby.mcp.McpService")
+        .replace("${constructors}", constructors(mcpClassName, kt))
+        .replace("${methods}", trimr(buffer));
   }
 
   private String generateResourceTemplateDispatcher(
@@ -707,260 +922,6 @@ public class MvcRouter {
         .stream()
         .findFirst()
         .orElse("");
-  }
-
-  private String generateJsonRpcService(boolean kt) {
-    var buffer = new StringBuilder();
-    var generateTypeName = getTargetType().getSimpleName().toString();
-    var rpcClassName = context.generateRouterName(generateTypeName + "Rpc");
-    var namespace = getJsonRpcNamespace();
-    var packageName = getPackageName();
-
-    var rpcRoutes = getRoutes().stream().filter(MvcRoute::isJsonRpc).toList();
-
-    List<String> fullMethods = new ArrayList<>();
-    for (MvcRoute route : rpcRoutes) {
-      String routeName = route.getJsonRpcMethodName();
-      fullMethods.add(namespace.isEmpty() ? routeName : namespace + "." + routeName);
-    }
-
-    String methodListString =
-        fullMethods.stream().map(m -> "\"" + m + "\"").collect(Collectors.joining(", "));
-
-    buffer.append(statement("package ", packageName, semicolon(kt)));
-    buffer.append(System.lineSeparator());
-
-    buffer.append(
-        statement(
-            "@io.jooby.annotation.Generated(", generateTypeName, kt ? "::class" : ".class", ")"));
-
-    if (kt) {
-      buffer.append(
-          statement(
-              "class ",
-              rpcClassName,
-              " : io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension {"));
-      buffer.append(
-          statement(
-              indent(2),
-              "protected lateinit var factory: (io.jooby.Context) -> ",
-              generateTypeName));
-
-      String ktConstructors = constructors(rpcClassName, true).toString().replaceAll("(?m)^  ", "");
-      buffer.append(ktConstructors);
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "constructor(instance: ", generateTypeName, ") {"));
-      buffer.append(statement(indent(4), "setup { ctx -> instance }"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "constructor(provider: io.jooby.SneakyThrows.Supplier<",
-              generateTypeName,
-              ">) {"));
-      buffer.append(statement(indent(4), "setup { ctx -> provider.get() }"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "constructor(provider: io.jooby.SneakyThrows.Function<Class<",
-              generateTypeName,
-              ">, ",
-              generateTypeName,
-              ">) {"));
-      buffer.append(
-          statement(
-              indent(4), "setup { ctx -> provider.apply(", generateTypeName, "::class.java) }"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "private fun setup(factory: (io.jooby.Context) -> ",
-              generateTypeName,
-              ") {"));
-      buffer.append(statement(indent(4), "this.factory = factory"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "override fun install(app: io.jooby.Jooby) {"));
-      buffer.append(
-          statement(
-              indent(4),
-              "app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "override fun getMethods(): List<String> {"));
-      buffer.append(statement(indent(4), "return listOf(", methodListString, ")"));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "@Throws(Exception::class)"));
-      buffer.append(
-          statement(
-              indent(2),
-              "override fun execute(ctx: io.jooby.Context, req:"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {"));
-      buffer.append(statement(indent(4), "val c = factory(ctx)"));
-      buffer.append(statement(indent(4), "val method = req.method"));
-      buffer.append(
-          statement(
-              indent(4),
-              var(kt),
-              "parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser",
-              clazz(kt),
-              ")",
-              semicolon(kt)));
-      buffer.append(statement(indent(4), "return when(method) {"));
-
-      for (int i = 0; i < rpcRoutes.size(); i++) {
-        buffer.append(statement(indent(6), "\"", fullMethods.get(i), "\" -> {"));
-        rpcRoutes.get(i).generateJsonRpcDispatchCase(true).forEach(buffer::append);
-        buffer.append(statement(indent(6), "}"));
-      }
-
-      buffer.append(
-          statement(
-              indent(6),
-              "else -> throw"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
-                  + " \"Method not found: $method\")"));
-      buffer.append(statement(indent(4), "}"));
-      buffer.append(statement(indent(2), "}"));
-
-    } else {
-      buffer.append(
-          statement(
-              "public class ",
-              rpcClassName,
-              " implements io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension {"));
-      buffer.append(
-          statement(
-              indent(2),
-              "protected java.util.function.Function<io.jooby.Context, ",
-              generateTypeName,
-              "> factory",
-              semicolon(kt)));
-
-      String javaConstructors =
-          constructors(rpcClassName, false).toString().replaceAll("(?m)^  ", "");
-      buffer.append(javaConstructors);
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(indent(2), "public ", rpcClassName, "(", generateTypeName, " instance) {"));
-      buffer.append(statement(indent(4), "setup(ctx -> instance)", semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "public ",
-              rpcClassName,
-              "(io.jooby.SneakyThrows.Supplier<",
-              generateTypeName,
-              "> provider) {"));
-      buffer.append(
-          statement(
-              indent(4), "setup(ctx -> (", generateTypeName, ") provider.get())", semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "public ",
-              rpcClassName,
-              "(io.jooby.SneakyThrows.Function<Class<",
-              generateTypeName,
-              ">, ",
-              generateTypeName,
-              "> provider) {"));
-      buffer.append(
-          statement(
-              indent(4),
-              "setup(ctx -> provider.apply(",
-              generateTypeName,
-              ".class))",
-              semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(
-          statement(
-              indent(2),
-              "private void setup(java.util.function.Function<io.jooby.Context, ",
-              generateTypeName,
-              "> factory) {"));
-      buffer.append(statement(indent(4), "this.factory = factory", semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "@Override"));
-      buffer.append(
-          statement(indent(2), "public void install(io.jooby.Jooby app) throws Exception {"));
-      buffer.append(
-          statement(
-              indent(4),
-              "app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this)",
-              semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "@Override"));
-      buffer.append(statement(indent(2), "public java.util.List<String> getMethods() {"));
-      buffer.append(
-          statement(indent(4), "return java.util.List.of(", methodListString, ")", semicolon(kt)));
-      buffer.append(statement(indent(2), "}"));
-      buffer.append(System.lineSeparator());
-
-      buffer.append(statement(indent(2), "@Override"));
-      buffer.append(
-          statement(
-              indent(2),
-              "public Object execute(io.jooby.Context ctx, io.jooby.rpc.jsonrpc.JsonRpcRequest req)"
-                  + " throws Exception {"));
-      buffer.append(
-          statement(indent(4), generateTypeName, " c = factory.apply(ctx)", semicolon(kt)));
-      buffer.append(statement(indent(4), "String method = req.getMethod()", semicolon(kt)));
-      buffer.append(
-          statement(
-              indent(4),
-              var(kt),
-              "parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser",
-              clazz(kt),
-              ")",
-              semicolon(kt)));
-      buffer.append(statement(indent(4), "switch(method) {"));
-
-      for (int i = 0; i < rpcRoutes.size(); i++) {
-        buffer.append(statement(indent(6), "case \"", fullMethods.get(i), "\": {"));
-        rpcRoutes.get(i).generateJsonRpcDispatchCase(false).forEach(buffer::append);
-        buffer.append(statement(indent(6), "}"));
-      }
-
-      buffer.append(
-          statement(
-              indent(6),
-              "default: throw new"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
-                  + " \"Method not found: \" + method)",
-              semicolon(kt)));
-      buffer.append(statement(indent(4), "}"));
-      buffer.append(statement(indent(2), "}"));
-    }
-
-    buffer.append(statement("}"));
-
-    return buffer.toString();
   }
 
   private StringBuilder trimr(StringBuilder buffer) {

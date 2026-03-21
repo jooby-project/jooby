@@ -5,11 +5,13 @@
  */
 package issues.i2968;
 
+import static io.jooby.openapi.MvcExtensionGenerator.toMvcExtension;
+
 import io.jooby.Jooby;
 
 public class App2968 extends Jooby {
 
   {
-    mvc(new C2968_());
+    mvc(toMvcExtension(C2968.class));
   }
 }

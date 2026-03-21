@@ -38,6 +38,7 @@ public enum HttpMethod implements AnnotationSupport {
   MCP(
       List.of(
           "io.jooby.annotation.McpTool",
+          "io.jooby.annotation.McpCompletion",
           "io.jooby.annotation.McpPrompt",
           "io.jooby.annotation.McpResource",
           "io.jooby.annotation.McpServer"));

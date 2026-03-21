@@ -94,9 +94,9 @@ public class Issue3868 {
         .withSourceCode(
             source -> {
               assertThat(source)
-                  .containsIgnoringNewLines(
+                  .containsIgnoringWhitespaces(
                       "public DIServiceRpc_() {\n" + "    this(DIService.class);\n" + "  }")
-                  .containsIgnoringNewLines(
+                  .containsIgnoringWhitespaces(
                       "public DIServiceRpc_(Class<DIService> type) {\n"
                           + "    setup(ctx -> ctx.require(type));\n"
                           + "  }");
