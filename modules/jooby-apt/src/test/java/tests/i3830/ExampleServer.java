@@ -20,6 +20,13 @@ public class ExampleServer {
   }
 
   // 2. Prompt
+  /**
+   * Reviews the given code snippet in the context of the specified programming language.
+   *
+   * @param language the programming language of the code to be reviewed
+   * @param code the code snippet that needs to be reviewed
+   * @return a string containing the prompt to review the provided code
+   */
   @McpPrompt(name = "review_code")
   public String reviewCode(
       @McpParam(name = "language") String language, @McpParam(name = "code") String code) {
@@ -33,15 +40,25 @@ public class ExampleServer {
   }
 
   // 4. Resource Template
-  @McpResource("file:///users/{id}/profile")
-  public Map<String, Object> getUserProfile(@McpParam(name = "id") String id) {
+  @McpResource("file:///users/{id}/{name}/profile")
+  public Map<String, Object> getUserProfile(String id) {
     return Map.of("id", id, "name", "John Doe");
   }
 
   // 5. Completion (Linked to the Resource Template 'id' argument)
-  @McpCompletion(ref = "file:///users/{id}/profile", arg = "id")
-  public List<String> completeUserId(String input) {
-    // In reality, this might filter a database based on the 'input' prefix
+  @McpCompletion(ref = "file:///users/{id}/{name}/profile")
+  public List<String> completeUserId(@McpParam(name = "id") String input) {
     return List.of("123", "456", "789");
+  }
+
+  // 5. Completion (Linked to the Resource Template 'id' argument)
+  @McpCompletion(ref = "file:///users/{id}/{name}/profile")
+  public List<String> completeUserName(String name) {
+    return List.of("username", "userid");
+  }
+
+  @McpCompletion(ref = "review_code")
+  public List<String> reviewCodelanguage(String language) {
+    return List.of("Java", "Kotlin");
   }
 }

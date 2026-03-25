@@ -558,16 +558,441 @@ public class MvcRouter {
 
     var tools = getRoutes().stream().filter(MvcRoute::isMcpTool).toList();
     var prompts = getRoutes().stream().filter(MvcRoute::isMcpPrompt).toList();
-    var resources = getRoutes().stream().filter(MvcRoute::isMcpResource).toList();
-    var templates = getRoutes().stream().filter(MvcRoute::isMcpResourceTemplate).toList();
-    var completions = getRoutes().stream().filter(MvcRoute::isMcpCompletion).toList();
+    // FIXED: Now properly includes Templates so capabilities.resources() activates
+    var resources =
+        getRoutes().stream().filter(r -> r.isMcpResource() || r.isMcpResourceTemplate()).toList();
 
-    // The dispatchers map directly to the interface methods required by McpService
-    buffer.append(generateMcpDispatcher("invokeTool", tools, kt, generateTypeName));
-    buffer.append(generateMcpDispatcher("invokePrompt", prompts, kt, generateTypeName));
-    buffer.append(generateMcpDispatcher("readResource", resources, kt, generateTypeName));
-    buffer.append(generateResourceTemplateDispatcher(templates, kt, generateTypeName));
-    buffer.append(generateCompletionDispatcher(completions, kt, generateTypeName));
+    // 1. Group Completions by Reference
+    var completionRoutes = getRoutes().stream().filter(MvcRoute::isMcpCompletion).toList();
+    java.util.Map<String, java.util.List<MvcRoute>> completionGroups =
+        new java.util.LinkedHashMap<>();
+    for (MvcRoute route : completionRoutes) {
+      String ref = extractAnnotationValue(route, "io.jooby.annotation.McpCompletion", "value");
+      if (ref == null || ref.isEmpty()) {
+        ref = extractAnnotationValue(route, "io.jooby.annotation.McpCompletion", "ref");
+      }
+      completionGroups.computeIfAbsent(ref, k -> new java.util.ArrayList<>()).add(route);
+    }
+
+    // Generate JSON Mapper Field
+    if (kt) {
+      buffer.append(
+          statement(
+              indent(4),
+              "private lateinit var json: io.modelcontextprotocol.json.McpJsonMapper\n"));
+    } else {
+      buffer.append(
+          statement(
+              indent(4),
+              "private io.modelcontextprotocol.json.McpJsonMapper json",
+              semicolon(kt),
+              "\n"));
+    }
+
+    // Generate capabilities()
+    if (kt) {
+      buffer.append(
+          statement(
+              indent(4),
+              "override fun capabilities(capabilities:"
+                  + " io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.Builder) {"));
+    } else {
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(
+              indent(4),
+              "public void"
+                  + " capabilities(io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.Builder"
+                  + " capabilities) {"));
+    }
+    if (!tools.isEmpty())
+      buffer.append(statement(indent(6), "capabilities.tools(true)", semicolon(kt)));
+    if (!prompts.isEmpty())
+      buffer.append(statement(indent(6), "capabilities.prompts(true)", semicolon(kt)));
+    if (!resources.isEmpty())
+      buffer.append(statement(indent(6), "capabilities.resources(true, true)", semicolon(kt)));
+    buffer.append(statement(indent(4), "}\n"));
+
+    // Generate serverName()
+    String serverName = getMcpServerKey();
+    if (kt) {
+      buffer.append(statement(indent(4), "override fun serverName(): String? {"));
+      buffer.append(statement(indent(6), "return ", string(serverName)));
+    } else {
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(statement(indent(4), "public String serverName() {"));
+      buffer.append(statement(indent(6), "return ", string(serverName), semicolon(kt)));
+    }
+    buffer.append(statement(indent(4), "}\n"));
+
+    // Generate completions() list
+    if (kt) {
+      buffer.append(
+          statement(
+              indent(4),
+              "override fun completions():"
+                  + " List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>"
+                  + " {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "val completions ="
+                  + " mutableListOf<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>()"));
+    } else {
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(
+              indent(4),
+              "public"
+                  + " java.util.List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>"
+                  + " completions() {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "var completions = new"
+                  + " java.util.ArrayList<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>()",
+              semicolon(kt)));
+    }
+
+    for (String ref : completionGroups.keySet()) {
+      boolean isResource = ref.contains("://");
+      String handlerName = findTargetMethodName(ref) + "CompletionHandler";
+      String refObj =
+          isResource
+              ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
+              : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
+
+      if (kt) {
+        buffer.append(
+            statement(
+                indent(6),
+                "completions.add(io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(",
+                refObj,
+                "(",
+                string(ref),
+                "), this::",
+                handlerName,
+                "))"));
+      } else {
+        buffer.append(
+            statement(
+                indent(6),
+                "completions.add(new"
+                    + " io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new"
+                    + " ",
+                refObj,
+                "(",
+                string(ref),
+                "), this::",
+                handlerName,
+                "))",
+                semicolon(kt)));
+      }
+    }
+    buffer.append(statement(indent(6), "return completions", semicolon(kt)));
+    buffer.append(statement(indent(4), "}\n"));
+
+    // Generate install()
+    if (kt) {
+      buffer.append(statement(indent(4), "@Throws(Exception::class)"));
+      buffer.append(
+          statement(
+              indent(4),
+              "override fun install(app: io.jooby.Jooby, server:"
+                  + " io.modelcontextprotocol.server.McpSyncServer, json:"
+                  + " io.modelcontextprotocol.json.McpJsonMapper) {"));
+      buffer.append(statement(indent(6), "this.json = json"));
+      buffer.append(
+          statement(
+              indent(6),
+              "val mapper = app.require(tools.jackson.databind.ObjectMapper::class.java)"));
+      if (!tools.isEmpty()) {
+        buffer.append(
+            statement(
+                indent(6),
+                "val configBuilder ="
+                    + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
+                    + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)"));
+        buffer.append(
+            statement(
+                indent(6),
+                "val schemaGenerator ="
+                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())"));
+      }
+    } else {
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(
+              indent(4),
+              "public void install(io.jooby.Jooby app, io.modelcontextprotocol.server.McpSyncServer"
+                  + " server, io.modelcontextprotocol.json.McpJsonMapper json) throws Exception"
+                  + " {"));
+      buffer.append(statement(indent(6), "this.json = json", semicolon(kt)));
+      buffer.append(
+          statement(
+              indent(6),
+              "var mapper = app.require(tools.jackson.databind.ObjectMapper.class)",
+              semicolon(kt)));
+      if (!tools.isEmpty()) {
+        buffer.append(
+            statement(
+                indent(6),
+                "var configBuilder = new"
+                    + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
+                    + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)",
+                semicolon(kt)));
+        buffer.append(
+            statement(
+                indent(6),
+                "var schemaGenerator = new"
+                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())",
+                semicolon(kt)));
+      }
+    }
+
+    // FIXED: Filter now properly includes isMcpResourceTemplate()
+    for (var route :
+        getRoutes().stream()
+            .filter(
+                r ->
+                    r.isMcpTool()
+                        || r.isMcpPrompt()
+                        || r.isMcpResource()
+                        || r.isMcpResourceTemplate())
+            .toList()) {
+      String methodName = route.getMethodName();
+
+      if (route.isMcpTool()) {
+        String defArgs = "mapper, schemaGenerator";
+        if (kt) {
+          buffer.append(
+              statement(
+                  indent(6),
+                  "server.addTool(io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(",
+                  methodName,
+                  "ToolSpec(",
+                  defArgs,
+                  "), this::",
+                  methodName,
+                  "))\n"));
+        } else {
+          buffer.append(
+              statement(
+                  indent(6),
+                  "server.addTool(new"
+                      + " io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(",
+                  methodName,
+                  "ToolSpec(",
+                  defArgs,
+                  "), this::",
+                  methodName,
+                  "))",
+                  semicolon(kt),
+                  "\n"));
+        }
+      } else if (route.isMcpPrompt()) {
+        if (kt) {
+          buffer.append(
+              statement(
+                  indent(6),
+                  "server.addPrompt(io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(",
+                  methodName,
+                  "PromptSpec(), this::",
+                  methodName,
+                  "))\n"));
+        } else {
+          buffer.append(
+              statement(
+                  indent(6),
+                  "server.addPrompt(new"
+                      + " io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(",
+                  methodName,
+                  "PromptSpec(), this::",
+                  methodName,
+                  "))",
+                  semicolon(kt),
+                  "\n"));
+        }
+      } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
+        // FIXED: Condition now allows templates to execute this block!
+        boolean isTemplate = route.isMcpResourceTemplate();
+
+        String specType =
+            isTemplate ? "SyncResourceTemplateSpecification" : "SyncResourceSpecification";
+        String addMethod = isTemplate ? "server.addResourceTemplate(" : "server.addResource(";
+        String defMethod = isTemplate ? "ResourceTemplateSpec()" : "ResourceSpec()";
+
+        if (kt) {
+          buffer.append(
+              statement(
+                  indent(6),
+                  addMethod,
+                  "io.modelcontextprotocol.server.McpServerFeatures.",
+                  specType,
+                  "(",
+                  methodName,
+                  defMethod,
+                  ", this::",
+                  methodName,
+                  "))\n"));
+        } else {
+          buffer.append(
+              statement(
+                  indent(6),
+                  addMethod,
+                  "new io.modelcontextprotocol.server.McpServerFeatures.",
+                  specType,
+                  "(",
+                  methodName,
+                  defMethod,
+                  ", this::",
+                  methodName,
+                  "))",
+                  semicolon(kt),
+                  "\n"));
+        }
+      }
+    }
+    buffer.append(statement(indent(4), "}\n"));
+
+    // FIXED: Filter now properly includes isMcpResourceTemplate()
+    for (MvcRoute route :
+        getRoutes().stream()
+            .filter(
+                r ->
+                    r.isMcpTool()
+                        || r.isMcpPrompt()
+                        || r.isMcpResource()
+                        || r.isMcpResourceTemplate())
+            .toList()) {
+      route.generateMcpDefinitionMethod(kt).forEach(buffer::append);
+      route.generateMcpHandlerMethod(kt).forEach(buffer::append);
+    }
+
+    // --- STEP 3: GENERATE THE UNIFIED COMPLETION HANDLERS (THE ROUTER) ---
+    for (var entry : completionGroups.entrySet()) {
+      String ref = entry.getKey();
+      String handlerName = findTargetMethodName(ref) + "CompletionHandler";
+      java.util.List<MvcRoute> routes = entry.getValue();
+
+      if (kt) {
+        buffer.append(
+            statement(
+                indent(4),
+                "private fun ",
+                handlerName,
+                "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange, req:"
+                    + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest):"
+                    + " io.modelcontextprotocol.spec.McpSchema.CompleteResult {"));
+        buffer.append(
+            statement(
+                indent(6),
+                "val ctx ="
+                    + " exchange.transportContext().get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+        buffer.append(statement(indent(6), "val c = this.factory.apply(ctx)"));
+        buffer.append(statement(indent(6), "val targetArg = req.argument()?.name() ?: \"\""));
+        buffer.append(statement(indent(6), "val typedValue = req.argument()?.value() ?: \"\""));
+        buffer.append(statement(indent(6), "return when (targetArg) {"));
+      } else {
+        buffer.append(
+            statement(
+                indent(4),
+                "private io.modelcontextprotocol.spec.McpSchema.CompleteResult ",
+                handlerName,
+                "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
+                    + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {"));
+        buffer.append(
+            statement(
+                indent(6),
+                "var ctx = (io.jooby.Context) exchange.transportContext().get(\"CTX\")",
+                semicolon(kt)));
+        buffer.append(statement(indent(6), "var c = this.factory.apply(ctx)", semicolon(kt)));
+        buffer.append(
+            statement(
+                indent(6),
+                "var targetArg = req.argument() != null ? req.argument().name() : \"\"",
+                semicolon(kt)));
+        buffer.append(
+            statement(
+                indent(6),
+                "var typedValue = req.argument() != null ? req.argument().value() : \"\"",
+                semicolon(kt)));
+        buffer.append(statement(indent(6), "return switch (targetArg) {"));
+      }
+
+      for (MvcRoute route : routes) {
+        String targetArgName = null;
+        java.util.List<String> invokeArgs = new java.util.ArrayList<>();
+
+        for (var param : route.getParameters(false)) {
+          String type = param.getType().getRawType().toString();
+          if (type.equals("io.jooby.Context")) {
+            invokeArgs.add("ctx");
+          } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
+            invokeArgs.add("exchange");
+          } else {
+            targetArgName = param.getMcpName();
+            invokeArgs.add("typedValue");
+          }
+        }
+
+        if (targetArgName == null) continue;
+
+        if (kt) {
+          buffer.append(statement(indent(8), string(targetArgName), " -> {"));
+          buffer.append(
+              statement(
+                  indent(10),
+                  "val result = c.",
+                  route.getMethodName(),
+                  "(",
+                  String.join(", ", invokeArgs),
+                  ")"));
+          buffer.append(
+              statement(indent(10), "io.jooby.mcp.McpResult(this.json).toCompleteResult(result)"));
+          buffer.append(statement(indent(8), "}"));
+        } else {
+          buffer.append(statement(indent(8), "case ", string(targetArgName), " -> {"));
+          buffer.append(
+              statement(
+                  indent(10),
+                  "var result = c.",
+                  route.getMethodName(),
+                  "(",
+                  String.join(", ", invokeArgs),
+                  ")",
+                  semicolon(kt)));
+          buffer.append(
+              statement(
+                  indent(10),
+                  "yield new io.jooby.mcp.McpResult(this.json).toCompleteResult(result)",
+                  semicolon(kt)));
+          buffer.append(statement(indent(8), "}"));
+        }
+      }
+
+      // Default fallback returning the empty list
+      if (kt) {
+        buffer.append(
+            statement(
+                indent(8),
+                "else -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>())"));
+        buffer.append(statement(indent(6), "}"));
+      } else {
+        buffer.append(
+            statement(
+                indent(8),
+                "default -> new"
+                    + " io.jooby.mcp.McpResult(this.json).toCompleteResult(java.util.List.of())",
+                semicolon(kt)));
+        buffer.append(
+            statement(
+                indent(6),
+                "}",
+                semicolon(kt))); // Note: The semicolon here closes the return statement!
+      }
+      buffer.append(statement(indent(4), "}\n"));
+    }
 
     return template
         .replace("${packageName}", packageName)
@@ -579,335 +1004,28 @@ public class MvcRouter {
         .replace("${methods}", trimr(buffer));
   }
 
-  private String generateResourceTemplateDispatcher(
-      List<MvcRoute> templates, boolean kt, String generateTypeName) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(CodeBlock.indent(2)).append("@Override\n");
-    buffer
-        .append(CodeBlock.indent(2))
-        .append(
-            "public Object readResourceByTemplate(String templateUri, java.util.Map<String, Object>"
-                + " args, io.modelcontextprotocol.server.McpSyncServerExchange exchange) throws"
-                + " Exception {\n");
-
-    if (templates.isEmpty()) {
-      buffer
-          .append(CodeBlock.indent(4))
-          .append(
-              "throw new UnsupportedOperationException(\"readResourceByTemplate is not supported by"
-                  + " this server\");\n");
-      buffer.append(CodeBlock.indent(2)).append("}\n\n");
-      return buffer.toString();
-    }
-
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(
-            "io.jooby.Context ctx = (io.jooby.Context)"
-                + " exchange.transportContext().get(\"CTX\");\n");
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(generateTypeName)
-        .append(" c = factory.apply(ctx);\n");
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(
-            "tools.jackson.databind.ObjectMapper mapper ="
-                + " ctx.require(tools.jackson.databind.ObjectMapper.class);\n\n");
-
-    buffer.append(CodeBlock.indent(4)).append("switch (templateUri) {\n");
-
-    for (MvcRoute route : templates) {
-      String uriTemplate =
-          extractAnnotationValue(route, "io.jooby.annotation.McpResource", "value");
-      buffer.append(CodeBlock.indent(6)).append("case \"").append(uriTemplate).append("\": {\n");
-
-      List<String> javaParamNames = new ArrayList<>();
-      for (MvcParameter param : route.getParameters(false)) {
-        String javaName = param.getName();
-        String mcpName = param.getMcpName();
-        String type = param.getType().getRawType().toString();
-        javaParamNames.add(javaName);
-
-        buffer
-            .append(CodeBlock.indent(8))
-            .append("Object raw_")
-            .append(javaName)
-            .append(" = args != null ? args.get(\"")
-            .append(mcpName)
-            .append("\") : null;\n");
-        buffer
-            .append(CodeBlock.indent(8))
-            .append(type)
-            .append(" ")
-            .append(javaName)
-            .append(" = (")
-            .append(type)
-            .append(") raw_")
-            .append(javaName)
-            .append(";\n");
+  private String findTargetMethodName(String ref) {
+    for (MvcRoute route : getRoutes()) {
+      if (route.isMcpPrompt()) {
+        String name = extractAnnotationValue(route, "io.jooby.annotation.McpPrompt", "name");
+        if (name == null || name.isEmpty()) name = route.getMethodName();
+        if (ref.equals(name)) return route.getMethodName();
+      } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
+        // Now checks BOTH route types, but only reads from @McpResource
+        String uri = extractAnnotationValue(route, "io.jooby.annotation.McpResource", "value");
+        if (ref.equals(uri)) return route.getMethodName();
       }
-
-      String methodCall =
-          "c." + route.getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
-      buffer.append(CodeBlock.indent(8)).append("return ").append(methodCall).append(";\n");
-      buffer.append(CodeBlock.indent(6)).append("}\n");
     }
-
-    buffer.append(CodeBlock.indent(6)).append("default:\n");
-    buffer
-        .append(CodeBlock.indent(8))
-        .append(
-            "throw new IllegalArgumentException(\"Unknown MCP Resource Template: \" +"
-                + " templateUri);\n");
-    buffer.append(CodeBlock.indent(4)).append("}\n");
-    buffer.append(CodeBlock.indent(2)).append("}\n\n");
-
-    return buffer.toString();
+    return "mcpTarget" + Math.abs(ref.hashCode());
   }
 
-  private String generateCompletionDispatcher(
-      List<MvcRoute> completions, boolean kt, String generateTypeName) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(CodeBlock.indent(2)).append("@Override\n");
-    buffer
-        .append(CodeBlock.indent(2))
-        .append(
-            "public Object invokeCompletion(String identifier, String argumentName, String input,"
-                + " io.modelcontextprotocol.server.McpSyncServerExchange exchange) throws Exception"
-                + " {\n");
-
-    if (completions.isEmpty()) {
-      buffer
-          .append(CodeBlock.indent(4))
-          .append(
-              "throw new UnsupportedOperationException(\"invokeCompletion is not supported by this"
-                  + " server\");\n");
-      buffer.append(CodeBlock.indent(2)).append("}\n\n");
-      return buffer.toString();
+  private StringBuilder trimr(StringBuilder buffer) {
+    var i = buffer.length() - 1;
+    while (i > 0 && Character.isWhitespace(buffer.charAt(i))) {
+      buffer.deleteCharAt(i);
+      i = buffer.length() - 1;
     }
-
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(
-            "io.jooby.Context ctx = (io.jooby.Context)"
-                + " exchange.transportContext().get(\"CTX\");\n");
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(generateTypeName)
-        .append(" c = factory.apply(ctx);\n\n");
-
-    buffer
-        .append(CodeBlock.indent(4))
-        .append("String completionKey = identifier + \"_\" + argumentName;\n");
-    buffer.append(CodeBlock.indent(4)).append("switch (completionKey) {\n");
-
-    for (MvcRoute route : completions) {
-      String ref = extractAnnotationValue(route, "io.jooby.annotation.McpCompletion", "ref");
-      String arg = extractAnnotationValue(route, "io.jooby.annotation.McpCompletion", "arg");
-      String key = ref + "_" + arg;
-
-      buffer.append(CodeBlock.indent(6)).append("case \"").append(key).append("\": {\n");
-      buffer
-          .append(CodeBlock.indent(8))
-          .append("return c.")
-          .append(route.getMethodName())
-          .append("(input);\n");
-      buffer.append(CodeBlock.indent(6)).append("}\n");
-    }
-
-    buffer.append(CodeBlock.indent(6)).append("default:\n");
-    buffer.append(CodeBlock.indent(8)).append("return java.util.List.of();\n");
-    buffer.append(CodeBlock.indent(4)).append("}\n");
-    buffer.append(CodeBlock.indent(2)).append("}\n\n");
-
-    return buffer.toString();
-  }
-
-  private String generateMcpDispatcher(
-      String dispatchMethod, List<MvcRoute> routes, boolean kt, String generateTypeName) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append(CodeBlock.indent(2)).append("@Override\n");
-    buffer
-        .append(CodeBlock.indent(2))
-        .append("public Object ")
-        .append(dispatchMethod)
-        .append(
-            "(String name, java.util.Map<String, Object> args,"
-                + " io.modelcontextprotocol.server.McpSyncServerExchange exchange) throws Exception"
-                + " {\n");
-
-    if (routes.isEmpty()) {
-      buffer
-          .append(CodeBlock.indent(4))
-          .append("throw new UnsupportedOperationException(\"")
-          .append(dispatchMethod)
-          .append(" is not supported by this server\");\n");
-      buffer.append(CodeBlock.indent(2)).append("}\n\n");
-      return buffer.toString();
-    }
-
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(
-            "io.jooby.Context ctx = (io.jooby.Context)"
-                + " exchange.transportContext().get(\"CTX\");\n");
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(generateTypeName)
-        .append(" c = factory.apply(ctx);\n");
-    buffer
-        .append(CodeBlock.indent(4))
-        .append(
-            "tools.jackson.databind.ObjectMapper mapper ="
-                + " ctx.require(tools.jackson.databind.ObjectMapper.class);\n\n");
-
-    buffer.append(CodeBlock.indent(4)).append("switch (name) {\n");
-
-    for (MvcRoute route : routes) {
-      String annotationClass;
-      String attributeName;
-
-      if (dispatchMethod.equals("invokeTool")) {
-        annotationClass = "io.jooby.annotation.McpTool";
-        attributeName = "name";
-      } else if (dispatchMethod.equals("invokePrompt")) {
-        annotationClass = "io.jooby.annotation.McpPrompt";
-        attributeName = "name";
-      } else if (dispatchMethod.equals("readResource")) {
-        annotationClass = "io.jooby.annotation.McpResource";
-        attributeName = "value";
-      } else {
-        throw new IllegalStateException("Unsupported dispatch method: " + dispatchMethod);
-      }
-
-      String routeName = extractAnnotationValue(route, annotationClass, attributeName);
-      if (routeName.isEmpty()) routeName = route.getMethodName();
-
-      buffer.append(CodeBlock.indent(6)).append("case \"").append(routeName).append("\": {\n");
-
-      List<String> javaParamNames = new ArrayList<>();
-      for (MvcParameter param : route.getParameters(false)) {
-        String javaName = param.getName();
-        String mcpName = param.getMcpName();
-        String type = param.getType().getRawType().toString();
-        javaParamNames.add(javaName);
-
-        if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
-          buffer
-              .append(CodeBlock.indent(8))
-              .append(type)
-              .append(" ")
-              .append(javaName)
-              .append(" = exchange;\n");
-          continue;
-        }
-        if (type.equals("io.jooby.Context")) {
-          buffer
-              .append(CodeBlock.indent(8))
-              .append(type)
-              .append(" ")
-              .append(javaName)
-              .append(" = ctx;\n");
-          continue;
-        }
-
-        buffer
-            .append(CodeBlock.indent(8))
-            .append("Object raw_")
-            .append(javaName)
-            .append(" = args != null ? args.get(\"")
-            .append(mcpName)
-            .append("\") : null;\n");
-
-        switch (type) {
-          case "java.lang.String":
-            buffer
-                .append(CodeBlock.indent(8))
-                .append(type)
-                .append(" ")
-                .append(javaName)
-                .append(" = (String) raw_")
-                .append(javaName)
-                .append(";\n");
-            break;
-          case "int":
-          case "java.lang.Integer":
-            buffer
-                .append(CodeBlock.indent(8))
-                .append(type)
-                .append(" ")
-                .append(javaName)
-                .append(" = raw_")
-                .append(javaName)
-                .append(" == null ? 0 : ((Number) raw_")
-                .append(javaName)
-                .append(").intValue();\n");
-            break;
-          case "double":
-          case "java.lang.Double":
-            buffer
-                .append(CodeBlock.indent(8))
-                .append(type)
-                .append(" ")
-                .append(javaName)
-                .append(" = raw_")
-                .append(javaName)
-                .append(" == null ? 0.0 : ((Number) raw_")
-                .append(javaName)
-                .append(").doubleValue();\n");
-            break;
-          case "boolean":
-          case "java.lang.Boolean":
-            buffer
-                .append(CodeBlock.indent(8))
-                .append(type)
-                .append(" ")
-                .append(javaName)
-                .append(" = raw_")
-                .append(javaName)
-                .append(" == null ? false : (Boolean) raw_")
-                .append(javaName)
-                .append(";\n");
-            break;
-          default:
-            buffer
-                .append(CodeBlock.indent(8))
-                .append(type)
-                .append(" ")
-                .append(javaName)
-                .append(" = raw_")
-                .append(javaName)
-                .append(" == null ? null : mapper.convertValue(raw_")
-                .append(javaName)
-                .append(", ")
-                .append(type)
-                .append(".class);\n");
-            break;
-        }
-      }
-
-      String methodCall =
-          "c." + route.getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
-      if (route.getReturnType().isVoid()) {
-        buffer.append(CodeBlock.indent(8)).append(methodCall).append(";\n");
-        buffer.append(CodeBlock.indent(8)).append("return null;\n");
-      } else {
-        buffer.append(CodeBlock.indent(8)).append("return ").append(methodCall).append(";\n");
-      }
-      buffer.append(CodeBlock.indent(6)).append("}\n");
-    }
-
-    buffer.append(CodeBlock.indent(6)).append("default:\n");
-    buffer
-        .append(CodeBlock.indent(8))
-        .append("throw new IllegalArgumentException(\"Unknown MCP entity for \" + \"")
-        .append(dispatchMethod)
-        .append("\" + \": \" + name);\n");
-    buffer.append(CodeBlock.indent(4)).append("}\n");
-    buffer.append(CodeBlock.indent(2)).append("}\n\n");
-
-    return buffer.toString();
+    return buffer;
   }
 
   private String extractAnnotationValue(MvcRoute route, String annotationName, String attribute) {
@@ -922,15 +1040,6 @@ public class MvcRouter {
         .stream()
         .findFirst()
         .orElse("");
-  }
-
-  private StringBuilder trimr(StringBuilder buffer) {
-    var i = buffer.length() - 1;
-    while (i > 0 && Character.isWhitespace(buffer.charAt(i))) {
-      buffer.deleteCharAt(i);
-      i = buffer.length() - 1;
-    }
-    return buffer;
   }
 
   private StringBuilder constructors(String generatedName, boolean kt) {
