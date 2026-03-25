@@ -21,7 +21,7 @@ public class Issue3863 {
   @Test
   public void trpcQuery() throws Exception {
     new ProcessorRunner(new SpecificTrpcAnnotation())
-        .withSourceCode(
+        .withTrpcCode(
             source -> {
               assertThat(source)
                   .contains("app.get(\"/trpc/users.getUserById\", this::trpcGetUserById);")
@@ -32,12 +32,16 @@ public class Issue3863 {
   @Test
   public void mixedAnnotation() throws Exception {
     new ProcessorRunner(new MixedTrpcAnnotation())
-        .withSourceCode(
+        .withTrpcCode(
             source -> {
               assertThat(source)
                   // tRPC
                   .contains("app.get(\"/trpc/users.getUserById\", this::trpcGetUserById);")
-                  .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);")
+                  .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);");
+            })
+        .withSourceCode(
+            source -> {
+              assertThat(source)
                   // REST
                   .contains("app.get(\"/api/users/{id}\", this::getUserById);")
                   .contains("app.post(\"/api/users\", this::createUser);");
@@ -47,14 +51,18 @@ public class Issue3863 {
   @Test
   public void mixedMutation() throws Exception {
     new ProcessorRunner(new MixedMutation())
-        .withSourceCode(
+        .withTrpcCode(
             source -> {
               assertThat(source)
                   // tRPC
                   .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);")
                   .contains("app.post(\"/trpc/users.updateUser\", this::trpcUpdateUser);")
                   .contains("app.post(\"/trpc/users.patchUser\", this::trpcPatchUser);")
-                  .contains("app.post(\"/trpc/users.deleteUser\", this::trpcDeleteUser);")
+                  .contains("app.post(\"/trpc/users.deleteUser\", this::trpcDeleteUser);");
+            })
+        .withSourceCode(
+            source -> {
+              assertThat(source)
                   // REST
                   .contains("app.post(\"/\", this::createUser);")
                   .contains("app.put(\"/\", this::updateUser);")
@@ -66,12 +74,12 @@ public class Issue3863 {
   @Test
   public void overloadTrpc() throws Exception {
     new ProcessorRunner(new OverloadTrpc())
-        .withSourceCode(
+        .withTrpcCode(
             source -> {
               assertThat(source)
                   // tRPC
                   .contains("app.get(\"/trpc/users.ping\", this::trpcPing);")
-                  .contains("app.get(\"/trpc/users.ping\", this::trpcPingInteger);");
+                  .contains("app.get(\"/trpc/users.ping.since\", this::trpcPingInteger);");
             });
   }
 }

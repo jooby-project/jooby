@@ -534,7 +534,6 @@ public class HandlerCompilerTest {
   @Test
   public void jarxs() throws Exception {
     new ProcessorRunner(new JaxrsController())
-        .withSourceCode(System.out::println)
         .withRouter(
             app -> {
               MockRouter router = new MockRouter(app);

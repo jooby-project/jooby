@@ -66,7 +66,7 @@ public class RestRoute extends WebRoute {
 
   private Optional<String> dispatch() {
     var dispatch = dispatch(method);
-    return dispatch.isEmpty() ? dispatch(method.getEnclosingElement()) : dispatch;
+    return dispatch.isEmpty() ? dispatch(router.getTargetType()) : dispatch;
   }
 
   private Optional<String> dispatch(Element element) {
@@ -79,7 +79,7 @@ public class RestRoute extends WebRoute {
   }
 
   private Optional<String> mediaType(Function<Element, List<String>> lookup) {
-    var scopes = List.of(method, method.getEnclosingElement());
+    var scopes = List.of(method, router.getTargetType());
     var i = 0;
     var types = Collections.<String>emptyList();
     while (types.isEmpty() && i < scopes.size()) {
@@ -119,8 +119,7 @@ public class RestRoute extends WebRoute {
     var httpMethod =
         HttpMethod.findByAnnotationName(httpMethodAnnotation.getQualifiedName().toString());
     var dslMethod = httpMethodAnnotation.getSimpleName().toString().toLowerCase();
-    var paths =
-        context.path((TypeElement) method.getEnclosingElement(), method, httpMethodAnnotation);
+    var paths = context.path(router.getTargetType(), method, httpMethodAnnotation);
     var targetMethod = methodName;
 
     var thisRef =
@@ -192,14 +191,26 @@ public class RestRoute extends WebRoute {
     var buffer = new ArrayList<String>();
     var methodName = getGeneratedName();
     var paramList = new StringJoiner(", ", "(", ")");
-    var returnTypeGenerics =
-        getReturnType().getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-    var returnTypeString = type(kt, getReturnType().toString());
-    var customReturnType = getReturnType();
 
-    if (customReturnType.isProjection()) {
-      returnTypeGenerics = "";
-      returnTypeString = Types.PROJECTED + "<" + returnType + ">";
+    var customReturnType = getReturnType();
+    var returnTypeGenerics =
+        customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+    var returnTypeString = type(kt, customReturnType.toString());
+
+    String projection = getProjection();
+
+    // Bulletproof check: Is the controller natively returning a Projected type?
+    boolean isProjectedReturnType =
+        customReturnType.isProjection() || customReturnType.is(Types.PROJECTED);
+
+    // 1. Create separate variables for the generated HTTP handler's signature
+    String handlerTypeGenerics = returnTypeGenerics;
+    String handlerTypeString = returnTypeString;
+
+    // 2. ONLY modify the signature if we need to wrap a NON-projected type
+    if (projection != null && !isProjectedReturnType) {
+      handlerTypeGenerics = "";
+      handlerTypeString = Types.PROJECTED + "<" + returnTypeString + ">";
     }
 
     boolean nullable =
@@ -208,8 +219,8 @@ public class RestRoute extends WebRoute {
             "ctx",
             methodName,
             buffer,
-            returnTypeGenerics,
-            returnTypeString,
+            handlerTypeGenerics,
+            handlerTypeString,
             !method.getThrownTypes().isEmpty());
 
     int controllerIndent = 2;
@@ -260,14 +271,12 @@ public class RestRoute extends WebRoute {
       buffer.add(statement(indent(controllerIndent), "return statusCode", semicolon(kt)));
     } else {
       var castStr =
-          customReturnType.isProjection()
+          isProjectedReturnType
               ? ""
               : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
-      var needsCast =
-          !castStr.isEmpty()
-              || (kt
-                  && !customReturnType.isProjection()
-                  && !customReturnType.getArguments().isEmpty());
+
+      // Force cast only if the return type contains Type Variables (like <E>)
+      var needsCast = !castStr.isEmpty();
       var kotlinNotEnoughTypeInformation = !castStr.isEmpty() && kt ? "<Any>" : "";
 
       var call =
@@ -279,12 +288,13 @@ public class RestRoute extends WebRoute {
 
       if (needsCast) {
         setUncheckedCast(true);
+        // Use the RAW return type string for the cast, not the modified handler type
         call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
       }
 
-      if (customReturnType.isProjection()) {
-        var projected =
-            of(Types.PROJECTED, ".wrap(", call, ").include(", string(getProjection()), ")");
+      // 3. ONLY wrap the call if it's a NON-projected type with a projection string
+      if (projection != null && !isProjectedReturnType) {
+        var projected = of(Types.PROJECTED, ".wrap(", call, ").include(", string(projection), ")");
         buffer.add(
             statement(
                 indent(controllerIndent),
@@ -376,8 +386,16 @@ public class RestRoute extends WebRoute {
           .findFirst()
           .orElse(null);
     }
-    var httpMethod = httpMethodAnnotation.getAnnotationMirrors().getFirst();
-    var projection = AnnotationSupport.findAnnotationValue(httpMethod, "projection"::equals);
-    return projection.stream().findFirst().orElse(null);
+
+    // Get the annotation mirror from the method, not the annotation type definition
+    var httpMethodMirror =
+        AnnotationSupport.findAnnotationByName(
+            method, httpMethodAnnotation.getQualifiedName().toString());
+    if (httpMethodMirror != null) {
+      var projection =
+          AnnotationSupport.findAnnotationValue(httpMethodMirror, "projection"::equals);
+      return projection.stream().findFirst().orElse(null);
+    }
+    return null;
   }
 }

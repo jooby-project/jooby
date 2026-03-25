@@ -15,7 +15,7 @@ public class Issue3868 {
   @Test
   public void topLevelAnnotationMakeAllPublicJSONRPC() throws Exception {
     new ProcessorRunner(new DefaultMapping())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source)
                   .contains(
@@ -33,7 +33,7 @@ public class Issue3868 {
   @Test
   public void emptyNamespaceMustGenerateMethodNameOnly() throws Exception {
     new ProcessorRunner(new EmptyNamespace())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source)
                   .contains("return java.util.List.of(\"rpcMethod1\", \"rpcMethod2\")");
@@ -43,7 +43,7 @@ public class Issue3868 {
   @Test
   public void explicitMappingTurnOffDefaultMapping() throws Exception {
     new ProcessorRunner(new ExplicitMapping())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source).contains("return java.util.List.of(\"explicit.onlyThis\")");
             });
@@ -52,7 +52,7 @@ public class Issue3868 {
   @Test
   public void customNaming() throws Exception {
     new ProcessorRunner(new CustomNaming())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source)
                   .contains("return java.util.List.of(\"movies.getById\", \"movies.create\")");
@@ -62,7 +62,7 @@ public class Issue3868 {
   @Test
   public void shouldInjectContext() throws Exception {
     new ProcessorRunner(new WithContext())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source).contains("return c.rpcMethod1(ctx, value);");
             });
@@ -71,7 +71,7 @@ public class Issue3868 {
   @Test
   public void shouldFollowNullability() throws Exception {
     new ProcessorRunner(new NullSupport())
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source)
                   .contains(
@@ -91,7 +91,7 @@ public class Issue3868 {
   @Test
   public void shouldGenerateDefaultConstructorForDI() throws Exception {
     new ProcessorRunner(new DIService(null))
-        .withSourceCode(
+        .withRpcCode(
             source -> {
               assertThat(source)
                   .containsIgnoringWhitespaces(

@@ -39,7 +39,7 @@ public class McpRouter extends WebRouter<McpRoute> {
 
   @Override
   public String getGeneratedType() {
-    return context.generateRouterName(getTargetType().getQualifiedName().toString() + "Mcp");
+    return context.generateRouterName(getTargetType().getQualifiedName() + "Mcp");
   }
 
   public String getMcpServerKey() {

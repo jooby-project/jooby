@@ -15,7 +15,7 @@ public class Issue3830 {
   @Test
   public void shouldGenerateMcpServer() throws Exception {
     new ProcessorRunner(new ExampleServer())
-        .withSourceCode(
+        .withMcpCode(
             source -> {
               assertThat(source)
                   .isEqualToNormalizingWhitespace(

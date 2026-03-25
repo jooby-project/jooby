@@ -20,26 +20,26 @@ public class C3853 {
     return new U3853(1, "Projected User", "Projected", "User");
   }
 
-  @GET("/optinal")
+  @GET("/find-user-opt")
   @Project("(id, name)")
   public Optional<U3853> findUser() {
     return Optional.of(new U3853(1, "Projected User", "Projected", "User"));
   }
 
-  @GET("/list")
+  @GET("/find-users")
   @Project("(id, name)")
   public List<U3853> findUsers() {
     return List.of(new U3853(1, "Projected User", "Projected", "User"));
   }
 
-  @GET("/list")
+  @GET("/projected")
   @Project("(id, name)")
   public Projected<U3853> projected() {
     return Projected.wrap(new U3853(1, "Projected User", "Projected", "User"))
         .include("(id, name)");
   }
 
-  @GET(value = "/list", projection = "(id, name)")
+  @GET(value = "/projected-projection", projection = "(id, name)")
   public Projected<U3853> projectedProjection() {
     return Projected.wrap(new U3853(1, "Projected User", "Projected", "User"))
         .include("(id, name)");

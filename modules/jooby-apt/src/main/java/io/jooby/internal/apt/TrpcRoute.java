@@ -86,7 +86,7 @@ public class TrpcRoute extends WebRoute {
                 ? "/** See [" + routerName + "." + getMethodName() + "] */"
                 : "/** See {@link " + routerName + "#" + getMethodName() + "} */"));
     block.add(
-        statement(
+        of(
             isSuspendFun() ? "" : "app.",
             dslMethod,
             "(",
@@ -255,61 +255,263 @@ public class TrpcRoute extends WebRoute {
                 ")) {"));
       }
 
-      // Read parameters (re-using the logic concept from before)
+      // Read parameters optimally
       for (var parameter : parameters) {
         var paramenterName = parameter.getName();
-        if (parameter.getType().getRawType().toString().equals("io.jooby.Context")) {
+        var rawType = parameter.getType().getRawType().toString();
+        var type = type(kt, parameter.getType().toString());
+        boolean isNullable = parameter.isNullable(kt);
+
+        if (rawType.equals("io.jooby.Context")) {
           paramList.add("ctx");
           continue;
         }
-        var type = type(kt, parameter.getType().toString());
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(4),
-                  "val ",
-                  paramenterName,
-                  "Decoder: io.jooby.rpc.trpc.TrpcDecoder<",
-                  type,
-                  "> = parser.decoder(",
-                  parameter.getType().toSourceCode(kt),
-                  ")"));
-          buffer.add(
-              statement(
-                  indent(4),
-                  "val ",
-                  paramenterName,
-                  " = reader.nextObject(",
-                  string(paramenterName),
-                  ", ",
-                  paramenterName,
-                  "Decoder)"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(4),
-                  "io.jooby.rpc.trpc.TrpcDecoder<",
-                  type,
-                  "> ",
-                  paramenterName,
-                  "Decoder = parser.decoder(",
-                  parameter.getType().toSourceCode(kt),
-                  ")",
-                  semicolon(false)));
-          buffer.add(
-              statement(
-                  indent(4),
-                  type,
-                  " ",
-                  paramenterName,
-                  " = reader.nextObject(",
-                  string(paramenterName),
-                  ", ",
-                  paramenterName,
-                  "Decoder)",
-                  semicolon(false)));
+        if (rawType.equals("kotlin.coroutines.Continuation")) {
+          continue;
         }
-        paramList.add(paramenterName);
+
+        switch (rawType) {
+          case "int":
+          case "long":
+          case "double":
+          case "boolean":
+          case "java.lang.String":
+          case "java.lang.Integer":
+          case "java.lang.Long":
+          case "java.lang.Double":
+          case "java.lang.Boolean":
+            var simpleType = type.startsWith("java.lang.") ? type.substring(10) : type;
+            if (simpleType.equals("Integer") || simpleType.equals("int")) simpleType = "Int";
+            var readName =
+                "next" + Character.toUpperCase(simpleType.charAt(0)) + simpleType.substring(1);
+
+            if (isNullable) {
+              if (kt) {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.",
+                        readName,
+                        "(",
+                        string(paramenterName),
+                        ")"));
+              } else {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : reader.",
+                        readName,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        semicolon(kt)));
+              }
+            } else {
+              buffer.add(
+                  statement(
+                      indent(4),
+                      var(kt),
+                      paramenterName,
+                      " = reader.",
+                      readName,
+                      "(",
+                      string(paramenterName),
+                      ")",
+                      semicolon(kt)));
+            }
+            paramList.add(paramenterName);
+            break;
+
+          case "byte":
+          case "short":
+          case "float":
+          case "char":
+          case "java.lang.Byte":
+          case "java.lang.Short":
+          case "java.lang.Float":
+          case "java.lang.Character":
+            var isChar = type.equals("char") || type.equals("java.lang.Character");
+            var isFloat = type.equals("float") || type.equals("java.lang.Float");
+            var readMethod = isFloat ? "nextDouble" : (isChar ? "nextString" : "nextInt");
+
+            if (isNullable) {
+              if (kt) {
+                var ktCast =
+                    isChar
+                        ? "?.get(0)"
+                        : "?.to"
+                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                            + type.replace("java.lang.", "").substring(1)
+                            + "()";
+                buffer.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        ktCast));
+              } else {
+                var targetType = type.replace("java.lang.", "");
+                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+                var javaSuffix = isChar ? ".charAt(0)" : "";
+                buffer.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : ",
+                        javaPrefix,
+                        "reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        javaSuffix,
+                        semicolon(kt)));
+              }
+            } else {
+              if (kt) {
+                var ktCast =
+                    isChar
+                        ? "[0]"
+                        : ".to"
+                            + Character.toUpperCase(type.replace("java.lang.", "").charAt(0))
+                            + type.replace("java.lang.", "").substring(1)
+                            + "()";
+                buffer.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        ktCast,
+                        semicolon(kt)));
+              } else {
+                var targetType = type.replace("java.lang.", "");
+                var javaPrefix = isChar ? "" : "(" + targetType + ") ";
+                var javaSuffix = isChar ? ".charAt(0)" : "";
+                buffer.add(
+                    statement(
+                        indent(4),
+                        var(kt),
+                        paramenterName,
+                        " = ",
+                        javaPrefix,
+                        "reader.",
+                        readMethod,
+                        "(",
+                        string(paramenterName),
+                        ")",
+                        javaSuffix,
+                        semicolon(kt)));
+              }
+            }
+            paramList.add(paramenterName);
+            break;
+
+          default:
+            var genericType = kt ? type : box(type); // Box primitives for Java Generics
+            if (kt) {
+              buffer.add(
+                  statement(
+                      indent(4),
+                      "val ",
+                      paramenterName,
+                      "Decoder: io.jooby.rpc.trpc.TrpcDecoder<",
+                      type,
+                      "> = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
+                      ")"));
+              if (isNullable) {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = if (reader.nextIsNull(",
+                        string(paramenterName),
+                        ")) null else reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)"));
+              } else {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        "val ",
+                        paramenterName,
+                        " = reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)"));
+              }
+            } else {
+              buffer.add(
+                  statement(
+                      indent(4),
+                      "io.jooby.rpc.trpc.TrpcDecoder<",
+                      genericType,
+                      "> ",
+                      paramenterName,
+                      "Decoder = parser.decoder(",
+                      parameter.getType().toSourceCode(kt),
+                      ")",
+                      semicolon(false)));
+              if (isNullable) {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        type,
+                        " ",
+                        paramenterName,
+                        " = reader.nextIsNull(",
+                        string(paramenterName),
+                        ") ? null : reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)",
+                        semicolon(false)));
+              } else {
+                buffer.add(
+                    statement(
+                        indent(4),
+                        type,
+                        " ",
+                        paramenterName,
+                        " = reader.nextObject(",
+                        string(paramenterName),
+                        ", ",
+                        paramenterName,
+                        "Decoder)",
+                        semicolon(false)));
+              }
+            }
+            paramList.add(paramenterName);
+            break;
+        }
       }
     }
 
@@ -337,5 +539,19 @@ public class TrpcRoute extends WebRoute {
     if (!parameters.isEmpty()) buffer.add(statement(indent(2), "}"));
     buffer.add(statement("}", System.lineSeparator()));
     return buffer;
+  }
+
+  private String box(String type) {
+    return switch (type) {
+      case "int" -> "Integer";
+      case "long" -> "Long";
+      case "double" -> "Double";
+      case "float" -> "Float";
+      case "boolean" -> "Boolean";
+      case "byte" -> "Byte";
+      case "short" -> "Short";
+      case "char" -> "Character";
+      default -> type;
+    };
   }
 }

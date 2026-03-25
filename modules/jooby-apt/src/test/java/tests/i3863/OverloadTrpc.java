@@ -15,7 +15,7 @@ public class OverloadTrpc {
     return null;
   }
 
-  @Trpc.Query
+  @Trpc.Query("ping.since")
   public String ping(Integer since) {
     return null;
   }

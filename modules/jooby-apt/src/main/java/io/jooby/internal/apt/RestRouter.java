@@ -23,20 +23,32 @@ public class RestRouter extends WebRouter<RestRoute> {
   public static RestRouter parse(MvcContext context, TypeElement controller) {
     RestRouter router = new RestRouter(context, controller);
 
-    for (var enclosed : controller.getEnclosedElements()) {
-      if (enclosed.getKind() == ElementKind.METHOD) {
-        ExecutableElement method = (ExecutableElement) enclosed;
+    for (TypeElement type : context.superTypes(controller)) {
+      for (var enclosed : type.getEnclosedElements()) {
+        if (enclosed.getKind() == ElementKind.METHOD) {
+          ExecutableElement method = (ExecutableElement) enclosed;
 
-        if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc") != null
-            || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null) {
-          continue;
-        }
+          // Ignore abstract methods
+          if (method.getModifiers().contains(javax.lang.model.element.Modifier.ABSTRACT)) {
+            continue;
+          }
 
-        for (var annoMirror : method.getAnnotationMirrors()) {
-          TypeElement annoElement = (TypeElement) annoMirror.getAnnotationType().asElement();
-          if (HttpMethod.hasAnnotation(annoElement)) {
-            RestRoute route = new RestRoute(router, method, annoElement);
-            router.routes.put(route.getMethodName() + annoElement.getSimpleName(), route);
+          for (var annoMirror : method.getAnnotationMirrors()) {
+            TypeElement annoElement = (TypeElement) annoMirror.getAnnotationType().asElement();
+            String annoName = annoElement.getQualifiedName().toString();
+
+            // Explicitly ignore RPC annotations so they don't generate invalid REST routes
+            if (annoName.startsWith("io.jooby.annotation.Trpc")
+                || annoName.equals("io.jooby.annotation.JsonRpc")
+                || annoName.startsWith("io.jooby.annotation.Mcp")) {
+              continue;
+            }
+
+            if (HttpMethod.hasAnnotation(annoElement)) {
+              RestRoute route = new RestRoute(router, method, annoElement);
+              String uniqueKey = method.toString() + annoElement.getSimpleName();
+              router.routes.putIfAbsent(uniqueKey, route);
+            }
           }
         }
       }
@@ -46,7 +58,9 @@ public class RestRouter extends WebRouter<RestRoute> {
     var grouped =
         router.routes.values().stream().collect(Collectors.groupingBy(RestRoute::getMethodName));
     for (var overloads : grouped.values()) {
-      if (overloads.size() > 1) {
+      long distinctMethods =
+          overloads.stream().map(r -> r.getMethod().toString()).distinct().count();
+      if (distinctMethods > 1) {
         for (var route : overloads) {
           var paramsString =
               route.getRawParameterTypes(true, false).stream()
@@ -133,7 +147,9 @@ public class RestRouter extends WebRouter<RestRoute> {
         .append(System.lineSeparator())
         .append(System.lineSeparator());
 
+    var generatedHandlers = new java.util.HashSet<>();
     getRoutes().stream()
+        .filter(it -> generatedHandlers.add(it.getGeneratedName()))
         .flatMap(it -> it.generateHandlerCall(kt).stream())
         .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
 

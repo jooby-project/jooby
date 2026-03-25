@@ -22,16 +22,33 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
 
   public static TrpcRouter parse(MvcContext context, TypeElement controller) {
     var router = new TrpcRouter(context, controller);
-    for (var enclosed : controller.getEnclosedElements()) {
-      if (enclosed.getKind() == ElementKind.METHOD) {
-        ExecutableElement method = (ExecutableElement) enclosed;
-        if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null
-            || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Query")
-                != null
-            || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Mutation")
-                != null) {
-          TrpcRoute route = new TrpcRoute(router, method);
-          router.routes.put(route.getMethodName(), route);
+
+    // 1. Walk up the inheritance tree to catch tRPC methods in base classes
+    for (TypeElement type : context.superTypes(controller)) {
+      for (var enclosed : type.getEnclosedElements()) {
+        if (enclosed.getKind() == ElementKind.METHOD) {
+          ExecutableElement method = (ExecutableElement) enclosed;
+
+          // Ignore abstract methods
+          if (method.getModifiers().contains(javax.lang.model.element.Modifier.ABSTRACT)) {
+            continue;
+          }
+
+          if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null
+              || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Query")
+                  != null
+              || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Mutation")
+                  != null) {
+
+            TrpcRoute route = new TrpcRoute(router, method);
+
+            // 2. Use the full string signature to prevent overloaded methods from clobbering each
+            // other
+            String uniqueKey = method.toString();
+
+            // 3. putIfAbsent ensures subclass overrides take priority over base class methods
+            router.routes.putIfAbsent(uniqueKey, route);
+          }
         }
       }
     }

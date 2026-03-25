@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.tools.JavaFileObject;
@@ -173,11 +174,42 @@ public class ProcessorRunner {
     return withSourceCode(false, consumer);
   }
 
+  public ProcessorRunner withMcpCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, it -> it.endsWith("Mcp_"), consumer);
+  }
+
+  public ProcessorRunner withTrpcCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, it -> it.endsWith("Trpc_"), consumer);
+  }
+
+  public ProcessorRunner withRpcCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, it -> it.endsWith("Rpc_"), consumer);
+  }
+
   public ProcessorRunner withSourceCode(boolean kt, SneakyThrows.Consumer<String> consumer) {
     consumer.accept(
         kt
             ? processor.kotlinFiles.values().iterator().next()
             : Optional.ofNullable(processor.getSource()).map(Objects::toString).orElse(null));
+    return withSourceCode(
+        kt, it -> !it.endsWith("Trpc_") && !it.endsWith("Rpc_") && !it.endsWith("Mcp_"), consumer);
+  }
+
+  private ProcessorRunner withSourceCode(
+      boolean kt, Predicate<String> filter, SneakyThrows.Consumer<String> consumer) {
+    consumer.accept(
+        kt
+            ? processor.kotlinFiles.entrySet().stream()
+                .filter(it -> filter.test(it.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null)
+            : processor.javaFiles.entrySet().stream()
+                .filter(it -> filter.test(it.getKey()))
+                .map(Map.Entry::getValue)
+                .map(Objects::toString)
+                .findFirst()
+                .orElse(null));
     return this;
   }
 
