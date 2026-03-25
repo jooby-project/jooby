@@ -19,7 +19,4 @@ public @interface McpCompletion {
    * Resource Template URI (e.g., "file:///project/{name}").
    */
   String ref();
-
-  /** The name of the argument or template variable being completed. */
-  String arg();
 }
