@@ -519,10 +519,93 @@ public class TrpcRoute extends WebRoute {
         statement(indent(controllerIndent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
 
     // Leverage shared WebRoute logic for casting and type erasure!
+    // Pass 'true' for isRpcWrapper so it safely casts List<Movie?> to List<Movie>
     String call = buildMethodCall(kt, paramList.toString(), false, true);
     boolean nullable = kt && isNullableKotlinReturn();
 
-    if (returnType.isVoid()) {
+    if (reactive != null) {
+      if (isReactiveVoid) {
+        var handler = reactive.handlerType();
+        if (handler.contains("Reactor")) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".then(reactor.core.publisher.Mono.just(io.jooby.rpc.trpc.TrpcResponse.empty()))",
+                  semicolon(kt)));
+        } else if (handler.contains("Mutiny")) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".replaceWith(io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  semicolon(kt)));
+        } else if (handler.contains("ReactiveSupport")) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".thenApply(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  semicolon(kt)));
+        } else if (handler.contains("Reactivex")) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".toSingleDefault(io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  semicolon(kt)));
+        } else {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".map(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  semicolon(kt)));
+        }
+      } else {
+        var handler = reactive.handlerType();
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(controllerIndent),
+                  "return ",
+                  call,
+                  ".map { io.jooby.rpc.trpc.TrpcResponse.of(it) }"));
+        } else {
+          if (handler.contains("ReactiveSupport")) {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return ",
+                    call,
+                    ".thenApply(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    semicolon(kt)));
+          } else if (handler.contains("Mutiny")) {
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return ",
+                    call,
+                    ".onItem().transform(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    semicolon(kt)));
+          } else {
+            // Reactor (Mono), RxJava (Single), etc.
+            buffer.add(
+                statement(
+                    indent(controllerIndent),
+                    "return ",
+                    call,
+                    ".map(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    semicolon(kt)));
+          }
+        }
+      }
+    } else if (returnType.isVoid()) {
       buffer.add(statement(indent(controllerIndent), call, semicolon(kt)));
       buffer.add(
           statement(
@@ -543,9 +626,9 @@ public class TrpcRoute extends WebRoute {
     if (!parameters.isEmpty()) buffer.add(statement(indent(2), "}"));
     buffer.add(statement("}", System.lineSeparator()));
 
-    // Shared Unchecked Cast suppression
+    // Suppress both UNCHECKED_CAST and USELESS_CAST to keep the Kotlin compiler perfectly quiet
     if (isUncheckedCast()) {
-      if (kt) buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
+      if (kt) buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\", \"USELESS_CAST\")"));
       else buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
     }
 
