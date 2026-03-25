@@ -213,15 +213,14 @@ public class RestRoute extends WebRoute {
       handlerTypeString = Types.PROJECTED + "<" + returnTypeString + ">";
     }
 
-    boolean nullable =
-        methodCallHeader(
-            kt,
-            "ctx",
-            methodName,
-            buffer,
-            handlerTypeGenerics,
-            handlerTypeString,
-            !method.getThrownTypes().isEmpty());
+    methodCallHeader(
+        kt,
+        "ctx",
+        methodName,
+        buffer,
+        handlerTypeGenerics,
+        handlerTypeString,
+        !method.getThrownTypes().isEmpty());
 
     int controllerIndent = 2;
 
@@ -248,49 +247,27 @@ public class RestRoute extends WebRoute {
               statusCode,
               ")",
               semicolon(kt)));
-      buffer.add(
-          statement(
-              indent(controllerIndent),
-              "c.",
-              this.method.getSimpleName(),
-              paramList.toString(),
-              semicolon(kt)));
+
+      String call = buildMethodCall(kt, paramList.toString(), false, false);
+
+      buffer.add(statement(indent(controllerIndent), call, semicolon(kt)));
       buffer.add(
           statement(indent(controllerIndent), "return ctx.getResponseCode()", semicolon(kt)));
     } else if (returnType.is("io.jooby.StatusCode")) {
+      String call = buildMethodCall(kt, paramList.toString(), false, false);
+
       buffer.add(
           statement(
-              indent(controllerIndent),
-              kt ? "val" : "var",
-              " statusCode = c.",
-              this.method.getSimpleName(),
-              paramList.toString(),
-              semicolon(kt)));
+              indent(controllerIndent), kt ? "val" : "var", " statusCode = ", call, semicolon(kt)));
       buffer.add(
           statement(indent(controllerIndent), "ctx.setResponseCode(statusCode)", semicolon(kt)));
       buffer.add(statement(indent(controllerIndent), "return statusCode", semicolon(kt)));
     } else {
-      var castStr =
-          isProjectedReturnType
-              ? ""
-              : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
 
-      // Force cast only if the return type contains Type Variables (like <E>)
-      var needsCast = !castStr.isEmpty();
-      var kotlinNotEnoughTypeInformation = !castStr.isEmpty() && kt ? "<Any>" : "";
-
-      var call =
-          of(
-              "c.",
-              this.method.getSimpleName(),
-              kotlinNotEnoughTypeInformation,
-              paramList.toString());
-
-      if (needsCast) {
-        setUncheckedCast(true);
-        // Use the RAW return type string for the cast, not the modified handler type
-        call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
-      }
+      // Leverage shared WebRoute logic for casting and type erasure!
+      String call =
+          buildMethodCall(kt, paramList.toString(), isProjectedReturnType, isProjectedReturnType);
+      boolean nullable = kt && isNullableKotlinReturn();
 
       // 3. ONLY wrap the call if it's a NON-projected type with a projection string
       if (projection != null && !isProjectedReturnType) {
@@ -300,16 +277,12 @@ public class RestRoute extends WebRoute {
                 indent(controllerIndent),
                 "return ",
                 projected,
-                kt && nullable ? "!!" : "",
+                nullable ? "!!" : "",
                 semicolon(kt)));
       } else {
         buffer.add(
             statement(
-                indent(controllerIndent),
-                "return ",
-                call,
-                kt && nullable ? "!!" : "",
-                semicolon(kt)));
+                indent(controllerIndent), "return ", call, nullable ? "!!" : "", semicolon(kt)));
       }
     }
 

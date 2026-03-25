@@ -10,9 +10,11 @@ import static io.jooby.internal.apt.CodeBlock.type;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
@@ -135,5 +137,50 @@ public abstract class WebRoute {
             })
         .map(it -> it + clazz(kt))
         .toList();
+  }
+
+  public boolean isNullableKotlinReturn() {
+    return method.getAnnotationMirrors().stream()
+        .map(javax.lang.model.element.AnnotationMirror::getAnnotationType)
+        .map(java.util.Objects::toString)
+        .anyMatch(AnnotationSupport.NULLABLE);
+  }
+
+  protected String buildMethodCall(
+      boolean kt, String paramList, boolean preventCast, boolean isRpcWrapper) {
+    var customReturnType = getReturnType();
+    var castStr =
+        preventCast ? "" : customReturnType.getArgumentsString(kt, false, Set.of(TypeKind.TYPEVAR));
+
+    // Force cast ONLY if there's a Type Variable (<E> -> <Any>)
+    // OR if it's an RPC wrapper where strict Java generics conflict with Kotlin's nullable generics
+    var needsCast =
+        !castStr.isEmpty()
+            || (kt && !preventCast && isRpcWrapper && !customReturnType.getArguments().isEmpty());
+
+    var kotlinNotEnoughTypeInformation = !castStr.isEmpty() && kt ? "<Any>" : "";
+
+    var call = "c." + this.method.getSimpleName() + kotlinNotEnoughTypeInformation + paramList;
+
+    if (needsCast) {
+      setUncheckedCast(true);
+      var returnTypeString = CodeBlock.type(kt, customReturnType.toString());
+      call = kt ? call + " as " + returnTypeString : "(" + returnTypeString + ") " + call;
+    }
+    return call;
+  }
+
+  protected String box(String type) {
+    return switch (type) {
+      case "int" -> "Integer";
+      case "long" -> "Long";
+      case "double" -> "Double";
+      case "float" -> "Float";
+      case "boolean" -> "Boolean";
+      case "byte" -> "Byte";
+      case "short" -> "Short";
+      case "char" -> "Character";
+      default -> type;
+    };
   }
 }

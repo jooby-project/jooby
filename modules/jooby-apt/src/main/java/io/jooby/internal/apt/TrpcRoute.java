@@ -517,7 +517,10 @@ public class TrpcRoute extends WebRoute {
 
     buffer.add(
         statement(indent(controllerIndent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
-    var call = CodeBlock.of("c.", this.method.getSimpleName(), paramList.toString());
+
+    // Leverage shared WebRoute logic for casting and type erasure!
+    String call = buildMethodCall(kt, paramList.toString(), false, true);
+    boolean nullable = kt && isNullableKotlinReturn();
 
     if (returnType.isVoid()) {
       buffer.add(statement(indent(controllerIndent), call, semicolon(kt)));
@@ -532,26 +535,20 @@ public class TrpcRoute extends WebRoute {
               indent(controllerIndent),
               "return io.jooby.rpc.trpc.TrpcResponse.of(",
               call,
+              nullable ? "!!" : "", // Shared nullability check
               ")",
               semicolon(kt)));
     }
 
     if (!parameters.isEmpty()) buffer.add(statement(indent(2), "}"));
     buffer.add(statement("}", System.lineSeparator()));
-    return buffer;
-  }
 
-  private String box(String type) {
-    return switch (type) {
-      case "int" -> "Integer";
-      case "long" -> "Long";
-      case "double" -> "Double";
-      case "float" -> "Float";
-      case "boolean" -> "Boolean";
-      case "byte" -> "Byte";
-      case "short" -> "Short";
-      case "char" -> "Character";
-      default -> type;
-    };
+    // Shared Unchecked Cast suppression
+    if (isUncheckedCast()) {
+      if (kt) buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
+      else buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
+    }
+
+    return buffer;
   }
 }
