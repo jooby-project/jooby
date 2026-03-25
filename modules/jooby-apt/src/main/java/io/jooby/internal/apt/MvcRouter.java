@@ -270,7 +270,7 @@ public class MvcRouter {
     var noSuspended = mvcRoutes.stream().filter(it -> !it.isSuspendFun()).toList();
     var buffer = new StringBuilder();
     context.generateStaticImports(
-        this,
+        null,
         (owner, fn) ->
             buffer.append(
                 statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
@@ -340,7 +340,7 @@ public class MvcRouter {
     var buffer = new StringBuilder();
 
     context.generateStaticImports(
-        this,
+        null,
         (owner, fn) ->
             buffer.append(
                 statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));
@@ -549,7 +549,7 @@ public class MvcRouter {
     var buffer = new StringBuilder();
 
     context.generateStaticImports(
-        this,
+        null,
         (owner, fn) ->
             buffer.append(
                 statement("import ", kt ? "" : "static ", owner, ".", fn, semicolon(kt))));

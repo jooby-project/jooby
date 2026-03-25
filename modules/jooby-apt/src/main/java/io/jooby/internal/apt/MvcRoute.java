@@ -48,7 +48,7 @@ public class MvcRoute {
     this.router = router;
     this.method = method;
     this.parameters =
-        method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
+        method.getParameters().stream().map(it -> new MvcParameter(context, null, it)).toList();
     this.hasBeanValidation = parameters.stream().anyMatch(MvcParameter::isRequireBeanValidation);
     this.suspendFun =
         !parameters.isEmpty()
@@ -64,7 +64,7 @@ public class MvcRoute {
     this.router = router;
     this.method = route.method;
     this.parameters =
-        method.getParameters().stream().map(it -> new MvcParameter(context, this, it)).toList();
+        method.getParameters().stream().map(it -> new MvcParameter(context, null, it)).toList();
     this.hasBeanValidation = parameters.stream().anyMatch(MvcParameter::isRequireBeanValidation);
     this.returnType =
         new TypeDefinition(
@@ -272,7 +272,7 @@ public class MvcRoute {
                 dispatch ->
                     block.add(statement(indent(2), ".setExecutorKey(", string(dispatch), ")")));
         attributeGenerator
-            .toSourceCode(kt, this, 2)
+            .toSourceCode(kt, null, 2)
             .ifPresent(
                 attributes -> block.add(statement(indent(2), ".setAttributes(", attributes, ")")));
         var lineSep = lastLine ? lineSeparator() : lineSeparator() + lineSeparator();

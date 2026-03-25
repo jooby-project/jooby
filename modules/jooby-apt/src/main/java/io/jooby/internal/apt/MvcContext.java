@@ -28,7 +28,7 @@ public class MvcContext {
   private final String routerPrefix;
   private final String routerSuffix;
   private final BiConsumer<Diagnostic.Kind, String> output;
-  private final List<MvcRouter> routers = new ArrayList<>();
+  private final List<WebRouter<?>> routers = new ArrayList<>();
   private final boolean mvcMethod;
   private final Map<TypeElement, ReactiveType> reactiveTypeMap = new HashMap<>();
 
@@ -67,11 +67,11 @@ public class MvcContext {
             });
   }
 
-  public void add(MvcRouter router) {
+  public void add(WebRouter<?> router) {
     routers.add(router);
   }
 
-  public List<MvcRouter> getRouters() {
+  public List<WebRouter<?>> getRouters() {
     return routers;
   }
 
@@ -202,10 +202,11 @@ public class MvcContext {
     output.accept(kind, msg);
   }
 
-  public void generateStaticImports(MvcRouter mvcRouter, BiConsumer<String, String> consumer) {
-    List<MvcRoute> routes = mvcRouter.getRoutes();
+  public <R extends WebRoute> void generateStaticImports(
+      WebRouter<R> mvcRouter, BiConsumer<String, String> consumer) {
+    var routes = mvcRouter.getRoutes();
     var process = new HashSet<String>();
-    for (MvcRoute route : routes) {
+    for (var route : routes) {
       var returnType = route.getReturnTypeHandler();
       if (process.add(returnType.toString())) {
         var fnq = findMappingHandler(returnType);

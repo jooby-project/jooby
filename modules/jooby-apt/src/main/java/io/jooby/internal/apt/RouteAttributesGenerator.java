@@ -58,7 +58,7 @@ public class RouteAttributesGenerator {
     this.hasBeanValidation = hasBeanValidation;
   }
 
-  public Optional<String> toSourceCode(boolean kt, MvcRoute route, int indent) {
+  public Optional<String> toSourceCode(boolean kt, WebRoute route, int indent) {
     var attributes = annotationMap(route.getMethod());
     if (attributes.isEmpty()) {
       return Optional.empty();

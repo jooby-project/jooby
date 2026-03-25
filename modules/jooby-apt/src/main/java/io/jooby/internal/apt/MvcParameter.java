@@ -18,13 +18,13 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 
 public class MvcParameter {
-  private final MvcRoute route;
+  private final WebRoute route;
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
   private final TypeDefinition type;
   private final boolean requireBeanValidation;
 
-  public MvcParameter(MvcContext context, MvcRoute route, VariableElement parameter) {
+  public MvcParameter(MvcContext context, WebRoute route, VariableElement parameter) {
     this.route = route;
     this.parameter = parameter;
     this.annotations = annotationMap(parameter);

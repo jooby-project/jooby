@@ -129,87 +129,51 @@ public class JoobyProcessor extends AbstractProcessor {
     try {
       if (roundEnv.processingOver()) {
         context.debug("Output:");
-        // Print all generated types for both REST and RPC
-        context
-            .getRouters()
-            .forEach(
-                it -> {
-                  if (it.hasRestRoutes()) {
-                    context.debug("  %s", it.getRestGeneratedType());
-                  }
-                  if (it.hasJsonRpcRoutes()) {
-                    context.debug("  %s", it.getRpcGeneratedType());
-                  }
-                });
+        context.getRouters().forEach(it -> context.debug("  %s", it.getGeneratedType()));
         return false;
       } else {
-        var routeMap = buildRouteRegistry(annotations, roundEnv);
-        verifyBeanValidationDependency(routeMap.values());
-        for (var router : routeMap.values()) {
+        // 1. Discover all unique Controller classes
+        Set<TypeElement> controllers = findControllers(annotations, roundEnv);
+
+        // 2. Factory Pattern: Build specific routers for each class based on method annotations
+        List<WebRouter<?>> activeRouters = new ArrayList<>();
+        for (TypeElement controller : controllers) {
+          if (controller.getModifiers().contains(Modifier.ABSTRACT)) continue;
+
+          // These factory methods will scan the class methods and return a populated router
+          // if it finds relevant annotations (@GET for Rest, @McpTool for MCP, etc.)
+          // We will implement these factories inside the respective Router classes.
+
+          RestRouter restRouter = RestRouter.parse(context, controller);
+          if (!restRouter.isEmpty()) activeRouters.add(restRouter);
+
+          JsonRpcRouter jsonRpcRouter = JsonRpcRouter.parse(context, controller);
+          if (!jsonRpcRouter.isEmpty()) activeRouters.add(jsonRpcRouter);
+
+          McpRouter mcpRouter = McpRouter.parse(context, controller);
+          if (!mcpRouter.isEmpty()) activeRouters.add(mcpRouter);
+
+          TrpcRouter trpcRouter = TrpcRouter.parse(context, controller);
+          if (!trpcRouter.isEmpty()) activeRouters.add(trpcRouter);
+        }
+
+        verifyBeanValidationDependency(activeRouters);
+
+        // 3. Generate Code Iteratively!
+        for (WebRouter<?> router : activeRouters) {
           try {
-            // Track the router unconditionally so routes are available in processingOver
-            context.add(router);
+            context.add(router); // Track for processingOver output
 
-            // 1. Generate Standard REST/tRPC File (e.g., MovieService_.java)
-            if (router.hasRestRoutes()) {
-              var restSource = router.getRestSourceCode(null);
-              if (restSource != null) {
-                var sourceLocation = router.getRestGeneratedFilename();
-                var generatedType = router.getRestGeneratedType();
-                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, restSource));
+            String sourceCode = router.getSourceCode(null);
+            if (sourceCode != null) {
+              String sourceLocation = router.getGeneratedFilename();
+              String generatedType = router.getGeneratedType();
 
-                context.debug("router %s: %s", router.getTargetType(), generatedType);
-                router.getRoutes().stream()
-                    .filter(it -> !it.isJsonRpc())
-                    .forEach(it -> context.debug("   %s", it));
+              onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, sourceCode));
+              context.debug("router %s: %s", router.getTargetType(), generatedType);
 
-                writeSource(
-                    router.isKt(),
-                    generatedType,
-                    sourceLocation,
-                    restSource,
-                    router.getTargetType());
-              }
-            }
-
-            // 2. Generate JSON-RPC File (e.g., MovieServiceRpc_.java)
-            if (router.hasJsonRpcRoutes()) {
-              var rpcSource = router.getRpcSourceCode(null);
-              if (rpcSource != null) {
-                var sourceLocation = router.getRpcGeneratedFilename();
-                var generatedType = router.getRpcGeneratedType();
-                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, rpcSource));
-
-                context.debug("jsonrpc router %s: %s", router.getTargetType(), generatedType);
-                router.getRoutes().stream()
-                    .filter(MvcRoute::isJsonRpc)
-                    .forEach(it -> context.debug("   %s", it));
-
-                writeSource(
-                    router.isKt(),
-                    generatedType,
-                    sourceLocation,
-                    rpcSource,
-                    router.getTargetType());
-              }
-            }
-            // 3. Generate MCP Server File (e.g., WeatherServerMcp_.java)
-            if (router.hasMcpRoutes()) {
-              var mcpSource = router.getMcpSourceCode(null);
-              if (mcpSource != null) {
-                var sourceLocation = router.getMcpGeneratedFilename();
-                var generatedType = router.getMcpGeneratedType();
-                onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, mcpSource));
-
-                context.debug("mcp router %s: %s", router.getTargetType(), generatedType);
-
-                writeSource(
-                    router.isKt(),
-                    generatedType,
-                    sourceLocation,
-                    mcpSource,
-                    router.getTargetType());
-              }
+              writeSource(
+                  router.isKt(), generatedType, sourceLocation, sourceCode, router.getTargetType());
             }
 
           } catch (IOException cause) {
@@ -223,6 +187,21 @@ public class JoobyProcessor extends AbstractProcessor {
           Optional.ofNullable(cause.getMessage()).orElse("Unable to generate routes"), cause);
       throw sneakyThrow0(cause);
     }
+  }
+
+  private Set<TypeElement> findControllers(
+      Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+    Set<TypeElement> controllers = new LinkedHashSet<>();
+    for (var annotation : annotations) {
+      for (var element : roundEnv.getElementsAnnotatedWith(annotation)) {
+        if (element instanceof TypeElement typeElement) {
+          controllers.add(typeElement);
+        } else if (element instanceof ExecutableElement method) {
+          controllers.add((TypeElement) method.getEnclosingElement());
+        }
+      }
+    }
+    return controllers;
   }
 
   private void writeSource(
@@ -492,8 +471,8 @@ public class JoobyProcessor extends AbstractProcessor {
     throw (E) x;
   }
 
-  private void verifyBeanValidationDependency(Collection<MvcRouter> routers) {
-    var hasBeanValidation = routers.stream().anyMatch(MvcRouter::hasBeanValidation);
+  private void verifyBeanValidationDependency(Collection<WebRouter<?>> routers) {
+    var hasBeanValidation = routers.stream().anyMatch(WebRouter::hasBeanValidation);
     if (hasBeanValidation) {
       var missingDependency =
           Stream.of(
