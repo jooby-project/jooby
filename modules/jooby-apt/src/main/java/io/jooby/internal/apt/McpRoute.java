@@ -169,24 +169,7 @@ public class McpRoute extends WebRoute {
       }
 
       String returnTypeStr = getReturnType().getRawType().toString();
-      boolean isPrimitive =
-          returnTypeStr.equals("int")
-              || returnTypeStr.equals("long")
-              || returnTypeStr.equals("double")
-              || returnTypeStr.equals("float")
-              || returnTypeStr.equals("boolean")
-              || returnTypeStr.equals("byte")
-              || returnTypeStr.equals("short")
-              || returnTypeStr.equals("char");
-      boolean isLangClass = returnTypeStr.startsWith("java.lang.");
-      boolean isMcpClass = returnTypeStr.startsWith("io.modelcontextprotocol.spec.McpSchema");
-
-      boolean generateOutputSchema =
-          !returnType.isVoid()
-              && !getReturnType().is("io.jooby.StatusCode")
-              && !isPrimitive
-              && !isLangClass
-              && !isMcpClass;
+      boolean generateOutputSchema = hasOutputSchema();
       String outputSchemaArg = "null";
 
       if (generateOutputSchema) {
@@ -644,18 +627,36 @@ public class McpRoute extends WebRoute {
 
     var methodCall = "c." + getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
 
+    // Prefix for Resources: "req.uri(), "
+    String toMethodPrefix = (isMcpResource() || isMcpResourceTemplate()) ? "req.uri(), " : "";
+
+    // Suffix for Tools: ", true" or ", false"
+    String toMethodSuffix = isMcpTool() ? ", " + hasOutputSchema() : "";
+
     if (getReturnType().isVoid()) {
       buffer.add(statement(indent(6), methodCall, semicolon(kt)));
       if (kt) {
         buffer.add(
-            statement(indent(6), "return io.jooby.mcp.McpResult(this.json).", toMethod, "(null)"));
+            statement(
+                indent(6),
+                "return io.jooby.mcp.McpResult(this.json).",
+                toMethod,
+                "(",
+                toMethodPrefix,
+                "null",
+                toMethodSuffix,
+                ")"));
       } else {
         buffer.add(
             statement(
                 indent(6),
                 "return new io.jooby.mcp.McpResult(this.json).",
                 toMethod,
-                "(null)",
+                "(",
+                toMethodPrefix,
+                "null",
+                toMethodSuffix,
+                ")",
                 semicolon(kt)));
       }
     } else {
@@ -663,7 +664,14 @@ public class McpRoute extends WebRoute {
         buffer.add(statement(indent(6), "val result = ", methodCall));
         buffer.add(
             statement(
-                indent(6), "return io.jooby.mcp.McpResult(this.json).", toMethod, "(result)"));
+                indent(6),
+                "return io.jooby.mcp.McpResult(this.json).",
+                toMethod,
+                "(",
+                toMethodPrefix,
+                "result",
+                toMethodSuffix,
+                ")"));
       } else {
         buffer.add(statement(indent(6), "var result = ", methodCall, semicolon(kt)));
         buffer.add(
@@ -671,12 +679,37 @@ public class McpRoute extends WebRoute {
                 indent(6),
                 "return new io.jooby.mcp.McpResult(this.json).",
                 toMethod,
-                "(result)",
+                "(",
+                toMethodPrefix,
+                "result",
+                toMethodSuffix,
+                ")",
                 semicolon(kt)));
       }
     }
     buffer.add(statement(indent(4), "}\n"));
 
     return buffer;
+  }
+
+  private boolean hasOutputSchema() {
+    var returnTypeStr = getReturnType().getRawType().toString();
+    var isPrimitive =
+        returnTypeStr.equals("int")
+            || returnTypeStr.equals("long")
+            || returnTypeStr.equals("double")
+            || returnTypeStr.equals("float")
+            || returnTypeStr.equals("boolean")
+            || returnTypeStr.equals("byte")
+            || returnTypeStr.equals("short")
+            || returnTypeStr.equals("char");
+    var isLangClass = returnTypeStr.startsWith("java.lang.");
+    var isMcpClass = returnTypeStr.startsWith("io.modelcontextprotocol.spec.McpSchema");
+
+    return !getReturnType().isVoid()
+        && !getReturnType().is("io.jooby.StatusCode")
+        && !isPrimitive
+        && !isLangClass
+        && !isMcpClass;
   }
 }

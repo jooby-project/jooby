@@ -17,7 +17,6 @@ public class Issue3830 {
     new ProcessorRunner(new ExampleServer())
         .withMcpCode(
             source -> {
-              System.out.println(source);
               assertThat(source)
                   .isEqualToNormalizingWhitespace(
                       """
@@ -108,7 +107,7 @@ public class Issue3830 {
                             if (raw_b == null) throw new IllegalArgumentException("Missing req param: b");
                             var b = raw_b instanceof Number ? ((Number) raw_b).intValue() : Integer.parseInt(raw_b.toString());
                             var result = c.add(a, b);
-                            return new io.jooby.mcp.McpResult(this.json).toCallToolResult(result);
+                            return new io.jooby.mcp.McpResult(this.json).toCallToolResult(result, false);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.Prompt reviewCodePromptSpec() {
@@ -139,7 +138,7 @@ public class Issue3830 {
                             var args = java.util.Collections.<String, Object>emptyMap();
                             var c = this.factory.apply(ctx);
                             var result = c.getLogs();
-                            return new io.jooby.mcp.McpResult(this.json).toResourceResult(result);
+                            return new io.jooby.mcp.McpResult(this.json).toResourceResult(req.uri(), result);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ResourceTemplate getUserProfileResourceTemplateSpec() {
@@ -156,7 +155,7 @@ public class Issue3830 {
                             var raw_id = args.get("id");
                             var id = raw_id != null ? raw_id.toString() : null;
                             var result = c.getUserProfile(id);
-                            return new io.jooby.mcp.McpResult(this.json).toResourceResult(result);
+                            return new io.jooby.mcp.McpResult(this.json).toResourceResult(req.uri(), result);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CompleteResult getUserProfileCompletionHandler(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {
