@@ -178,9 +178,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
       buffer.append(statement(indent(6), "var method = req.getMethod();"));
       buffer.append(
           statement(
-              indent(6),
-              "io.jooby.rpc.jsonrpc.JsonRpcParser parser ="
-                  + " ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);"));
+              indent(6), "var parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);"));
       buffer.append(statement(indent(6), "switch(method) {"));
 
       for (int i = 0; i < getRoutes().size(); i++) {

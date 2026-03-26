@@ -17,6 +17,7 @@ public class Issue3830 {
     new ProcessorRunner(new ExampleServer())
         .withMcpCode(
             source -> {
+              System.out.println(source);
               assertThat(source)
                   .isEqualToNormalizingWhitespace(
                       """

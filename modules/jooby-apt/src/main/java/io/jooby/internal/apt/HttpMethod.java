@@ -37,10 +37,6 @@ public enum HttpMethod implements AnnotationSupport {
     this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
   }
 
-  HttpMethod(List<String> annotations) {
-    this.annotations = annotations;
-  }
-
   public List<String> path(Element element) {
     var path =
         annotations.stream()

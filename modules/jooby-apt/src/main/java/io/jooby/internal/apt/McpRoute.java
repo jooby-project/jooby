@@ -135,8 +135,8 @@ public class McpRoute extends WebRoute {
                 indent(6), "var req = schema.putArray(", string("required"), ")", semicolon(kt)));
       }
 
-      for (MvcParameter param : getParameters(false)) {
-        String type = param.getType().getRawType().toString();
+      for (var param : getParameters(true)) {
+        var type = param.getType().getRawType().toString();
         if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
             || type.equals("io.jooby.Context")) continue;
 
@@ -290,13 +290,13 @@ public class McpRoute extends WebRoute {
                 semicolon(kt)));
       }
 
-      for (MvcParameter param : getParameters(false)) {
-        String type = param.getType().getRawType().toString();
+      for (var param : getParameters(true)) {
+        var type = param.getType().getRawType().toString();
         if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
             || type.equals("io.jooby.Context")) continue;
 
-        String mcpName = param.getMcpName();
-        boolean isRequired = !param.isNullable(kt);
+        var mcpName = param.getMcpName();
+        var isRequired = !param.isNullable(kt);
 
         if (kt) {
           buffer.add(
@@ -343,13 +343,13 @@ public class McpRoute extends WebRoute {
       buffer.add(statement(indent(4), "}\n"));
 
     } else if (isMcpResource() || isMcpResourceTemplate()) {
-      String uri = extractAnnotationValue("io.jooby.annotation.McpResource", "value");
-      String name = extractAnnotationValue("io.jooby.annotation.McpResource", "name");
+      var uri = extractAnnotationValue("io.jooby.annotation.McpResource", "value");
+      var name = extractAnnotationValue("io.jooby.annotation.McpResource", "name");
       if (name.isEmpty()) name = getMethodName();
-      String description = extractAnnotationValue("io.jooby.annotation.McpResource", "description");
+      var description = extractAnnotationValue("io.jooby.annotation.McpResource", "description");
 
-      boolean isTemplate = isMcpResourceTemplate();
-      String specType = isTemplate ? "ResourceTemplate" : "Resource";
+      var isTemplate = isMcpResourceTemplate();
+      var specType = isTemplate ? "ResourceTemplate" : "Resource";
 
       if (kt) {
         buffer.add(
@@ -427,8 +427,6 @@ public class McpRoute extends WebRoute {
   }
 
   public List<String> generateMcpHandlerMethod(boolean kt) {
-    List<String> buffer = new ArrayList<>();
-
     String reqType = "";
     String resType = "";
     String toMethod = "";
@@ -446,8 +444,10 @@ public class McpRoute extends WebRoute {
       resType = "ReadResourceResult";
       toMethod = "toResourceResult";
     } else {
-      return buffer;
+      return List.of();
     }
+
+    List<String> buffer = new ArrayList<>();
 
     if (kt) {
       buffer.add(
@@ -544,11 +544,11 @@ public class McpRoute extends WebRoute {
         statement(indent(6), kt ? "val " : "var ", "c = this.factory.apply(ctx)", semicolon(kt)));
 
     List<String> javaParamNames = new ArrayList<>();
-    for (MvcParameter param : getParameters(false)) {
-      String javaName = param.getName();
-      String mcpName = param.getMcpName();
-      String type = param.getType().getRawType().toString();
-      boolean isNullable = param.isNullable(kt);
+    for (var param : getParameters(true)) {
+      var javaName = param.getName();
+      var mcpName = param.getMcpName();
+      var type = param.getType().getRawType().toString();
+      var isNullable = param.isNullable(kt);
       javaParamNames.add(javaName);
 
       if (type.equals("io.jooby.Context")) {
@@ -642,7 +642,7 @@ public class McpRoute extends WebRoute {
       }
     }
 
-    String methodCall = "c." + getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
+    var methodCall = "c." + getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
 
     if (getReturnType().isVoid()) {
       buffer.add(statement(indent(6), methodCall, semicolon(kt)));

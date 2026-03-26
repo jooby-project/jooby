@@ -187,15 +187,14 @@ public class RestRoute extends WebRoute {
 
     String projection = getProjection();
 
-    // Bulletproof check: Is the controller natively returning a Projected type?
     boolean isProjectedReturnType =
         customReturnType.isProjection() || customReturnType.is(Types.PROJECTED);
 
-    // 1. Create separate variables for the generated HTTP handler's signature
+    // Create separate variables for the generated HTTP handler's signature
     var handlerTypeGenerics = returnTypeGenerics;
     var handlerTypeString = returnTypeString;
 
-    // 2. ONLY modify the signature if we need to wrap a NON-projected type
+    // ONLY modify the signature if we need to wrap a NON-projected type
     if (projection != null && !isProjectedReturnType) {
       handlerTypeGenerics = "";
       handlerTypeString = Types.PROJECTED + "<" + returnTypeString + ">";
@@ -212,7 +211,7 @@ public class RestRoute extends WebRoute {
     int controllerIndent = 2;
 
     for (var parameter : getParameters(true)) {
-      String generatedParameter = parameter.generateMapping(kt);
+      var generatedParameter = parameter.generateMapping(kt);
       if (parameter.isRequireBeanValidation()) {
         generatedParameter =
             CodeBlock.of(

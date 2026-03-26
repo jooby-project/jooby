@@ -9,6 +9,7 @@ import static io.jooby.internal.apt.AnnotationSupport.VALUE;
 import static io.jooby.internal.apt.CodeBlock.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -21,10 +22,10 @@ public class McpRouter extends WebRouter<McpRoute> {
   }
 
   public static McpRouter parse(MvcContext context, TypeElement controller) {
-    McpRouter router = new McpRouter(context, controller);
+    var router = new McpRouter(context, controller);
     for (var enclosed : controller.getEnclosedElements()) {
       if (enclosed.getKind() == ElementKind.METHOD) {
-        McpRoute route = new McpRoute(router, (ExecutableElement) enclosed);
+        var route = new McpRoute(router, (ExecutableElement) enclosed);
         if (route.isMcpTool()
             || route.isMcpPrompt()
             || route.isMcpResource()
@@ -42,7 +43,7 @@ public class McpRouter extends WebRouter<McpRoute> {
     return context.generateRouterName(getTargetType().getQualifiedName() + "Mcp");
   }
 
-  public String getMcpServerKey() {
+  private String getMcpServerKey() {
     var annotation = AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.McpServer");
     if (annotation != null) {
       return AnnotationSupport.findAnnotationValue(annotation, VALUE).stream()
@@ -52,31 +53,43 @@ public class McpRouter extends WebRouter<McpRoute> {
     return "default";
   }
 
+  /**
+   * Find completion target must be a prompt or resource.
+   *
+   * @param ref Prompt name or resource uri.
+   * @return Method name.
+   */
   private String findTargetMethodName(String ref) {
-    for (McpRoute route : getRoutes()) {
+    for (var route : getRoutes()) {
       if (route.isMcpPrompt()) {
         var annotation =
             AnnotationSupport.findAnnotationByName(
                 route.getMethod(), "io.jooby.annotation.McpPrompt");
-        String name =
+        var name =
             annotation != null
                 ? AnnotationSupport.findAnnotationValue(annotation, "name"::equals).stream()
                     .findFirst()
                     .orElse("")
                 : "";
-        if (name.isEmpty()) name = route.getMethodName();
-        if (ref.equals(name)) return route.getMethodName();
+        if (name.isEmpty()) {
+          name = route.getMethodName();
+        }
+        if (ref.equals(name)) {
+          return route.getMethodName();
+        }
       } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
         var annotation =
             AnnotationSupport.findAnnotationByName(
                 route.getMethod(), "io.jooby.annotation.McpResource");
-        String uri =
+        var uri =
             annotation != null
                 ? AnnotationSupport.findAnnotationValue(annotation, "value"::equals).stream()
                     .findFirst()
                     .orElse("")
                 : "";
-        if (ref.equals(uri)) return route.getMethodName();
+        if (ref.equals(uri)) {
+          return route.getMethodName();
+        }
       }
     }
     return "mcpTarget" + Math.abs(ref.hashCode());
@@ -84,9 +97,7 @@ public class McpRouter extends WebRouter<McpRoute> {
 
   @Override
   public String toSourceCode(Boolean generateKotlin) throws IOException {
-    if (isEmpty()) return null;
-
-    boolean kt = generateKotlin == Boolean.TRUE || isKt();
+    var kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = getTargetType().getSimpleName().toString();
     var mcpClassName = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
     var packageName = getPackageName();
@@ -108,37 +119,33 @@ public class McpRouter extends WebRouter<McpRoute> {
         getRoutes().stream().filter(r -> r.isMcpResource() || r.isMcpResourceTemplate()).toList();
 
     var completionRoutes = getRoutes().stream().filter(McpRoute::isMcpCompletion).toList();
-    java.util.Map<String, java.util.List<McpRoute>> completionGroups =
-        new java.util.LinkedHashMap<>();
-    for (McpRoute route : completionRoutes) {
+    var completionGroups = new java.util.LinkedHashMap<String, java.util.List<McpRoute>>();
+    // group completion we need to genereate a single handler for all completion routes
+    for (var route : completionRoutes) {
       var annotation =
           AnnotationSupport.findAnnotationByName(
               route.getMethod(), "io.jooby.annotation.McpCompletion");
       String ref =
           AnnotationSupport.findAnnotationValue(annotation, "value"::equals).stream()
               .findFirst()
-              .orElse("");
+              .orElse(null);
       if (ref == null || ref.isEmpty()) {
         ref =
             AnnotationSupport.findAnnotationValue(annotation, "ref"::equals).stream()
                 .findFirst()
                 .orElse("");
       }
-      completionGroups.computeIfAbsent(ref, k -> new java.util.ArrayList<>()).add(route);
+      completionGroups.computeIfAbsent(ref, k -> new ArrayList<>()).add(route);
     }
 
     if (kt) {
       buffer.append(
           statement(
-              indent(4),
-              "private lateinit var json: io.modelcontextprotocol.json.McpJsonMapper\n"));
+              indent(4), "private lateinit var json: io.modelcontextprotocol.json.McpJsonMapper"));
     } else {
       buffer.append(
           statement(
-              indent(4),
-              "private io.modelcontextprotocol.json.McpJsonMapper json",
-              semicolon(kt),
-              "\n"));
+              indent(4), "private io.modelcontextprotocol.json.McpJsonMapper json", semicolon(kt)));
     }
 
     if (kt) {
@@ -164,7 +171,7 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(statement(indent(6), "capabilities.resources(true, true)", semicolon(kt)));
     buffer.append(statement(indent(4), "}\n"));
 
-    String serverName = getMcpServerKey();
+    var serverName = getMcpServerKey();
     if (kt) {
       buffer.append(statement(indent(4), "override fun serverName(): String? {"));
       buffer.append(statement(indent(6), "return ", string(serverName)));
@@ -203,10 +210,10 @@ public class McpRouter extends WebRouter<McpRoute> {
               semicolon(kt)));
     }
 
-    for (String ref : completionGroups.keySet()) {
-      boolean isResource = ref.contains("://");
-      String handlerName = findTargetMethodName(ref) + "CompletionHandler";
-      String refObj =
+    for (var ref : completionGroups.keySet()) {
+      var isResource = ref.contains("://");
+      var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+      var refObj =
           isResource
               ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
               : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
@@ -265,7 +272,7 @@ public class McpRouter extends WebRouter<McpRoute> {
             statement(
                 indent(6),
                 "val schemaGenerator ="
-                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())\n"));
+                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())"));
       }
     } else {
       buffer.append(statement(indent(4), "@Override"));
@@ -294,24 +301,17 @@ public class McpRouter extends WebRouter<McpRoute> {
                 indent(6),
                 "var schemaGenerator = new"
                     + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())",
-                semicolon(kt),
-                "\n"));
+                semicolon(kt)));
       }
     }
 
-    for (var route :
-        getRoutes().stream()
-            .filter(
-                r ->
-                    r.isMcpTool()
-                        || r.isMcpPrompt()
-                        || r.isMcpResource()
-                        || r.isMcpResourceTemplate())
-            .toList()) {
-      String methodName = route.getMethodName();
+    buffer.append(System.lineSeparator());
+
+    for (var route : getRoutes()) {
+      var methodName = route.getMethodName();
 
       if (route.isMcpTool()) {
-        String defArgs = "mapper, schemaGenerator";
+        var defArgs = "mapper, schemaGenerator";
         if (kt) {
           buffer.append(
               statement(
@@ -322,7 +322,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                   defArgs,
                   "), this::",
                   methodName,
-                  "))\n"));
+                  "))"));
         } else {
           buffer.append(
               statement(
@@ -334,9 +334,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                   defArgs,
                   "), this::",
                   methodName,
-                  "))",
-                  semicolon(kt),
-                  "\n"));
+                  "));"));
         }
       } else if (route.isMcpPrompt()) {
         if (kt) {
@@ -347,7 +345,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                   methodName,
                   "PromptSpec(), this::",
                   methodName,
-                  "))\n"));
+                  "))"));
         } else {
           buffer.append(
               statement(
@@ -357,16 +355,14 @@ public class McpRouter extends WebRouter<McpRoute> {
                   methodName,
                   "PromptSpec(), this::",
                   methodName,
-                  "))",
-                  semicolon(kt),
-                  "\n"));
+                  "));"));
         }
       } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
-        boolean isTemplate = route.isMcpResourceTemplate();
-        String specType =
+        var isTemplate = route.isMcpResourceTemplate();
+        var specType =
             isTemplate ? "SyncResourceTemplateSpecification" : "SyncResourceSpecification";
-        String addMethod = isTemplate ? "server.addResourceTemplate(" : "server.addResource(";
-        String defMethod = isTemplate ? "ResourceTemplateSpec()" : "ResourceSpec()";
+        var addMethod = isTemplate ? "server.addResourceTemplate(" : "server.addResource(";
+        var defMethod = isTemplate ? "ResourceTemplateSpec()" : "ResourceSpec()";
 
         if (kt) {
           buffer.append(
@@ -380,7 +376,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                   defMethod,
                   ", this::",
                   methodName,
-                  "))\n"));
+                  "))"));
         } else {
           buffer.append(
               statement(
@@ -393,31 +389,21 @@ public class McpRouter extends WebRouter<McpRoute> {
                   defMethod,
                   ", this::",
                   methodName,
-                  "))",
-                  semicolon(kt),
-                  "\n"));
+                  "));"));
         }
       }
     }
-    buffer.append(statement(indent(4), "}\n"));
+    buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
-    for (McpRoute route :
-        getRoutes().stream()
-            .filter(
-                r ->
-                    r.isMcpTool()
-                        || r.isMcpPrompt()
-                        || r.isMcpResource()
-                        || r.isMcpResourceTemplate())
-            .toList()) {
+    for (var route : getRoutes()) {
       route.generateMcpDefinitionMethod(kt).forEach(buffer::append);
       route.generateMcpHandlerMethod(kt).forEach(buffer::append);
     }
 
     for (var entry : completionGroups.entrySet()) {
-      String ref = entry.getKey();
-      String handlerName = findTargetMethodName(ref) + "CompletionHandler";
-      java.util.List<McpRoute> routes = entry.getValue();
+      var ref = entry.getKey();
+      var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+      var routes = entry.getValue();
 
       if (kt) {
         buffer.append(
@@ -464,12 +450,12 @@ public class McpRouter extends WebRouter<McpRoute> {
         buffer.append(statement(indent(6), "return switch (targetArg) {"));
       }
 
-      for (McpRoute route : routes) {
+      for (var route : routes) {
         String targetArgName = null;
-        java.util.List<String> invokeArgs = new java.util.ArrayList<>();
+        var invokeArgs = new java.util.ArrayList<String>();
 
-        for (var param : route.getParameters(false)) {
-          String type = param.getType().getRawType().toString();
+        for (var param : route.getParameters(true)) {
+          var type = param.getType().getRawType().toString();
           if (type.equals("io.jooby.Context")) {
             invokeArgs.add("ctx");
           } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
@@ -530,7 +516,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 semicolon(kt)));
         buffer.append(statement(indent(6), "}", semicolon(kt)));
       }
-      buffer.append(statement(indent(4), "}\n"));
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
     }
 
     return template
