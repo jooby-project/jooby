@@ -25,12 +25,12 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
   }
 
   public static JsonRpcRouter parse(MvcContext context, TypeElement controller) {
-    JsonRpcRouter router = new JsonRpcRouter(context, controller);
-    var classJsonRpcAnno =
+    var router = new JsonRpcRouter(context, controller);
+    var classAnnotation =
         AnnotationSupport.findAnnotationByName(controller, "io.jooby.annotation.JsonRpc");
 
-    List<ExecutableElement> explicitlyAnnotated = new ArrayList<>();
-    List<ExecutableElement> allPublicMethods = new ArrayList<>();
+    var explicitlyAnnotated = new ArrayList<ExecutableElement>();
+    var allPublicMethods = new ArrayList<ExecutableElement>();
 
     for (var enclosed : controller.getEnclosedElements()) {
       if (enclosed.getKind() == ElementKind.METHOD) {
@@ -40,7 +40,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
         if (modifiers.contains(Modifier.PUBLIC)
             && !modifiers.contains(Modifier.STATIC)
             && !modifiers.contains(Modifier.ABSTRACT)) {
-          String methodName = method.getSimpleName().toString();
+          var methodName = method.getSimpleName().toString();
           if (methodName.equals("toString")
               || methodName.equals("hashCode")
               || methodName.equals("equals")
@@ -57,12 +57,12 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
 
     if (!explicitlyAnnotated.isEmpty()) {
       for (var method : explicitlyAnnotated) {
-        JsonRpcRoute route = new JsonRpcRoute(router, method);
+        var route = new JsonRpcRoute(router, method);
         router.routes.put(route.getMethodName(), route);
       }
-    } else if (classJsonRpcAnno != null) {
+    } else if (classAnnotation != null) {
       for (var method : allPublicMethods) {
-        JsonRpcRoute route = new JsonRpcRoute(router, method);
+        var route = new JsonRpcRoute(router, method);
         router.routes.put(route.getMethodName(), route);
       }
     }
@@ -71,10 +71,10 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
 
   @Override
   public String getGeneratedType() {
-    return context.generateRouterName(getTargetType().getQualifiedName().toString() + "Rpc");
+    return context.generateRouterName(getTargetType().getQualifiedName() + "Rpc");
   }
 
-  public String getJsonRpcNamespace() {
+  private String getJsonRpcNamespace() {
     var annotation = AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.JsonRpc");
     if (annotation != null) {
       return AnnotationSupport.findAnnotationValue(annotation, VALUE).stream()
@@ -85,9 +85,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
   }
 
   @Override
-  public String getSourceCode(Boolean generateKotlin) throws IOException {
-    if (isEmpty()) return null;
-
+  public String toSourceCode(Boolean generateKotlin) throws IOException {
     boolean kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
@@ -105,159 +103,103 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
     buffer.setLength(0);
 
     List<String> fullMethods = new ArrayList<>();
-    for (JsonRpcRoute route : getRoutes()) {
-      String routeName = route.getJsonRpcMethodName();
+    for (var route : getRoutes()) {
+      var routeName = route.getJsonRpcMethodName();
       fullMethods.add(namespace.isEmpty() ? routeName : namespace + "." + routeName);
     }
 
-    String methodListString =
+    var methodListString =
         fullMethods.stream().map(m -> "\"" + m + "\"").collect(Collectors.joining(", "));
 
     if (kt) {
-      buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("override fun install(app: io.jooby.Jooby) {")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("}")
-          .append(System.lineSeparator())
-          .append(System.lineSeparator());
+      buffer.append(statement(indent(4), "@Throws(Exception::class)"));
+      buffer.append(statement(indent(4), "override fun install(app: io.jooby.Jooby) {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)"));
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
-      buffer
-          .append(indent(4))
-          .append("override fun getMethods(): List<String> {")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("return listOf(")
-          .append(methodListString)
-          .append(")")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("}")
-          .append(System.lineSeparator())
-          .append(System.lineSeparator());
+      buffer.append(statement(indent(4), "override fun getMethods(): List<String> {"));
+      buffer.append(statement(indent(6), "return listOf(", methodListString, ")"));
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
-      buffer
-          .append(indent(4))
-          .append(
+      buffer.append(
+          statement(
+              indent(4),
               "override fun execute(ctx: io.jooby.Context, req:"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {")
-          .append(System.lineSeparator());
-      buffer.append(indent(6)).append("val c = factory.apply(ctx)").append(System.lineSeparator());
-      buffer.append(indent(6)).append("val method = req.method").append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("val parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser::class.java)")
-          .append(System.lineSeparator());
-      buffer.append(indent(6)).append("return when(method) {").append(System.lineSeparator());
+                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {"));
+      buffer.append(statement(indent(6), "val c = factory.apply(ctx)"));
+      buffer.append(statement(indent(6), "val method = req.method"));
+      buffer.append(
+          statement(
+              indent(6),
+              "val parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser::class.java)"));
+      buffer.append(statement(indent(6), "return when(method) {"));
 
       for (int i = 0; i < getRoutes().size(); i++) {
-        buffer
-            .append(indent(8))
-            .append("\"")
-            .append(fullMethods.get(i))
-            .append("\" -> {")
-            .append(System.lineSeparator());
+        buffer.append(statement(indent(8), string(fullMethods.get(i)), " -> {"));
         getRoutes().get(i).generateJsonRpcDispatchCase(true).forEach(buffer::append);
-        buffer.append(indent(8)).append("}").append(System.lineSeparator());
+        buffer.append(statement(indent(8), "}"));
       }
 
-      buffer
-          .append(indent(8))
-          .append(
+      buffer.append(
+          statement(
+              indent(8),
               "else -> throw"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
-                  + " \"Method not found: $method\")")
-          .append(System.lineSeparator());
-      buffer.append(indent(6)).append("}").append(System.lineSeparator());
-      buffer.append(indent(4)).append("}").append(System.lineSeparator());
+                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,",
+              string("Method not found: $method"),
+              ")"));
+      buffer.append(statement(indent(6), "}"));
+      buffer.append(statement(indent(4), "}"));
 
     } else {
-      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("public void install(io.jooby.Jooby app) throws Exception {")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this);")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("}")
-          .append(System.lineSeparator())
-          .append(System.lineSeparator());
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(indent(4), "public void install(io.jooby.Jooby app) throws Exception {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this);"));
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
-      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("public java.util.List<String> getMethods() {")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("return java.util.List.of(")
-          .append(methodListString)
-          .append(");")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append("}")
-          .append(System.lineSeparator())
-          .append(System.lineSeparator());
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(statement(indent(4), "public java.util.List<String> getMethods() {"));
+      buffer.append(statement(indent(6), "return java.util.List.of(", methodListString, ");"));
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
-      buffer.append(indent(4)).append("@Override").append(System.lineSeparator());
-      buffer
-          .append(indent(4))
-          .append(
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(
+              indent(4),
               "public Object execute(io.jooby.Context ctx, io.jooby.rpc.jsonrpc.JsonRpcRequest req)"
-                  + " throws Exception {")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append(generateTypeName)
-          .append(" c = factory.apply(ctx);")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append("String method = req.getMethod();")
-          .append(System.lineSeparator());
-      buffer
-          .append(indent(6))
-          .append(
+                  + " throws Exception {"));
+      buffer.append(statement(indent(6), "var c = factory.apply(ctx);"));
+      buffer.append(statement(indent(6), "var method = req.getMethod();"));
+      buffer.append(
+          statement(
+              indent(6),
               "io.jooby.rpc.jsonrpc.JsonRpcParser parser ="
-                  + " ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);")
-          .append(System.lineSeparator());
-      buffer.append(indent(6)).append("switch(method) {").append(System.lineSeparator());
+                  + " ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);"));
+      buffer.append(statement(indent(6), "switch(method) {"));
 
       for (int i = 0; i < getRoutes().size(); i++) {
-        buffer
-            .append(indent(8))
-            .append("case \"")
-            .append(fullMethods.get(i))
-            .append("\": {")
-            .append(System.lineSeparator());
+        buffer.append(statement(indent(8), "case ", string(fullMethods.get(i)), ": {"));
         getRoutes().get(i).generateJsonRpcDispatchCase(false).forEach(buffer::append);
-        buffer.append(indent(8)).append("}").append(System.lineSeparator());
+        buffer.append(statement(indent(8), "}"));
       }
 
-      buffer.append(indent(8)).append("default:").append(System.lineSeparator());
-      buffer
-          .append(indent(10))
-          .append(
+      buffer.append(statement(indent(8), "default:"));
+      buffer.append(
+          statement(
+              indent(10),
               "throw new"
                   + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
-                  + " \"Method not found: \" + method);")
-          .append(System.lineSeparator());
-      buffer.append(indent(6)).append("}").append(System.lineSeparator());
-      buffer.append(indent(4)).append("}").append(System.lineSeparator());
+                  + " ",
+              string("Method not found:"),
+              " + method);"));
+      buffer.append(statement(indent(6), "}"));
+      buffer.append(statement(indent(4), "}"));
     }
 
     return template

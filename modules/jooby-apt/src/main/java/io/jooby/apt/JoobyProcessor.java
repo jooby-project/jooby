@@ -16,13 +16,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
@@ -132,50 +130,55 @@ public class JoobyProcessor extends AbstractProcessor {
         context.getRouters().forEach(it -> context.debug("  %s", it.getGeneratedType()));
         return false;
       } else {
-        // 1. Discover all unique Controller classes
-        Set<TypeElement> controllers = findControllers(annotations, roundEnv);
+        // Discover all unique Controller classes
+        var controllers = findControllers(annotations, roundEnv);
 
-        // 2. Factory Pattern: Build specific routers for each class based on method annotations
+        // Factory Pattern: Build specific routers for each class based on method annotations
         List<WebRouter<?>> activeRouters = new ArrayList<>();
-        for (TypeElement controller : controllers) {
+        for (var controller : controllers) {
           if (controller.getModifiers().contains(Modifier.ABSTRACT)) continue;
 
           // These factory methods will scan the class methods and return a populated router
           // if it finds relevant annotations (@GET for Rest, @McpTool for MCP, etc.)
           // We will implement these factories inside the respective Router classes.
 
-          RestRouter restRouter = RestRouter.parse(context, controller);
-          if (!restRouter.isEmpty()) activeRouters.add(restRouter);
+          var restRouter = RestRouter.parse(context, controller);
+          if (!restRouter.isEmpty()) {
+            activeRouters.add(restRouter);
+          }
 
-          JsonRpcRouter jsonRpcRouter = JsonRpcRouter.parse(context, controller);
-          if (!jsonRpcRouter.isEmpty()) activeRouters.add(jsonRpcRouter);
+          var jsonRpcRouter = JsonRpcRouter.parse(context, controller);
+          if (!jsonRpcRouter.isEmpty()) {
+            activeRouters.add(jsonRpcRouter);
+          }
 
-          McpRouter mcpRouter = McpRouter.parse(context, controller);
-          if (!mcpRouter.isEmpty()) activeRouters.add(mcpRouter);
+          var mcpRouter = McpRouter.parse(context, controller);
+          if (!mcpRouter.isEmpty()) {
+            activeRouters.add(mcpRouter);
+          }
 
-          TrpcRouter trpcRouter = TrpcRouter.parse(context, controller);
-          if (!trpcRouter.isEmpty()) activeRouters.add(trpcRouter);
+          var trpcRouter = TrpcRouter.parse(context, controller);
+          if (!trpcRouter.isEmpty()) {
+            activeRouters.add(trpcRouter);
+          }
         }
 
         verifyBeanValidationDependency(activeRouters);
 
-        // 3. Generate Code Iteratively!
-        for (WebRouter<?> router : activeRouters) {
+        // Generate Code Iteratively!
+        for (var router : activeRouters) {
           try {
-            context.add(router); // Track for processingOver output
+            context.add(router);
 
-            String sourceCode = router.getSourceCode(null);
-            if (sourceCode != null) {
-              String sourceLocation = router.getGeneratedFilename();
-              String generatedType = router.getGeneratedType();
+            var sourceCode = router.toSourceCode(null);
+            var sourceLocation = router.getGeneratedFilename();
+            var generatedType = router.getGeneratedType();
 
-              onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, sourceCode));
-              context.debug("router %s: %s", router.getTargetType(), generatedType);
+            onGeneratedSource(generatedType, toJavaFileObject(sourceLocation, sourceCode));
+            context.debug("router %s: %s", router.getTargetType(), generatedType);
 
-              writeSource(
-                  router.isKt(), generatedType, sourceLocation, sourceCode, router.getTargetType());
-            }
-
+            writeSource(
+                router.isKt(), generatedType, sourceLocation, sourceCode, router.getTargetType());
           } catch (IOException cause) {
             throw new RuntimeException("Unable to generate: " + router.getTargetType(), cause);
           }
@@ -194,7 +197,8 @@ public class JoobyProcessor extends AbstractProcessor {
     Set<TypeElement> controllers = new LinkedHashSet<>();
     for (var annotation : annotations) {
       for (var element : roundEnv.getElementsAnnotatedWith(annotation)) {
-        if (element instanceof TypeElement typeElement) {
+        if (element instanceof TypeElement typeElement
+            && !typeElement.getModifiers().contains(Modifier.ABSTRACT)) {
           controllers.add(typeElement);
         } else if (element instanceof ExecutableElement method) {
           controllers.add((TypeElement) method.getEnclosingElement());
@@ -262,142 +266,16 @@ public class JoobyProcessor extends AbstractProcessor {
 
   protected void onGeneratedSource(String className, JavaFileObject source) {}
 
-  private Map<TypeElement, MvcRouter> buildRouteRegistry(
-      Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    Map<TypeElement, MvcRouter> registry = new LinkedHashMap<>();
-
-    for (var annotation : annotations) {
-      context.debug("found annotation: %s", annotation);
-      var elements = roundEnv.getElementsAnnotatedWith(annotation);
-      // Element could be Class or Method, bc @Path can be applied to both of them
-      // Also we need to expand lookup to external jars see #2486
-      for (var element : elements) {
-        context.debug("  %s", element);
-        if (element instanceof TypeElement typeElement) {
-          // FORCE INIT: Ensures MvcRouter constructor executes our JsonRpc class-level rules
-          registry.computeIfAbsent(typeElement, type -> new MvcRouter(context, type));
-          buildRouteRegistry(registry, typeElement);
-        } else if (element instanceof ExecutableElement method) {
-          TypeElement typeElement = (TypeElement) method.getEnclosingElement();
-          // FORCE INIT
-          registry.computeIfAbsent(typeElement, type -> new MvcRouter(context, type));
-          buildRouteRegistry(registry, typeElement);
-        }
-      }
-    }
-
-    // Remove all abstract router
-    var abstractTypes =
-        registry.entrySet().stream()
-            .filter(it -> it.getValue().isAbstract())
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
-    abstractTypes.forEach(registry::remove);
-
-    // Generate unique method name by router
-    for (var router : registry.values()) {
-      // Split routes by their target generated classes to avoid false collisions
-      var restAndTrpcRoutes = router.getRoutes().stream().filter(r -> !r.isJsonRpc()).toList();
-
-      var rpcRoutes = router.getRoutes().stream().filter(MvcRoute::isJsonRpc).toList();
-
-      resolveGeneratedNames(restAndTrpcRoutes);
-      resolveGeneratedNames(rpcRoutes);
-    }
-    return registry;
-  }
-
-  private void resolveGeneratedNames(List<MvcRoute> routes) {
-    // Group by the actual target method name in the generated class
-    var grouped =
-        routes.stream()
-            .collect(
-                Collectors.groupingBy(
-                    route -> {
-                      String baseName = route.getMethodName();
-                      return route.isTrpc()
-                          ? "trpc"
-                              + Character.toUpperCase(baseName.charAt(0))
-                              + baseName.substring(1)
-                          : baseName;
-                    }));
-
-    for (var overloads : grouped.values()) {
-      if (overloads.size() == 1) {
-        // No conflict in this specific output file, use the clean original name
-        overloads.get(0).setGeneratedName(overloads.get(0).getMethodName());
-      } else {
-        // Conflict detected: generate names based on parameter types
-        for (var route : overloads) {
-          var paramsString =
-              route.getRawParameterTypes(true).stream()
-                  .map(it -> it.substring(Math.max(0, it.lastIndexOf(".") + 1)))
-                  .map(it -> Character.toUpperCase(it.charAt(0)) + it.substring(1))
-                  .collect(Collectors.joining());
-
-          // A 0-arg method gets exactly the base name.
-          // Methods with args get the base name + their parameter types.
-          route.setGeneratedName(route.getMethodName() + paramsString);
-        }
-      }
-    }
-  }
-
-  /**
-   * Scan routes from basType and any super class of it. It saves all route method found in current
-   * type or super (inherited). Routes method from super types are also saved.
-   *
-   * <p>Abstract route method are ignored.
-   *
-   * @param registry Route registry.
-   * @param currentType Base type.
-   */
-  private void buildRouteRegistry(Map<TypeElement, MvcRouter> registry, TypeElement currentType) {
-    for (TypeElement superType : context.superTypes(currentType)) {
-      // collect all declared methods
-      superType.getEnclosedElements().stream()
-          .filter(ExecutableElement.class::isInstance)
-          .map(ExecutableElement.class::cast)
-          .forEach(
-              method -> {
-                if (method.getModifiers().contains(Modifier.ABSTRACT)) {
-                  context.debug("ignoring abstract method: %s %s", superType, method);
-                } else {
-                  method.getAnnotationMirrors().stream()
-                      .map(AnnotationMirror::getAnnotationType)
-                      .map(DeclaredType::asElement)
-                      .filter(TypeElement.class::isInstance)
-                      .map(TypeElement.class::cast)
-                      .filter(HttpMethod::hasAnnotation)
-                      .forEach(
-                          annotation -> {
-                            Stream.of(currentType, superType)
-                                .distinct()
-                                .forEach(
-                                    routerClass ->
-                                        registry
-                                            .computeIfAbsent(
-                                                routerClass, type -> new MvcRouter(context, type))
-                                            .put(annotation, method));
-                          });
-                }
-              });
-      if (!currentType.equals(superType)) {
-        // edge-case #1: when a controller has no method and extends another class which has.
-        // edge-case #2: some odd usage a controller could be empty.
-        // See https://github.com/jooby-project/jooby/issues/3656
-        if (registry.containsKey(superType)) {
-          registry.computeIfAbsent(currentType, key -> new MvcRouter(key, registry.get(superType)));
-        }
-      }
-    }
-  }
-
   @Override
   public Set<String> getSupportedAnnotationTypes() {
     var supportedTypes = new HashSet<String>();
     supportedTypes.addAll(HttpPath.PATH.getAnnotations());
     supportedTypes.addAll(HttpMethod.annotations());
+    // Add Rcp annotations
+    supportedTypes.add("io.jooby.annotation.Trpc");
+    supportedTypes.add("io.jooby.annotation.Trpc.Mutation");
+    supportedTypes.add("io.jooby.annotation.Trpc.Query");
+    supportedTypes.add("io.jooby.annotation.JsonRpc");
     // Add MCP Annotations
     supportedTypes.add("io.jooby.annotation.McpTool");
     supportedTypes.add("io.jooby.annotation.McpPrompt");
@@ -426,37 +304,6 @@ public class JoobyProcessor extends AbstractProcessor {
     }
 
     return options;
-  }
-
-  /**
-   * Throws any throwable 'sneakily' - you don't need to catch it, nor declare that you throw it
-   * onwards. The exception is still thrown - javac will just stop whining about it.
-   *
-   * <p>Example usage:
-   *
-   * <pre>public void run() {
-   * throw sneakyThrow(new IOException("You don't need to catch me!"));
-   * }</pre>
-   *
-   * <p>NB: The exception is not wrapped, ignored, swallowed, or redefined. The JVM actually does
-   * not know or care about the concept of a 'checked exception'. All this method does is hide the
-   * act of throwing a checked exception from the java compiler.
-   *
-   * <p>Note that this method has a return type of {@code RuntimeException}; it is advised you
-   * always call this method as argument to the {@code throw} statement to avoid compiler errors
-   * regarding no return statement and similar problems. This method won't of course return an
-   * actual {@code RuntimeException} - it never returns, it always throws the provided exception.
-   *
-   * @param x The throwable to throw without requiring you to catch its type.
-   * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws
-   *     an exception!
-   */
-  public static RuntimeException propagate(final Throwable x) {
-    if (x == null) {
-      throw new NullPointerException("x");
-    }
-
-    return sneakyThrow0(x);
   }
 
   /**

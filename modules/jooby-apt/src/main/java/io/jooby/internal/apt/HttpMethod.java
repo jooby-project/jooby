@@ -27,21 +27,7 @@ public enum HttpMethod implements AnnotationSupport {
   OPTIONS,
   PATCH,
   POST,
-  PUT,
-  // Special
-  tRPC(
-      List.of(
-          "io.jooby.annotation.Trpc",
-          "io.jooby.annotation.Trpc.Mutation",
-          "io.jooby.annotation.Trpc.Query")),
-  JSON_RPC(List.of("io.jooby.annotation.JsonRpc")),
-  MCP(
-      List.of(
-          "io.jooby.annotation.McpTool",
-          "io.jooby.annotation.McpCompletion",
-          "io.jooby.annotation.McpPrompt",
-          "io.jooby.annotation.McpResource",
-          "io.jooby.annotation.McpServer"));
+  PUT;
 
   private final List<String> annotations;
 

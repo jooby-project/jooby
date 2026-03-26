@@ -35,23 +35,12 @@ public class RestRoute extends WebRoute {
     this.generatedName = method.getSimpleName().toString();
   }
 
-  public TypeElement getHttpMethodAnnotation() {
-    return httpMethodAnnotation;
-  }
-
   public String getGeneratedName() {
     return generatedName;
   }
 
   public void setGeneratedName(String generatedName) {
     this.generatedName = generatedName;
-  }
-
-  static String leadingSlash(String path) {
-    if (path == null || path.isEmpty() || path.equals("/")) {
-      return "/";
-    }
-    return path.charAt(0) == '/' ? path : "/" + path;
   }
 
   private String methodReference(boolean kt, String thisRef, String methodName) {
@@ -120,7 +109,6 @@ public class RestRoute extends WebRoute {
         HttpMethod.findByAnnotationName(httpMethodAnnotation.getQualifiedName().toString());
     var dslMethod = httpMethodAnnotation.getSimpleName().toString().toLowerCase();
     var paths = context.path(router.getTargetType(), method, httpMethodAnnotation);
-    var targetMethod = methodName;
 
     var thisRef =
         isSuspendFun() ? "this@" + context.generateRouterName(routerName) + "::" : "this::";
@@ -136,7 +124,7 @@ public class RestRoute extends WebRoute {
               string(leadingSlash(path)),
               ", ",
               context.pipeline(
-                  getReturnType().getRawType(), methodReference(kt, thisRef, targetMethod))));
+                  getReturnType().getRawType(), methodReference(kt, thisRef, methodName))));
 
       if (context.nonBlocking(getReturnType().getRawType()) || isSuspendFun()) {
         block.add(statement(indent(2), ".setNonBlocking(true)"));
@@ -176,7 +164,7 @@ public class RestRoute extends WebRoute {
                 semicolon(kt),
                 lineSep));
       } else {
-        var lastStatement = block.get(block.size() - 1);
+        var lastStatement = block.getLast();
         if (lastStatement.endsWith(lineSeparator())) {
           lastStatement =
               lastStatement.substring(0, lastStatement.length() - lineSeparator().length());
@@ -204,8 +192,8 @@ public class RestRoute extends WebRoute {
         customReturnType.isProjection() || customReturnType.is(Types.PROJECTED);
 
     // 1. Create separate variables for the generated HTTP handler's signature
-    String handlerTypeGenerics = returnTypeGenerics;
-    String handlerTypeString = returnTypeString;
+    var handlerTypeGenerics = returnTypeGenerics;
+    var handlerTypeString = returnTypeString;
 
     // 2. ONLY modify the signature if we need to wrap a NON-projected type
     if (projection != null && !isProjectedReturnType) {
@@ -215,7 +203,6 @@ public class RestRoute extends WebRoute {
 
     methodCallHeader(
         kt,
-        "ctx",
         methodName,
         buffer,
         handlerTypeGenerics,
@@ -248,13 +235,13 @@ public class RestRoute extends WebRoute {
               ")",
               semicolon(kt)));
 
-      String call = buildMethodCall(kt, paramList.toString(), false, false);
+      String call = makeCall(kt, paramList.toString(), false, false);
 
       buffer.add(statement(indent(controllerIndent), call, semicolon(kt)));
       buffer.add(
           statement(indent(controllerIndent), "return ctx.getResponseCode()", semicolon(kt)));
     } else if (returnType.is("io.jooby.StatusCode")) {
-      String call = buildMethodCall(kt, paramList.toString(), false, false);
+      var call = makeCall(kt, paramList.toString(), false, false);
 
       buffer.add(
           statement(
@@ -263,13 +250,10 @@ public class RestRoute extends WebRoute {
           statement(indent(controllerIndent), "ctx.setResponseCode(statusCode)", semicolon(kt)));
       buffer.add(statement(indent(controllerIndent), "return statusCode", semicolon(kt)));
     } else {
+      var call = makeCall(kt, paramList.toString(), isProjectedReturnType, isProjectedReturnType);
+      var nullable = kt && isNullableKotlinReturn();
 
-      // Leverage shared WebRoute logic for casting and type erasure!
-      String call =
-          buildMethodCall(kt, paramList.toString(), isProjectedReturnType, isProjectedReturnType);
-      boolean nullable = kt && isNullableKotlinReturn();
-
-      // 3. ONLY wrap the call if it's a NON-projected type with a projection string
+      // ONLY wrap the call if it's a NON-projected type with a projection string
       if (projection != null && !isProjectedReturnType) {
         var projected = of(Types.PROJECTED, ".wrap(", call, ").include(", string(projection), ")");
         buffer.add(
@@ -289,28 +273,24 @@ public class RestRoute extends WebRoute {
     buffer.add(statement("}", lineSeparator()));
 
     if (isUncheckedCast()) {
-      if (kt) buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
-      else buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
+      if (kt) {
+        buffer.addFirst(statement("@Suppress(\"UNCHECKED_CAST\")"));
+      } else {
+        buffer.addFirst(statement("@SuppressWarnings(\"unchecked\")"));
+      }
     }
 
     return buffer;
   }
 
-  private boolean methodCallHeader(
+  private void methodCallHeader(
       boolean kt,
-      String contextVarname,
       String methodName,
       ArrayList<String> buffer,
       String returnTypeGenerics,
       String returnTypeString,
       boolean throwsException) {
-    var nullable = false;
     if (kt) {
-      nullable =
-          method.getAnnotationMirrors().stream()
-              .map(javax.lang.model.element.AnnotationMirror::getAnnotationType)
-              .map(java.util.Objects::toString)
-              .anyMatch(AnnotationSupport.NULLABLE);
       if (throwsException) buffer.add(statement("@Throws(Exception::class)"));
 
       if (isSuspendFun()) {
@@ -323,16 +303,14 @@ public class RestRoute extends WebRoute {
                 "(handler: io.jooby.kt.HandlerContext): ",
                 returnTypeString,
                 " {"));
-        buffer.add(statement(indent(2), "val ", contextVarname, " = handler.ctx"));
+        buffer.add(statement(indent(2), "val ctx = handler.ctx"));
       } else {
         buffer.add(
             statement(
                 "fun ",
                 returnTypeGenerics,
                 methodName,
-                "(",
-                contextVarname,
-                ": io.jooby.Context): ",
+                "(ctx: io.jooby.Context): ",
                 returnTypeString,
                 " {"));
       }
@@ -344,15 +322,12 @@ public class RestRoute extends WebRoute {
               returnTypeString,
               " ",
               methodName,
-              "(io.jooby.Context ",
-              contextVarname,
-              ") ",
+              "(io.jooby.Context ctx)",
               throwsException ? "throws Exception {" : "{"));
     }
-    return nullable;
   }
 
-  public String getProjection() {
+  private String getProjection() {
     var project = AnnotationSupport.findAnnotationByName(method, Types.PROJECT);
     if (project != null) {
       return AnnotationSupport.findAnnotationValue(project, VALUE).stream()

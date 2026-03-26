@@ -83,7 +83,7 @@ public class McpRouter extends WebRouter<McpRoute> {
   }
 
   @Override
-  public String getSourceCode(Boolean generateKotlin) throws IOException {
+  public String toSourceCode(Boolean generateKotlin) throws IOException {
     if (isEmpty()) return null;
 
     boolean kt = generateKotlin == Boolean.TRUE || isKt();

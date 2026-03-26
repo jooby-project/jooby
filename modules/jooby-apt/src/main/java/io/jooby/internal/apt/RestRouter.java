@@ -15,18 +15,17 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
 public class RestRouter extends WebRouter<RestRoute> {
-
   public RestRouter(MvcContext context, TypeElement clazz) {
     super(context, clazz);
   }
 
   public static RestRouter parse(MvcContext context, TypeElement controller) {
-    RestRouter router = new RestRouter(context, controller);
+    var router = new RestRouter(context, controller);
 
-    for (TypeElement type : context.superTypes(controller)) {
+    for (var type : context.superTypes(controller)) {
       for (var enclosed : type.getEnclosedElements()) {
         if (enclosed.getKind() == ElementKind.METHOD) {
-          ExecutableElement method = (ExecutableElement) enclosed;
+          var method = (ExecutableElement) enclosed;
 
           // Ignore abstract methods
           if (method.getModifiers().contains(javax.lang.model.element.Modifier.ABSTRACT)) {
@@ -34,19 +33,11 @@ public class RestRouter extends WebRouter<RestRoute> {
           }
 
           for (var annoMirror : method.getAnnotationMirrors()) {
-            TypeElement annoElement = (TypeElement) annoMirror.getAnnotationType().asElement();
-            String annoName = annoElement.getQualifiedName().toString();
-
-            // Explicitly ignore RPC annotations so they don't generate invalid REST routes
-            if (annoName.startsWith("io.jooby.annotation.Trpc")
-                || annoName.equals("io.jooby.annotation.JsonRpc")
-                || annoName.startsWith("io.jooby.annotation.Mcp")) {
-              continue;
-            }
+            var annoElement = (TypeElement) annoMirror.getAnnotationType().asElement();
 
             if (HttpMethod.hasAnnotation(annoElement)) {
-              RestRoute route = new RestRoute(router, method, annoElement);
-              String uniqueKey = method.toString() + annoElement.getSimpleName();
+              var route = new RestRoute(router, method, annoElement);
+              var uniqueKey = method.toString() + annoElement.getSimpleName();
               router.routes.putIfAbsent(uniqueKey, route);
             }
           }
@@ -80,9 +71,7 @@ public class RestRouter extends WebRouter<RestRoute> {
   }
 
   @Override
-  public String getSourceCode(Boolean generateKotlin) throws IOException {
-    if (isEmpty()) return null;
-
+  public String toSourceCode(Boolean generateKotlin) throws IOException {
     boolean kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);

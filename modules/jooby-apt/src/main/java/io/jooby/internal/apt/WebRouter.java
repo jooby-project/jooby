@@ -87,7 +87,7 @@ public abstract class WebRouter<R extends WebRoute> {
 
   public abstract String getGeneratedType();
 
-  public abstract String getSourceCode(Boolean generateKotlin) throws IOException;
+  public abstract String toSourceCode(Boolean generateKotlin) throws IOException;
 
   public String getGeneratedFilename() {
     return getGeneratedType().replace('.', '/') + (isKt() ? ".kt" : ".java");

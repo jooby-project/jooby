@@ -55,7 +55,7 @@ public class JsonRpcRoute extends WebRoute {
 
     buffer.addAll(generateRpcParameter(kt, paramList::add));
 
-    int callIndent = needsReader ? 10 : 8;
+    var callIndent = needsReader ? 10 : 8;
     var call = CodeBlock.of("c.", getMethodName(), paramList.toString());
 
     if (returnType.isVoid()) {
@@ -78,7 +78,7 @@ public class JsonRpcRoute extends WebRoute {
     int baseIndent = 10;
 
     for (var parameter : parameters) {
-      var paramenterName = parameter.getName();
+      var parameterName = parameter.getName();
       var type = type(kt, parameter.getType().toString());
       boolean isNullable = parameter.isNullable(kt);
 
@@ -106,26 +106,26 @@ public class JsonRpcRoute extends WebRoute {
                   statement(
                       indent(baseIndent),
                       "val ",
-                      paramenterName,
+                      parameterName,
                       " = if (reader.nextIsNull(",
-                      string(paramenterName),
+                      string(parameterName),
                       ")) null else reader.",
                       readName,
                       "(",
-                      string(paramenterName),
+                      string(parameterName),
                       ")"));
             } else {
               statements.add(
                   statement(
                       indent(baseIndent),
                       var(kt),
-                      paramenterName,
+                      parameterName,
                       " = reader.nextIsNull(",
-                      string(paramenterName),
+                      string(parameterName),
                       ") ? null : reader.",
                       readName,
                       "(",
-                      string(paramenterName),
+                      string(parameterName),
                       ")",
                       semicolon(kt)));
             }
@@ -134,15 +134,15 @@ public class JsonRpcRoute extends WebRoute {
                 statement(
                     indent(baseIndent),
                     var(kt),
-                    paramenterName,
+                    parameterName,
                     " = reader.",
                     readName,
                     "(",
-                    string(paramenterName),
+                    string(parameterName),
                     ")",
                     semicolon(kt)));
           }
-          arguments.accept(paramenterName);
+          arguments.accept(parameterName);
           break;
         default:
           if (kt) {
@@ -150,7 +150,7 @@ public class JsonRpcRoute extends WebRoute {
                 statement(
                     indent(baseIndent),
                     "val ",
-                    paramenterName,
+                    parameterName,
                     "Decoder: ",
                     decoderInterface,
                     "<",
@@ -164,24 +164,24 @@ public class JsonRpcRoute extends WebRoute {
                   statement(
                       indent(baseIndent),
                       "val ",
-                      paramenterName,
+                      parameterName,
                       " = if (reader.nextIsNull(",
-                      string(paramenterName),
+                      string(parameterName),
                       ")) null else reader.nextObject(",
-                      string(paramenterName),
+                      string(parameterName),
                       ", ",
-                      paramenterName,
+                      parameterName,
                       "Decoder)"));
             } else {
               statements.add(
                   statement(
                       indent(baseIndent),
                       "val ",
-                      paramenterName,
+                      parameterName,
                       " = reader.nextObject(",
-                      string(paramenterName),
+                      string(parameterName),
                       ", ",
-                      paramenterName,
+                      parameterName,
                       "Decoder)",
                       semicolon(kt)));
             }
@@ -193,7 +193,7 @@ public class JsonRpcRoute extends WebRoute {
                     "<",
                     type,
                     "> ",
-                    paramenterName,
+                    parameterName,
                     "Decoder = parser.decoder(",
                     parameter.getType().toSourceCode(kt),
                     ")",
@@ -204,13 +204,13 @@ public class JsonRpcRoute extends WebRoute {
                       indent(baseIndent),
                       parameter.getType().toString(),
                       " ",
-                      paramenterName,
+                      parameterName,
                       " = reader.nextIsNull(",
-                      string(paramenterName),
+                      string(parameterName),
                       ") ? null : reader.nextObject(",
-                      string(paramenterName),
+                      string(parameterName),
                       ", ",
-                      paramenterName,
+                      parameterName,
                       "Decoder)",
                       semicolon(kt)));
             } else {
@@ -219,16 +219,16 @@ public class JsonRpcRoute extends WebRoute {
                       indent(baseIndent),
                       parameter.getType().toString(),
                       " ",
-                      paramenterName,
+                      parameterName,
                       " = reader.nextObject(",
-                      string(paramenterName),
+                      string(parameterName),
                       ", ",
-                      paramenterName,
+                      parameterName,
                       "Decoder)",
                       semicolon(kt)));
             }
           }
-          arguments.accept(paramenterName);
+          arguments.accept(parameterName);
           break;
       }
     }

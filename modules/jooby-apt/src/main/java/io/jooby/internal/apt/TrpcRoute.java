@@ -29,10 +29,6 @@ public class TrpcRoute extends WebRoute {
     this.generatedName = generatedName;
   }
 
-  public String getGeneratedName() {
-    return generatedName;
-  }
-
   private HttpMethod discoverTrpcMethod() {
     if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Query") != null)
       return HttpMethod.GET;
@@ -40,12 +36,12 @@ public class TrpcRoute extends WebRoute {
       return HttpMethod.POST;
     if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null) {
       if (HttpMethod.GET.matches(method)) return HttpMethod.GET;
-      return HttpMethod.POST; // Default fallback for @Trpc missing explicit Query/Mutation mapping
+      return HttpMethod.POST;
     }
-    return null;
+    throw new IllegalStateException("Unable to find tRPC method: " + method);
   }
 
-  public String trpcPath() {
+  private String trpcPath() {
     var namespace =
         Optional.ofNullable(
                 AnnotationSupport.findAnnotationByName(
@@ -98,7 +94,7 @@ public class TrpcRoute extends WebRoute {
     if (context.nonBlocking(getReturnType().getRawType()) || isSuspendFun())
       block.add(statement(indent(2), ".setNonBlocking(true)"));
 
-    var lastStatement = block.get(block.size() - 1);
+    var lastStatement = block.getLast();
     block.set(
         block.size() - 1,
         lastStatement + semicolon(kt) + System.lineSeparator() + System.lineSeparator());
@@ -257,7 +253,7 @@ public class TrpcRoute extends WebRoute {
 
       // Read parameters optimally
       for (var parameter : parameters) {
-        var paramenterName = parameter.getName();
+        var parameterName = parameter.getName();
         var rawType = parameter.getType().getRawType().toString();
         var type = type(kt, parameter.getType().toString());
         boolean isNullable = parameter.isNullable(kt);
@@ -291,26 +287,26 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         "val ",
-                        paramenterName,
+                        parameterName,
                         " = if (reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")) null else reader.",
                         readName,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")"));
               } else {
                 buffer.add(
                     statement(
                         indent(4),
                         var(kt),
-                        paramenterName,
+                        parameterName,
                         " = reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ") ? null : reader.",
                         readName,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")",
                         semicolon(kt)));
               }
@@ -319,15 +315,15 @@ public class TrpcRoute extends WebRoute {
                   statement(
                       indent(4),
                       var(kt),
-                      paramenterName,
+                      parameterName,
                       " = reader.",
                       readName,
                       "(",
-                      string(paramenterName),
+                      string(parameterName),
                       ")",
                       semicolon(kt)));
             }
-            paramList.add(paramenterName);
+            paramList.add(parameterName);
             break;
 
           case "byte":
@@ -355,13 +351,13 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         "val ",
-                        paramenterName,
+                        parameterName,
                         " = if (reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")) null else reader.",
                         readMethod,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")",
                         ktCast));
               } else {
@@ -372,15 +368,15 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         var(kt),
-                        paramenterName,
+                        parameterName,
                         " = reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ") ? null : ",
                         javaPrefix,
                         "reader.",
                         readMethod,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")",
                         javaSuffix,
                         semicolon(kt)));
@@ -398,11 +394,11 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         var(kt),
-                        paramenterName,
+                        parameterName,
                         " = reader.",
                         readMethod,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")",
                         ktCast,
                         semicolon(kt)));
@@ -414,19 +410,19 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         var(kt),
-                        paramenterName,
+                        parameterName,
                         " = ",
                         javaPrefix,
                         "reader.",
                         readMethod,
                         "(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")",
                         javaSuffix,
                         semicolon(kt)));
               }
             }
-            paramList.add(paramenterName);
+            paramList.add(parameterName);
             break;
 
           default:
@@ -436,7 +432,7 @@ public class TrpcRoute extends WebRoute {
                   statement(
                       indent(4),
                       "val ",
-                      paramenterName,
+                      parameterName,
                       "Decoder: io.jooby.rpc.trpc.TrpcDecoder<",
                       type,
                       "> = parser.decoder(",
@@ -447,24 +443,24 @@ public class TrpcRoute extends WebRoute {
                     statement(
                         indent(4),
                         "val ",
-                        paramenterName,
+                        parameterName,
                         " = if (reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ")) null else reader.nextObject(",
-                        string(paramenterName),
+                        string(parameterName),
                         ", ",
-                        paramenterName,
+                        parameterName,
                         "Decoder)"));
               } else {
                 buffer.add(
                     statement(
                         indent(4),
                         "val ",
-                        paramenterName,
+                        parameterName,
                         " = reader.nextObject(",
-                        string(paramenterName),
+                        string(parameterName),
                         ", ",
-                        paramenterName,
+                        parameterName,
                         "Decoder)"));
               }
             } else {
@@ -474,7 +470,7 @@ public class TrpcRoute extends WebRoute {
                       "io.jooby.rpc.trpc.TrpcDecoder<",
                       genericType,
                       "> ",
-                      paramenterName,
+                      parameterName,
                       "Decoder = parser.decoder(",
                       parameter.getType().toSourceCode(kt),
                       ")",
@@ -485,13 +481,13 @@ public class TrpcRoute extends WebRoute {
                         indent(4),
                         type,
                         " ",
-                        paramenterName,
+                        parameterName,
                         " = reader.nextIsNull(",
-                        string(paramenterName),
+                        string(parameterName),
                         ") ? null : reader.nextObject(",
-                        string(paramenterName),
+                        string(parameterName),
                         ", ",
-                        paramenterName,
+                        parameterName,
                         "Decoder)",
                         semicolon(false)));
               } else {
@@ -500,16 +496,16 @@ public class TrpcRoute extends WebRoute {
                         indent(4),
                         type,
                         " ",
-                        paramenterName,
+                        parameterName,
                         " = reader.nextObject(",
-                        string(paramenterName),
+                        string(parameterName),
                         ", ",
-                        paramenterName,
+                        parameterName,
                         "Decoder)",
                         semicolon(false)));
               }
             }
-            paramList.add(paramenterName);
+            paramList.add(parameterName);
             break;
         }
       }
@@ -518,10 +514,9 @@ public class TrpcRoute extends WebRoute {
     buffer.add(
         statement(indent(controllerIndent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
 
-    // Leverage shared WebRoute logic for casting and type erasure!
     // Pass 'true' for isRpcWrapper so it safely casts List<Movie?> to List<Movie>
-    String call = buildMethodCall(kt, paramList.toString(), false, true);
-    boolean nullable = kt && isNullableKotlinReturn();
+    var call = makeCall(kt, paramList.toString(), false, true);
+    var nullable = kt && isNullableKotlinReturn();
 
     if (reactive != null) {
       if (isReactiveVoid) {

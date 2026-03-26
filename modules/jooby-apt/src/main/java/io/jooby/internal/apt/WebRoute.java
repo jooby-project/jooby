@@ -37,7 +37,7 @@ public abstract class WebRoute {
     this.hasBeanValidation = parameters.stream().anyMatch(MvcParameter::isRequireBeanValidation);
     this.suspendFun =
         !parameters.isEmpty()
-            && parameters.get(parameters.size() - 1).getType().is("kotlin.coroutines.Continuation");
+            && parameters.getLast().getType().is("kotlin.coroutines.Continuation");
     this.returnType =
         new TypeDefinition(
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
@@ -73,6 +73,13 @@ public abstract class WebRoute {
         .toList();
   }
 
+  static String leadingSlash(String path) {
+    if (path == null || path.isEmpty() || path.equals("/")) {
+      return "/";
+    }
+    return path.charAt(0) == '/' ? path : "/" + path;
+  }
+
   public TypeDefinition getReturnType() {
     var processingEnv = context.getProcessingEnvironment();
     var types = processingEnv.getTypeUtils();
@@ -81,7 +88,7 @@ public abstract class WebRoute {
     if (returnType.isVoid()) {
       return new TypeDefinition(types, elements.getTypeElement("io.jooby.StatusCode").asType());
     } else if (isSuspendFun()) {
-      var continuation = parameters.get(parameters.size() - 1).getType();
+      var continuation = parameters.getLast().getType();
       if (!continuation.getArguments().isEmpty()) {
         var continuationReturnType = continuation.getArguments().get(0).getType();
         if (continuationReturnType instanceof WildcardType wildcardType) {
@@ -125,7 +132,7 @@ public abstract class WebRoute {
     this.uncheckedCast = value;
   }
 
-  public List<String> getJavaMethodSignature(boolean kt) {
+  protected List<String> getJavaMethodSignature(boolean kt) {
     return getParameters(false).stream()
         .map(
             it -> {
@@ -139,14 +146,14 @@ public abstract class WebRoute {
         .toList();
   }
 
-  public boolean isNullableKotlinReturn() {
+  protected boolean isNullableKotlinReturn() {
     return method.getAnnotationMirrors().stream()
         .map(javax.lang.model.element.AnnotationMirror::getAnnotationType)
         .map(java.util.Objects::toString)
         .anyMatch(AnnotationSupport.NULLABLE);
   }
 
-  protected String buildMethodCall(
+  protected String makeCall(
       boolean kt, String paramList, boolean preventCast, boolean isRpcWrapper) {
     var customReturnType = getReturnType();
     var castStr =

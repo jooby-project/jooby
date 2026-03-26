@@ -73,13 +73,11 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
 
   @Override
   public String getGeneratedType() {
-    return context.generateRouterName(getTargetType().getQualifiedName().toString() + "Trpc");
+    return context.generateRouterName(getTargetType().getQualifiedName() + "Trpc");
   }
 
   @Override
-  public String getSourceCode(Boolean generateKotlin) throws IOException {
-    if (isEmpty()) return null;
-
+  public String toSourceCode(Boolean generateKotlin) throws IOException {
     boolean kt = generateKotlin == Boolean.TRUE || isKt();
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
