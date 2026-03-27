@@ -7,7 +7,6 @@ package io.jooby.mcp;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Jooby;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.McpStatelessServerFeatures;
@@ -28,5 +27,5 @@ public interface McpService {
 
   List<McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions();
 
-  @Nullable String serverName();
+  String serverKey();
 }

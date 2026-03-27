@@ -147,7 +147,7 @@ public class McpModule implements Extension {
     services.put(McpJsonMapper.class, mcpJsonMapper);
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {
-      var serverKey = Optional.ofNullable(mcpService.serverName()).orElse("default");
+      var serverKey = Optional.ofNullable(mcpService.serverKey()).orElse("default");
       mcpServiceMap.computeIfAbsent(serverKey, k -> new ArrayList<>()).add(mcpService);
     }
     for (var serverEntry : mcpServiceMap.entrySet()) {

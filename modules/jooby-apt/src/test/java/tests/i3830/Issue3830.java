@@ -56,7 +56,7 @@ public class Issue3830 {
                         }
 
                         @Override
-                        public String serverName() {
+                        public String serverKey() {
                           return "example-server";
                         }
 

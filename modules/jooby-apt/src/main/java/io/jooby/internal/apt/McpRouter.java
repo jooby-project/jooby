@@ -175,14 +175,14 @@ public class McpRouter extends WebRouter<McpRoute> {
     }
     buffer.append(statement(indent(4), "}\n"));
 
-    // --- serverName() ---
+    // --- serverKey() ---
     var serverName = getMcpServerKey();
     if (kt) {
-      buffer.append(statement(indent(4), "override fun serverName(): String? {"));
+      buffer.append(statement(indent(4), "override fun serverKey(): String {"));
       buffer.append(statement(indent(6), "return ", string(serverName)));
     } else {
       buffer.append(statement(indent(4), "@Override"));
-      buffer.append(statement(indent(4), "public String serverName() {"));
+      buffer.append(statement(indent(4), "public String serverKey() {"));
       buffer.append(statement(indent(6), "return ", string(serverName), semicolon(kt)));
     }
     buffer.append(statement(indent(4), "}\n"));

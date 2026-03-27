@@ -41,7 +41,7 @@ public class ExampleServerMcp_ implements io.jooby.mcp.McpService {
   }
 
   @Override
-  public String serverName() {
+  public String serverKey() {
     return "example-server";
   }
 
