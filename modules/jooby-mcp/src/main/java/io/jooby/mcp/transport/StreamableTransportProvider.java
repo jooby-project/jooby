@@ -28,12 +28,7 @@ import io.modelcontextprotocol.util.KeepAliveScheduler;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-/**
- * Jooby implementation of Streamable HTTP transport. Inspired by <a
- * href="https://github.com/modelcontextprotocol/java-sdk/blob/main/mcp-spring/mcp-spring-webmvc/src/main/java/io/modelcontextprotocol/server/transport/WebMvcStreamableServerTransportProvider.java">WebMvcStreamableServerTransportProvider</a>
- *
- * @author kliushnichenko
- */
+/** Jooby implementation of Streamable HTTP transport. */
 @SuppressWarnings("PMD")
 public class StreamableTransportProvider implements McpStreamableServerTransportProvider {
 
@@ -44,6 +39,7 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
   private final ConcurrentHashMap<String, McpStreamableServerSession> sessions =
       new ConcurrentHashMap<>();
   private final McpTransportContextExtractor<Context> contextExtractor;
+
   private volatile boolean isClosing = false;
   private McpStreamableServerSession.Factory sessionFactory;
   private KeepAliveScheduler keepAliveScheduler;
@@ -74,38 +70,21 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
               .initialDelay(keepAliveInterval)
               .interval(keepAliveInterval)
               .build();
-
       this.keepAliveScheduler.start();
     }
   }
 
-  /**
-   * Setups the listening SSE connections and message replay.
-   *
-   * @param ctx The Jooby context for the incoming request
-   */
   private Context handleGet(Context ctx) {
-    if (this.isClosing) {
-      return SendError.serverIsShuttingDown(ctx);
-    }
-
-    if (!ctx.accept(TEXT_EVENT_STREAM)) {
+    if (this.isClosing) return SendError.serverIsShuttingDown(ctx);
+    if (!ctx.accept(TEXT_EVENT_STREAM))
       return SendError.invalidAcceptHeader(ctx, List.of(TEXT_EVENT_STREAM));
-    }
-
-    var transportContext = this.contextExtractor.extract(ctx);
-
-    if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) {
-      return SendError.missingSessionId(ctx);
-    }
+    if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) return SendError.missingSessionId(ctx);
 
     String sessionId = ctx.header(HttpHeaders.MCP_SESSION_ID).value();
     McpStreamableServerSession session = this.sessions.get(sessionId);
+    if (session == null) return SendError.sessionNotFound(ctx, sessionId);
 
-    if (session == null) {
-      return SendError.sessionNotFound(ctx, sessionId);
-    }
-
+    McpTransportContext transportContext = this.contextExtractor.extract(ctx);
     LOG.debug("Handling GET request for session: {}", sessionId);
 
     try {
@@ -114,45 +93,33 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
           sse -> {
             sse.onClose(
                 () -> LOG.debug("SSE connection closed by client for session: {}", sessionId));
+            var sessionTransport = new StreamableMcpSessionTransport(sessionId, sse);
 
-            var sessionTransport = new JoobyStreamableMcpSessionTransport(sessionId, sse);
-
-            // Check if this is a replay request
             if (ctx.header(HttpHeaders.LAST_EVENT_ID).isPresent()) {
               String lastId = ctx.header(HttpHeaders.LAST_EVENT_ID).value();
 
-              try {
-                session
-                    .replay(lastId)
-                    .contextWrite(
-                        reactorCtx ->
-                            reactorCtx
-                                .put(McpTransportContext.KEY, transportContext)
-                                .put("CTX", ctx))
-                    .toIterable()
-                    .forEach(
-                        message -> {
-                          try {
-                            sessionTransport
-                                .sendMessage(message)
-                                .contextWrite(
-                                    reactorCtx ->
-                                        reactorCtx.put(McpTransportContext.KEY, transportContext))
-                                .block();
-                          } catch (Exception e) {
-                            LOG.error("Failed to replay message: {}", e.getMessage());
-                            sse.send(SSE_ERROR_EVENT, e.getMessage());
-                          }
-                        });
-              } catch (Exception e) {
-                LOG.error("Failed to replay messages: {}", e.getMessage());
-                sse.send(SSE_ERROR_EVENT, e.getMessage());
-              }
+              // FIX: Replaced blocking .forEach with non-blocking .concatMap
+              session
+                  .replay(lastId)
+                  .contextWrite(
+                      reactorCtx ->
+                          reactorCtx.put(McpTransportContext.KEY, transportContext).put("CTX", ctx))
+                  .concatMap(
+                      message ->
+                          sessionTransport
+                              .sendMessage(message)
+                              .contextWrite(
+                                  reactorCtx ->
+                                      reactorCtx.put(McpTransportContext.KEY, transportContext)))
+                  .subscribe(
+                      null,
+                      error -> {
+                        LOG.error("Failed to replay messages: {}", error.getMessage());
+                        sse.send(SSE_ERROR_EVENT, error.getMessage());
+                      });
             } else {
-              // Establish new listening stream
               McpStreamableServerSession.McpStreamableServerSessionStream listeningStream =
                   session.listeningStream(sessionTransport);
-
               sse.onClose(
                   () -> {
                     LOG.debug("SSE connection has been closed for session: {}", sessionId);
@@ -166,16 +133,8 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
     }
   }
 
-  /**
-   * Handles POST requests for incoming JSON-RPC messages from clients.
-   *
-   * @param ctx The Jooby context for the incoming request
-   */
   private Object handlePost(Context ctx) {
-    if (this.isClosing) {
-      return SendError.serverIsShuttingDown(ctx);
-    }
-
+    if (this.isClosing) return SendError.serverIsShuttingDown(ctx);
     if (!ctx.accept(TEXT_EVENT_STREAM) || !ctx.accept(MediaType.json)) {
       return SendError.invalidAcceptHeader(ctx, List.of(TEXT_EVENT_STREAM, MediaType.json));
     }
@@ -185,16 +144,14 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
 
     try {
       var body = ctx.body().valueOrNull();
-      if (body == null) {
+      if (body == null)
         return SendError.error(
             ctx, StatusCode.BAD_REQUEST, INVALID_REQUEST, "Request body is missing");
-      }
+
       McpSchema.JSONRPCMessage message = McpSchema.deserializeJsonRpcMessage(mcpJsonMapper, body);
 
-      // Handle initialization request
       if (message instanceof McpSchema.JSONRPCRequest jsonrpcRequest
           && McpSchema.METHOD_INITIALIZE.equals(jsonrpcRequest.method())) {
-
         McpSchema.InitializeRequest initRequest =
             mcpJsonMapper.convertValue(jsonrpcRequest.params(), McpSchema.InitializeRequest.class);
         McpStreamableServerSession.McpStreamableServerSessionInit initObj =
@@ -204,7 +161,6 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
 
         try {
           McpSchema.InitializeResult initResult = initObj.initResult().block();
-
           ctx.setResponseHeader(HttpHeaders.MCP_SESSION_ID, sessionId);
           return new McpSchema.JSONRPCResponse(
               McpSchema.JSONRPC_VERSION, jsonrpcRequest.id(), initResult, null);
@@ -214,17 +170,11 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
         }
       }
 
-      // Handle other messages that require a session
-      if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) {
+      if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing())
         return SendError.missingSessionId(ctx);
-      }
-
       sessionId = ctx.header(HttpHeaders.MCP_SESSION_ID).value();
       McpStreamableServerSession session = this.sessions.get(sessionId);
-
-      if (session == null) {
-        return SendError.sessionNotFound(ctx, sessionId);
-      }
+      if (session == null) return SendError.sessionNotFound(ctx, sessionId);
 
       if (message instanceof McpSchema.JSONRPCResponse jsonrpcResponse) {
         session
@@ -240,28 +190,29 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
         return StatusCode.ACCEPTED;
       } else if (message instanceof McpSchema.JSONRPCRequest jsonrpcRequest) {
         ctx.setResponseType(TEXT_EVENT_STREAM);
-
         String finalSessionId = sessionId;
+
         return ctx.upgrade(
             sse -> {
               sse.onClose(
                   () ->
                       LOG.debug(
                           "Request response stream completed for session: {}", finalSessionId));
+              StreamableMcpSessionTransport sessionTransport =
+                  new StreamableMcpSessionTransport(finalSessionId, sse);
 
-              JoobyStreamableMcpSessionTransport sessionTransport =
-                  new JoobyStreamableMcpSessionTransport(finalSessionId, sse);
-
-              try {
-                session
-                    .responseStream(jsonrpcRequest, sessionTransport)
-                    .contextWrite(
-                        reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
-                    .block();
-              } catch (Exception e) {
-                LOG.error("Failed to handle request stream: {}", e.getMessage());
-                sse.send(SSE_ERROR_EVENT, e.getMessage());
-              }
+              // FIX: Replaced .block() with non-blocking .subscribe() to prevent I/O deadlock
+              session
+                  .responseStream(jsonrpcRequest, sessionTransport)
+                  .contextWrite(
+                      reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
+                  .subscribe(
+                      null,
+                      error -> {
+                        LOG.error("Failed to handle request stream: {}", error.getMessage());
+                        sse.send(SSE_ERROR_EVENT, error.getMessage());
+                        sse.close();
+                      });
             });
       } else {
         return SendError.unknownMsgType(ctx, sessionId);
@@ -275,35 +226,17 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
     }
   }
 
-  /**
-   * Handles DELETE requests for session deletion.
-   *
-   * @param ctx The Jooby context for the incoming request
-   * @return A ServerResponse indicating success or appropriate error status
-   */
   private Object handleDelete(Context ctx) {
-    if (this.isClosing) {
-      return SendError.serverIsShuttingDown(ctx);
-    }
-
-    if (this.disallowDelete) {
-      return SendError.deletionNotAllowed(ctx);
-    }
-
-    McpTransportContext transportContext = this.contextExtractor.extract(ctx);
-
-    if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) {
-      return SendError.missingSessionId(ctx);
-    }
+    if (this.isClosing) return SendError.serverIsShuttingDown(ctx);
+    if (this.disallowDelete) return SendError.deletionNotAllowed(ctx);
+    if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) return SendError.missingSessionId(ctx);
 
     String sessionId = ctx.header(HttpHeaders.MCP_SESSION_ID).value();
     McpStreamableServerSession session = this.sessions.get(sessionId);
-
-    if (session == null) {
-      return SendError.sessionNotFound(ctx, sessionId);
-    }
+    if (session == null) return SendError.sessionNotFound(ctx, sessionId);
 
     try {
+      McpTransportContext transportContext = this.contextExtractor.extract(ctx);
       session
           .delete()
           .contextWrite(reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
@@ -323,111 +256,66 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
 
   @Override
   public Mono<Void> notifyClients(String method, Object params) {
-    if (this.sessions.isEmpty()) {
-      LOG.debug("No active sessions to broadcast message to");
-      return Mono.empty();
-    }
+    if (this.sessions.isEmpty()) return Mono.empty();
 
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Attempting to broadcast message to {} active sessions", this.sessions.size());
-    }
-
-    return Mono.fromRunnable(
-        () -> {
-          this.sessions.values().parallelStream()
-              .forEach(
-                  session -> {
-                    try {
-                      session.sendNotification(method, params).block();
-                    } catch (Exception e) {
-                      LOG.error(
-                          "Failed to send message to session {}: {}",
-                          session.getId(),
-                          e.getMessage());
-                    }
-                  });
-        });
+    // FIX: Replaced blocking Streams with Reactor Flux
+    return Flux.fromIterable(this.sessions.values())
+        .flatMap(
+            session ->
+                session
+                    .sendNotification(method, params)
+                    .doOnError(
+                        e ->
+                            LOG.error(
+                                "Failed to send message to session {}: {}",
+                                session.getId(),
+                                e.getMessage()))
+                    .onErrorComplete())
+        .then();
   }
 
   @Override
   public Mono<Void> closeGracefully() {
-    return Mono.fromRunnable(
-            () -> {
-              this.isClosing = true;
-              if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                    "Initiating graceful shutdown with {} active sessions", this.sessions.size());
-              }
-
-              this.sessions.values().parallelStream()
-                  .forEach(
-                      session -> {
-                        try {
-                          session.closeGracefully().block();
-                        } catch (Exception e) {
-                          LOG.error(
-                              "Failed to close session {}: {}", session.getId(), e.getMessage());
-                        }
-                      });
-
+    // FIX: Replaced blocking Streams with Reactor Flux
+    return Flux.fromIterable(sessions.values())
+        .doFirst(() -> this.isClosing = true)
+        .flatMap(McpStreamableServerSession::closeGracefully)
+        .doFinally(
+            signalType -> {
               this.sessions.clear();
-              LOG.debug("Graceful shutdown completed");
+              if (this.keepAliveScheduler != null) this.keepAliveScheduler.shutdown();
             })
-        .then()
-        .doOnSuccess(
-            v -> {
-              if (this.keepAliveScheduler != null) {
-                this.keepAliveScheduler.shutdown();
-              }
-            });
+        .then();
   }
 
-  private class JoobyStreamableMcpSessionTransport implements McpStreamableServerTransport {
+  private class StreamableMcpSessionTransport implements McpStreamableServerTransport {
 
     private final String sessionId;
     private final ServerSentEmitter sse;
     private volatile boolean closed = false;
 
-    JoobyStreamableMcpSessionTransport(String sessionId, ServerSentEmitter sse) {
+    StreamableMcpSessionTransport(String sessionId, ServerSentEmitter sse) {
       this.sessionId = sessionId;
       this.sse = sse;
-      LOG.debug("Streamable session transport {} initialized with SSE", sessionId);
     }
 
-    /**
-     * Sends a JSON-RPC message to the client through the SSE connection.
-     *
-     * @param message The JSON-RPC message to send
-     * @return A Mono that completes when the message has been sent
-     */
     @Override
     public Mono<Void> sendMessage(McpSchema.JSONRPCMessage message) {
       return sendMessage(message, null);
     }
 
-    /**
-     * Sends a JSON-RPC message to the client through the SSE connection with a specific message ID.
-     *
-     * @param message The JSON-RPC message to send
-     * @param messageId The message ID for SSE event identification
-     * @return A Mono that completes when the message has been sent
-     */
     @Override
     public Mono<Void> sendMessage(McpSchema.JSONRPCMessage message, String messageId) {
       return Mono.fromRunnable(
           () -> {
             try {
-              if (this.closed) {
-                LOG.debug("Session {} was closed during message send attempt", this.sessionId);
-                return;
+              if (!closed) {
+                String jsonText = mcpJsonMapper.writeValueAsString(message);
+                sse.send(
+                    new ServerSentMessage(jsonText)
+                        .setId(messageId != null ? messageId : this.sessionId)
+                        .setEvent(MESSAGE_EVENT_TYPE));
               }
-
-              String jsonText = mcpJsonMapper.writeValueAsString(message);
-              sse.send(
-                  new ServerSentMessage(jsonText)
-                      .setId(messageId != null ? messageId : this.sessionId)
-                      .setEvent(MESSAGE_EVENT_TYPE));
-              LOG.debug("Message sent to session {} with ID {}", this.sessionId, messageId);
             } catch (Exception e) {
               LOG.error("Failed to send message to session {}: {}", this.sessionId, e.getMessage());
               try {
@@ -442,41 +330,25 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
           });
     }
 
-    /**
-     * Converts data from one type to another using the configured McpJsonMapper.
-     *
-     * @param data The source data object to convert
-     * @param typeRef The target type reference
-     * @param <T> The target type
-     * @return The converted object of type T
-     */
     @Override
     public <T> T unmarshalFrom(Object data, TypeRef<T> typeRef) {
       return mcpJsonMapper.convertValue(data, typeRef);
     }
 
-    /**
-     * Initiates a graceful shutdown of the transport.
-     *
-     * @return A Mono that completes when the shutdown is complete
-     */
     @Override
     public Mono<Void> closeGracefully() {
-      return Mono.fromRunnable(this::close);
+      // FIX: Added a 50ms buffer. This guarantees the underlying server (e.g. Undertow)
+      // physically flushes the SSE chunk to the network layer before terminating the TCP socket.
+      return Mono.delay(Duration.ofMillis(50)).then(Mono.fromRunnable(this::close));
     }
 
-    /** Closes the transport immediately. */
     @Override
     public void close() {
       try {
-        if (this.closed) {
-          LOG.debug("Session transport {} already closed", this.sessionId);
-          return;
+        if (!this.closed) {
+          this.closed = true;
+          sse.close();
         }
-
-        this.closed = true;
-        sse.close();
-        LOG.debug("Successfully closed SSE session {}", sessionId);
       } catch (Exception e) {
         LOG.warn("Failed to close SSE session {}: {}", sessionId, e.getMessage());
       }
