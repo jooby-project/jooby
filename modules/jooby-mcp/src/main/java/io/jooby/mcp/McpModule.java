@@ -5,15 +5,14 @@
  */
 package io.jooby.mcp;
 
-import static io.jooby.internal.mcp.McpServerConfig.Transport.STATELESS_STREAMABLE_HTTP;
+import static io.jooby.SneakyThrows.throwingConsumer;
+import static io.jooby.mcp.McpModule.Transport.STATELESS_STREAMABLE_HTTP;
+import static io.jooby.mcp.McpModule.Transport.STREAMABLE_HTTP;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.typesafe.config.Config;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.exception.StartupException;
@@ -21,8 +20,15 @@ import io.jooby.internal.mcp.BaseMcpServerRunner;
 import io.jooby.internal.mcp.McpServerConfig;
 import io.jooby.internal.mcp.McpStatelessServerRunner;
 import io.jooby.internal.mcp.McpSyncServerRunner;
+import io.jooby.mcp.transport.JoobySseTransportProvider;
+import io.jooby.mcp.transport.JoobyStatelessServerTransport;
+import io.jooby.mcp.transport.JoobyStreamableServerTransportProvider;
+import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
+import io.modelcontextprotocol.json.jackson3.JacksonMcpJsonMapper;
+import io.modelcontextprotocol.server.*;
+import io.modelcontextprotocol.spec.McpSchema;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * MCP (Model Context Protocol) module for Jooby.
@@ -109,35 +115,105 @@ import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
  */
 public class McpModule implements Extension {
 
+  protected static final McpTransportContextExtractor<Context> CTX_EXTRACTOR =
+      ctx -> {
+        var transportContext = Map.<String, Object>of("HEADERS", ctx.headerMap());
+        return McpTransportContext.create(transportContext);
+      };
+
   private static final String MODULE_CONFIG_PREFIX = "mcp";
 
-  private McpJsonMapper mcpJsonMapper = new JacksonMcpJsonMapper(new ObjectMapper());
-  private final List<JoobyMcpServer> mcpServers = new ArrayList<>();
+  private Transport defaultTransport = STREAMABLE_HTTP;
 
-  public McpModule(JoobyMcpServer joobyMcpServer, JoobyMcpServer... moreMcpServers) {
-    mcpServers.add(joobyMcpServer);
-    if (moreMcpServers != null) {
-      Collections.addAll(mcpServers, moreMcpServers);
+  private McpJsonMapper mcpJsonMapper;
+  private final List<McpService> mcpServices = new ArrayList<>();
+
+  public McpModule(McpService mcpService, McpService... mcpServices) {
+    this.mcpServices.add(mcpService);
+    if (mcpServices != null) {
+      Collections.addAll(this.mcpServices, mcpServices);
     }
+  }
+
+  public McpModule transport(@NonNull Transport transport) {
+    this.defaultTransport = transport;
+    return this;
   }
 
   @Override
   public void install(@NonNull Jooby app) {
-    Config config = app.getConfig();
-    if (!config.hasPath(MODULE_CONFIG_PREFIX)) {
-      throw new StartupException("Missing required config path: " + MODULE_CONFIG_PREFIX);
+    var services = app.getServices();
+    if (mcpJsonMapper == null) {
+      this.mcpJsonMapper = new JacksonMcpJsonMapper(services.require(JsonMapper.class));
     }
-
-    for (var joobyMcpServer : mcpServers) {
-      var serverConfig = resolveServerConfig(config, joobyMcpServer.getServerKey());
-      // Load definitions from generated code.
-      joobyMcpServer.init(app, mcpJsonMapper);
-
-      // transport + dedicated mcp server
-      var runner = buildMcpServerRunner(app, joobyMcpServer, serverConfig);
-      runner.run();
-      app.getServices().listOf(McpServerConfig.class).add(serverConfig);
+    services.put(McpJsonMapper.class, mcpJsonMapper);
+    var mcpServiceMap = new HashMap<String, List<McpService>>();
+    for (var mcpService : mcpServices) {
+      var serverKey = Optional.ofNullable(mcpService.serverName()).orElse("default");
+      mcpServiceMap.computeIfAbsent(serverKey, k -> new ArrayList<>()).add(mcpService);
     }
+    for (var serverEntry : mcpServiceMap.entrySet()) {
+      var mcpConfig = mcpServerConfig(app, serverEntry.getKey());
+      var capabilities = new McpSchema.ServerCapabilities.Builder();
+      serverEntry.getValue().forEach(it -> it.capabilities(capabilities));
+
+      if (mcpConfig.getTransport() == STATELESS_STREAMABLE_HTTP) {
+        var transport =
+            new JoobyStatelessServerTransport(app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR);
+        var statelessServer =
+            McpServer.sync(transport)
+                .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
+                .completions(statelessCompletions(serverEntry))
+                .capabilities(capabilities.build())
+                .instructions(mcpConfig.getInstructions())
+                .build();
+        serverEntry
+            .getValue()
+            .forEach(throwingConsumer(service -> service.install(app, statelessServer)));
+        app.onStop(statelessServer::close);
+      } else {
+        // Stupid MCP types, but it's the only way to make it work.
+        var syncServer =
+            (switch (mcpConfig.getTransport()) {
+                  case STREAMABLE_HTTP ->
+                      McpServer.sync(
+                          new JoobyStreamableServerTransportProvider(
+                              app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR));
+                  case SSE ->
+                      McpServer.sync(
+                          new JoobySseTransportProvider(
+                              app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
+                  default ->
+                      throw new IllegalStateException(
+                          "Unsupported transport: " + mcpConfig.getTransport());
+                })
+                .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
+                .completions(completions(serverEntry))
+                .capabilities(capabilities.build())
+                .instructions(mcpConfig.getInstructions())
+                .build();
+        serverEntry
+            .getValue()
+            .forEach(throwingConsumer(service -> service.install(app, syncServer)));
+        app.onStop(syncServer::close);
+      }
+    }
+  }
+
+  private static List<McpServerFeatures.SyncCompletionSpecification> completions(
+      Map.Entry<String, List<McpService>> serverEntry) {
+    return serverEntry.getValue().stream()
+        .map(McpService::completions)
+        .flatMap(List::stream)
+        .toList();
+  }
+
+  private static List<McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions(
+      Map.Entry<String, List<McpService>> serverEntry) {
+    return serverEntry.getValue().stream()
+        .map(McpService::statelessCompletions)
+        .flatMap(List::stream)
+        .toList();
   }
 
   private BaseMcpServerRunner<?> buildMcpServerRunner(
@@ -153,19 +229,53 @@ public class McpModule implements Extension {
   }
 
   private boolean hasSingleMcpServer() {
-    return this.mcpServers.size() == 1;
+    return this.mcpServices.size() == 1;
   }
 
-  private McpServerConfig resolveServerConfig(Config config, String serverKey) {
-    String path = MODULE_CONFIG_PREFIX + "." + serverKey;
-    if (!config.hasPath(path)) {
-      throw new StartupException(String.format("Missing required config path: %s", path));
+  private McpServerConfig mcpServerConfig(Jooby application, String key) {
+    var config = application.getConfig();
+    var mcpPath = MODULE_CONFIG_PREFIX + "." + key;
+    if (config.hasPath(mcpPath)) {
+      return McpServerConfig.fromConfig(key, config.getConfig(mcpPath));
+    } else if (key.equals("default")) {
+      var defaults = new McpServerConfig(application.getName(), application.getVersion());
+      defaults.setTransport(defaultTransport);
+      defaults.setSseEndpoint(McpServerConfig.DEFAULT_SSE_ENDPOINT);
+      defaults.setMessageEndpoint(McpServerConfig.DEFAULT_MESSAGE_ENDPOINT);
+      defaults.setMcpEndpoint(McpServerConfig.DEFAULT_MCP_ENDPOINT);
+      return defaults;
+    } else {
+      throw new StartupException("Missing MCP server configuration: " + mcpPath);
     }
-    return McpServerConfig.fromConfig(config.getConfig(path));
   }
 
   public McpModule mcpJsonMapper(McpJsonMapper mcpJsonMapper) {
     this.mcpJsonMapper = mcpJsonMapper;
     return this;
+  }
+
+  public enum Transport {
+    SSE("sse"),
+    STREAMABLE_HTTP("streamable-http"),
+    STATELESS_STREAMABLE_HTTP("stateless-streamable-http");
+
+    private final String value;
+
+    Transport(String value) {
+      this.value = value;
+    }
+
+    public static Transport of(String value) {
+      for (Transport transport : values()) {
+        if (transport.value.equalsIgnoreCase(value)) {
+          return transport;
+        }
+      }
+      throw new IllegalArgumentException("Unknown transport value: " + value);
+    }
+
+    public String getValue() {
+      return value;
+    }
   }
 }

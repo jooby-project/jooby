@@ -95,7 +95,7 @@ public class JoobyStreamableServerTransportProvider
       return SendError.invalidAcceptHeader(ctx, List.of(TEXT_EVENT_STREAM));
     }
 
-    McpTransportContext transportContext = this.contextExtractor.extract(ctx);
+    var transportContext = this.contextExtractor.extract(ctx);
 
     if (ctx.header(HttpHeaders.MCP_SESSION_ID).isMissing()) {
       return SendError.missingSessionId(ctx);
@@ -127,7 +127,10 @@ public class JoobyStreamableServerTransportProvider
                 session
                     .replay(lastId)
                     .contextWrite(
-                        reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
+                        reactorCtx ->
+                            reactorCtx
+                                .put(McpTransportContext.KEY, transportContext)
+                                .put("CTX", ctx))
                     .toIterable()
                     .forEach(
                         message -> {

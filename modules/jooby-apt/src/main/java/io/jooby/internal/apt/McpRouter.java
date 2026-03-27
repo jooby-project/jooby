@@ -120,7 +120,6 @@ public class McpRouter extends WebRouter<McpRoute> {
 
     var completionRoutes = getRoutes().stream().filter(McpRoute::isMcpCompletion).toList();
     var completionGroups = new java.util.LinkedHashMap<String, java.util.List<McpRoute>>();
-    // group completion we need to genereate a single handler for all completion routes
     for (var route : completionRoutes) {
       var annotation =
           AnnotationSupport.findAnnotationByName(
@@ -148,6 +147,7 @@ public class McpRouter extends WebRouter<McpRoute> {
               indent(4), "private io.modelcontextprotocol.json.McpJsonMapper json", semicolon(kt)));
     }
 
+    // --- capabilities() ---
     if (kt) {
       buffer.append(
           statement(
@@ -169,8 +169,13 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(statement(indent(6), "capabilities.prompts(true)", semicolon(kt)));
     if (!resources.isEmpty())
       buffer.append(statement(indent(6), "capabilities.resources(true, true)", semicolon(kt)));
+    // ADD THIS BLOCK:
+    if (!completionGroups.isEmpty()) {
+      buffer.append(statement(indent(6), "capabilities.completions()", semicolon(kt)));
+    }
     buffer.append(statement(indent(4), "}\n"));
 
+    // --- serverName() ---
     var serverName = getMcpServerKey();
     if (kt) {
       buffer.append(statement(indent(4), "override fun serverName(): String? {"));
@@ -182,6 +187,7 @@ public class McpRouter extends WebRouter<McpRoute> {
     }
     buffer.append(statement(indent(4), "}\n"));
 
+    // --- completions() ---
     if (kt) {
       buffer.append(
           statement(
@@ -218,6 +224,11 @@ public class McpRouter extends WebRouter<McpRoute> {
               ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
               : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
 
+      String lambda =
+          kt
+              ? "{ exchange, req -> this." + handlerName + "(exchange, null, req) }"
+              : "(exchange, req) -> this." + handlerName + "(exchange, null, req)";
+
       if (kt) {
         buffer.append(
             statement(
@@ -226,8 +237,8 @@ public class McpRouter extends WebRouter<McpRoute> {
                 refObj,
                 "(",
                 string(ref),
-                "), this::",
-                handlerName,
+                "), ",
+                lambda,
                 "))"));
       } else {
         buffer.append(
@@ -239,8 +250,8 @@ public class McpRouter extends WebRouter<McpRoute> {
                 refObj,
                 "(",
                 string(ref),
-                "), this::",
-                handlerName,
+                "), ",
+                lambda,
                 "))",
                 semicolon(kt)));
       }
@@ -248,158 +259,269 @@ public class McpRouter extends WebRouter<McpRoute> {
     buffer.append(statement(indent(6), "return completions", semicolon(kt)));
     buffer.append(statement(indent(4), "}\n"));
 
+    // --- statelessCompletions() ---
     if (kt) {
-      buffer.append(statement(indent(4), "@Throws(Exception::class)"));
       buffer.append(
           statement(
               indent(4),
-              "override fun install(app: io.jooby.Jooby, server:"
-                  + " io.modelcontextprotocol.server.McpSyncServer, json:"
-                  + " io.modelcontextprotocol.json.McpJsonMapper) {"));
-      buffer.append(statement(indent(6), "this.json = json"));
+              "override fun statelessCompletions():"
+                  + " List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>"
+                  + " {"));
       buffer.append(
           statement(
               indent(6),
-              "val mapper = app.require(tools.jackson.databind.ObjectMapper::class.java)"));
-      if (!tools.isEmpty()) {
-        buffer.append(
-            statement(
-                indent(6),
-                "val configBuilder ="
-                    + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
-                    + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)"));
-        buffer.append(
-            statement(
-                indent(6),
-                "val schemaGenerator ="
-                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())"));
-      }
+              "val completions ="
+                  + " mutableListOf<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>()"));
     } else {
       buffer.append(statement(indent(4), "@Override"));
       buffer.append(
           statement(
               indent(4),
-              "public void install(io.jooby.Jooby app, io.modelcontextprotocol.server.McpSyncServer"
-                  + " server, io.modelcontextprotocol.json.McpJsonMapper json) throws Exception"
-                  + " {"));
-      buffer.append(statement(indent(6), "this.json = json", semicolon(kt)));
+              "public"
+                  + " java.util.List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>"
+                  + " statelessCompletions() {"));
       buffer.append(
           statement(
               indent(6),
-              "var mapper = app.require(tools.jackson.databind.ObjectMapper.class)",
+              "var completions = new"
+                  + " java.util.ArrayList<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>()",
               semicolon(kt)));
-      if (!tools.isEmpty()) {
+    }
+
+    for (var ref : completionGroups.keySet()) {
+      var isResource = ref.contains("://");
+      var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+      var refObj =
+          isResource
+              ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
+              : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
+
+      String lambda =
+          kt
+              ? "{ ctx, req -> this." + handlerName + "(null, ctx, req) }"
+              : "(ctx, req) -> this." + handlerName + "(null, ctx, req)";
+
+      if (kt) {
         buffer.append(
             statement(
                 indent(6),
-                "var configBuilder = new"
-                    + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
-                    + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)",
+                "completions.add(io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(",
+                refObj,
+                "(",
+                string(ref),
+                "), ",
+                lambda,
+                "))"));
+      } else {
+        buffer.append(
+            statement(
+                indent(6),
+                "completions.add(new"
+                    + " io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new"
+                    + " ",
+                refObj,
+                "(",
+                string(ref),
+                "), ",
+                lambda,
+                "))",
+                semicolon(kt)));
+      }
+    }
+    buffer.append(statement(indent(6), "return completions", semicolon(kt)));
+    buffer.append(statement(indent(4), "}\n"));
+
+    // --- install() methods ---
+    String[] serverTypes = {
+      "io.modelcontextprotocol.server.McpSyncServer",
+      "io.modelcontextprotocol.server.McpStatelessSyncServer"
+    };
+
+    for (String serverType : serverTypes) {
+      if (kt) {
+        buffer.append(statement(indent(4), "@Throws(Exception::class)"));
+        buffer.append(
+            statement(
+                indent(4),
+                "override fun install(app: io.jooby.Jooby, server: " + serverType + ") {"));
+        buffer.append(
+            statement(
+                indent(6),
+                "this.json ="
+                    + " app.services.require(io.modelcontextprotocol.json.McpJsonMapper::class.java)"));
+        buffer.append(
+            statement(
+                indent(6),
+                "val mapper = app.require(tools.jackson.databind.ObjectMapper::class.java)"));
+        if (!tools.isEmpty()) {
+          buffer.append(
+              statement(
+                  indent(6),
+                  "val configBuilder ="
+                      + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
+                      + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)"));
+          buffer.append(
+              statement(
+                  indent(6),
+                  "val schemaGenerator ="
+                      + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())"));
+        }
+      } else {
+        buffer.append(statement(indent(4), "@Override"));
+        buffer.append(
+            statement(
+                indent(4),
+                "public void install(io.jooby.Jooby app, "
+                    + serverType
+                    + " server) throws Exception {"));
+        buffer.append(
+            statement(
+                indent(6),
+                "this.json ="
+                    + " app.getServices().require(io.modelcontextprotocol.json.McpJsonMapper.class)",
                 semicolon(kt)));
         buffer.append(
             statement(
                 indent(6),
-                "var schemaGenerator = new"
-                    + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())",
+                "var mapper = app.require(tools.jackson.databind.ObjectMapper.class)",
                 semicolon(kt)));
-      }
-    }
-
-    buffer.append(System.lineSeparator());
-
-    for (var route : getRoutes()) {
-      var methodName = route.getMethodName();
-
-      if (route.isMcpTool()) {
-        var defArgs = "mapper, schemaGenerator";
-        if (kt) {
+        if (!tools.isEmpty()) {
           buffer.append(
               statement(
                   indent(6),
-                  "server.addTool(io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(",
-                  methodName,
-                  "ToolSpec(",
-                  defArgs,
-                  "), this::",
-                  methodName,
-                  "))"));
-        } else {
+                  "var configBuilder = new"
+                      + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
+                      + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)",
+                  semicolon(kt)));
           buffer.append(
               statement(
                   indent(6),
-                  "server.addTool(new"
-                      + " io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(",
-                  methodName,
-                  "ToolSpec(",
-                  defArgs,
-                  "), this::",
-                  methodName,
-                  "));"));
-        }
-      } else if (route.isMcpPrompt()) {
-        if (kt) {
-          buffer.append(
-              statement(
-                  indent(6),
-                  "server.addPrompt(io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(",
-                  methodName,
-                  "PromptSpec(), this::",
-                  methodName,
-                  "))"));
-        } else {
-          buffer.append(
-              statement(
-                  indent(6),
-                  "server.addPrompt(new"
-                      + " io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(",
-                  methodName,
-                  "PromptSpec(), this::",
-                  methodName,
-                  "));"));
-        }
-      } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
-        var isTemplate = route.isMcpResourceTemplate();
-        var specType =
-            isTemplate ? "SyncResourceTemplateSpecification" : "SyncResourceSpecification";
-        var addMethod = isTemplate ? "server.addResourceTemplate(" : "server.addResource(";
-        var defMethod = isTemplate ? "ResourceTemplateSpec()" : "ResourceSpec()";
-
-        if (kt) {
-          buffer.append(
-              statement(
-                  indent(6),
-                  addMethod,
-                  "io.modelcontextprotocol.server.McpServerFeatures.",
-                  specType,
-                  "(",
-                  methodName,
-                  defMethod,
-                  ", this::",
-                  methodName,
-                  "))"));
-        } else {
-          buffer.append(
-              statement(
-                  indent(6),
-                  addMethod,
-                  "new io.modelcontextprotocol.server.McpServerFeatures.",
-                  specType,
-                  "(",
-                  methodName,
-                  defMethod,
-                  ", this::",
-                  methodName,
-                  "));"));
+                  "var schemaGenerator = new"
+                      + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())",
+                  semicolon(kt)));
         }
       }
+
+      buffer.append(System.lineSeparator());
+
+      boolean isStateless = serverType.contains("Stateless");
+      String featuresClass = isStateless ? "McpStatelessServerFeatures" : "McpServerFeatures";
+
+      for (var route : getRoutes()) {
+        var methodName = route.getMethodName();
+
+        // --- Lambda Router Definition ---
+        String lambda =
+            kt
+                ? (isStateless
+                    ? "{ ctx, req -> this." + methodName + "(null, ctx, req) }"
+                    : "{ exchange, req -> this." + methodName + "(exchange, null, req) }")
+                : (isStateless
+                    ? "(ctx, req) -> this." + methodName + "(null, ctx, req)"
+                    : "(exchange, req) -> this." + methodName + "(exchange, null, req)");
+
+        if (route.isMcpTool()) {
+          var defArgs = "mapper, schemaGenerator";
+          if (kt) {
+            buffer.append(
+                statement(
+                    indent(6),
+                    "server.addTool(io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".SyncToolSpecification(",
+                    methodName,
+                    "ToolSpec(",
+                    defArgs,
+                    "), ",
+                    lambda,
+                    "))"));
+          } else {
+            buffer.append(
+                statement(
+                    indent(6),
+                    "server.addTool(new io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".SyncToolSpecification(",
+                    methodName,
+                    "ToolSpec(",
+                    defArgs,
+                    "), ",
+                    lambda,
+                    "));"));
+          }
+        } else if (route.isMcpPrompt()) {
+          if (kt) {
+            buffer.append(
+                statement(
+                    indent(6),
+                    "server.addPrompt(io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".SyncPromptSpecification(",
+                    methodName,
+                    "PromptSpec(), ",
+                    lambda,
+                    "))"));
+          } else {
+            buffer.append(
+                statement(
+                    indent(6),
+                    "server.addPrompt(new io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".SyncPromptSpecification(",
+                    methodName,
+                    "PromptSpec(), ",
+                    lambda,
+                    "));"));
+          }
+        } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
+          var isTemplate = route.isMcpResourceTemplate();
+          var specType =
+              isTemplate ? "SyncResourceTemplateSpecification" : "SyncResourceSpecification";
+          var addMethod = isTemplate ? "server.addResourceTemplate(" : "server.addResource(";
+          var defMethod = isTemplate ? "ResourceTemplateSpec()" : "ResourceSpec()";
+
+          if (kt) {
+            buffer.append(
+                statement(
+                    indent(6),
+                    addMethod,
+                    "io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".",
+                    specType,
+                    "(",
+                    methodName,
+                    defMethod,
+                    ", ",
+                    lambda,
+                    "))"));
+          } else {
+            buffer.append(
+                statement(
+                    indent(6),
+                    addMethod,
+                    "new io.modelcontextprotocol.server.",
+                    featuresClass,
+                    ".",
+                    specType,
+                    "(",
+                    methodName,
+                    defMethod,
+                    ", ",
+                    lambda,
+                    "));"));
+          }
+        }
+      }
+      buffer.append(statement(indent(4), "}", System.lineSeparator()));
     }
-    buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
     for (var route : getRoutes()) {
       route.generateMcpDefinitionMethod(kt).forEach(buffer::append);
       route.generateMcpHandlerMethod(kt).forEach(buffer::append);
     }
 
+    // --- Generate Unified Completion Handlers ---
     for (var entry : completionGroups.entrySet()) {
       var ref = entry.getKey();
       var handlerName = findTargetMethodName(ref) + "CompletionHandler";
@@ -411,14 +533,16 @@ public class McpRouter extends WebRouter<McpRoute> {
                 indent(4),
                 "private fun ",
                 handlerName,
-                "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange, req:"
+                "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?,"
+                    + " transportContext: io.modelcontextprotocol.common.McpTransportContext?, req:"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest):"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteResult {"));
         buffer.append(
             statement(
                 indent(6),
                 "val ctx ="
-                    + " exchange.transportContext().get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+                    + " exchange?.transportContext()?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"
+                    + " ?: transportContext?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
         buffer.append(statement(indent(6), "val c = this.factory.apply(ctx)"));
         buffer.append(statement(indent(6), "val targetArg = req.argument()?.name() ?: \"\""));
         buffer.append(statement(indent(6), "val typedValue = req.argument()?.value() ?: \"\""));
@@ -430,11 +554,14 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private io.modelcontextprotocol.spec.McpSchema.CompleteResult ",
                 handlerName,
                 "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
+                    + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {"));
         buffer.append(
             statement(
                 indent(6),
-                "var ctx = (io.jooby.Context) exchange.transportContext().get(\"CTX\")",
+                "var ctx = exchange != null ? (io.jooby.Context)"
+                    + " exchange.transportContext().get(\"CTX\") : (transportContext != null ?"
+                    + " (io.jooby.Context) transportContext.get(\"CTX\") : null)",
                 semicolon(kt)));
         buffer.append(statement(indent(6), "var c = this.factory.apply(ctx)", semicolon(kt)));
         buffer.append(
@@ -460,6 +587,12 @@ public class McpRouter extends WebRouter<McpRoute> {
             invokeArgs.add("ctx");
           } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
             invokeArgs.add("exchange");
+          } else if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
+            if (kt) {
+              invokeArgs.add("exchange?.transportContext() ?: transportContext");
+            } else {
+              invokeArgs.add("exchange != null ? exchange.transportContext() : transportContext");
+            }
           } else {
             targetArgName = param.getMcpName();
             invokeArgs.add("typedValue");

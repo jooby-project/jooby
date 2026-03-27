@@ -138,6 +138,7 @@ public class McpRoute extends WebRoute {
       for (var param : getParameters(true)) {
         var type = param.getType().getRawType().toString();
         if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
+            || type.equals("io.modelcontextprotocol.common.McpTransportContext")
             || type.equals("io.jooby.Context")) continue;
 
         String mcpName = param.getMcpName();
@@ -276,6 +277,7 @@ public class McpRoute extends WebRoute {
       for (var param : getParameters(true)) {
         var type = param.getType().getRawType().toString();
         if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
+            || type.equals("io.modelcontextprotocol.common.McpTransportContext")
             || type.equals("io.jooby.Context")) continue;
 
         var mcpName = param.getMcpName();
@@ -431,14 +433,16 @@ public class McpRoute extends WebRoute {
     }
 
     List<String> buffer = new ArrayList<>();
+    String handlerName = getMethodName();
 
     if (kt) {
       buffer.add(
           statement(
               indent(4),
               "private fun ",
-              getMethodName(),
-              "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange, req:"
+              handlerName,
+              "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?, transportContext:"
+                  + " io.modelcontextprotocol.common.McpTransportContext?, req:"
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               "): io.modelcontextprotocol.spec.McpSchema.",
@@ -448,7 +452,8 @@ public class McpRoute extends WebRoute {
           statement(
               indent(6),
               "val ctx ="
-                  + " exchange.transportContext().get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+                  + " exchange?.transportContext()?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"
+                  + " ?: transportContext?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
     } else {
       buffer.add(
           statement(
@@ -456,15 +461,18 @@ public class McpRoute extends WebRoute {
               "private io.modelcontextprotocol.spec.McpSchema.",
               resType,
               " ",
-              getMethodName(),
+              handlerName,
               "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
+                  + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               " req) {"));
       buffer.add(
           statement(
               indent(6),
-              "var ctx = (io.jooby.Context) exchange.transportContext().get(\"CTX\")",
+              "var ctx = exchange != null ? (io.jooby.Context)"
+                  + " exchange.transportContext().get(\"CTX\") : (transportContext != null ?"
+                  + " (io.jooby.Context) transportContext.get(\"CTX\") : null)",
               semicolon(kt)));
     }
 
@@ -540,6 +548,24 @@ public class McpRoute extends WebRoute {
       } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
         buffer.add(
             statement(indent(6), kt ? "val " : "var ", javaName, " = exchange", semicolon(kt)));
+        continue;
+      } else if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val ",
+                  javaName,
+                  " = exchange?.transportContext() ?: transportContext"));
+        } else {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "var ",
+                  javaName,
+                  " = exchange != null ? exchange.transportContext() : transportContext",
+                  semicolon(kt)));
+        }
         continue;
       } else if (type.equals("io.modelcontextprotocol.spec.McpSchema." + reqType)) {
         buffer.add(statement(indent(6), kt ? "val " : "var ", javaName, " = req", semicolon(kt)));
@@ -687,7 +713,7 @@ public class McpRoute extends WebRoute {
                 semicolon(kt)));
       }
     }
-    buffer.add(statement(indent(4), "}\n"));
+    buffer.add(statement(indent(4), "}", System.lineSeparator()));
 
     return buffer;
   }

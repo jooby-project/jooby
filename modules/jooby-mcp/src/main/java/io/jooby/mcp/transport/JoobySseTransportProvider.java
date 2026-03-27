@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import io.jooby.*;
 import io.jooby.internal.mcp.McpServerConfig;
+import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.json.TypeRef;
+import io.modelcontextprotocol.server.McpTransportContextExtractor;
 import io.modelcontextprotocol.spec.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,6 +39,7 @@ public class JoobySseTransportProvider implements McpServerTransportProvider {
   private final String messageEndpoint;
   private final McpJsonMapper mcpJsonMapper;
   private final ConcurrentHashMap<String, McpServerSession> sessions = new ConcurrentHashMap<>();
+  private final McpTransportContextExtractor<Context> contextExtractor;
 
   private McpServerSession.Factory sessionFactory;
   private final AtomicBoolean isClosing = new AtomicBoolean(false);
@@ -49,9 +52,13 @@ public class JoobySseTransportProvider implements McpServerTransportProvider {
    * @param mcpJsonMapper The MCP JSON mapper for message serialization/deserialization
    */
   public JoobySseTransportProvider(
-      Jooby app, McpServerConfig serverConfig, McpJsonMapper mcpJsonMapper) {
+      Jooby app,
+      McpServerConfig serverConfig,
+      McpJsonMapper mcpJsonMapper,
+      McpTransportContextExtractor<Context> contextExtractor) {
     this.mcpJsonMapper = mcpJsonMapper;
     this.messageEndpoint = serverConfig.getMessageEndpoint();
+    this.contextExtractor = contextExtractor;
     String sseEndpoint = serverConfig.getSseEndpoint();
 
     app.head(sseEndpoint, ctx -> StatusCode.OK).produces(TEXT_EVENT_STREAM);
@@ -67,12 +74,12 @@ public class JoobySseTransportProvider implements McpServerTransportProvider {
   @Override
   public Mono<Void> notifyClients(String method, Object params) {
     if (sessions.isEmpty()) {
-      LOG.debug("No active sessions to broadcast message to");
+      LOG.debug("No active sessions to broadcast a message to");
       return Mono.empty();
     }
 
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Attempting to broadcast message to {} active sessions", sessions.size());
+      LOG.debug("Attempting to broadcast a message to {} active sessions", sessions.size());
     }
 
     return Flux.fromIterable(sessions.values())
@@ -151,12 +158,18 @@ public class JoobySseTransportProvider implements McpServerTransportProvider {
     }
 
     try {
+      McpTransportContext transportContext = this.contextExtractor.extract(ctx);
       var body = ctx.body().value();
       McpSchema.JSONRPCMessage message =
           McpSchema.deserializeJsonRpcMessage(this.mcpJsonMapper, body);
 
       return session
           .handle(message)
+          .contextWrite(
+              reactorCtx ->
+                  reactorCtx
+                      .put(io.modelcontextprotocol.common.McpTransportContext.KEY, transportContext)
+                      .put("CTX", ctx))
           .then(Mono.just((Object) StatusCode.OK))
           .onErrorResume(
               error -> {

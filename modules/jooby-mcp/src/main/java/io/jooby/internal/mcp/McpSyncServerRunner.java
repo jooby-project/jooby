@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.mcp.JoobyMcpServer;
+import io.jooby.mcp.McpModule;
 import io.jooby.mcp.transport.JoobySseTransportProvider;
 import io.jooby.mcp.transport.JoobyStreamableServerTransportProvider;
 import io.modelcontextprotocol.json.McpJsonMapper;
@@ -43,15 +44,15 @@ public class McpSyncServerRunner extends BaseMcpServerRunner<McpSyncServer> {
   protected McpSyncServer initMcpServer() {
     List<McpServerFeatures.SyncCompletionSpecification> completions = initCompletions();
 
-    if (McpServerConfig.Transport.SSE == serverConfig.getTransport()) {
-      var transportProvider = new JoobySseTransportProvider(app, serverConfig, mcpJsonMapper);
+    if (McpModule.Transport.SSE == serverConfig.getTransport()) {
+      var transportProvider = new JoobySseTransportProvider(app, serverConfig, mcpJsonMapper, null);
       return McpServer.sync(transportProvider)
           .serverInfo(serverConfig.getName(), serverConfig.getVersion())
           .capabilities(computeCapabilities())
           .completions(completions)
           .instructions(serverConfig.getInstructions())
           .build();
-    } else if (McpServerConfig.Transport.STREAMABLE_HTTP == serverConfig.getTransport()) {
+    } else if (McpModule.Transport.STREAMABLE_HTTP == serverConfig.getTransport()) {
       var transportProvider =
           new JoobyStreamableServerTransportProvider(
               app, mcpJsonMapper, serverConfig, CTX_EXTRACTOR);

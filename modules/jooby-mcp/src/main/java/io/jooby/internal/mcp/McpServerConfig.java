@@ -7,6 +7,7 @@ package io.jooby.internal.mcp;
 
 import com.typesafe.config.Config;
 import io.jooby.exception.StartupException;
+import io.jooby.mcp.McpModule;
 
 /**
  * @author kliushnichenko
@@ -18,7 +19,7 @@ public class McpServerConfig {
 
   private String name;
   private String version;
-  private Transport transport;
+  private McpModule.Transport transport;
   private String sseEndpoint;
   private String messageEndpoint;
   private String mcpEndpoint = DEFAULT_MCP_ENDPOINT;
@@ -29,31 +30,6 @@ public class McpServerConfig {
   public McpServerConfig(String name, String version) {
     this.name = name;
     this.version = version;
-  }
-
-  public enum Transport {
-    SSE("sse"),
-    STREAMABLE_HTTP("streamable-http"),
-    STATELESS_STREAMABLE_HTTP("stateless-streamable-http");
-
-    private final String value;
-
-    Transport(String value) {
-      this.value = value;
-    }
-
-    public static Transport of(String value) {
-      for (Transport transport : values()) {
-        if (transport.value.equalsIgnoreCase(value)) {
-          return transport;
-        }
-      }
-      throw new IllegalArgumentException("Unknown transport value: " + value);
-    }
-
-    public String getValue() {
-      return value;
-    }
   }
 
   public String getName() {
@@ -72,11 +48,11 @@ public class McpServerConfig {
     this.version = version;
   }
 
-  public Transport getTransport() {
+  public McpModule.Transport getTransport() {
     return transport;
   }
 
-  public void setTransport(Transport transport) {
+  public void setTransport(McpModule.Transport transport) {
     this.transport = transport;
   }
 
@@ -128,16 +104,16 @@ public class McpServerConfig {
     this.instructions = instructions;
   }
 
-  public static McpServerConfig fromConfig(Config config) {
+  public static McpServerConfig fromConfig(String key, Config config) {
     var srvConfig =
         new McpServerConfig(
             resolveRequiredParam(config, "name"), resolveRequiredParam(config, "version"));
 
     if (config.hasPath("transport")) {
-      Transport transport = Transport.of(config.getString("transport"));
+      McpModule.Transport transport = McpModule.Transport.of(config.getString("transport"));
       srvConfig.setTransport(transport);
     } else {
-      srvConfig.setTransport(Transport.STREAMABLE_HTTP);
+      srvConfig.setTransport(McpModule.Transport.STREAMABLE_HTTP);
     }
 
     srvConfig.setSseEndpoint(getStrProp("sseEndpoint", DEFAULT_SSE_ENDPOINT, config));
@@ -151,7 +127,7 @@ public class McpServerConfig {
   }
 
   public boolean isSseTransport() {
-    return this.transport == Transport.SSE;
+    return this.transport == McpModule.Transport.SSE;
   }
 
   private static String resolveRequiredParam(Config config, String configPath) {
