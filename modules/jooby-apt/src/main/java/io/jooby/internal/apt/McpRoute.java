@@ -542,14 +542,11 @@ public class McpRoute extends WebRoute {
       var isNullable = param.isNullable(kt);
       javaParamNames.add(javaName);
 
-      if (type.equals("io.jooby.Context")) {
-        buffer.add(statement(indent(6), kt ? "val " : "var ", javaName, " = ctx", semicolon(kt)));
+      if (type.equals("io.jooby.Context")
+          || type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
         continue;
-      } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
-        buffer.add(
-            statement(indent(6), kt ? "val " : "var ", javaName, " = exchange", semicolon(kt)));
-        continue;
-      } else if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
+      }
+      if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
         if (kt) {
           buffer.add(
               statement(
