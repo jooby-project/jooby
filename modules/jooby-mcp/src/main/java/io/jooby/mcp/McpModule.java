@@ -23,6 +23,7 @@ import io.jooby.internal.mcp.McpSyncServerRunner;
 import io.jooby.mcp.transport.JoobySseTransportProvider;
 import io.jooby.mcp.transport.JoobyStatelessServerTransport;
 import io.jooby.mcp.transport.JoobyStreamableServerTransportProvider;
+import io.jooby.mcp.transport.JoobyWebSocketServerTransportProvider;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.json.jackson3.JacksonMcpJsonMapper;
@@ -183,6 +184,10 @@ public class McpModule implements Extension {
                       McpServer.sync(
                           new JoobySseTransportProvider(
                               app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
+                  case WEBSOCKET ->
+                      McpServer.sync(
+                          new JoobyWebSocketServerTransportProvider(
+                              app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
                   default ->
                       throw new IllegalStateException(
                           "Unsupported transport: " + mcpConfig.getTransport());
@@ -257,7 +262,8 @@ public class McpModule implements Extension {
   public enum Transport {
     SSE("sse"),
     STREAMABLE_HTTP("streamable-http"),
-    STATELESS_STREAMABLE_HTTP("stateless-streamable-http");
+    STATELESS_STREAMABLE_HTTP("stateless-streamable-http"),
+    WEBSOCKET("websocket");
 
     private final String value;
 
