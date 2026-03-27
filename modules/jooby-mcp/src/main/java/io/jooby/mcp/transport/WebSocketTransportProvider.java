@@ -34,10 +34,9 @@ import reactor.core.publisher.Mono;
  * bidirectional client connections, message routing, and session management.
  */
 @SuppressWarnings("PMD")
-public class JoobyWebSocketServerTransportProvider implements McpServerTransportProvider {
+public class WebSocketTransportProvider implements McpServerTransportProvider {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(JoobyWebSocketServerTransportProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(WebSocketTransportProvider.class);
   private static final String MCP_SESSION_ATTRIBUTE = "mcpSessionId";
 
   private final McpJsonMapper mcpJsonMapper;
@@ -55,7 +54,7 @@ public class JoobyWebSocketServerTransportProvider implements McpServerTransport
    * @param mcpJsonMapper The MCP JSON mapper for message serialization/deserialization
    * @param contextExtractor The extractor for transport context
    */
-  public JoobyWebSocketServerTransportProvider(
+  public WebSocketTransportProvider(
       Jooby app,
       McpServerConfig serverConfig,
       McpJsonMapper mcpJsonMapper,

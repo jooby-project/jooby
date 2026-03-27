@@ -34,16 +34,16 @@ import reactor.core.publisher.Mono;
  * @author kliushnichenko
  */
 @SuppressWarnings("PMD")
-public class JoobyStatelessServerTransport implements McpStatelessServerTransport {
+public class StatelessTransportProvider implements McpStatelessServerTransport {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JoobyStatelessServerTransport.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StatelessTransportProvider.class);
 
   private McpStatelessServerHandler mcpHandler;
   private final McpJsonMapper mcpJsonMapper;
   private final McpTransportContextExtractor<Context> contextExtractor;
   private volatile boolean isClosing = false;
 
-  public JoobyStatelessServerTransport(
+  public StatelessTransportProvider(
       Jooby app,
       McpJsonMapper jsonMapper,
       McpServerConfig serverConfig,

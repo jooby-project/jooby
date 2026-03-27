@@ -35,11 +35,9 @@ import reactor.core.publisher.Mono;
  * @author kliushnichenko
  */
 @SuppressWarnings("PMD")
-public class JoobyStreamableServerTransportProvider
-    implements McpStreamableServerTransportProvider {
+public class StreamableTransportProvider implements McpStreamableServerTransportProvider {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(JoobyStreamableServerTransportProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamableTransportProvider.class);
 
   private final boolean disallowDelete;
   private final McpJsonMapper mcpJsonMapper;
@@ -50,7 +48,7 @@ public class JoobyStreamableServerTransportProvider
   private McpStreamableServerSession.Factory sessionFactory;
   private KeepAliveScheduler keepAliveScheduler;
 
-  public JoobyStreamableServerTransportProvider(
+  public StreamableTransportProvider(
       Jooby app,
       McpJsonMapper jsonMapper,
       McpServerConfig serverConfig,

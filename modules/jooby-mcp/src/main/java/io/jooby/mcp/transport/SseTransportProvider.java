@@ -29,9 +29,9 @@ import reactor.core.publisher.Mono;
  * connections, message routing, and session management.
  */
 @SuppressWarnings("PMD")
-public class JoobySseTransportProvider implements McpServerTransportProvider {
+public class SseTransportProvider implements McpServerTransportProvider {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JoobySseTransportProvider.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SseTransportProvider.class);
 
   private static final String ENDPOINT_EVENT_TYPE = "endpoint";
   private static final String SESSION_ID_KEY = "sessionId";
@@ -51,7 +51,7 @@ public class JoobySseTransportProvider implements McpServerTransportProvider {
    * @param serverConfig The MCP server configuration containing endpoint settings
    * @param mcpJsonMapper The MCP JSON mapper for message serialization/deserialization
    */
-  public JoobySseTransportProvider(
+  public SseTransportProvider(
       Jooby app,
       McpServerConfig serverConfig,
       McpJsonMapper mcpJsonMapper,

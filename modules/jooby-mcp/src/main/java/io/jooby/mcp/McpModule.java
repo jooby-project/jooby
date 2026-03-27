@@ -17,10 +17,10 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.mcp.McpServerConfig;
-import io.jooby.mcp.transport.JoobySseTransportProvider;
-import io.jooby.mcp.transport.JoobyStatelessServerTransport;
-import io.jooby.mcp.transport.JoobyStreamableServerTransportProvider;
-import io.jooby.mcp.transport.JoobyWebSocketServerTransportProvider;
+import io.jooby.mcp.transport.SseTransportProvider;
+import io.jooby.mcp.transport.StatelessTransportProvider;
+import io.jooby.mcp.transport.StreamableTransportProvider;
+import io.jooby.mcp.transport.WebSocketTransportProvider;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.json.jackson3.JacksonMcpJsonMapper;
@@ -157,7 +157,7 @@ public class McpModule implements Extension {
 
       if (mcpConfig.getTransport() == STATELESS_STREAMABLE_HTTP) {
         var transport =
-            new JoobyStatelessServerTransport(app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR);
+            new StatelessTransportProvider(app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR);
         var statelessServer =
             McpServer.sync(transport)
                 .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
@@ -175,15 +175,14 @@ public class McpModule implements Extension {
             (switch (mcpConfig.getTransport()) {
                   case STREAMABLE_HTTP ->
                       McpServer.sync(
-                          new JoobyStreamableServerTransportProvider(
+                          new StreamableTransportProvider(
                               app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR));
                   case SSE ->
                       McpServer.sync(
-                          new JoobySseTransportProvider(
-                              app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
+                          new SseTransportProvider(app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
                   case WEBSOCKET ->
                       McpServer.sync(
-                          new JoobyWebSocketServerTransportProvider(
+                          new WebSocketTransportProvider(
                               app, mcpConfig, mcpJsonMapper, CTX_EXTRACTOR));
                   default ->
                       throw new IllegalStateException(
