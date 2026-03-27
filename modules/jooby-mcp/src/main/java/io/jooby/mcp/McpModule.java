@@ -16,10 +16,7 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.exception.StartupException;
-import io.jooby.internal.mcp.BaseMcpServerRunner;
 import io.jooby.internal.mcp.McpServerConfig;
-import io.jooby.internal.mcp.McpStatelessServerRunner;
-import io.jooby.internal.mcp.McpSyncServerRunner;
 import io.jooby.mcp.transport.JoobySseTransportProvider;
 import io.jooby.mcp.transport.JoobyStatelessServerTransport;
 import io.jooby.mcp.transport.JoobyStreamableServerTransportProvider;
@@ -219,22 +216,6 @@ public class McpModule implements Extension {
         .map(McpService::statelessCompletions)
         .flatMap(List::stream)
         .toList();
-  }
-
-  private BaseMcpServerRunner<?> buildMcpServerRunner(
-      Jooby app, JoobyMcpServer joobyMcpServer, McpServerConfig serverConfig) {
-    var isSingleServer = hasSingleMcpServer();
-    if (STATELESS_STREAMABLE_HTTP == serverConfig.getTransport()) {
-      return new McpStatelessServerRunner(
-          app, joobyMcpServer, serverConfig, mcpJsonMapper, isSingleServer);
-    } else {
-      return new McpSyncServerRunner(
-          app, joobyMcpServer, serverConfig, mcpJsonMapper, isSingleServer);
-    }
-  }
-
-  private boolean hasSingleMcpServer() {
-    return this.mcpServices.size() == 1;
   }
 
   private McpServerConfig mcpServerConfig(Jooby application, String key) {
