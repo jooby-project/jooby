@@ -56,7 +56,11 @@ public @interface McpResource {
   int size() default -1;
 
   /** Optional MCP metadata annotations for this resource. */
-  McpAnnotations[] annotations() default {};
+  McpAnnotations annotations() default
+      @McpAnnotations(
+          audience = {McpSchema.Role.USER},
+          lastModified = "",
+          priority = 0.5);
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.ANNOTATION_TYPE)

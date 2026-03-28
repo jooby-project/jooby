@@ -115,7 +115,8 @@ public class Issue3830 {
                             schema_b.put("description", "2nd number");
                             props.set("b", schema_b);
                             req.add("b");
-                            return new io.modelcontextprotocol.spec.McpSchema.Tool("calculator", null, "Add two numbers.A simple calculator.", mapper.treeToValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), null, null, null);
+                            var annotations = new io.modelcontextprotocol.spec.McpSchema.ToolAnnotations("Add two numbers.A simple calculator.", true, true, false, true, null);
+                            return new io.modelcontextprotocol.spec.McpSchema.Tool("calculator", "Add two numbers.", "A simple calculator.", mapper.treeToValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), null, annotations, null);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CallToolResult add(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.CallToolRequest req) {

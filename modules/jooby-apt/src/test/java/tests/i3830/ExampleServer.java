@@ -20,7 +20,7 @@ public class ExampleServer {
    * @param a 1st number
    * @return sum of the two numbers
    */
-  @McpTool(name = "calculator")
+  @McpTool(name = "calculator", annotations = @McpTool.McpAnnotations(readOnlyHint = true))
   public int add(@McpParam(name = "a") int a, @McpParam(description = "2nd number") int b) {
     return a + b;
   }
@@ -45,12 +45,11 @@ public class ExampleServer {
       uri = "file:///logs/app.log",
       name = "Application Logs",
       size = 1024,
-      annotations = {
-        @McpResource.McpAnnotations(
-            audience = McpSchema.Role.USER,
-            lastModified = "1",
-            priority = 1.5)
-      })
+      annotations =
+          @McpResource.McpAnnotations(
+              audience = McpSchema.Role.USER,
+              lastModified = "1",
+              priority = 1.5))
   public String getLogs() {
     return "Log content here...";
   }

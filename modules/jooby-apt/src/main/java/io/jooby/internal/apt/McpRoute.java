@@ -91,14 +91,23 @@ public class McpRoute extends WebRoute<McpRouter> {
     var methodSummary = method.map(JavaDocNode::getSummary).orElse("");
     var methodDescription = method.map(JavaDocNode::getDescription).orElse("");
     var methodSummaryAndDescription = method.map(JavaDocNode::getFullDescription).orElse("");
+
     if (isMcpTool()) {
       String toolName = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "name");
       if (toolName.isEmpty()) {
         toolName = getMethodName();
       }
+
+      // Extract the new title attribute
+      String title = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "title");
+      var titleArg =
+          title.isEmpty()
+              ? (methodSummary.isEmpty() ? "null" : string(methodSummary))
+              : string(title);
+
       String description = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "description");
       if (description.isEmpty()) {
-        description = methodSummaryAndDescription;
+        description = methodDescription;
       }
 
       if (kt) {
@@ -147,6 +156,7 @@ public class McpRoute extends WebRoute<McpRouter> {
                 indent(6), "var req = schema.putArray(", string("required"), ")", semicolon(kt)));
       }
 
+      // --- PARAMETER SCHEMA GENERATION ---
       for (var param : getParameters(true)) {
         var type = param.getType().getRawType().toString();
         if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
@@ -154,14 +164,11 @@ public class McpRoute extends WebRoute<McpRouter> {
             || type.equals("io.jooby.Context")) continue;
 
         var mcpName = param.getMcpName();
-
-        // 1. Extract the description from the @McpParam annotation
         var paramDescription = param.getMcpDescription();
         if (paramDescription == null) {
           paramDescription = method.map(it -> it.getParameterDoc(param.getName())).orElse("");
         }
 
-        // 2. Generate the schema and inject the description directly
         if (kt) {
           buffer.add(
               statement(
@@ -238,6 +245,7 @@ public class McpRoute extends WebRoute<McpRouter> {
         }
       }
 
+      // --- OUTPUT SCHEMA GENERATION ---
       String returnTypeStr = getReturnType().getRawType().toString();
       boolean generateOutputSchema = hasOutputSchema();
       String outputSchemaArg = "null";
@@ -283,30 +291,83 @@ public class McpRoute extends WebRoute<McpRouter> {
         }
       }
 
+      // --- NESTED ANNOTATION EXTRACTION ---
+      String annotationsArg = "null";
+      var toolAnnotation = parseToolAnnotation();
+
       if (kt) {
+        if (toolAnnotation != null) {
+          annotationsArg = "annotations";
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val annotations = io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
+                  methodSummaryAndDescription.isEmpty()
+                      ? "null"
+                      : string(methodSummaryAndDescription),
+                  ", ",
+                  toolAnnotation.readOnlyHint(),
+                  ", ",
+                  toolAnnotation.destructiveHint(),
+                  ", ",
+                  toolAnnotation.idempotentHint(),
+                  ", ",
+                  toolAnnotation.openWorldHint(),
+                  ", null)"));
+        }
+
         buffer.add(
             statement(
                 indent(6),
                 "return io.modelcontextprotocol.spec.McpSchema.Tool(",
                 string(toolName),
-                ", null, ",
+                ", ",
+                titleArg,
+                ", ",
                 string(description),
                 ", mapper.treeToValue(schema,"
                     + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
                 outputSchemaArg,
-                ", null, null)"));
+                ", ",
+                annotationsArg,
+                ", null)"));
       } else {
+        if (toolAnnotation != null) {
+          annotationsArg = "annotations";
+          buffer.add(
+              statement(
+                  indent(6),
+                  "var annotations = new io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
+                  methodSummaryAndDescription.isEmpty()
+                      ? "null"
+                      : string(methodSummaryAndDescription),
+                  ", ",
+                  toolAnnotation.readOnlyHint(),
+                  ", ",
+                  toolAnnotation.destructiveHint(),
+                  ", ",
+                  toolAnnotation.idempotentHint(),
+                  ", ",
+                  toolAnnotation.openWorldHint(),
+                  ", null)",
+                  semicolon(kt)));
+        }
+
         buffer.add(
             statement(
                 indent(6),
                 "return new io.modelcontextprotocol.spec.McpSchema.Tool(",
                 string(toolName),
-                ", null, ",
+                ", ",
+                titleArg,
+                ", ",
                 string(description),
                 ", mapper.treeToValue(schema,"
                     + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
                 outputSchemaArg,
-                ", null, null)",
+                ", ",
+                annotationsArg,
+                ", null)",
                 semicolon(kt)));
       }
       buffer.add(statement(indent(4), "}\n"));
@@ -943,6 +1004,39 @@ public class McpRoute extends WebRoute<McpRouter> {
 
     return new McpAnnotation(String.join(", ", audienceList), lastMod.toString(), priority);
   }
+
+  private McpToolAnnotation parseToolAnnotation() {
+    String rawAnnotations =
+        extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "annotations");
+
+    if (rawAnnotations.isEmpty()) {
+      return null; // APT didn't find explicitly declared annotations
+    }
+
+    // Default values matching the @McpAnnotations interface
+    String readOnlyHint = "false";
+    String destructiveHint = "true";
+    String idempotentHint = "false";
+    String openWorldHint = "true";
+
+    if (rawAnnotations.contains("readOnlyHint=")) {
+      readOnlyHint = rawAnnotations.replaceAll(".*readOnlyHint=(true|false).*", "$1");
+    }
+    if (rawAnnotations.contains("destructiveHint=")) {
+      destructiveHint = rawAnnotations.replaceAll(".*destructiveHint=(true|false).*", "$1");
+    }
+    if (rawAnnotations.contains("idempotentHint=")) {
+      idempotentHint = rawAnnotations.replaceAll(".*idempotentHint=(true|false).*", "$1");
+    }
+    if (rawAnnotations.contains("openWorldHint=")) {
+      openWorldHint = rawAnnotations.replaceAll(".*openWorldHint=(true|false).*", "$1");
+    }
+
+    return new McpToolAnnotation(readOnlyHint, destructiveHint, idempotentHint, openWorldHint);
+  }
+
+  private record McpToolAnnotation(
+      String readOnlyHint, String destructiveHint, String idempotentHint, String openWorldHint) {}
 
   private record McpAnnotation(String audience, String lastModified, String priority) {}
 }
