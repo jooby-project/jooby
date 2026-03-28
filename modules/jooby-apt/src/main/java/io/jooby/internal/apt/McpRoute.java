@@ -10,6 +10,7 @@ import static io.jooby.internal.apt.CodeBlock.string;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.lang.model.element.ExecutableElement;
 
@@ -435,14 +436,8 @@ public class McpRoute extends WebRoute<McpRouter> {
       String sizeArg = (sizeStr.isEmpty() || sizeStr.equals("-1")) ? "null" : sizeStr + "L";
 
       // --- NESTED ANNOTATION EXTRACTION ---
-      // We parse the string representation of the annotation to avoid massive APT ElementVisitor
-      // boilerplate.
-      // It looks like: @...McpAnnotations(audience={"USER"}, priority=1.0, lastModified="2024")
       String annotationsArg = "null";
-      String rawAnnotations =
-          extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "annotations");
-
-      boolean hasAnnotations = rawAnnotations.contains("priority=");
+      var annotation = parseResourceAnnotation();
 
       var isTemplate = isMcpResourceTemplate();
       var specType = isTemplate ? "ResourceTemplate" : "Resource";
@@ -459,32 +454,15 @@ public class McpRoute extends WebRoute<McpRouter> {
                 " {"));
 
         // Build the Kotlin ResourceAnnotations object if present
-        if (hasAnnotations) {
-          annotationsArg = "annotations";
-          String audienceList =
-              rawAnnotations.contains("USER") && rawAnnotations.contains("ASSISTANT")
-                  ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.USER,"
-                      + " io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
-                  : (rawAnnotations.contains("USER")
-                      ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.USER)"
-                      : (rawAnnotations.contains("ASSISTANT")
-                          ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
-                          : "emptyList()"));
-
-          String priority = rawAnnotations.replaceAll(".*priority=([0-9.]+).*", "$1");
-          var lastMod =
-              rawAnnotations.contains("lastModified=")
-                  ? string(rawAnnotations.replaceAll(".*lastModified=\"([^\"]+)\".*", "$1"))
-                  : "null";
-
-          buffer.add(statement(indent(6), "val audience = ", audienceList));
+        if (annotation != null) {
+          buffer.add(statement(indent(6), "val audience = ", "listOf(", annotation.audience, ""));
           buffer.add(
               statement(
                   indent(6),
                   "val annotations = io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
-                  priority,
+                  annotation.priority,
                   ", ",
-                  lastMod,
+                  annotation.lastModified,
                   ")"));
         }
 
@@ -539,33 +517,25 @@ public class McpRoute extends WebRoute<McpRouter> {
                 "Spec() {"));
 
         // Build the Java ResourceAnnotations object if present
-        if (hasAnnotations) {
+        if (annotation != null) {
           annotationsArg = "annotations";
-          String audienceList =
-              rawAnnotations.contains("USER") && rawAnnotations.contains("ASSISTANT")
-                  ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.USER,"
-                      + " io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
-                  : (rawAnnotations.contains("USER")
-                      ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.USER)"
-                      : (rawAnnotations.contains("ASSISTANT")
-                          ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
-                          : "java.util.Collections.emptyList()"));
 
-          String priority = rawAnnotations.replaceAll(".*priority=([0-9.]+).*", "$1");
-          var lastMod =
-              rawAnnotations.contains("lastModified=")
-                  ? string(rawAnnotations.replaceAll(".*lastModified=\"([^\"]+)\".*", "$1"))
-                  : "null";
-
-          buffer.add(statement(indent(6), "var audience = ", audienceList, semicolon(kt)));
+          buffer.add(
+              statement(
+                  indent(6),
+                  "var audience = ",
+                  "java.util.List.of(",
+                  annotation.audience,
+                  ")",
+                  semicolon(kt)));
           buffer.add(
               statement(
                   indent(6),
                   "var annotations = new"
                       + " io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
-                  priority,
+                  annotation.priority,
                   "D, ",
-                  lastMod,
+                  annotation.lastModified,
                   ")",
                   semicolon(kt)));
         }
@@ -940,5 +910,39 @@ public class McpRoute extends WebRoute<McpRouter> {
         && !isMcpClass;
   }
 
-  private record McpAnnotation(String name, String value) {}
+  private McpAnnotation parseResourceAnnotation() {
+    String rawAnnotations =
+        extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "annotations");
+
+    boolean hasAnnotations = rawAnnotations.contains("priority=");
+
+    if (!hasAnnotations) {
+      return null;
+    }
+
+    var audienceList = new ArrayList<String>();
+    var annotationMap =
+        Map.of(
+            "USER",
+            "io.modelcontextprotocol.spec.McpSchema.Role.USER",
+            "ASSISTANT",
+            "io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT");
+    for (var entry : annotationMap.entrySet()) {
+      if (rawAnnotations.contains(entry.getKey())) {
+        audienceList.add(entry.getValue());
+      }
+    }
+    if (audienceList.isEmpty()) {
+      audienceList.add(annotationMap.get("USER"));
+    }
+    var priority = rawAnnotations.replaceAll(".*priority=([0-9.]+).*", "$1");
+    var lastMod =
+        rawAnnotations.contains("lastModified=")
+            ? string(rawAnnotations.replaceAll(".*lastModified=\"([^\"]+)\".*", "$1"))
+            : "null";
+
+    return new McpAnnotation(String.join(", ", audienceList), lastMod.toString(), priority);
+  }
+
+  private record McpAnnotation(String audience, String lastModified, String priority) {}
 }

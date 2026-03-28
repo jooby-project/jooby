@@ -56,8 +56,7 @@ public @interface McpResource {
   int size() default -1;
 
   /** Optional MCP metadata annotations for this resource. */
-  McpAnnotations[]
-      annotations() default {}; // Using an array is the safest way to provide an "empty" default in
+  McpAnnotations[] annotations() default {};
 
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.ANNOTATION_TYPE)
