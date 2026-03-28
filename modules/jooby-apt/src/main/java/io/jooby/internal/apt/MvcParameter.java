@@ -58,6 +58,18 @@ public class MvcParameter {
     return getName();
   }
 
+  public String getMcpDescription() {
+    var annotation = annotations.get("io.jooby.annotation.mcp.McpParam");
+    if (annotation != null) {
+      return io.jooby.internal.apt.AnnotationSupport.findAnnotationValue(
+              annotation, "description"::equals)
+          .stream()
+          .findFirst()
+          .orElse(null);
+    }
+    return null;
+  }
+
   public String generateMapping(boolean kt) {
     var strategy =
         annotations.entrySet().stream()

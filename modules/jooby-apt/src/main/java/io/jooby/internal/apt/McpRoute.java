@@ -153,28 +153,10 @@ public class McpRoute extends WebRoute<McpRouter> {
             || type.equals("io.jooby.Context")) continue;
 
         var mcpName = param.getMcpName();
-        var javaName = param.getName();
 
         // 1. Extract the description from the @McpParam annotation
-        var paramDescription = "";
-        var varEl =
-            this.method.getParameters().stream()
-                .filter(p -> p.getSimpleName().toString().equals(javaName))
-                .findFirst()
-                .orElse(null);
-
-        if (varEl != null) {
-          var paramAnno =
-              AnnotationSupport.findAnnotationByName(varEl, "io.jooby.annotation.mcp.McpParam");
-          if (paramAnno != null) {
-            paramDescription =
-                AnnotationSupport.findAnnotationValue(paramAnno, "description"::equals).stream()
-                    .findFirst()
-                    .map(v -> v.replace("\"", ""))
-                    .orElse("");
-          }
-        }
-        if (paramDescription.isEmpty()) {
+        var paramDescription = param.getMcpDescription();
+        if (paramDescription == null) {
           paramDescription = method.map(it -> it.getParameterDoc(param.getName())).orElse("");
         }
 

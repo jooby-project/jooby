@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.jooby.annotation.mcp.*;
+import io.modelcontextprotocol.spec.McpSchema;
 
 @McpServer("example-server")
 public class ExampleServer {
@@ -46,7 +47,7 @@ public class ExampleServer {
       size = 1024,
       annotations = {
         @McpResource.McpAnnotations(
-            audience = McpResource.Role.USER,
+            audience = McpSchema.Role.USER,
             lastModified = "1",
             priority = 1.5)
       })

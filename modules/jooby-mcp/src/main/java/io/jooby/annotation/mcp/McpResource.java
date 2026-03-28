@@ -10,6 +10,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import io.modelcontextprotocol.spec.McpSchema;
+
 /**
  * Exposes a method as an MCP Resource or Resource Template.
  *
@@ -57,13 +59,6 @@ public @interface McpResource {
   McpAnnotations[]
       annotations() default {}; // Using an array is the safest way to provide an "empty" default in
 
-  // Java annotations
-
-  enum Role {
-    USER,
-    ASSISTANT
-  }
-
   @Retention(RetentionPolicy.RUNTIME)
   @Target(ElementType.ANNOTATION_TYPE)
   @interface McpAnnotations {
@@ -72,7 +67,7 @@ public @interface McpResource {
      * Describes who the intended customer of this object or data is. It can include multiple
      * entries to indicate content useful for multiple audiences (e.g., [“user”, “assistant”]).
      */
-    Role[] audience();
+    McpSchema.Role[] audience();
 
     /** The date and time (in ISO 8601 format) when the resource was last modified. */
     String lastModified() default "";
