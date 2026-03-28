@@ -15,11 +15,11 @@ import java.util.stream.Stream;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.type.TypeKind;
 
-public class TrpcRoute extends WebRoute {
+public class TrpcRoute extends WebRoute<TrpcRouter> {
   private final HttpMethod resolvedTrpcMethod;
   private String generatedName;
 
-  public TrpcRoute(WebRouter<?> router, ExecutableElement method) {
+  public TrpcRoute(TrpcRouter router, ExecutableElement method) {
     super(router, method);
     this.resolvedTrpcMethod = discoverTrpcMethod();
     this.generatedName = method.getSimpleName().toString();

@@ -32,19 +32,19 @@ public abstract class WebRouter<R extends WebRoute> {
           protected java.util.function.Function<io.jooby.Context, ${className}> factory;
       ${constructors}
           public ${generatedClassName}(${className} instance) {
-             setup(ctx -> instance);
+            setup(ctx -> instance);
           }
 
           public ${generatedClassName}(io.jooby.SneakyThrows.Supplier<${className}> provider) {
-             setup(ctx -> (${className}) provider.get());
+            setup(ctx -> (${className}) provider.get());
           }
 
           public ${generatedClassName}(io.jooby.SneakyThrows.Function<Class<${className}>, ${className}> provider) {
-             setup(ctx -> provider.apply(${className}.class));
+            setup(ctx -> provider.apply(${className}.class));
           }
 
           private void setup(java.util.function.Function<io.jooby.Context, ${className}> factory) {
-              this.factory = factory;
+            this.factory = factory;
           }
 
       ${methods}

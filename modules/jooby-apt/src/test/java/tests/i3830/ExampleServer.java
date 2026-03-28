@@ -13,13 +13,19 @@ import io.jooby.annotation.*;
 @McpServer("example-server")
 public class ExampleServer {
 
-  // 1. Tool
-  @McpTool(name = "calculator", description = "A simple calculator")
-  public int add(@McpParam(name = "a") int a, @McpParam(name = "b") int b) {
+  /**
+   * Add two numbers. A simple calculator.
+   *
+   * @param a 1st number
+   * @return sum of the two numbers
+   */
+  @McpTool(name = "calculator")
+  public int add(@McpParam(name = "a") int a, @McpParam(description = "2nd number") int b) {
     return a + b;
   }
 
   // 2. Prompt
+
   /**
    * Reviews the given code snippet in the context of the specified programming language.
    *
@@ -33,15 +39,30 @@ public class ExampleServer {
     return "Please review this " + language + " code:\n" + code;
   }
 
-  // 3. Static Resource
-  @McpResource("file:///logs/app.log")
+  /** Logs Title. Log description Suspendisse potenti. */
+  @McpResource(
+      uri = "file:///logs/app.log",
+      name = "Application Logs",
+      size = 1024,
+      annotations = {
+        @McpResource.McpAnnotations(
+            audience = McpResource.Role.USER,
+            lastModified = "1",
+            priority = 1.5)
+      })
   public String getLogs() {
     return "Log content here...";
   }
 
-  // 4. Resource Template
-  @McpResource("file:///users/{id}/{name}/profile")
-  public Map<String, Object> getUserProfile(String id) {
+  /**
+   * Resource Template.
+   *
+   * @param id User ID.
+   * @param name User name.
+   * @return User profile.
+   */
+  @McpResource(uri = "file:///users/{id}/{name}/profile", mimeType = "application/json")
+  public Map<String, Object> getUserProfile(String id, String name) {
     return Map.of("id", id, "name", "John Doe");
   }
 

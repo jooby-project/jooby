@@ -10,7 +10,10 @@ import static io.jooby.javadoc.JavaDocStream.javadocToken;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.puppycrawl.tools.checkstyle.DetailNodeTreeStringPrinter;
 import com.puppycrawl.tools.checkstyle.JavadocDetailNodeParser;
@@ -66,6 +69,12 @@ public class JavaDocNode {
   public String getDescription() {
     var description = ContentSplitter.split(getText()).description();
     return description.isEmpty() ? null : description;
+  }
+
+  public String getFullDescription() {
+    return Stream.of(getSummary(), getDescription())
+        .filter(Objects::nonNull)
+        .collect(Collectors.joining());
   }
 
   public String getText() {

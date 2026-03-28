@@ -6,20 +6,23 @@
 package io.jooby.internal.apt;
 
 import static io.jooby.internal.apt.CodeBlock.*;
+import static io.jooby.internal.apt.CodeBlock.string;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.ExecutableElement;
 
-public class McpRoute extends WebRoute {
+import io.jooby.javadoc.JavaDocNode;
+
+public class McpRoute extends WebRoute<McpRouter> {
   private boolean isMcpTool = false;
   private boolean isMcpPrompt = false;
   private boolean isMcpResource = false;
   private boolean isMcpResourceTemplate = false;
   private boolean isMcpCompletion = false;
 
-  public McpRoute(WebRouter<?> router, ExecutableElement method) {
+  public McpRoute(McpRouter router, ExecutableElement method) {
     super(router, method);
     checkMcpAnnotations();
   }
@@ -42,7 +45,7 @@ public class McpRoute extends WebRoute {
         AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpResource");
     if (resourceAnno != null) {
       String uri =
-          AnnotationSupport.findAnnotationValue(resourceAnno, "value"::equals).stream()
+          AnnotationSupport.findAnnotationValue(resourceAnno, "uri"::equals).stream()
               .findFirst()
               .orElse("");
       if (uri.contains("{") && uri.contains("}")) {
@@ -83,11 +86,19 @@ public class McpRoute extends WebRoute {
 
   public List<String> generateMcpDefinitionMethod(boolean kt) {
     List<String> buffer = new ArrayList<>();
-
+    var method = router.getMethodDoc(getMethodName(), getRawParameterTypes(false, kt, true));
+    var methodSummary = method.map(JavaDocNode::getSummary).orElse("");
+    var methodDescription = method.map(JavaDocNode::getDescription).orElse("");
+    var methodSummaryAndDescription = method.map(JavaDocNode::getFullDescription).orElse("");
     if (isMcpTool()) {
       String toolName = extractAnnotationValue("io.jooby.annotation.McpTool", "name");
-      if (toolName.isEmpty()) toolName = getMethodName();
+      if (toolName.isEmpty()) {
+        toolName = getMethodName();
+      }
       String description = extractAnnotationValue("io.jooby.annotation.McpTool", "description");
+      if (description.isEmpty()) {
+        description = methodSummaryAndDescription;
+      }
 
       if (kt) {
         buffer.add(
@@ -141,31 +152,106 @@ public class McpRoute extends WebRoute {
             || type.equals("io.modelcontextprotocol.common.McpTransportContext")
             || type.equals("io.jooby.Context")) continue;
 
-        String mcpName = param.getMcpName();
+        var mcpName = param.getMcpName();
+        var javaName = param.getName();
 
+        // 1. Extract the description from the @McpParam annotation
+        var paramDescription = "";
+        var varEl =
+            this.method.getParameters().stream()
+                .filter(p -> p.getSimpleName().toString().equals(javaName))
+                .findFirst()
+                .orElse(null);
+
+        if (varEl != null) {
+          var paramAnno =
+              AnnotationSupport.findAnnotationByName(varEl, "io.jooby.annotation.McpParam");
+          if (paramAnno != null) {
+            paramDescription =
+                AnnotationSupport.findAnnotationValue(paramAnno, "description"::equals).stream()
+                    .findFirst()
+                    .map(v -> v.replace("\"", ""))
+                    .orElse("");
+          }
+        }
+        if (paramDescription.isEmpty()) {
+          paramDescription = method.map(it -> it.getParameterDoc(param.getName())).orElse("");
+        }
+
+        // 2. Generate the schema and inject the description directly
         if (kt) {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val schema_",
+                  mcpName,
+                  " = schemaGenerator.generateSchema(",
+                  type,
+                  "::class.java)"));
+
+          if (!paramDescription.isEmpty()) {
+            buffer.add(
+                statement(
+                    indent(6),
+                    "schema_",
+                    mcpName,
+                    ".put(",
+                    string("description"),
+                    ", ",
+                    string(paramDescription),
+                    ")"));
+          }
+
           buffer.add(
               statement(
                   indent(6),
                   "props.set<tools.jackson.databind.JsonNode>(",
                   string(mcpName),
-                  ", schemaGenerator.generateSchema(",
-                  type,
-                  "::class.java))"));
-          if (!param.isNullable(kt))
+                  ", schema_",
+                  mcpName,
+                  ")"));
+
+          if (!param.isNullable(kt)) {
             buffer.add(statement(indent(6), "req.add(", string(mcpName), ")"));
+          }
         } else {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "var schema_",
+                  mcpName,
+                  " = schemaGenerator.generateSchema(",
+                  type,
+                  ".class)",
+                  semicolon(kt)));
+
+          if (!paramDescription.isEmpty()) {
+            buffer.add(
+                statement(
+                    indent(6),
+                    "schema_",
+                    mcpName,
+                    ".put(",
+                    string("description"),
+                    ", ",
+                    string(paramDescription),
+                    ")",
+                    semicolon(kt)));
+          }
+
           buffer.add(
               statement(
                   indent(6),
                   "props.set(",
                   string(mcpName),
-                  ", schemaGenerator.generateSchema(",
-                  type,
-                  ".class))",
+                  ", schema_",
+                  mcpName,
+                  ")",
                   semicolon(kt)));
-          if (!param.isNullable(kt))
+
+          if (!param.isNullable(kt)) {
             buffer.add(statement(indent(6), "req.add(", string(mcpName), ")", semicolon(kt)));
+          }
         }
       }
 
@@ -244,8 +330,13 @@ public class McpRoute extends WebRoute {
 
     } else if (isMcpPrompt()) {
       String promptName = extractAnnotationValue("io.jooby.annotation.McpPrompt", "name");
-      if (promptName.isEmpty()) promptName = getMethodName();
+      if (promptName.isEmpty()) {
+        promptName = getMethodName();
+      }
       String description = extractAnnotationValue("io.jooby.annotation.McpPrompt", "description");
+      if (description.isEmpty()) {
+        description = methodSummaryAndDescription;
+      }
 
       if (kt) {
         buffer.add(
@@ -328,10 +419,46 @@ public class McpRoute extends WebRoute {
       buffer.add(statement(indent(4), "}\n"));
 
     } else if (isMcpResource() || isMcpResourceTemplate()) {
-      var uri = extractAnnotationValue("io.jooby.annotation.McpResource", "value");
+      var uri = extractAnnotationValue("io.jooby.annotation.McpResource", "uri");
       var name = extractAnnotationValue("io.jooby.annotation.McpResource", "name");
-      if (name.isEmpty()) name = getMethodName();
+      if (name.isEmpty()) {
+        name = getMethodName();
+      }
+
+      var title = extractAnnotationValue("io.jooby.annotation.McpResource", "title");
       var description = extractAnnotationValue("io.jooby.annotation.McpResource", "description");
+      var mimeType = extractAnnotationValue("io.jooby.annotation.McpResource", "mimeType");
+      var sizeStr = extractAnnotationValue("io.jooby.annotation.McpResource", "size");
+
+      // Prepare standard arguments safely
+      var titleArg =
+          title.isEmpty()
+              ? (methodSummary.isEmpty() ? "null" : string(methodSummary))
+              : string(title);
+      var descriptionArg =
+          description.isEmpty()
+              ? (methodDescription.isEmpty() ? "null" : string(methodDescription))
+              : string(description);
+      var mimeTypeArg =
+          mimeType.isEmpty()
+              ? of(
+                  "io.jooby.MediaType.byFileExtension(",
+                  string(uri),
+                  ", ",
+                  string("text/plain"),
+                  ").getValue()")
+              : string(mimeType);
+      String sizeArg = (sizeStr.isEmpty() || sizeStr.equals("-1")) ? "null" : sizeStr + "L";
+
+      // --- NESTED ANNOTATION EXTRACTION ---
+      // We parse the string representation of the annotation to avoid massive APT ElementVisitor
+      // boilerplate.
+      // It looks like: @...McpAnnotations(audience={"USER"}, priority=1.0, lastModified="2024")
+      String annotationsArg = "null";
+      String rawAnnotations =
+          extractAnnotationValue("io.jooby.annotation.McpResource", "annotations");
+
+      boolean hasAnnotations = rawAnnotations.contains("priority=");
 
       var isTemplate = isMcpResourceTemplate();
       var specType = isTemplate ? "ResourceTemplate" : "Resource";
@@ -346,6 +473,37 @@ public class McpRoute extends WebRoute {
                 "Spec(): io.modelcontextprotocol.spec.McpSchema.",
                 specType,
                 " {"));
+
+        // Build the Kotlin ResourceAnnotations object if present
+        if (hasAnnotations) {
+          annotationsArg = "annotations";
+          String audienceList =
+              rawAnnotations.contains("USER") && rawAnnotations.contains("ASSISTANT")
+                  ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.USER,"
+                      + " io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
+                  : (rawAnnotations.contains("USER")
+                      ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.USER)"
+                      : (rawAnnotations.contains("ASSISTANT")
+                          ? "listOf(io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
+                          : "emptyList()"));
+
+          String priority = rawAnnotations.replaceAll(".*priority=([0-9.]+).*", "$1");
+          var lastMod =
+              rawAnnotations.contains("lastModified=")
+                  ? string(rawAnnotations.replaceAll(".*lastModified=\"([^\"]+)\".*", "$1"))
+                  : "null";
+
+          buffer.add(statement(indent(6), "val audience = ", audienceList));
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val annotations = io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
+                  priority,
+                  ", ",
+                  lastMod,
+                  ")"));
+        }
+
         if (!isTemplate) {
           buffer.add(
               statement(
@@ -354,9 +512,17 @@ public class McpRoute extends WebRoute {
                   string(uri),
                   ", ",
                   string(name),
-                  ", null, ",
-                  string(description),
-                  ", null, null, null, null)"));
+                  ", ",
+                  titleArg,
+                  ", ",
+                  descriptionArg,
+                  ", ",
+                  mimeTypeArg,
+                  ", ",
+                  sizeArg,
+                  ", ",
+                  annotationsArg,
+                  ", null)"));
         } else {
           buffer.add(
               statement(
@@ -365,11 +531,18 @@ public class McpRoute extends WebRoute {
                   string(uri),
                   ", ",
                   string(name),
-                  ", null, ",
-                  string(description),
-                  ", null, null, null)"));
+                  ", ",
+                  titleArg,
+                  ", ",
+                  descriptionArg,
+                  ", ",
+                  mimeTypeArg,
+                  ", ",
+                  annotationsArg,
+                  ", null)"));
         }
         buffer.add(statement(indent(4), "}\n"));
+
       } else {
         buffer.add(
             statement(
@@ -380,6 +553,39 @@ public class McpRoute extends WebRoute {
                 getMethodName(),
                 specType,
                 "Spec() {"));
+
+        // Build the Java ResourceAnnotations object if present
+        if (hasAnnotations) {
+          annotationsArg = "annotations";
+          String audienceList =
+              rawAnnotations.contains("USER") && rawAnnotations.contains("ASSISTANT")
+                  ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.USER,"
+                      + " io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
+                  : (rawAnnotations.contains("USER")
+                      ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.USER)"
+                      : (rawAnnotations.contains("ASSISTANT")
+                          ? "java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.ASSISTANT)"
+                          : "java.util.Collections.emptyList()"));
+
+          String priority = rawAnnotations.replaceAll(".*priority=([0-9.]+).*", "$1");
+          var lastMod =
+              rawAnnotations.contains("lastModified=")
+                  ? string(rawAnnotations.replaceAll(".*lastModified=\"([^\"]+)\".*", "$1"))
+                  : "null";
+
+          buffer.add(statement(indent(6), "var audience = ", audienceList, semicolon(kt)));
+          buffer.add(
+              statement(
+                  indent(6),
+                  "var annotations = new"
+                      + " io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
+                  priority,
+                  "D, ",
+                  lastMod,
+                  ")",
+                  semicolon(kt)));
+        }
+
         if (!isTemplate) {
           buffer.add(
               statement(
@@ -388,9 +594,17 @@ public class McpRoute extends WebRoute {
                   string(uri),
                   ", ",
                   string(name),
-                  ", null, ",
-                  string(description),
-                  ", null, null, null, null)",
+                  ", ",
+                  titleArg,
+                  ", ",
+                  descriptionArg,
+                  ", ",
+                  mimeTypeArg,
+                  ", ",
+                  sizeArg,
+                  ", ",
+                  annotationsArg,
+                  ", null)",
                   semicolon(kt)));
         } else {
           buffer.add(
@@ -400,9 +614,15 @@ public class McpRoute extends WebRoute {
                   string(uri),
                   ", ",
                   string(name),
-                  ", null, ",
-                  string(description),
-                  ", null, null, null)",
+                  ", ",
+                  titleArg,
+                  ", ",
+                  descriptionArg,
+                  ", ",
+                  mimeTypeArg,
+                  ", ",
+                  annotationsArg,
+                  ", null)",
                   semicolon(kt)));
         }
         buffer.add(statement(indent(4), "}\n"));
@@ -488,7 +708,7 @@ public class McpRoute extends WebRoute {
                 semicolon(kt)));
       }
     } else if (isMcpResource() || isMcpResourceTemplate()) {
-      String uriTemplate = extractAnnotationValue("io.jooby.annotation.McpResource", "value");
+      String uriTemplate = extractAnnotationValue("io.jooby.annotation.McpResource", "uri");
       boolean isTemplate = isMcpResourceTemplate();
 
       if (isTemplate) {

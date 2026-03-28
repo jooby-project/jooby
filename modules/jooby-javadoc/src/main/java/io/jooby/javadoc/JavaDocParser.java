@@ -13,6 +13,7 @@ import static io.jooby.javadoc.Utils.throwingFunction;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -330,9 +331,30 @@ public class JavaDocParser {
   }
 
   private Optional<Path> lookup(Path path) {
+    var direct =
+        baseDir.stream()
+            .map(parentDir -> parentDir.resolve(path))
+            .filter(Files::exists)
+            .findFirst();
+    if (direct.isPresent()) {
+      return direct;
+    }
     return baseDir.stream()
-        .map(parentDir -> parentDir.resolve(path))
-        .filter(Files::exists)
+        .map(
+            parentDir -> {
+              try (var stream = Files.walk(parentDir)) {
+                return stream
+                    .filter(Files::isRegularFile)
+                    // Check if the file ends with the path provided
+                    .filter(p -> p.endsWith(path.toString()))
+                    .findFirst()
+                    .orElse(null);
+              } catch (IOException e) {
+                // Log error or handle permission issues
+                return null;
+              }
+            })
+        .filter(Objects::nonNull)
         .findFirst();
   }
 

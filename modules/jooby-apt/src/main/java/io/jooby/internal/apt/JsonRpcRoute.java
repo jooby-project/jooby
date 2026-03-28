@@ -15,9 +15,9 @@ import java.util.function.Consumer;
 
 import javax.lang.model.element.ExecutableElement;
 
-public class JsonRpcRoute extends WebRoute {
+public class JsonRpcRoute extends WebRoute<JsonRpcRouter> {
 
-  public JsonRpcRoute(WebRouter<?> router, ExecutableElement method) {
+  public JsonRpcRoute(JsonRpcRouter router, ExecutableElement method) {
     super(router, method);
   }
 

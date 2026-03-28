@@ -449,6 +449,21 @@ public final class MediaType implements Comparable<MediaType> {
    * @param ext File extension.
    * @return Mediatype.
    */
+  public static @NonNull MediaType byFileExtension(
+      @NonNull String ext, @NonNull String defaultType) {
+    var result = byFileExtension(ext);
+    if (result.equals(octetStream) || result.equals(all)) {
+      return MediaType.valueOf(defaultType);
+    }
+    return result;
+  }
+
+  /**
+   * Mediatype by file extension.
+   *
+   * @param ext File extension.
+   * @return Mediatype.
+   */
   public static @NonNull MediaType byFileExtension(@NonNull String ext) {
     switch (ext) {
       case "spl":

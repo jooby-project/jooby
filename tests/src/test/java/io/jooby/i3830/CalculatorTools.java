@@ -18,7 +18,15 @@ import io.modelcontextprotocol.server.McpSyncServerExchange;
 public class CalculatorTools {
 
   // --- TOOLS ---
-  @McpTool(name = "add_numbers", description = "Adds two integers together and returns the result.")
+
+  /**
+   * Adds two integers together and returns the result.
+   *
+   * @param a The first number to add.
+   * @param b The second number to add.
+   * @return The sum of the two numbers.
+   */
+  @McpTool(name = "add_numbers")
   public int add(int a, int b) {
     return a + b;
   }
@@ -33,7 +41,7 @@ public class CalculatorTools {
 
   // --- RESOURCES ---
   @McpResource(
-      value = "calculator://manual/usage",
+      uri = "calculator://manual/usage",
       name = "Calculator Manual",
       description = "Instructions on how to use the calculator")
   public String manual() {
@@ -41,7 +49,7 @@ public class CalculatorTools {
   }
 
   @McpResource(
-      value = "calculator://history/{user}",
+      uri = "calculator://history/{user}",
       name = "User History",
       description = "Retrieves the calculation history for a specific user")
   public String history(String user) {

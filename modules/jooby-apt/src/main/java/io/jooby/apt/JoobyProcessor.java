@@ -8,7 +8,7 @@ package io.jooby.apt;
 import static io.jooby.apt.JoobyProcessor.Options.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Optional.ofNullable;
-import static javax.tools.StandardLocation.SOURCE_OUTPUT;
+import static javax.tools.StandardLocation.*;
 
 import java.io.*;
 import java.net.URI;
@@ -21,9 +21,7 @@ import java.util.stream.Stream;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
+import javax.tools.*;
 
 import io.jooby.internal.apt.*;
 
@@ -137,10 +135,6 @@ public class JoobyProcessor extends AbstractProcessor {
         List<WebRouter<?>> activeRouters = new ArrayList<>();
         for (var controller : controllers) {
           if (controller.getModifiers().contains(Modifier.ABSTRACT)) continue;
-
-          // These factory methods will scan the class methods and return a populated router
-          // if it finds relevant annotations (@GET for Rest, @McpTool for MCP, etc.)
-          // We will implement these factories inside the respective Router classes.
 
           var restRouter = RestRouter.parse(context, controller);
           if (!restRouter.isEmpty()) {

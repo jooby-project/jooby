@@ -24,12 +24,11 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeKind;
 
-public class RestRoute extends WebRoute {
+public class RestRoute extends WebRoute<RestRouter> {
   private final TypeElement httpMethodAnnotation;
   private String generatedName;
 
-  public RestRoute(
-      WebRouter<?> router, ExecutableElement method, TypeElement httpMethodAnnotation) {
+  public RestRoute(RestRouter router, ExecutableElement method, TypeElement httpMethodAnnotation) {
     super(router, method);
     this.httpMethodAnnotation = httpMethodAnnotation;
     this.generatedName = method.getSimpleName().toString();

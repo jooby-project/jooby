@@ -9,20 +9,35 @@ import static io.jooby.internal.apt.AnnotationSupport.VALUE;
 import static io.jooby.internal.apt.CodeBlock.*;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
+import io.jooby.javadoc.JavaDocParser;
+import io.jooby.javadoc.MethodDoc;
+
 public class McpRouter extends WebRouter<McpRoute> {
+
+  private final JavaDocParser javadoc;
 
   public McpRouter(MvcContext context, TypeElement clazz) {
     super(context, clazz);
+    var src = Paths.get("").toAbsolutePath();
+    if (!src.endsWith("src") && Files.exists(src.resolve("src"))) {
+      src = src.resolve("src");
+    }
+    this.javadoc = new JavaDocParser(src);
   }
 
   public static McpRouter parse(MvcContext context, TypeElement controller) {
     var router = new McpRouter(context, controller);
+
     for (var enclosed : controller.getEnclosedElements()) {
       if (enclosed.getKind() == ElementKind.METHOD) {
         var route = new McpRoute(router, (ExecutableElement) enclosed);
@@ -83,7 +98,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 route.getMethod(), "io.jooby.annotation.McpResource");
         var uri =
             annotation != null
-                ? AnnotationSupport.findAnnotationValue(annotation, "value"::equals).stream()
+                ? AnnotationSupport.findAnnotationValue(annotation, "uri"::equals).stream()
                     .findFirst()
                     .orElse("")
                 : "";
@@ -163,13 +178,15 @@ public class McpRouter extends WebRouter<McpRoute> {
                   + " capabilities(io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.Builder"
                   + " capabilities) {"));
     }
-    if (!tools.isEmpty())
+    if (!tools.isEmpty()) {
       buffer.append(statement(indent(6), "capabilities.tools(true)", semicolon(kt)));
-    if (!prompts.isEmpty())
+    }
+    if (!prompts.isEmpty()) {
       buffer.append(statement(indent(6), "capabilities.prompts(true)", semicolon(kt)));
-    if (!resources.isEmpty())
+    }
+    if (!resources.isEmpty()) {
       buffer.append(statement(indent(6), "capabilities.resources(true, true)", semicolon(kt)));
-    // ADD THIS BLOCK:
+    }
     if (!completionGroups.isEmpty()) {
       buffer.append(statement(indent(6), "capabilities.completions()", semicolon(kt)));
     }
@@ -660,5 +677,9 @@ public class McpRouter extends WebRouter<McpRoute> {
         .replace("${implements}", "io.jooby.mcp.McpService")
         .replace("${constructors}", constructors(mcpClassName, kt))
         .replace("${methods}", trimr(buffer));
+  }
+
+  public Optional<MethodDoc> getMethodDoc(String methodName, List<String> types) {
+    return javadoc.parse(getTargetType().toString()).flatMap(it -> it.getMethod(methodName, types));
   }
 }

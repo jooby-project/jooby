@@ -18,17 +18,17 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.WildcardType;
 
-public abstract class WebRoute {
+public abstract class WebRoute<R extends WebRouter<?>> {
   protected final MvcContext context;
   protected final ExecutableElement method;
   protected final List<MvcParameter> parameters;
   protected final TypeDefinition returnType;
   protected final boolean suspendFun;
   protected final boolean hasBeanValidation;
-  protected final WebRouter<?> router;
+  protected final R router;
   private boolean uncheckedCast;
 
-  public WebRoute(WebRouter<?> router, ExecutableElement method) {
+  public WebRoute(R router, ExecutableElement method) {
     this.context = router.context;
     this.router = router;
     this.method = method;
@@ -43,7 +43,7 @@ public abstract class WebRoute {
             context.getProcessingEnvironment().getTypeUtils(), method.getReturnType());
   }
 
-  public WebRouter<?> getRouter() {
+  public R getRouter() {
     return router;
   }
 
@@ -111,6 +111,16 @@ public abstract class WebRoute {
         .map(TypeDefinition::getRawType)
         .map(TypeMirror::toString)
         .map(it -> type(kt, it))
+        .toList();
+  }
+
+  public List<String> getRawParameterTypes(
+      boolean skipCoroutine, boolean kt, boolean keepJavaLang) {
+    return getParameters(skipCoroutine).stream()
+        .map(MvcParameter::getType)
+        .map(TypeDefinition::getRawType)
+        .map(TypeMirror::toString)
+        .map(it -> keepJavaLang ? it : type(kt, it))
         .toList();
   }
 
