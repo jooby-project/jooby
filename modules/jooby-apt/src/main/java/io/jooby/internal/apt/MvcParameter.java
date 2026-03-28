@@ -42,7 +42,7 @@ public class MvcParameter {
   }
 
   public String getMcpName() {
-    var annotation = annotations.get("io.jooby.annotation.McpParam");
+    var annotation = annotations.get("io.jooby.annotation.mcp.McpParam");
     if (annotation != null) {
       var customName =
           io.jooby.internal.apt.AnnotationSupport.findAnnotationValue(annotation, "name"::equals)

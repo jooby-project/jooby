@@ -3,28 +3,28 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotation;
+package io.jooby.annotation.mcp;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Exposes a method as an MCP Tool. */
+/** Exposes a method as an MCP Prompt. */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface McpTool {
+public @interface McpPrompt {
   /**
-   * The name of the tool. If empty, the method name is used.
+   * The name of the prompt. If empty, the method name is used.
    *
-   * @return Tool name.
+   * @return Prompt name.
    */
   String name() default "";
 
   /**
-   * A description of what the tool does. Highly recommended for LLM usage.
+   * A description of what the prompt provides.
    *
-   * @return Tool description.
+   * @return Prompt description.
    */
   String description() default "";
 }

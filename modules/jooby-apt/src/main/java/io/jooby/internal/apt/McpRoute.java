@@ -28,21 +28,21 @@ public class McpRoute extends WebRoute<McpRouter> {
   }
 
   private void checkMcpAnnotations() {
-    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpTool")
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.mcp.McpTool")
         != null) {
       this.isMcpTool = true;
     }
-    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpPrompt")
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.mcp.McpPrompt")
         != null) {
       this.isMcpPrompt = true;
     }
-    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpCompletion")
+    if (AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.mcp.McpCompletion")
         != null) {
       this.isMcpCompletion = true;
     }
 
     var resourceAnno =
-        AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.McpResource");
+        AnnotationSupport.findAnnotationByName(this.method, "io.jooby.annotation.mcp.McpResource");
     if (resourceAnno != null) {
       String uri =
           AnnotationSupport.findAnnotationValue(resourceAnno, "uri"::equals).stream()
@@ -91,11 +91,11 @@ public class McpRoute extends WebRoute<McpRouter> {
     var methodDescription = method.map(JavaDocNode::getDescription).orElse("");
     var methodSummaryAndDescription = method.map(JavaDocNode::getFullDescription).orElse("");
     if (isMcpTool()) {
-      String toolName = extractAnnotationValue("io.jooby.annotation.McpTool", "name");
+      String toolName = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "name");
       if (toolName.isEmpty()) {
         toolName = getMethodName();
       }
-      String description = extractAnnotationValue("io.jooby.annotation.McpTool", "description");
+      String description = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "description");
       if (description.isEmpty()) {
         description = methodSummaryAndDescription;
       }
@@ -165,7 +165,7 @@ public class McpRoute extends WebRoute<McpRouter> {
 
         if (varEl != null) {
           var paramAnno =
-              AnnotationSupport.findAnnotationByName(varEl, "io.jooby.annotation.McpParam");
+              AnnotationSupport.findAnnotationByName(varEl, "io.jooby.annotation.mcp.McpParam");
           if (paramAnno != null) {
             paramDescription =
                 AnnotationSupport.findAnnotationValue(paramAnno, "description"::equals).stream()
@@ -329,11 +329,12 @@ public class McpRoute extends WebRoute<McpRouter> {
       buffer.add(statement(indent(4), "}\n"));
 
     } else if (isMcpPrompt()) {
-      String promptName = extractAnnotationValue("io.jooby.annotation.McpPrompt", "name");
+      String promptName = extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "name");
       if (promptName.isEmpty()) {
         promptName = getMethodName();
       }
-      String description = extractAnnotationValue("io.jooby.annotation.McpPrompt", "description");
+      String description =
+          extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "description");
       if (description.isEmpty()) {
         description = methodSummaryAndDescription;
       }
@@ -419,16 +420,17 @@ public class McpRoute extends WebRoute<McpRouter> {
       buffer.add(statement(indent(4), "}\n"));
 
     } else if (isMcpResource() || isMcpResourceTemplate()) {
-      var uri = extractAnnotationValue("io.jooby.annotation.McpResource", "uri");
-      var name = extractAnnotationValue("io.jooby.annotation.McpResource", "name");
+      var uri = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "uri");
+      var name = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "name");
       if (name.isEmpty()) {
         name = getMethodName();
       }
 
-      var title = extractAnnotationValue("io.jooby.annotation.McpResource", "title");
-      var description = extractAnnotationValue("io.jooby.annotation.McpResource", "description");
-      var mimeType = extractAnnotationValue("io.jooby.annotation.McpResource", "mimeType");
-      var sizeStr = extractAnnotationValue("io.jooby.annotation.McpResource", "size");
+      var title = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "title");
+      var description =
+          extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "description");
+      var mimeType = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "mimeType");
+      var sizeStr = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "size");
 
       // Prepare standard arguments safely
       var titleArg =
@@ -456,7 +458,7 @@ public class McpRoute extends WebRoute<McpRouter> {
       // It looks like: @...McpAnnotations(audience={"USER"}, priority=1.0, lastModified="2024")
       String annotationsArg = "null";
       String rawAnnotations =
-          extractAnnotationValue("io.jooby.annotation.McpResource", "annotations");
+          extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "annotations");
 
       boolean hasAnnotations = rawAnnotations.contains("priority=");
 
@@ -708,7 +710,7 @@ public class McpRoute extends WebRoute<McpRouter> {
                 semicolon(kt)));
       }
     } else if (isMcpResource() || isMcpResourceTemplate()) {
-      String uriTemplate = extractAnnotationValue("io.jooby.annotation.McpResource", "uri");
+      String uriTemplate = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "uri");
       boolean isTemplate = isMcpResourceTemplate();
 
       if (isTemplate) {
@@ -955,4 +957,6 @@ public class McpRoute extends WebRoute<McpRouter> {
         && !isLangClass
         && !isMcpClass;
   }
+
+  private record McpAnnotation(String name, String value) {}
 }

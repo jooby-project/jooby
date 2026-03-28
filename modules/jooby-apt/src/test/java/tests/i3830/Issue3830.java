@@ -152,7 +152,9 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.Resource getLogsResourceSpec() {
-                            return new io.modelcontextprotocol.spec.McpSchema.Resource("file:///logs/app.log", "getLogs", null, "", null, null, null, null);
+                            var audience = java.util.List.of(io.modelcontextprotocol.spec.McpSchema.Role.USER);
+                            var annotations = new io.modelcontextprotocol.spec.McpSchema.Annotations(audience, 1.5D, "1");
+                            return new io.modelcontextprotocol.spec.McpSchema.Resource("file:///logs/app.log", "Application Logs", "Logs Title.", "Log description Suspendisse potenti.", io.jooby.MediaType.byFileExtension("file:///logs/app.log", "text/plain").getValue(), 1024L, annotations, null);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ReadResourceResult getLogs(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest req) {
@@ -164,7 +166,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ResourceTemplate getUserProfileResourceTemplateSpec() {
-                            return new io.modelcontextprotocol.spec.McpSchema.ResourceTemplate("file:///users/{id}/{name}/profile", "getUserProfile", null, "", null, null, null);
+                            return new io.modelcontextprotocol.spec.McpSchema.ResourceTemplate("file:///users/{id}/{name}/profile", "getUserProfile", "Resource Template.", null, "application/json", null, null);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ReadResourceResult getUserProfile(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest req) {
@@ -176,7 +178,9 @@ public class Issue3830 {
                             var c = this.factory.apply(ctx);
                             var raw_id = args.get("id");
                             var id = raw_id != null ? raw_id.toString() : null;
-                            var result = c.getUserProfile(id);
+                            var raw_name = args.get("name");
+                            var name = raw_name != null ? raw_name.toString() : null;
+                            var result = c.getUserProfile(id, name);
                             return new io.jooby.mcp.McpResult(this.json).toResourceResult(req.uri(), result);
                           }
 

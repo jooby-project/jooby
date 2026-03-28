@@ -59,7 +59,8 @@ public class McpRouter extends WebRouter<McpRoute> {
   }
 
   private String getMcpServerKey() {
-    var annotation = AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.McpServer");
+    var annotation =
+        AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.mcp.McpServer");
     if (annotation != null) {
       return AnnotationSupport.findAnnotationValue(annotation, VALUE).stream()
           .findFirst()
@@ -79,7 +80,7 @@ public class McpRouter extends WebRouter<McpRoute> {
       if (route.isMcpPrompt()) {
         var annotation =
             AnnotationSupport.findAnnotationByName(
-                route.getMethod(), "io.jooby.annotation.McpPrompt");
+                route.getMethod(), "io.jooby.annotation.mcp.McpPrompt");
         var name =
             annotation != null
                 ? AnnotationSupport.findAnnotationValue(annotation, "name"::equals).stream()
@@ -95,7 +96,7 @@ public class McpRouter extends WebRouter<McpRoute> {
       } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
         var annotation =
             AnnotationSupport.findAnnotationByName(
-                route.getMethod(), "io.jooby.annotation.McpResource");
+                route.getMethod(), "io.jooby.annotation.mcp.McpResource");
         var uri =
             annotation != null
                 ? AnnotationSupport.findAnnotationValue(annotation, "uri"::equals).stream()
@@ -138,7 +139,7 @@ public class McpRouter extends WebRouter<McpRoute> {
     for (var route : completionRoutes) {
       var annotation =
           AnnotationSupport.findAnnotationByName(
-              route.getMethod(), "io.jooby.annotation.McpCompletion");
+              route.getMethod(), "io.jooby.annotation.mcp.McpCompletion");
       String ref =
           AnnotationSupport.findAnnotationValue(annotation, "value"::equals).stream()
               .findFirst()

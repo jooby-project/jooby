@@ -5,7 +5,7 @@
  */
 package io.jooby.i3830;
 
-import io.jooby.annotation.McpTool;
+import io.jooby.annotation.mcp.McpTool;
 
 public class UserTools {
 

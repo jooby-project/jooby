@@ -8,10 +8,10 @@ package io.jooby.i3830;
 import java.util.List;
 import java.util.Optional;
 
-import io.jooby.annotation.McpCompletion;
-import io.jooby.annotation.McpPrompt;
-import io.jooby.annotation.McpResource;
-import io.jooby.annotation.McpTool;
+import io.jooby.annotation.mcp.McpCompletion;
+import io.jooby.annotation.mcp.McpPrompt;
+import io.jooby.annotation.mcp.McpResource;
+import io.jooby.annotation.mcp.McpTool;
 import io.modelcontextprotocol.server.McpSyncServerExchange;
 
 /** A collection of tools, prompts, and resources exposed to the LLM via MCP. */

@@ -8,7 +8,7 @@ package tests.i3830;
 import java.util.List;
 import java.util.Map;
 
-import io.jooby.annotation.*;
+import io.jooby.annotation.mcp.*;
 
 @McpServer("example-server")
 public class ExampleServer {

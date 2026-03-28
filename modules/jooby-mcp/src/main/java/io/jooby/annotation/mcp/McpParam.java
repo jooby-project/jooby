@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.annotation;
+package io.jooby.annotation.mcp;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
