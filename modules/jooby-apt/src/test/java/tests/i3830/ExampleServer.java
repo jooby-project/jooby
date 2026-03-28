@@ -28,7 +28,8 @@ public class ExampleServer {
   // 2. Prompt
 
   /**
-   * Reviews the given code snippet in the context of the specified programming language.
+   * Review code. Reviews the given code snippet in the context of the specified programming
+   * language.
    *
    * @param language the programming language of the code to be reviewed
    * @param code the code snippet that needs to be reviewed

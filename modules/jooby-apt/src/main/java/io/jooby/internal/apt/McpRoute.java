@@ -11,10 +11,12 @@ import static io.jooby.internal.apt.CodeBlock.string;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.lang.model.element.ExecutableElement;
 
 import io.jooby.javadoc.JavaDocNode;
+import io.jooby.javadoc.MethodDoc;
 
 public class McpRoute extends WebRoute<McpRouter> {
   private boolean isMcpTool = false;
@@ -79,571 +81,596 @@ public class McpRoute extends WebRoute<McpRouter> {
 
   private String extractAnnotationValue(String annotationName, String attribute) {
     var annotation = AnnotationSupport.findAnnotationByName(method, annotationName);
-    if (annotation == null) return "";
+    if (annotation == null) return null;
     return AnnotationSupport.findAnnotationValue(annotation, attribute::equals).stream()
         .findFirst()
-        .orElse("");
+        .filter(it -> !it.isEmpty())
+        .orElse(null);
   }
 
   public List<String> generateMcpDefinitionMethod(boolean kt) {
-    List<String> buffer = new ArrayList<>();
-    var method = router.getMethodDoc(getMethodName(), getRawParameterTypes(false, kt, true));
-    var methodSummary = method.map(JavaDocNode::getSummary).orElse("");
-    var methodDescription = method.map(JavaDocNode::getDescription).orElse("");
-    var methodSummaryAndDescription = method.map(JavaDocNode::getFullDescription).orElse("");
-
     if (isMcpTool()) {
-      String toolName = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "name");
-      if (toolName.isEmpty()) {
-        toolName = getMethodName();
-      }
+      return generateToolDefinition(kt);
+    } else if (isMcpPrompt()) {
+      return generatePromptDefinition(kt);
+    } else if (isMcpResource() || isMcpResourceTemplate()) {
+      return generateResourceDefinition(kt);
+    }
+    // unreachable
+    return List.of();
+  }
 
-      // Extract the new title attribute
-      String title = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "title");
-      var titleArg =
-          title.isEmpty()
-              ? (methodSummary.isEmpty() ? "null" : string(methodSummary))
-              : string(title);
+  private List<String> generateResourceDefinition(boolean kt) {
+    List<String> buffer = new ArrayList<>();
+    var method = getMethodDoc(kt);
+    var methodSummary = method.map(JavaDocNode::getSummary).orElse(null);
+    var methodDescription = method.map(JavaDocNode::getDescription).orElse(null);
 
-      String description = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "description");
-      if (description.isEmpty()) {
-        description = methodDescription;
-      }
+    var uri = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "uri");
+    var name =
+        Optional.ofNullable(extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "name"))
+            .orElse(getMethodName());
 
-      if (kt) {
-        buffer.add(
-            statement(
-                indent(4),
-                "private fun ",
-                getMethodName(),
-                "ToolSpec(mapper: tools.jackson.databind.ObjectMapper, schemaGenerator:"
-                    + " com.github.victools.jsonschema.generator.SchemaGenerator):"
-                    + " io.modelcontextprotocol.spec.McpSchema.Tool {"));
-        buffer.add(statement(indent(6), "val schema = mapper.createObjectNode()"));
-        buffer.add(
-            statement(indent(6), "schema.put(", string("type"), ", ", string("object"), ")"));
-        buffer.add(
-            statement(indent(6), "val props = schema.putObject(", string("properties"), ")"));
-        buffer.add(statement(indent(6), "val req = schema.putArray(", string("required"), ")"));
-      } else {
-        buffer.add(
-            statement(
-                indent(4),
-                "private io.modelcontextprotocol.spec.McpSchema.Tool ",
-                getMethodName(),
-                "ToolSpec(tools.jackson.databind.ObjectMapper mapper,"
-                    + " com.github.victools.jsonschema.generator.SchemaGenerator"
-                    + " schemaGenerator) {"));
-        buffer.add(statement(indent(6), "var schema = mapper.createObjectNode()", semicolon(kt)));
-        buffer.add(
-            statement(
-                indent(6),
-                "schema.put(",
-                string("type"),
+    var title =
+        Optional.ofNullable(extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "title"))
+            .orElse(methodSummary);
+    var description =
+        Optional.ofNullable(
+                extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "description"))
+            .orElse(methodDescription);
+    var mimeType = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "mimeType");
+    var sizeStr = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "size");
+
+    // Prepare standard arguments safely
+    var titleArg = string(title);
+    var descriptionArg = string(description);
+    var mimeTypeArg =
+        mimeType == null
+            ? of(
+                "io.jooby.MediaType.byFileExtension(",
+                string(uri),
                 ", ",
-                string("object"),
-                ")",
-                semicolon(kt)));
+                string("text/plain"),
+                ").getValue()")
+            : string(mimeType);
+    String sizeArg = (sizeStr == null || sizeStr.equals("-1")) ? "null" : sizeStr + "L";
+
+    // --- NESTED ANNOTATION EXTRACTION ---
+    String annotationsArg = "null";
+    var annotation = parseResourceAnnotation();
+
+    var isTemplate = isMcpResourceTemplate();
+    var specType = isTemplate ? "ResourceTemplate" : "Resource";
+
+    if (kt) {
+      buffer.add(
+          statement(
+              indent(4),
+              "private fun ",
+              getMethodName(),
+              specType,
+              "Spec(): io.modelcontextprotocol.spec.McpSchema.",
+              specType,
+              " {"));
+
+      // Build the Kotlin ResourceAnnotations object if present
+      if (annotation != null) {
+        buffer.add(statement(indent(6), "val audience = ", "listOf(", annotation.audience, ""));
         buffer.add(
             statement(
                 indent(6),
-                "var props = schema.putObject(",
-                string("properties"),
-                ")",
-                semicolon(kt)));
-        buffer.add(
-            statement(
-                indent(6), "var req = schema.putArray(", string("required"), ")", semicolon(kt)));
+                "val annotations = io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
+                annotation.priority,
+                ", ",
+                annotation.lastModified,
+                ")"));
       }
 
-      // --- PARAMETER SCHEMA GENERATION ---
-      for (var param : getParameters(true)) {
-        var type = param.getType().getRawType().toString();
-        if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
-            || type.equals("io.modelcontextprotocol.common.McpTransportContext")
-            || type.equals("io.jooby.Context")) continue;
-
-        var mcpName = param.getMcpName();
-        var paramDescription = param.getMcpDescription();
-        if (paramDescription == null) {
-          paramDescription = method.map(it -> it.getParameterDoc(param.getName())).orElse("");
-        }
-
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "val schema_",
-                  mcpName,
-                  " = schemaGenerator.generateSchema(",
-                  type,
-                  "::class.java)"));
-
-          if (!paramDescription.isEmpty()) {
-            buffer.add(
-                statement(
-                    indent(6),
-                    "schema_",
-                    mcpName,
-                    ".put(",
-                    string("description"),
-                    ", ",
-                    string(paramDescription),
-                    ")"));
-          }
-
-          buffer.add(
-              statement(
-                  indent(6),
-                  "props.set<tools.jackson.databind.JsonNode>(",
-                  string(mcpName),
-                  ", schema_",
-                  mcpName,
-                  ")"));
-
-          if (!param.isNullable(kt)) {
-            buffer.add(statement(indent(6), "req.add(", string(mcpName), ")"));
-          }
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var schema_",
-                  mcpName,
-                  " = schemaGenerator.generateSchema(",
-                  type,
-                  ".class)",
-                  semicolon(kt)));
-
-          if (!paramDescription.isEmpty()) {
-            buffer.add(
-                statement(
-                    indent(6),
-                    "schema_",
-                    mcpName,
-                    ".put(",
-                    string("description"),
-                    ", ",
-                    string(paramDescription),
-                    ")",
-                    semicolon(kt)));
-          }
-
-          buffer.add(
-              statement(
-                  indent(6),
-                  "props.set(",
-                  string(mcpName),
-                  ", schema_",
-                  mcpName,
-                  ")",
-                  semicolon(kt)));
-
-          if (!param.isNullable(kt)) {
-            buffer.add(statement(indent(6), "req.add(", string(mcpName), ")", semicolon(kt)));
-          }
-        }
-      }
-
-      // --- OUTPUT SCHEMA GENERATION ---
-      String returnTypeStr = getReturnType().getRawType().toString();
-      boolean generateOutputSchema = hasOutputSchema();
-      String outputSchemaArg = "null";
-
-      if (generateOutputSchema) {
-        outputSchemaArg = getMethodName() + "OutputSchema";
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "val ",
-                  outputSchemaArg,
-                  "Node = schemaGenerator.generateSchema(",
-                  returnTypeStr,
-                  "::class.java)"));
-          buffer.add(
-              statement(
-                  indent(6),
-                  "val ",
-                  outputSchemaArg,
-                  " = mapper.convertValue(",
-                  outputSchemaArg,
-                  "Node, Map::class.java) as Map<String, Any>"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var ",
-                  outputSchemaArg,
-                  "Node = schemaGenerator.generateSchema(",
-                  returnTypeStr,
-                  ".class)",
-                  semicolon(kt)));
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var ",
-                  outputSchemaArg,
-                  " = mapper.convertValue(",
-                  outputSchemaArg,
-                  "Node, java.util.Map.class)",
-                  semicolon(kt)));
-        }
-      }
-
-      // --- NESTED ANNOTATION EXTRACTION ---
-      String annotationsArg = "null";
-      var toolAnnotation = parseToolAnnotation();
-
-      if (kt) {
-        if (toolAnnotation != null) {
-          annotationsArg = "annotations";
-          buffer.add(
-              statement(
-                  indent(6),
-                  "val annotations = io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
-                  methodSummaryAndDescription.isEmpty()
-                      ? "null"
-                      : string(methodSummaryAndDescription),
-                  ", ",
-                  toolAnnotation.readOnlyHint(),
-                  ", ",
-                  toolAnnotation.destructiveHint(),
-                  ", ",
-                  toolAnnotation.idempotentHint(),
-                  ", ",
-                  toolAnnotation.openWorldHint(),
-                  ", null)"));
-        }
-
+      if (!isTemplate) {
         buffer.add(
             statement(
                 indent(6),
-                "return io.modelcontextprotocol.spec.McpSchema.Tool(",
-                string(toolName),
+                "return io.modelcontextprotocol.spec.McpSchema.Resource(",
+                string(uri),
+                ", ",
+                string(name),
                 ", ",
                 titleArg,
                 ", ",
-                string(description),
-                ", mapper.treeToValue(schema,"
-                    + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
-                outputSchemaArg,
+                descriptionArg,
+                ", ",
+                mimeTypeArg,
+                ", ",
+                sizeArg,
                 ", ",
                 annotationsArg,
                 ", null)"));
       } else {
-        if (toolAnnotation != null) {
-          annotationsArg = "annotations";
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var annotations = new io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
-                  methodSummaryAndDescription.isEmpty()
-                      ? "null"
-                      : string(methodSummaryAndDescription),
-                  ", ",
-                  toolAnnotation.readOnlyHint(),
-                  ", ",
-                  toolAnnotation.destructiveHint(),
-                  ", ",
-                  toolAnnotation.idempotentHint(),
-                  ", ",
-                  toolAnnotation.openWorldHint(),
-                  ", null)",
-                  semicolon(kt)));
-        }
+        buffer.add(
+            statement(
+                indent(6),
+                "return io.modelcontextprotocol.spec.McpSchema.ResourceTemplate(",
+                string(uri),
+                ", ",
+                string(name),
+                ", ",
+                titleArg,
+                ", ",
+                descriptionArg,
+                ", ",
+                mimeTypeArg,
+                ", ",
+                annotationsArg,
+                ", null)"));
+      }
+      buffer.add(statement(indent(4), "}\n"));
+
+    } else {
+      buffer.add(
+          statement(
+              indent(4),
+              "private io.modelcontextprotocol.spec.McpSchema.",
+              specType,
+              " ",
+              getMethodName(),
+              specType,
+              "Spec() {"));
+
+      // Build the Java ResourceAnnotations object if present
+      if (annotation != null) {
+        annotationsArg = "annotations";
 
         buffer.add(
             statement(
                 indent(6),
-                "return new io.modelcontextprotocol.spec.McpSchema.Tool(",
-                string(toolName),
+                "var audience = ",
+                "java.util.List.of(",
+                annotation.audience,
+                ")",
+                semicolon(kt)));
+        buffer.add(
+            statement(
+                indent(6),
+                "var annotations = new"
+                    + " io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
+                annotation.priority,
+                "D, ",
+                annotation.lastModified,
+                ")",
+                semicolon(kt)));
+      }
+
+      if (!isTemplate) {
+        buffer.add(
+            statement(
+                indent(6),
+                "return new io.modelcontextprotocol.spec.McpSchema.Resource(",
+                string(uri),
+                ", ",
+                string(name),
                 ", ",
                 titleArg,
                 ", ",
-                string(description),
-                ", mapper.treeToValue(schema,"
-                    + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
-                outputSchemaArg,
+                descriptionArg,
+                ", ",
+                mimeTypeArg,
+                ", ",
+                sizeArg,
+                ", ",
+                annotationsArg,
+                ", null)",
+                semicolon(kt)));
+      } else {
+        buffer.add(
+            statement(
+                indent(6),
+                "return new io.modelcontextprotocol.spec.McpSchema.ResourceTemplate(",
+                string(uri),
+                ", ",
+                string(name),
+                ", ",
+                titleArg,
+                ", ",
+                descriptionArg,
+                ", ",
+                mimeTypeArg,
                 ", ",
                 annotationsArg,
                 ", null)",
                 semicolon(kt)));
       }
       buffer.add(statement(indent(4), "}\n"));
+    }
+    return buffer;
+  }
 
-    } else if (isMcpPrompt()) {
-      String promptName = extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "name");
-      if (promptName.isEmpty()) {
-        promptName = getMethodName();
-      }
-      String description =
-          extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "description");
-      if (description.isEmpty()) {
-        description = methodSummaryAndDescription;
-      }
+  private List<String> generatePromptDefinition(boolean kt) {
+    List<String> buffer = new ArrayList<>();
+    var method = getMethodDoc(kt);
+    var methodSummary = method.map(JavaDocNode::getSummary).orElse(null);
+    var methodDescription = method.map(JavaDocNode::getDescription).orElse(null);
 
-      if (kt) {
-        buffer.add(
-            statement(
-                indent(4),
-                "private fun ",
-                getMethodName(),
-                "PromptSpec(): io.modelcontextprotocol.spec.McpSchema.Prompt {"));
-        buffer.add(
-            statement(
-                indent(6),
-                "val args ="
-                    + " mutableListOf<io.modelcontextprotocol.spec.McpSchema.PromptArgument>()"));
-      } else {
-        buffer.add(
-            statement(
-                indent(4),
-                "private io.modelcontextprotocol.spec.McpSchema.Prompt ",
-                getMethodName(),
-                "PromptSpec() {"));
-        buffer.add(
-            statement(
-                indent(6),
-                "var args = new"
-                    + " java.util.ArrayList<io.modelcontextprotocol.spec.McpSchema.PromptArgument>()",
-                semicolon(kt)));
-      }
+    String promptName =
+        Optional.ofNullable(extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "name"))
+            .orElse(getMethodName());
 
-      for (var param : getParameters(true)) {
-        var type = param.getType().getRawType().toString();
-        if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
-            || type.equals("io.modelcontextprotocol.common.McpTransportContext")
-            || type.equals("io.jooby.Context")) continue;
+    String title =
+        Optional.ofNullable(extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "title"))
+            .orElse(methodSummary);
+    String description =
+        Optional.ofNullable(
+                extractAnnotationValue("io.jooby.annotation.mcp.McpPrompt", "description"))
+            .orElse(methodDescription);
 
-        var mcpName = param.getMcpName();
-        var isRequired = !param.isNullable(kt);
+    if (kt) {
+      buffer.add(
+          statement(
+              indent(4),
+              "private fun ",
+              getMethodName(),
+              "PromptSpec(): io.modelcontextprotocol.spec.McpSchema.Prompt {"));
+      buffer.add(
+          statement(
+              indent(6),
+              "val args ="
+                  + " mutableListOf<io.modelcontextprotocol.spec.McpSchema.PromptArgument>()"));
+    } else {
+      buffer.add(
+          statement(
+              indent(4),
+              "private io.modelcontextprotocol.spec.McpSchema.Prompt ",
+              getMethodName(),
+              "PromptSpec() {"));
+      buffer.add(
+          statement(
+              indent(6),
+              "var args = new"
+                  + " java.util.ArrayList<io.modelcontextprotocol.spec.McpSchema.PromptArgument>()",
+              semicolon(kt)));
+    }
 
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "args.add(io.modelcontextprotocol.spec.McpSchema.PromptArgument(",
-                  string(mcpName),
-                  ", null, ",
-                  String.valueOf(isRequired),
-                  "))"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "args.add(new io.modelcontextprotocol.spec.McpSchema.PromptArgument(",
-                  string(mcpName),
-                  ", null, ",
-                  String.valueOf(isRequired),
-                  "))",
-                  semicolon(kt)));
-        }
-      }
+    for (var param : getParameters(true)) {
+      var type = param.getType().getRawType().toString();
+      if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
+          || type.equals("io.modelcontextprotocol.common.McpTransportContext")
+          || type.equals("io.jooby.Context")) continue;
+
+      var mcpName = param.getMcpName();
+      var isRequired = !param.isNullable(kt);
 
       if (kt) {
         buffer.add(
             statement(
                 indent(6),
-                "return io.modelcontextprotocol.spec.McpSchema.Prompt(",
-                string(promptName),
+                "args.add(io.modelcontextprotocol.spec.McpSchema.PromptArgument(",
+                string(mcpName),
                 ", null, ",
-                string(description),
-                ", args)"));
+                String.valueOf(isRequired),
+                "))"));
       } else {
         buffer.add(
             statement(
                 indent(6),
-                "return new io.modelcontextprotocol.spec.McpSchema.Prompt(",
-                string(promptName),
+                "args.add(new io.modelcontextprotocol.spec.McpSchema.PromptArgument(",
+                string(mcpName),
                 ", null, ",
-                string(description),
-                ", args)",
+                String.valueOf(isRequired),
+                "))",
                 semicolon(kt)));
       }
-      buffer.add(statement(indent(4), "}\n"));
+    }
 
-    } else if (isMcpResource() || isMcpResourceTemplate()) {
-      var uri = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "uri");
-      var name = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "name");
-      if (name.isEmpty()) {
-        name = getMethodName();
+    if (kt) {
+      buffer.add(
+          statement(
+              indent(6),
+              "return io.modelcontextprotocol.spec.McpSchema.Prompt(",
+              string(promptName),
+              ", ",
+              string(title),
+              ", ",
+              string(description),
+              ", args)"));
+    } else {
+      buffer.add(
+          statement(
+              indent(6),
+              "return new io.modelcontextprotocol.spec.McpSchema.Prompt(",
+              string(promptName),
+              ", ",
+              string(title),
+              ", ",
+              string(description),
+              ", args)",
+              semicolon(kt)));
+    }
+    buffer.add(statement(indent(4), "}\n"));
+    return buffer;
+  }
+
+  private List<String> generateToolDefinition(boolean kt) {
+    var buffer = new ArrayList<String>();
+    var method = getMethodDoc(kt);
+    var methodSummary = method.map(JavaDocNode::getSummary).orElse(null);
+    var methodDescription = method.map(JavaDocNode::getDescription).orElse(null);
+    var methodSummaryAndDescription = method.map(JavaDocNode::getFullDescription).orElse(null);
+    String toolName =
+        Optional.ofNullable(extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "name"))
+            .orElse(getMethodName());
+
+    // Extract the new title attribute
+    String title = extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "title");
+    var titleArg = string(Optional.ofNullable(title).orElse(methodSummary));
+
+    String description =
+        Optional.ofNullable(
+                extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "description"))
+            .orElse(methodDescription);
+
+    if (kt) {
+      buffer.add(
+          statement(
+              indent(4),
+              "private fun ",
+              getMethodName(),
+              "ToolSpec(mapper: tools.jackson.databind.ObjectMapper, schemaGenerator:"
+                  + " com.github.victools.jsonschema.generator.SchemaGenerator):"
+                  + " io.modelcontextprotocol.spec.McpSchema.Tool {"));
+      buffer.add(statement(indent(6), "val schema = mapper.createObjectNode()"));
+      buffer.add(statement(indent(6), "schema.put(", string("type"), ", ", string("object"), ")"));
+      buffer.add(statement(indent(6), "val props = schema.putObject(", string("properties"), ")"));
+      buffer.add(statement(indent(6), "val req = schema.putArray(", string("required"), ")"));
+    } else {
+      buffer.add(
+          statement(
+              indent(4),
+              "private io.modelcontextprotocol.spec.McpSchema.Tool ",
+              getMethodName(),
+              "ToolSpec(tools.jackson.databind.ObjectMapper mapper,"
+                  + " com.github.victools.jsonschema.generator.SchemaGenerator"
+                  + " schemaGenerator) {"));
+      buffer.add(statement(indent(6), "var schema = mapper.createObjectNode()", semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(6),
+              "schema.put(",
+              string("type"),
+              ", ",
+              string("object"),
+              ")",
+              semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(6),
+              "var props = schema.putObject(",
+              string("properties"),
+              ")",
+              semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(6), "var req = schema.putArray(", string("required"), ")", semicolon(kt)));
+    }
+
+    // --- PARAMETER SCHEMA GENERATION ---
+    for (var param : getParameters(true)) {
+      var type = param.getType().getRawType().toString();
+      if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
+          || type.equals("io.modelcontextprotocol.common.McpTransportContext")
+          || type.equals("io.jooby.Context")) continue;
+
+      var mcpName = param.getMcpName();
+      var paramDescription = param.getMcpDescription();
+      if (paramDescription == null) {
+        paramDescription = method.map(it -> it.getParameterDoc(param.getName())).orElse("");
       }
-
-      var title = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "title");
-      var description =
-          extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "description");
-      var mimeType = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "mimeType");
-      var sizeStr = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "size");
-
-      // Prepare standard arguments safely
-      var titleArg =
-          title.isEmpty()
-              ? (methodSummary.isEmpty() ? "null" : string(methodSummary))
-              : string(title);
-      var descriptionArg =
-          description.isEmpty()
-              ? (methodDescription.isEmpty() ? "null" : string(methodDescription))
-              : string(description);
-      var mimeTypeArg =
-          mimeType.isEmpty()
-              ? of(
-                  "io.jooby.MediaType.byFileExtension(",
-                  string(uri),
-                  ", ",
-                  string("text/plain"),
-                  ").getValue()")
-              : string(mimeType);
-      String sizeArg = (sizeStr.isEmpty() || sizeStr.equals("-1")) ? "null" : sizeStr + "L";
-
-      // --- NESTED ANNOTATION EXTRACTION ---
-      String annotationsArg = "null";
-      var annotation = parseResourceAnnotation();
-
-      var isTemplate = isMcpResourceTemplate();
-      var specType = isTemplate ? "ResourceTemplate" : "Resource";
 
       if (kt) {
         buffer.add(
             statement(
-                indent(4),
-                "private fun ",
-                getMethodName(),
-                specType,
-                "Spec(): io.modelcontextprotocol.spec.McpSchema.",
-                specType,
-                " {"));
+                indent(6),
+                "val schema_",
+                mcpName,
+                " = schemaGenerator.generateSchema(",
+                type,
+                "::class.java)"));
 
-        // Build the Kotlin ResourceAnnotations object if present
-        if (annotation != null) {
-          buffer.add(statement(indent(6), "val audience = ", "listOf(", annotation.audience, ""));
+        if (!paramDescription.isEmpty()) {
           buffer.add(
               statement(
                   indent(6),
-                  "val annotations = io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
-                  annotation.priority,
+                  "schema_",
+                  mcpName,
+                  ".put(",
+                  string("description"),
                   ", ",
-                  annotation.lastModified,
+                  string(paramDescription),
                   ")"));
         }
 
-        if (!isTemplate) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "return io.modelcontextprotocol.spec.McpSchema.Resource(",
-                  string(uri),
-                  ", ",
-                  string(name),
-                  ", ",
-                  titleArg,
-                  ", ",
-                  descriptionArg,
-                  ", ",
-                  mimeTypeArg,
-                  ", ",
-                  sizeArg,
-                  ", ",
-                  annotationsArg,
-                  ", null)"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "return io.modelcontextprotocol.spec.McpSchema.ResourceTemplate(",
-                  string(uri),
-                  ", ",
-                  string(name),
-                  ", ",
-                  titleArg,
-                  ", ",
-                  descriptionArg,
-                  ", ",
-                  mimeTypeArg,
-                  ", ",
-                  annotationsArg,
-                  ", null)"));
-        }
-        buffer.add(statement(indent(4), "}\n"));
+        buffer.add(
+            statement(
+                indent(6),
+                "props.set<tools.jackson.databind.JsonNode>(",
+                string(mcpName),
+                ", schema_",
+                mcpName,
+                ")"));
 
+        if (!param.isNullable(kt)) {
+          buffer.add(statement(indent(6), "req.add(", string(mcpName), ")"));
+        }
       } else {
         buffer.add(
             statement(
-                indent(4),
-                "private io.modelcontextprotocol.spec.McpSchema.",
-                specType,
-                " ",
-                getMethodName(),
-                specType,
-                "Spec() {"));
+                indent(6),
+                "var schema_",
+                mcpName,
+                " = schemaGenerator.generateSchema(",
+                type,
+                ".class)",
+                semicolon(kt)));
 
-        // Build the Java ResourceAnnotations object if present
-        if (annotation != null) {
-          annotationsArg = "annotations";
-
+        if (!paramDescription.isEmpty()) {
           buffer.add(
               statement(
                   indent(6),
-                  "var audience = ",
-                  "java.util.List.of(",
-                  annotation.audience,
-                  ")",
-                  semicolon(kt)));
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var annotations = new"
-                      + " io.modelcontextprotocol.spec.McpSchema.Annotations(audience, ",
-                  annotation.priority,
-                  "D, ",
-                  annotation.lastModified,
+                  "schema_",
+                  mcpName,
+                  ".put(",
+                  string("description"),
+                  ", ",
+                  string(paramDescription),
                   ")",
                   semicolon(kt)));
         }
 
-        if (!isTemplate) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "return new io.modelcontextprotocol.spec.McpSchema.Resource(",
-                  string(uri),
-                  ", ",
-                  string(name),
-                  ", ",
-                  titleArg,
-                  ", ",
-                  descriptionArg,
-                  ", ",
-                  mimeTypeArg,
-                  ", ",
-                  sizeArg,
-                  ", ",
-                  annotationsArg,
-                  ", null)",
-                  semicolon(kt)));
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "return new io.modelcontextprotocol.spec.McpSchema.ResourceTemplate(",
-                  string(uri),
-                  ", ",
-                  string(name),
-                  ", ",
-                  titleArg,
-                  ", ",
-                  descriptionArg,
-                  ", ",
-                  mimeTypeArg,
-                  ", ",
-                  annotationsArg,
-                  ", null)",
-                  semicolon(kt)));
+        buffer.add(
+            statement(
+                indent(6),
+                "props.set(",
+                string(mcpName),
+                ", schema_",
+                mcpName,
+                ")",
+                semicolon(kt)));
+
+        if (!param.isNullable(kt)) {
+          buffer.add(statement(indent(6), "req.add(", string(mcpName), ")", semicolon(kt)));
         }
-        buffer.add(statement(indent(4), "}\n"));
       }
     }
+
+    // --- OUTPUT SCHEMA GENERATION ---
+    String returnTypeStr = getReturnType().getRawType().toString();
+    boolean generateOutputSchema = hasOutputSchema();
+    String outputSchemaArg = "null";
+
+    if (generateOutputSchema) {
+      outputSchemaArg = getMethodName() + "OutputSchema";
+      if (kt) {
+        buffer.add(
+            statement(
+                indent(6),
+                "val ",
+                outputSchemaArg,
+                "Node = schemaGenerator.generateSchema(",
+                returnTypeStr,
+                "::class.java)"));
+        buffer.add(
+            statement(
+                indent(6),
+                "val ",
+                outputSchemaArg,
+                " = mapper.convertValue(",
+                outputSchemaArg,
+                "Node, Map::class.java) as Map<String, Any>"));
+      } else {
+        buffer.add(
+            statement(
+                indent(6),
+                "var ",
+                outputSchemaArg,
+                "Node = schemaGenerator.generateSchema(",
+                returnTypeStr,
+                ".class)",
+                semicolon(kt)));
+        buffer.add(
+            statement(
+                indent(6),
+                "var ",
+                outputSchemaArg,
+                " = mapper.convertValue(",
+                outputSchemaArg,
+                "Node, java.util.Map.class)",
+                semicolon(kt)));
+      }
+    }
+
+    // --- NESTED ANNOTATION EXTRACTION ---
+    String annotationsArg = "null";
+    var toolAnnotation = parseToolAnnotation();
+
+    if (kt) {
+      if (toolAnnotation != null) {
+        annotationsArg = "annotations";
+        buffer.add(
+            statement(
+                indent(6),
+                "val annotations = io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
+                methodSummaryAndDescription.isEmpty()
+                    ? "null"
+                    : string(methodSummaryAndDescription),
+                ", ",
+                toolAnnotation.readOnlyHint(),
+                ", ",
+                toolAnnotation.destructiveHint(),
+                ", ",
+                toolAnnotation.idempotentHint(),
+                ", ",
+                toolAnnotation.openWorldHint(),
+                ", null)"));
+      }
+
+      buffer.add(
+          statement(
+              indent(6),
+              "return io.modelcontextprotocol.spec.McpSchema.Tool(",
+              string(toolName),
+              ", ",
+              titleArg,
+              ", ",
+              string(description),
+              ", mapper.treeToValue(schema,"
+                  + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
+              outputSchemaArg,
+              ", ",
+              annotationsArg,
+              ", null)"));
+    } else {
+      if (toolAnnotation != null) {
+        annotationsArg = "annotations";
+        buffer.add(
+            statement(
+                indent(6),
+                "var annotations = new io.modelcontextprotocol.spec.McpSchema.ToolAnnotations(",
+                methodSummaryAndDescription.isEmpty()
+                    ? "null"
+                    : string(methodSummaryAndDescription),
+                ", ",
+                toolAnnotation.readOnlyHint(),
+                ", ",
+                toolAnnotation.destructiveHint(),
+                ", ",
+                toolAnnotation.idempotentHint(),
+                ", ",
+                toolAnnotation.openWorldHint(),
+                ", null)",
+                semicolon(kt)));
+      }
+
+      buffer.add(
+          statement(
+              indent(6),
+              "return new io.modelcontextprotocol.spec.McpSchema.Tool(",
+              string(toolName),
+              ", ",
+              titleArg,
+              ", ",
+              string(description),
+              ", mapper.treeToValue(schema,"
+                  + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
+              outputSchemaArg,
+              ", ",
+              annotationsArg,
+              ", null)",
+              semicolon(kt)));
+    }
+    buffer.add(statement(indent(4), "}\n"));
     return buffer;
+  }
+
+  private Optional<MethodDoc> getMethodDoc(boolean kt) {
+    return router.getMethodDoc(getMethodName(), getRawParameterTypes(false, kt, true));
   }
 
   public List<String> generateMcpHandlerMethod(boolean kt) {
@@ -975,7 +1002,7 @@ public class McpRoute extends WebRoute<McpRouter> {
     String rawAnnotations =
         extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "annotations");
 
-    boolean hasAnnotations = rawAnnotations.contains("priority=");
+    boolean hasAnnotations = rawAnnotations != null && rawAnnotations.contains("priority=");
 
     if (!hasAnnotations) {
       return null;
@@ -1009,8 +1036,8 @@ public class McpRoute extends WebRoute<McpRouter> {
     String rawAnnotations =
         extractAnnotationValue("io.jooby.annotation.mcp.McpTool", "annotations");
 
-    if (rawAnnotations.isEmpty()) {
-      return null; // APT didn't find explicitly declared annotations
+    if (rawAnnotations == null || rawAnnotations.isEmpty()) {
+      return null;
     }
 
     // Default values matching the @McpAnnotations interface

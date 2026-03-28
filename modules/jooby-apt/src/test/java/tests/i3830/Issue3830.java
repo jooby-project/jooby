@@ -137,7 +137,7 @@ public class Issue3830 {
                             var args = new java.util.ArrayList<io.modelcontextprotocol.spec.McpSchema.PromptArgument>();
                             args.add(new io.modelcontextprotocol.spec.McpSchema.PromptArgument("language", null, false));
                             args.add(new io.modelcontextprotocol.spec.McpSchema.PromptArgument("code", null, false));
-                            return new io.modelcontextprotocol.spec.McpSchema.Prompt("review_code", null, "Reviews the given code snippet in the context of the specified programming language.", args);
+                            return new io.modelcontextprotocol.spec.McpSchema.Prompt("review_code", "Review code.", "Reviews the given code snippet in the context of the specified programming language.", args);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.GetPromptResult reviewCode(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.GetPromptRequest req) {

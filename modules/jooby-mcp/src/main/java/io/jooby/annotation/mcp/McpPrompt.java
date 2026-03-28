@@ -21,6 +21,9 @@ public @interface McpPrompt {
    */
   String name() default "";
 
+  /** Optional human-readable name of the prompt for display purposes. */
+  String title() default "";
+
   /**
    * A description of what the prompt provides.
    *
