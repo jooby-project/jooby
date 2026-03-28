@@ -112,13 +112,12 @@ public class McpRouter extends WebRouter<McpRoute> {
   }
 
   @Override
-  public String toSourceCode(Boolean generateKotlin) throws IOException {
-    var kt = generateKotlin == Boolean.TRUE || isKt();
+  public String toSourceCode(boolean kt) throws IOException {
     var generateTypeName = getTargetType().getSimpleName().toString();
     var mcpClassName = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
     var packageName = getPackageName();
 
-    var template = kt ? KOTLIN : JAVA;
+    var template = getTemplate(kt);
     var buffer = new StringBuilder();
 
     context.generateStaticImports(

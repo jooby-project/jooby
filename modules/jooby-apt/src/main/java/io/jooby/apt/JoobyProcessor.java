@@ -164,7 +164,7 @@ public class JoobyProcessor extends AbstractProcessor {
           try {
             context.add(router);
 
-            var sourceCode = router.toSourceCode(null);
+            var sourceCode = router.toSourceCode(router.isKt());
             var sourceLocation = router.getGeneratedFilename();
             var generatedType = router.getGeneratedType();
 

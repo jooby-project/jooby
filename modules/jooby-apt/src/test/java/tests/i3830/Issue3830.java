@@ -17,6 +17,7 @@ public class Issue3830 {
     new ProcessorRunner(new ExampleServer())
         .withMcpCode(
             source -> {
+              System.out.println(source);
               assertThat(source)
                   .isEqualToNormalizingNewlines(
                       """
@@ -35,7 +36,7 @@ public class Issue3830 {
                           }
 
                           public ExampleServerMcp_(io.jooby.SneakyThrows.Supplier<ExampleServer> provider) {
-                            setup(ctx -> (ExampleServer) provider.get());
+                            setup(ctx -> provider.get());
                           }
 
                           public ExampleServerMcp_(io.jooby.SneakyThrows.Function<Class<ExampleServer>, ExampleServer> provider) {

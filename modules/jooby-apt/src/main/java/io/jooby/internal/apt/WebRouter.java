@@ -36,7 +36,7 @@ public abstract class WebRouter<R extends WebRoute> {
           }
 
           public ${generatedClassName}(io.jooby.SneakyThrows.Supplier<${className}> provider) {
-            setup(ctx -> (${className}) provider.get());
+            setup(ctx -> provider.get());
           }
 
           public ${generatedClassName}(io.jooby.SneakyThrows.Function<Class<${className}>, ${className}> provider) {
@@ -87,7 +87,7 @@ public abstract class WebRouter<R extends WebRoute> {
 
   public abstract String getGeneratedType();
 
-  public abstract String toSourceCode(Boolean generateKotlin) throws IOException;
+  public abstract String toSourceCode(boolean kt) throws IOException;
 
   public String getGeneratedFilename() {
     return getGeneratedType().replace('.', '/') + (isKt() ? ".kt" : ".java");
@@ -126,6 +126,10 @@ public abstract class WebRouter<R extends WebRoute> {
 
   public boolean hasBeanValidation() {
     return getRoutes().stream().anyMatch(WebRoute::hasBeanValidation);
+  }
+
+  public String getTemplate(boolean kt) {
+    return kt ? KOTLIN : JAVA;
   }
 
   protected StringBuilder trimr(StringBuilder buffer) {

@@ -71,12 +71,11 @@ public class RestRouter extends WebRouter<RestRoute> {
   }
 
   @Override
-  public String toSourceCode(Boolean generateKotlin) throws IOException {
-    boolean kt = generateKotlin == Boolean.TRUE || isKt();
+  public String toSourceCode(boolean kt) throws IOException {
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
 
-    var template = kt ? KOTLIN : JAVA;
+    var template = getTemplate(kt);
     var suspended = getRoutes().stream().filter(WebRoute::isSuspendFun).toList();
     var noSuspended = getRoutes().stream().filter(it -> !it.isSuspendFun()).toList();
     var buffer = new StringBuilder();

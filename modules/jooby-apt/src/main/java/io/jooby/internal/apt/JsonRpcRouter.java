@@ -85,13 +85,12 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
   }
 
   @Override
-  public String toSourceCode(Boolean generateKotlin) throws IOException {
-    boolean kt = generateKotlin == Boolean.TRUE || isKt();
+  public String toSourceCode(boolean kt) throws IOException {
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
     var namespace = getJsonRpcNamespace();
 
-    var template = kt ? KOTLIN : JAVA;
+    var template = getTemplate(kt);
     var buffer = new StringBuilder();
 
     context.generateStaticImports(
