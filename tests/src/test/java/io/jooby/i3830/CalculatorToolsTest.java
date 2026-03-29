@@ -23,27 +23,20 @@ import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.mcp.McpModule;
+import io.jooby.mcp.jackson3.McpJackson3Module;
 
 public class CalculatorToolsTest {
 
-  private void setupMcpApp(Jooby app) {
+  private void setupMcpApp(Jooby app, McpModule.Transport transport) {
     app.install(new Jackson3Module());
-    app.install(
-        new McpModule(new CalculatorToolsMcp_())
-            .transport(McpModule.Transport.STATELESS_STREAMABLE_HTTP));
+    app.install(new McpJackson3Module());
+    app.install(new McpModule(new CalculatorToolsMcp_()).transport(transport));
   }
 
   @ServerTest
   public void shouldCallToolOverStreamableHttp(ServerTestRunner runner) {
     runner
-        .define(
-            app -> {
-              app.install(new Jackson3Module());
-              // Register the module using the STREAMABLE_HTTP transport
-              app.install(
-                  new McpModule(new CalculatorToolsMcp_())
-                      .transport(McpModule.Transport.STREAMABLE_HTTP));
-            })
+        .define(app -> setupMcpApp(app, McpModule.Transport.STREAMABLE_HTTP))
         .ready(
             client -> {
               AtomicReference<String> sessionId = new AtomicReference<>();
@@ -120,12 +113,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldCallToolOverSse(ServerTestRunner runner) {
     runner
-        .define(
-            app -> {
-              app.install(new Jackson3Module());
-              app.install(
-                  new McpModule(new CalculatorToolsMcp_()).transport(McpModule.Transport.SSE));
-            })
+        .define(app -> setupMcpApp(app, McpModule.Transport.SSE))
         .ready(
             client -> {
               String initRequest =
@@ -233,7 +221,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldCallAddNumbersTool(ServerTestRunner runner) {
     runner
-        .define(this::setupMcpApp)
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
         .ready(
             client -> {
               String jsonRpcRequest =
@@ -267,14 +255,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldCallToolOverWebSocket(ServerTestRunner runner) throws Exception {
     runner
-        .define(
-            app -> {
-              app.install(new Jackson3Module());
-              // Register the module using our brand new WEBSOCKET transport!
-              app.install(
-                  new McpModule(new CalculatorToolsMcp_())
-                      .transport(McpModule.Transport.WEBSOCKET));
-            })
+        .define(app -> setupMcpApp(app, McpModule.Transport.WEBSOCKET))
         .ready(
             client -> {
               CountDownLatch initLatch = new CountDownLatch(1);
@@ -382,7 +363,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldGetMathTutorPrompt(ServerTestRunner runner) {
     runner
-        .define(this::setupMcpApp)
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
         .ready(
             client -> {
               String jsonRpcRequest =
@@ -418,7 +399,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldReadStaticResource(ServerTestRunner runner) {
     runner
-        .define(this::setupMcpApp)
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
         .ready(
             client -> {
               String jsonRpcRequest =
@@ -453,7 +434,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldReadResourceTemplate(ServerTestRunner runner) {
     runner
-        .define(this::setupMcpApp)
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
         .ready(
             client -> {
               String jsonRpcRequest =
@@ -488,7 +469,7 @@ public class CalculatorToolsTest {
   @ServerTest
   public void shouldGetHistoryCompletion(ServerTestRunner runner) {
     runner
-        .define(this::setupMcpApp)
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
         .ready(
             client -> {
               String jsonRpcRequest =

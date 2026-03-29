@@ -79,12 +79,10 @@ public class Issue3830 {
 
                           @Override
                           public void install(io.jooby.Jooby app, io.modelcontextprotocol.server.McpSyncServer server) throws Exception {
-                            this.json = app.getServices().require(io.modelcontextprotocol.json.McpJsonMapper.class);
-                            var mapper = app.require(tools.jackson.databind.ObjectMapper.class);
-                            var configBuilder = new com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12, com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON);
-                            var schemaGenerator = new com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build());
+                            this.json = app.require(io.modelcontextprotocol.json.McpJsonMapper.class);
+                            var schemaGenerator = app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class);
 
-                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(mapper, schemaGenerator), (exchange, req) -> this.add(exchange, null, req)));
+                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (exchange, req) -> this.add(exchange, null, req)));
                             server.addPrompt(new io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (exchange, req) -> this.reviewCode(exchange, null, req)));
                             server.addResource(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (exchange, req) -> this.getLogs(exchange, null, req)));
                             server.addResourceTemplate(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (exchange, req) -> this.getUserProfile(exchange, null, req)));
@@ -92,32 +90,32 @@ public class Issue3830 {
 
                           @Override
                           public void install(io.jooby.Jooby app, io.modelcontextprotocol.server.McpStatelessSyncServer server) throws Exception {
-                            this.json = app.getServices().require(io.modelcontextprotocol.json.McpJsonMapper.class);
-                            var mapper = app.require(tools.jackson.databind.ObjectMapper.class);
-                            var configBuilder = new com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12, com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON);
-                            var schemaGenerator = new com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build());
+                            this.json = app.require(io.modelcontextprotocol.json.McpJsonMapper.class);
+                            var schemaGenerator = app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class);
 
-                            server.addTool(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncToolSpecification(addToolSpec(mapper, schemaGenerator), (ctx, req) -> this.add(null, ctx, req)));
+                            server.addTool(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (ctx, req) -> this.add(null, ctx, req)));
                             server.addPrompt(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (ctx, req) -> this.reviewCode(null, ctx, req)));
                             server.addResource(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (ctx, req) -> this.getLogs(null, ctx, req)));
                             server.addResourceTemplate(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (ctx, req) -> this.getUserProfile(null, ctx, req)));
                           }
 
-                          private io.modelcontextprotocol.spec.McpSchema.Tool addToolSpec(tools.jackson.databind.ObjectMapper mapper, com.github.victools.jsonschema.generator.SchemaGenerator schemaGenerator) {
-                            var schema = mapper.createObjectNode();
+                          private io.modelcontextprotocol.spec.McpSchema.Tool addToolSpec(com.github.victools.jsonschema.generator.SchemaGenerator schemaGenerator) {
+                            var schema = new java.util.LinkedHashMap<String, Object>();
                             schema.put("type", "object");
-                            var props = schema.putObject("properties");
-                            var req = schema.putArray("required");
+                            var props = new java.util.LinkedHashMap<String, Object>();
+                            schema.put("properties", props);
+                            var req = new java.util.ArrayList<String>();
+                            schema.put("required", req);
                             var schema_a = schemaGenerator.generateSchema(int.class);
                             schema_a.put("description", "1st number");
-                            props.set("a", schema_a);
+                            props.put("a", schema_a);
                             req.add("a");
                             var schema_b = schemaGenerator.generateSchema(int.class);
                             schema_b.put("description", "2nd number");
-                            props.set("b", schema_b);
+                            props.put("b", schema_b);
                             req.add("b");
                             var annotations = new io.modelcontextprotocol.spec.McpSchema.ToolAnnotations("Add two numbers.A simple calculator.", true, true, false, true, null);
-                            return new io.modelcontextprotocol.spec.McpSchema.Tool("calculator", "Add two numbers.", "A simple calculator.", mapper.treeToValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), null, annotations, null);
+                            return new io.modelcontextprotocol.spec.McpSchema.Tool("calculator", "Add two numbers.", "A simple calculator.", this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), null, annotations, null);
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CallToolResult add(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.CallToolRequest req) {

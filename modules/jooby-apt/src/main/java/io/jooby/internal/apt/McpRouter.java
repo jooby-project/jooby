@@ -365,23 +365,14 @@ public class McpRouter extends WebRouter<McpRoute> {
             statement(
                 indent(6),
                 "this.json ="
-                    + " app.services.require(io.modelcontextprotocol.json.McpJsonMapper::class.java)"));
-        buffer.append(
-            statement(
-                indent(6),
-                "val mapper = app.require(tools.jackson.databind.ObjectMapper::class.java)"));
+                    + " app.require(io.modelcontextprotocol.json.McpJsonMapper::class.java)"));
+
         if (!tools.isEmpty()) {
           buffer.append(
               statement(
                   indent(6),
-                  "val configBuilder ="
-                      + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
-                      + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)"));
-          buffer.append(
-              statement(
-                  indent(6),
                   "val schemaGenerator ="
-                      + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())"));
+                      + " app.require(com.github.victools.jsonschema.generator.SchemaGenerator::class.java)"));
         }
       } else {
         buffer.append(statement(indent(4), "@Override"));
@@ -394,27 +385,15 @@ public class McpRouter extends WebRouter<McpRoute> {
         buffer.append(
             statement(
                 indent(6),
-                "this.json ="
-                    + " app.getServices().require(io.modelcontextprotocol.json.McpJsonMapper.class)",
+                "this.json =" + " app.require(io.modelcontextprotocol.json.McpJsonMapper.class)",
                 semicolon(kt)));
-        buffer.append(
-            statement(
-                indent(6),
-                "var mapper = app.require(tools.jackson.databind.ObjectMapper.class)",
-                semicolon(kt)));
+
         if (!tools.isEmpty()) {
           buffer.append(
               statement(
                   indent(6),
-                  "var configBuilder = new"
-                      + " com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder(com.github.victools.jsonschema.generator.SchemaVersion.DRAFT_2020_12,"
-                      + " com.github.victools.jsonschema.generator.OptionPreset.PLAIN_JSON)",
-                  semicolon(kt)));
-          buffer.append(
-              statement(
-                  indent(6),
-                  "var schemaGenerator = new"
-                      + " com.github.victools.jsonschema.generator.SchemaGenerator(configBuilder.build())",
+                  "var schemaGenerator ="
+                      + " app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class)",
                   semicolon(kt)));
         }
       }
@@ -438,7 +417,8 @@ public class McpRouter extends WebRouter<McpRoute> {
                     : "(exchange, req) -> this." + methodName + "(exchange, null, req)");
 
         if (route.isMcpTool()) {
-          var defArgs = "mapper, schemaGenerator";
+          // Removed "mapper" from defArgs
+          var defArgs = "schemaGenerator";
           if (kt) {
             buffer.append(
                 statement(

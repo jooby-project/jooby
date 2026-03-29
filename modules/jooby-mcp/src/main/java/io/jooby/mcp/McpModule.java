@@ -23,10 +23,8 @@ import io.jooby.mcp.transport.StreamableTransportProvider;
 import io.jooby.mcp.transport.WebSocketTransportProvider;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
-import io.modelcontextprotocol.json.jackson3.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.*;
 import io.modelcontextprotocol.spec.McpSchema;
-import tools.jackson.databind.json.JsonMapper;
 
 /**
  * MCP (Model Context Protocol) module for Jooby.
@@ -123,7 +121,6 @@ public class McpModule implements Extension {
 
   private Transport defaultTransport = STREAMABLE_HTTP;
 
-  private McpJsonMapper mcpJsonMapper;
   private final List<McpService> mcpServices = new ArrayList<>();
 
   public McpModule(McpService mcpService, McpService... mcpServices) {
@@ -141,15 +138,14 @@ public class McpModule implements Extension {
   @Override
   public void install(@NonNull Jooby app) {
     var services = app.getServices();
-    if (mcpJsonMapper == null) {
-      this.mcpJsonMapper = new JacksonMcpJsonMapper(services.require(JsonMapper.class));
-    }
-    services.put(McpJsonMapper.class, mcpJsonMapper);
+    var mcpJsonMapper = services.require(McpJsonMapper.class);
+    // Group services by server
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {
       var serverKey = Optional.ofNullable(mcpService.serverKey()).orElse("default");
       mcpServiceMap.computeIfAbsent(serverKey, k -> new ArrayList<>()).add(mcpService);
     }
+    // Boot everything
     for (var serverEntry : mcpServiceMap.entrySet()) {
       var mcpConfig = mcpServerConfig(app, serverEntry.getKey());
       var capabilities = new McpSchema.ServerCapabilities.Builder();
@@ -232,11 +228,6 @@ public class McpModule implements Extension {
     } else {
       throw new StartupException("Missing MCP server configuration: " + mcpPath);
     }
-  }
-
-  public McpModule mcpJsonMapper(McpJsonMapper mcpJsonMapper) {
-    this.mcpJsonMapper = mcpJsonMapper;
-    return this;
   }
 
   public enum Transport {

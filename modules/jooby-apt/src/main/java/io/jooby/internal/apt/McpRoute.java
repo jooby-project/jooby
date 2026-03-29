@@ -413,23 +413,28 @@ public class McpRoute extends WebRoute<McpRouter> {
               indent(4),
               "private fun ",
               getMethodName(),
-              "ToolSpec(mapper: tools.jackson.databind.ObjectMapper, schemaGenerator:"
+              "ToolSpec(schemaGenerator:"
                   + " com.github.victools.jsonschema.generator.SchemaGenerator):"
                   + " io.modelcontextprotocol.spec.McpSchema.Tool {"));
-      buffer.add(statement(indent(6), "val schema = mapper.createObjectNode()"));
+      buffer.add(statement(indent(6), "val schema = java.util.LinkedHashMap<String, Any>()"));
       buffer.add(statement(indent(6), "schema.put(", string("type"), ", ", string("object"), ")"));
-      buffer.add(statement(indent(6), "val props = schema.putObject(", string("properties"), ")"));
-      buffer.add(statement(indent(6), "val req = schema.putArray(", string("required"), ")"));
+      buffer.add(statement(indent(6), "val props = java.util.LinkedHashMap<String, Any>()"));
+      buffer.add(statement(indent(6), "schema.put(", string("properties"), ", props)"));
+      buffer.add(statement(indent(6), "val req = java.util.ArrayList<String>()"));
+      buffer.add(statement(indent(6), "schema.put(", string("required"), ", req)"));
     } else {
       buffer.add(
           statement(
               indent(4),
               "private io.modelcontextprotocol.spec.McpSchema.Tool ",
               getMethodName(),
-              "ToolSpec(tools.jackson.databind.ObjectMapper mapper,"
-                  + " com.github.victools.jsonschema.generator.SchemaGenerator"
+              "ToolSpec(com.github.victools.jsonschema.generator.SchemaGenerator"
                   + " schemaGenerator) {"));
-      buffer.add(statement(indent(6), "var schema = mapper.createObjectNode()", semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(6),
+              "var schema = new java.util.LinkedHashMap<String, Object>()",
+              semicolon(kt)));
       buffer.add(
           statement(
               indent(6),
@@ -442,13 +447,13 @@ public class McpRoute extends WebRoute<McpRouter> {
       buffer.add(
           statement(
               indent(6),
-              "var props = schema.putObject(",
-              string("properties"),
-              ")",
+              "var props = new java.util.LinkedHashMap<String, Object>()",
               semicolon(kt)));
       buffer.add(
-          statement(
-              indent(6), "var req = schema.putArray(", string("required"), ")", semicolon(kt)));
+          statement(indent(6), "schema.put(", string("properties"), ", props)", semicolon(kt)));
+      buffer.add(
+          statement(indent(6), "var req = new java.util.ArrayList<String>()", semicolon(kt)));
+      buffer.add(statement(indent(6), "schema.put(", string("required"), ", req)", semicolon(kt)));
     }
 
     // --- PARAMETER SCHEMA GENERATION ---
@@ -487,14 +492,8 @@ public class McpRoute extends WebRoute<McpRouter> {
                   ")"));
         }
 
-        buffer.add(
-            statement(
-                indent(6),
-                "props.set<tools.jackson.databind.JsonNode>(",
-                string(mcpName),
-                ", schema_",
-                mcpName,
-                ")"));
+        // Switched from .set() to .put() for standard Map
+        buffer.add(statement(indent(6), "props.put(", string(mcpName), ", schema_", mcpName, ")"));
 
         if (!param.isNullable(kt)) {
           buffer.add(statement(indent(6), "req.add(", string(mcpName), ")"));
@@ -524,10 +523,11 @@ public class McpRoute extends WebRoute<McpRouter> {
                   semicolon(kt)));
         }
 
+        // Switched from .set() to .put() for standard Map
         buffer.add(
             statement(
                 indent(6),
-                "props.set(",
+                "props.put(",
                 string(mcpName),
                 ", schema_",
                 mcpName,
@@ -556,14 +556,15 @@ public class McpRoute extends WebRoute<McpRouter> {
                 "Node = schemaGenerator.generateSchema(",
                 returnTypeStr,
                 "::class.java)"));
+        // Use this.json to convert the output schema
         buffer.add(
             statement(
                 indent(6),
                 "val ",
                 outputSchemaArg,
-                " = mapper.convertValue(",
+                " = this.json.convertValue(",
                 outputSchemaArg,
-                "Node, Map::class.java) as Map<String, Any>"));
+                "Node, java.util.Map::class.java) as java.util.Map<String, Any>"));
       } else {
         buffer.add(
             statement(
@@ -574,12 +575,13 @@ public class McpRoute extends WebRoute<McpRouter> {
                 returnTypeStr,
                 ".class)",
                 semicolon(kt)));
+        // Use this.json to convert the output schema
         buffer.add(
             statement(
                 indent(6),
                 "var ",
                 outputSchemaArg,
-                " = mapper.convertValue(",
+                " = this.json.convertValue(",
                 outputSchemaArg,
                 "Node, java.util.Map.class)",
                 semicolon(kt)));
@@ -620,7 +622,8 @@ public class McpRoute extends WebRoute<McpRouter> {
               titleArg,
               ", ",
               string(description),
-              ", mapper.treeToValue(schema,"
+              // Use this.json to convert the main schema map into JsonSchema
+              ", this.json.convertValue(schema,"
                   + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
               outputSchemaArg,
               ", ",
@@ -657,7 +660,8 @@ public class McpRoute extends WebRoute<McpRouter> {
               titleArg,
               ", ",
               string(description),
-              ", mapper.treeToValue(schema,"
+              // Use this.json to convert the main schema map into JsonSchema
+              ", this.json.convertValue(schema,"
                   + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
               outputSchemaArg,
               ", ",

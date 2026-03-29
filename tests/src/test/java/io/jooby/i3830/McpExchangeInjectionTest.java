@@ -15,6 +15,7 @@ import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.mcp.McpModule;
+import io.jooby.mcp.jackson3.McpJackson3Module;
 
 public class McpExchangeInjectionTest {
 
@@ -24,6 +25,7 @@ public class McpExchangeInjectionTest {
         .define(
             app -> {
               app.install(new Jackson3Module());
+              app.install(new McpJackson3Module());
               // Register the module using the STREAMABLE_HTTP transport
               app.install(
                   new McpModule(new CalculatorToolsMcp_())
