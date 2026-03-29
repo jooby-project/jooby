@@ -15,12 +15,13 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.ServiceKey;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.mcp.McpServerConfig;
-import io.jooby.mcp.transport.SseTransportProvider;
-import io.jooby.mcp.transport.StatelessTransportProvider;
-import io.jooby.mcp.transport.StreamableTransportProvider;
-import io.jooby.mcp.transport.WebSocketTransportProvider;
+import io.jooby.internal.mcp.transport.SseTransportProvider;
+import io.jooby.internal.mcp.transport.StatelessTransportProvider;
+import io.jooby.internal.mcp.transport.StreamableTransportProvider;
+import io.jooby.internal.mcp.transport.WebSocketTransportProvider;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.*;
@@ -111,9 +112,9 @@ import io.modelcontextprotocol.spec.McpSchema;
  */
 public class McpModule implements Extension {
 
-  protected static final McpTransportContextExtractor<Context> CTX_EXTRACTOR =
+  private static final McpTransportContextExtractor<Context> CTX_EXTRACTOR =
       ctx -> {
-        var transportContext = Map.<String, Object>of("HEADERS", ctx.headerMap());
+        var transportContext = Map.<String, Object>of("HEADERS", ctx.headerMap(), "CTX", ctx);
         return McpTransportContext.create(transportContext);
       };
 
@@ -148,6 +149,9 @@ public class McpModule implements Extension {
     // Boot everything
     for (var serverEntry : mcpServiceMap.entrySet()) {
       var mcpConfig = mcpServerConfig(app, serverEntry.getKey());
+      // Internal usage only, required by mcp-inspector
+      services.listOf(McpServerConfig.class).add(mcpConfig);
+
       var capabilities = new McpSchema.ServerCapabilities.Builder();
       serverEntry.getValue().forEach(it -> it.capabilities(capabilities));
 
@@ -161,9 +165,16 @@ public class McpModule implements Extension {
                 .capabilities(capabilities.build())
                 .instructions(mcpConfig.getInstructions())
                 .build();
+        // install services
         serverEntry
             .getValue()
             .forEach(throwingConsumer(service -> service.install(app, statelessServer)));
+        // bind registry
+        services.putIfAbsent(McpStatelessSyncServer.class, statelessServer);
+        services.put(
+            ServiceKey.key(McpStatelessSyncServer.class, serverEntry.getKey()), statelessServer);
+        services.listOf(McpStatelessSyncServer.class).add(statelessServer);
+
         app.onStop(statelessServer::close);
       } else {
         // Stupid MCP types, but it's the only way to make it work.
@@ -189,9 +200,15 @@ public class McpModule implements Extension {
                 .capabilities(capabilities.build())
                 .instructions(mcpConfig.getInstructions())
                 .build();
+        // install service
         serverEntry
             .getValue()
             .forEach(throwingConsumer(service -> service.install(app, syncServer)));
+        // bind registry
+        services.putIfAbsent(McpSyncServer.class, syncServer);
+        services.put(ServiceKey.key(McpSyncServer.class, serverEntry.getKey()), syncServer);
+        services.listOf(McpSyncServer.class).add(syncServer);
+
         app.onStop(syncServer::close);
       }
     }
@@ -234,7 +251,7 @@ public class McpModule implements Extension {
     SSE("sse"),
     STREAMABLE_HTTP("streamable-http"),
     STATELESS_STREAMABLE_HTTP("stateless-streamable-http"),
-    WEBSOCKET("websocket");
+    WEBSOCKET("web-socket");
 
     private final String value;
 
@@ -243,7 +260,7 @@ public class McpModule implements Extension {
     }
 
     public static Transport of(String value) {
-      for (Transport transport : values()) {
+      for (var transport : values()) {
         if (transport.value.equalsIgnoreCase(value)) {
           return transport;
         }

@@ -152,6 +152,37 @@ public class McpRouter extends WebRouter<McpRoute> {
       completionGroups.computeIfAbsent(ref, k -> new ArrayList<>()).add(route);
     }
 
+    // Gather all valid references so we can register dummy completions for targets that lack them
+    var allCompletionRefs = new java.util.LinkedHashSet<String>();
+    for (var route : prompts) {
+      var annotation =
+          AnnotationSupport.findAnnotationByName(
+              route.getMethod(), "io.jooby.annotation.mcp.McpPrompt");
+      var name =
+          annotation != null
+              ? AnnotationSupport.findAnnotationValue(annotation, "name"::equals).stream()
+                  .findFirst()
+                  .orElse("")
+              : "";
+      if (name.isEmpty()) name = route.getMethodName();
+      allCompletionRefs.add(name);
+    }
+    for (var route : resources) {
+      if (route.isMcpResourceTemplate()) {
+        var annotation =
+            AnnotationSupport.findAnnotationByName(
+                route.getMethod(), "io.jooby.annotation.mcp.McpResource");
+        var uri =
+            annotation != null
+                ? AnnotationSupport.findAnnotationValue(annotation, "uri"::equals).stream()
+                    .findFirst()
+                    .orElse("")
+                : "";
+        allCompletionRefs.add(uri);
+      }
+    }
+    allCompletionRefs.addAll(completionGroups.keySet());
+
     if (kt) {
       buffer.append(
           statement(
@@ -233,18 +264,29 @@ public class McpRouter extends WebRouter<McpRoute> {
               semicolon(kt)));
     }
 
-    for (var ref : completionGroups.keySet()) {
+    // Loop over ALL possible refs, not just the ones with explicit handlers
+    for (var ref : allCompletionRefs) {
       var isResource = ref.contains("://");
-      var handlerName = findTargetMethodName(ref) + "CompletionHandler";
       var refObj =
           isResource
               ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
               : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
 
-      String lambda =
-          kt
-              ? "{ exchange, req -> this." + handlerName + "(exchange, null, req) }"
-              : "(exchange, req) -> this." + handlerName + "(exchange, null, req)";
+      String lambda;
+      if (completionGroups.containsKey(ref)) {
+        var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        lambda =
+            kt
+                ? "{ exchange, req -> this." + handlerName + "(exchange, null, req) }"
+                : "(exchange, req) -> this." + handlerName + "(exchange, null, req)";
+      } else {
+        // Fallback: Return an empty completion result safely
+        lambda =
+            kt
+                ? "{ _, _ -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>()) }"
+                : "(exchange, req) -> new"
+                    + " io.jooby.mcp.McpResult(this.json).toCompleteResult(java.util.List.of())";
+      }
 
       if (kt) {
         buffer.append(
@@ -305,18 +347,29 @@ public class McpRouter extends WebRouter<McpRoute> {
               semicolon(kt)));
     }
 
-    for (var ref : completionGroups.keySet()) {
+    // Loop over ALL possible refs
+    for (var ref : allCompletionRefs) {
       var isResource = ref.contains("://");
-      var handlerName = findTargetMethodName(ref) + "CompletionHandler";
       var refObj =
           isResource
               ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
               : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
 
-      String lambda =
-          kt
-              ? "{ ctx, req -> this." + handlerName + "(null, ctx, req) }"
-              : "(ctx, req) -> this." + handlerName + "(null, ctx, req)";
+      String lambda;
+      if (completionGroups.containsKey(ref)) {
+        var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        lambda =
+            kt
+                ? "{ ctx, req -> this." + handlerName + "(null, ctx, req) }"
+                : "(ctx, req) -> this." + handlerName + "(null, ctx, req)";
+      } else {
+        // Fallback: Return an empty completion result safely
+        lambda =
+            kt
+                ? "{ _, _ -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>()) }"
+                : "(ctx, req) -> new"
+                    + " io.jooby.mcp.McpResult(this.json).toCompleteResult(java.util.List.of())";
+      }
 
       if (kt) {
         buffer.append(

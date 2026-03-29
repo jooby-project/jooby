@@ -838,7 +838,8 @@ public class McpRoute extends WebRoute<McpRouter> {
       if (kt) {
         buffer.add(
             statement(indent(6), "val raw_", javaName, " = args.get(", string(mcpName), ")"));
-        if (!isNullable)
+
+        if (!isNullable) {
           buffer.add(
               statement(
                   indent(6),
@@ -847,16 +848,73 @@ public class McpRoute extends WebRoute<McpRouter> {
                   " == null) throw IllegalArgumentException(",
                   string("Missing req param: " + mcpName),
                   ")"));
-        buffer.add(
-            statement(
-                indent(6),
-                "val ",
-                javaName,
-                " = raw_",
-                javaName,
-                " as ",
-                type,
-                isNullable ? "?" : ""));
+        }
+
+        boolean isNumber = isNumber(type);
+
+        if (isNumber) {
+          String ktType = "Int";
+          if (type.contains("Double") || type.equals("double")) ktType = "Double";
+          else if (type.contains("Long") || type.equals("long")) ktType = "Long";
+          else if (type.contains("Float") || type.equals("float")) ktType = "Float";
+          else if (type.contains("Short") || type.equals("short")) ktType = "Short";
+          else if (type.contains("Byte") || type.equals("byte")) ktType = "Byte";
+
+          if (isNullable) {
+            buffer.add(
+                statement(
+                    indent(6),
+                    "val ",
+                    javaName,
+                    " = (raw_",
+                    javaName,
+                    " as? Number)?.to",
+                    ktType,
+                    "()"));
+          } else {
+            buffer.add(
+                statement(
+                    indent(6),
+                    "val ",
+                    javaName,
+                    " = (raw_",
+                    javaName,
+                    " as Number).to",
+                    ktType,
+                    "()"));
+          }
+        } else if (type.equals("java.lang.String") || type.equals("String")) {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val ",
+                  javaName,
+                  " = raw_",
+                  javaName,
+                  isNullable ? "?.toString()" : ".toString()"));
+        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val ",
+                  javaName,
+                  " = raw_",
+                  javaName,
+                  " as Boolean",
+                  isNullable ? "?" : ""));
+        } else {
+          buffer.add(
+              statement(
+                  indent(6),
+                  "val ",
+                  javaName,
+                  " = raw_",
+                  javaName,
+                  " as ",
+                  type,
+                  isNullable ? "?" : ""));
+        }
+
       } else {
         buffer.add(
             statement(
@@ -867,7 +925,8 @@ public class McpRoute extends WebRoute<McpRouter> {
                 string(mcpName),
                 ")",
                 semicolon(kt)));
-        if (!isNullable)
+
+        if (!isNullable) {
           buffer.add(
               statement(
                   indent(6),
@@ -877,8 +936,21 @@ public class McpRoute extends WebRoute<McpRouter> {
                   string("Missing req param: " + mcpName),
                   ")",
                   semicolon(kt)));
+        }
 
-        if (type.equals("int") || type.equals("java.lang.Integer")) {
+        boolean isNumber = isNumber(type);
+
+        if (isNumber) {
+          String primitiveName =
+              switch (type) {
+                case "double", "java.lang.Double" -> "double";
+                case "long", "java.lang.Long" -> "long";
+                case "float", "java.lang.Float" -> "float";
+                case "short", "java.lang.Short" -> "short";
+                case "byte", "java.lang.Byte" -> "byte";
+                default -> "int";
+              };
+
           buffer.add(
               statement(
                   indent(6),
@@ -886,15 +958,14 @@ public class McpRoute extends WebRoute<McpRouter> {
                   javaName,
                   " = ",
                   isNullable ? "(raw_" + javaName + " == null) ? null : " : "",
-                  "raw_",
+                  "((Number) raw_",
                   javaName,
-                  " instanceof Number ? ((Number) raw_",
-                  javaName,
-                  ").intValue() : Integer.parseInt(raw_",
-                  javaName,
-                  ".toString())",
+                  ").",
+                  primitiveName,
+                  "Value()",
                   semicolon(kt)));
-        } else if (type.equals("java.lang.String")) {
+
+        } else if (type.equals("java.lang.String") || type.equals("String")) {
           buffer.add(
               statement(
                   indent(6),
@@ -906,6 +977,9 @@ public class McpRoute extends WebRoute<McpRouter> {
                   javaName,
                   ".toString() : null",
                   semicolon(kt)));
+        } else if (type.equals("boolean") || type.equals("java.lang.Boolean")) {
+          buffer.add(
+              statement(indent(6), "var ", javaName, " = (Boolean) raw_", javaName, semicolon(kt)));
         } else {
           buffer.add(
               statement(
@@ -979,6 +1053,21 @@ public class McpRoute extends WebRoute<McpRouter> {
     buffer.add(statement(indent(4), "}", System.lineSeparator()));
 
     return buffer;
+  }
+
+  private static boolean isNumber(String type) {
+    return type.equals("int")
+        || type.equals("java.lang.Integer")
+        || type.equals("double")
+        || type.equals("java.lang.Double")
+        || type.equals("long")
+        || type.equals("java.lang.Long")
+        || type.equals("float")
+        || type.equals("java.lang.Float")
+        || type.equals("short")
+        || type.equals("java.lang.Short")
+        || type.equals("byte")
+        || type.equals("java.lang.Byte");
   }
 
   private boolean hasOutputSchema() {

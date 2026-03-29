@@ -17,7 +17,6 @@ public class Issue3830 {
     new ProcessorRunner(new ExampleServer())
         .withMcpCode(
             source -> {
-              System.out.println(source);
               assertThat(source)
                   .isEqualToNormalizingNewlines(
                       """
@@ -64,16 +63,16 @@ public class Issue3830 {
                           @Override
                           public java.util.List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification> completions() {
                             var completions = new java.util.ArrayList<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>();
-                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> this.getUserProfileCompletionHandler(exchange, null, req)));
                             completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (exchange, req) -> this.reviewCodeCompletionHandler(exchange, null, req)));
+                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> this.getUserProfileCompletionHandler(exchange, null, req)));
                             return completions;
                           }
 
                           @Override
                           public java.util.List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions() {
                             var completions = new java.util.ArrayList<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>();
-                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (ctx, req) -> this.getUserProfileCompletionHandler(null, ctx, req)));
                             completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (ctx, req) -> this.reviewCodeCompletionHandler(null, ctx, req)));
+                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (ctx, req) -> this.getUserProfileCompletionHandler(null, ctx, req)));
                             return completions;
                           }
 
@@ -124,10 +123,10 @@ public class Issue3830 {
                             var c = this.factory.apply(ctx);
                             var raw_a = args.get("a");
                             if (raw_a == null) throw new IllegalArgumentException("Missing req param: a");
-                            var a = raw_a instanceof Number ? ((Number) raw_a).intValue() : Integer.parseInt(raw_a.toString());
+                            var a = ((Number) raw_a).intValue();
                             var raw_b = args.get("b");
                             if (raw_b == null) throw new IllegalArgumentException("Missing req param: b");
-                            var b = raw_b instanceof Number ? ((Number) raw_b).intValue() : Integer.parseInt(raw_b.toString());
+                            var b = ((Number) raw_b).intValue();
                             var result = c.add(a, b);
                             return new io.jooby.mcp.McpResult(this.json).toCallToolResult(result, false);
                           }

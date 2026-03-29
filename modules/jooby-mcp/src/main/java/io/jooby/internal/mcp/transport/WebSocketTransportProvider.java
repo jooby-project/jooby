@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.mcp.transport;
+package io.jooby.internal.mcp.transport;
 
 import java.io.IOException;
 
@@ -79,9 +79,7 @@ public class WebSocketTransportProvider extends AbstractMcpTransportProvider {
       sessions
           .get(sessionId)
           .handle(message)
-          .contextWrite(
-              reactorCtx ->
-                  reactorCtx.put(McpTransportContext.KEY, transportContext).put("CTX", ctx))
+          .contextWrite(reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
           .subscribe(
               null,
               error ->

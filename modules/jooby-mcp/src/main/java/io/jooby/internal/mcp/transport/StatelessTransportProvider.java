@@ -3,9 +3,9 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.mcp.transport;
+package io.jooby.internal.mcp.transport;
 
-import static io.jooby.mcp.transport.TransportConstants.TEXT_EVENT_STREAM;
+import static io.jooby.internal.mcp.transport.TransportConstants.TEXT_EVENT_STREAM;
 import static io.modelcontextprotocol.spec.McpSchema.ErrorCodes.INVALID_REQUEST;
 
 import java.io.IOException;
