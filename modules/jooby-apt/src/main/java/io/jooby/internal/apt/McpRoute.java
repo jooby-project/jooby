@@ -708,18 +708,15 @@ public class McpRoute extends WebRoute<McpRouter> {
               "private fun ",
               handlerName,
               "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?, transportContext:"
-                  + " io.modelcontextprotocol.common.McpTransportContext?, req:"
+                  + " io.modelcontextprotocol.common.McpTransportContext, req:" // Removed '?'
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               "): io.modelcontextprotocol.spec.McpSchema.",
               resType,
               " {"));
+
       buffer.add(
-          statement(
-              indent(6),
-              "val ctx ="
-                  + " exchange?.transportContext()?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"
-                  + " ?: transportContext?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+          statement(indent(6), "val ctx = transportContext.get(\"CTX\") as? io.jooby.Context"));
     } else {
       buffer.add(
           statement(
@@ -729,16 +726,16 @@ public class McpRoute extends WebRoute<McpRouter> {
               " ",
               handlerName,
               "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
-                  + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
+                  + " io.modelcontextprotocol.common.McpTransportContext"
+                  + " transportContext," // Guaranteed non-null
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               " req) {"));
+
       buffer.add(
           statement(
               indent(6),
-              "var ctx = exchange != null ? (io.jooby.Context)"
-                  + " exchange.transportContext().get(\"CTX\") : (transportContext != null ?"
-                  + " (io.jooby.Context) transportContext.get(\"CTX\") : null)",
+              "var ctx = (io.jooby.Context) transportContext.get(\"CTX\")",
               semicolon(kt)));
     }
 
@@ -809,26 +806,8 @@ public class McpRoute extends WebRoute<McpRouter> {
       javaParamNames.add(javaName);
 
       if (type.equals("io.jooby.Context")
-          || type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
-        continue;
-      }
-      if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
-        if (kt) {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "val ",
-                  javaName,
-                  " = exchange?.transportContext() ?: transportContext"));
-        } else {
-          buffer.add(
-              statement(
-                  indent(6),
-                  "var ",
-                  javaName,
-                  " = exchange != null ? exchange.transportContext() : transportContext",
-                  semicolon(kt)));
-        }
+          || type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
+          || type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
         continue;
       } else if (type.equals("io.modelcontextprotocol.spec.McpSchema." + reqType)) {
         buffer.add(statement(indent(6), kt ? "val " : "var ", javaName, " = req", semicolon(kt)));

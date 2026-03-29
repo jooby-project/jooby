@@ -277,8 +277,13 @@ public class McpRouter extends WebRouter<McpRoute> {
         var handlerName = findTargetMethodName(ref) + "CompletionHandler";
         lambda =
             kt
-                ? "{ exchange, req -> this." + handlerName + "(exchange, null, req) }"
-                : "(exchange, req) -> this." + handlerName + "(exchange, null, req)";
+                ? "{ exchange, req -> this."
+                    + handlerName
+                    + "(exchange, exchange.transportContext(), req) }"
+                : "(exchange, req) -> this."
+                    + handlerName
+                    + "(exchange, exchange.transportContext(), req)";
+
       } else {
         // Fallback: Return an empty completion result safely
         lambda =
@@ -464,10 +469,14 @@ public class McpRouter extends WebRouter<McpRoute> {
             kt
                 ? (isStateless
                     ? "{ ctx, req -> this." + methodName + "(null, ctx, req) }"
-                    : "{ exchange, req -> this." + methodName + "(exchange, null, req) }")
+                    : "{ exchange, req -> this."
+                        + methodName
+                        + "(exchange, exchange.transportContext(), req) }")
                 : (isStateless
                     ? "(ctx, req) -> this." + methodName + "(null, ctx, req)"
-                    : "(exchange, req) -> this." + methodName + "(exchange, null, req)");
+                    : "(exchange, req) -> this."
+                        + methodName
+                        + "(exchange, exchange.transportContext(), req)");
 
         if (route.isMcpTool()) {
           // Removed "mapper" from defArgs
@@ -584,15 +593,19 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private fun ",
                 handlerName,
                 "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?,"
-                    + " transportContext: io.modelcontextprotocol.common.McpTransportContext?, req:"
+                    + " transportContext:"
+                    + " io.modelcontextprotocol.common.McpTransportContext,"
+                    + " req:" // Removed '?'
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest):"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteResult {"));
+
+        // Direct extraction, no fallback needed
         buffer.append(
             statement(
                 indent(6),
                 "val ctx ="
-                    + " exchange?.transportContext()?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"
-                    + " ?: transportContext?.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+                    + " transportContext.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
+
         buffer.append(statement(indent(6), "val c = this.factory.apply(ctx)"));
         buffer.append(statement(indent(6), "val targetArg = req.argument()?.name() ?: \"\""));
         buffer.append(statement(indent(6), "val typedValue = req.argument()?.value() ?: \"\""));
@@ -604,15 +617,17 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private io.modelcontextprotocol.spec.McpSchema.CompleteResult ",
                 handlerName,
                 "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
-                    + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
+                    + " io.modelcontextprotocol.common.McpTransportContext"
+                    + " transportContext," // Guaranteed non-null
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {"));
+
+        // Direct extraction, no ternary operator
         buffer.append(
             statement(
                 indent(6),
-                "var ctx = exchange != null ? (io.jooby.Context)"
-                    + " exchange.transportContext().get(\"CTX\") : (transportContext != null ?"
-                    + " (io.jooby.Context) transportContext.get(\"CTX\") : null)",
+                "var ctx = (io.jooby.Context) transportContext.get(\"CTX\")",
                 semicolon(kt)));
+
         buffer.append(statement(indent(6), "var c = this.factory.apply(ctx)", semicolon(kt)));
         buffer.append(
             statement(
@@ -638,11 +653,7 @@ public class McpRouter extends WebRouter<McpRoute> {
           } else if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")) {
             invokeArgs.add("exchange");
           } else if (type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
-            if (kt) {
-              invokeArgs.add("exchange?.transportContext() ?: transportContext");
-            } else {
-              invokeArgs.add("exchange != null ? exchange.transportContext() : transportContext");
-            }
+            invokeArgs.add("transportContext");
           } else {
             targetArgName = param.getMcpName();
             invokeArgs.add("typedValue");

@@ -63,8 +63,8 @@ public class Issue3830 {
                           @Override
                           public java.util.List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification> completions() {
                             var completions = new java.util.ArrayList<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>();
-                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (exchange, req) -> this.reviewCodeCompletionHandler(exchange, null, req)));
-                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> this.getUserProfileCompletionHandler(exchange, null, req)));
+                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (exchange, req) -> this.reviewCodeCompletionHandler(exchange, exchange.transportContext(), req)));
+                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> this.getUserProfileCompletionHandler(exchange, exchange.transportContext(), req)));
                             return completions;
                           }
 
@@ -81,10 +81,10 @@ public class Issue3830 {
                             this.json = app.require(io.modelcontextprotocol.json.McpJsonMapper.class);
                             var schemaGenerator = app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class);
 
-                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (exchange, req) -> this.add(exchange, null, req)));
-                            server.addPrompt(new io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (exchange, req) -> this.reviewCode(exchange, null, req)));
-                            server.addResource(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (exchange, req) -> this.getLogs(exchange, null, req)));
-                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (exchange, req) -> this.getUserProfile(exchange, null, req)));
+                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (exchange, req) -> this.add(exchange, exchange.transportContext(), req)));
+                            server.addPrompt(new io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (exchange, req) -> this.reviewCode(exchange, exchange.transportContext(), req)));
+                            server.addResource(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (exchange, req) -> this.getLogs(exchange, exchange.transportContext(), req)));
+                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (exchange, req) -> this.getUserProfile(exchange, exchange.transportContext(), req)));
                           }
 
                           @Override
@@ -118,7 +118,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CallToolResult add(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.CallToolRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var args = req.arguments() != null ? req.arguments() : java.util.Collections.<String, Object>emptyMap();
                             var c = this.factory.apply(ctx);
                             var raw_a = args.get("a");
@@ -139,7 +139,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.GetPromptResult reviewCode(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.GetPromptRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var args = req.arguments() != null ? req.arguments() : java.util.Collections.<String, Object>emptyMap();
                             var c = this.factory.apply(ctx);
                             var raw_language = args.get("language");
@@ -157,7 +157,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ReadResourceResult getLogs(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var args = java.util.Collections.<String, Object>emptyMap();
                             var c = this.factory.apply(ctx);
                             var result = c.getLogs();
@@ -169,7 +169,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.ReadResourceResult getUserProfile(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var uri = req.uri();
                             var manager = new io.modelcontextprotocol.util.DefaultMcpUriTemplateManager("file:///users/{id}/{name}/profile");
                             var args = new java.util.HashMap<String, Object>();
@@ -184,7 +184,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CompleteResult getUserProfileCompletionHandler(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var c = this.factory.apply(ctx);
                             var targetArg = req.argument() != null ? req.argument().name() : "";
                             var typedValue = req.argument() != null ? req.argument().value() : "";
@@ -202,7 +202,7 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.CompleteResult reviewCodeCompletionHandler(io.modelcontextprotocol.server.McpSyncServerExchange exchange, io.modelcontextprotocol.common.McpTransportContext transportContext, io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {
-                            var ctx = exchange != null ? (io.jooby.Context) exchange.transportContext().get("CTX") : (transportContext != null ? (io.jooby.Context) transportContext.get("CTX") : null);
+                            var ctx = (io.jooby.Context) transportContext.get("CTX");
                             var c = this.factory.apply(ctx);
                             var targetArg = req.argument() != null ? req.argument().name() : "";
                             var typedValue = req.argument() != null ? req.argument().value() : "";

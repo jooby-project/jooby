@@ -17,8 +17,6 @@ import io.modelcontextprotocol.server.McpSyncServerExchange;
 /** A collection of tools, prompts, and resources exposed to the LLM via MCP. */
 public class CalculatorTools {
 
-  // --- TOOLS ---
-
   /**
    * Adds two integers together and returns the result.
    *
@@ -31,7 +29,6 @@ public class CalculatorTools {
     return a + b;
   }
 
-  // --- PROMPTS ---
   @McpPrompt(name = "math_tutor", description = "A prompt to initiate a math tutoring session")
   public String mathTutor(String topic) {
     return "You are a helpful math tutor. Please explain the concept of "
@@ -39,7 +36,6 @@ public class CalculatorTools {
         + " step by step.";
   }
 
-  // --- RESOURCES ---
   @McpResource(
       uri = "calculator://manual/usage",
       name = "Calculator Manual",
@@ -56,7 +52,6 @@ public class CalculatorTools {
     return "History for " + user + ":\n5 + 10 = 15\n2 * 4 = 8";
   }
 
-  // --- COMPLETIONS ---
   @McpCompletion(ref = "calculator://history/{user}")
   public List<String> historyCompletions(String user) {
     // In a real app, this would query a database for active usernames matching the input
