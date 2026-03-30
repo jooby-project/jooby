@@ -50,15 +50,13 @@ public interface McpInvoker {
   /**
    * Executes the given MCP operation.
    *
-   * @param operationId The identifier of the operation being executed. Typically formatted as
-   *     {@code [type]/[name]} (e.g., {@code "tools/add_numbers"}, {@code "prompts/greeting"}, or
-   *     {@code "resources/file://config"}).
+   * @param operation The operation being executed.
    * @param action The actual execution of the operation, or the next invoker in the chain. Must be
    *     invoked via {@link SneakyThrows.Supplier#get()} to proceed.
    * @param <R> The return type of the operation.
    * @return The result of the operation.
    */
-  <R> R invoke(String operationId, SneakyThrows.Supplier<R> action);
+  <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action);
 
   /**
    * Chains this invoker with another one. This invoker runs first, and its "action" becomes calling
@@ -76,8 +74,8 @@ public interface McpInvoker {
     }
     return new McpInvoker() {
       @Override
-      public <R> R invoke(String operationId, SneakyThrows.Supplier<R> action) {
-        return McpInvoker.this.invoke(operationId, () -> next.invoke(operationId, action));
+      public <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action) {
+        return McpInvoker.this.invoke(operation, () -> next.invoke(operation, action));
       }
     };
   }

@@ -114,6 +114,7 @@ public class McpRouter extends WebRouter<McpRoute> {
   @Override
   public String toSourceCode(boolean kt) throws IOException {
     var generateTypeName = getTargetType().getSimpleName().toString();
+    var targetClassName = getTargetType().toString();
     var mcpClassName = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
     var packageName = getPackageName();
 
@@ -280,17 +281,36 @@ public class McpRouter extends WebRouter<McpRoute> {
 
       String lambda;
       if (completionGroups.containsKey(ref)) {
-        var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        var targetMethod = findTargetMethodName(ref);
+        var handlerName = targetMethod + "CompletionHandler";
         var operationId = "completions/" + ref;
+
+        String operationArg =
+            kt
+                ? "io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(targetMethod)
+                    + ")"
+                : "new io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(targetMethod)
+                    + ")";
+
         lambda =
             kt
                 ? "{ exchange, req -> invoker.invoke("
-                    + string(operationId)
+                    + operationArg
                     + ") { this."
                     + handlerName
                     + "(exchange, exchange.transportContext(), req) } }"
                 : "(exchange, req) -> invoker.invoke("
-                    + string(operationId)
+                    + operationArg
                     + ", () -> this."
                     + handlerName
                     + "(exchange, exchange.transportContext(), req))";
@@ -377,17 +397,36 @@ public class McpRouter extends WebRouter<McpRoute> {
 
       String lambda;
       if (completionGroups.containsKey(ref)) {
-        var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        var targetMethod = findTargetMethodName(ref);
+        var handlerName = targetMethod + "CompletionHandler";
         var operationId = "completions/" + ref;
+
+        var operationArg =
+            kt
+                ? "io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(targetMethod)
+                    + ")"
+                : "new io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(targetMethod)
+                    + ")";
+
         lambda =
             kt
                 ? "{ ctx, req -> invoker.invoke("
-                    + string(operationId)
+                    + operationArg
                     + ") { this."
                     + handlerName
                     + "(null, ctx, req) } }"
                 : "(ctx, req) -> invoker.invoke("
-                    + string(operationId)
+                    + operationArg
                     + ", () -> this."
                     + handlerName
                     + "(null, ctx, req))";
@@ -530,31 +569,47 @@ public class McpRouter extends WebRouter<McpRoute> {
                       .orElse("")
                   : "";
         }
-        if (mcpName == null || mcpName.isEmpty()) mcpName = methodName;
-        String operationId = mcpType + "/" + mcpName;
+        if (mcpName.isEmpty()) mcpName = methodName;
+        var operationId = mcpType + "/" + mcpName;
 
-        // --- Lambda Router Definition ---
-        String lambda =
+        var operationArg =
+            kt
+                ? "io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(methodName)
+                    + ")"
+                : "new io.jooby.mcp.McpOperation("
+                    + string(operationId)
+                    + ", "
+                    + string(targetClassName)
+                    + ", "
+                    + string(methodName)
+                    + ")";
+
+        var lambda =
             kt
                 ? (isStateless
                     ? "{ ctx, req -> invoker.invoke("
-                        + string(operationId)
+                        + operationArg
                         + ") { this."
                         + methodName
                         + "(null, ctx, req) } }"
                     : "{ exchange, req -> invoker.invoke("
-                        + string(operationId)
+                        + operationArg
                         + ") { this."
                         + methodName
                         + "(exchange, exchange.transportContext(), req) } }")
                 : (isStateless
                     ? "(ctx, req) -> invoker.invoke("
-                        + string(operationId)
+                        + operationArg
                         + ", () -> this."
                         + methodName
                         + "(null, ctx, req))"
                     : "(exchange, req) -> invoker.invoke("
-                        + string(operationId)
+                        + operationArg
                         + ", () -> this."
                         + methodName
                         + "(exchange, exchange.transportContext(), req))");

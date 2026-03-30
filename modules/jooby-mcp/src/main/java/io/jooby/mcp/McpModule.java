@@ -154,6 +154,16 @@ public class McpModule implements Extension {
 
   private McpInvoker invoker;
 
+  /**
+   * Creates a new MCP module initialized with the provided generated services.
+   *
+   * <p>The services passed to this constructor are typically generated at compile-time by the Jooby
+   * Annotation Processor (APT) for classes containing {@code @McpTool}, {@code @McpPrompt}, or
+   * {@code @McpResource} annotations.
+   *
+   * @param mcpService The primary generated MCP service (usually suffixed with {@code Mcp_}).
+   * @param mcpServices Optional additional generated MCP services to register.
+   */
   public McpModule(McpService mcpService, McpService... mcpServices) {
     this.mcpServices.add(mcpService);
     if (mcpServices != null) {
@@ -161,13 +171,40 @@ public class McpModule implements Extension {
     }
   }
 
+  /**
+   * Overrides the default transport protocol used by the MCP server.
+   *
+   * <p>If not explicitly called, the module defaults to {@link Transport#STREAMABLE_HTTP}. This
+   * setting applies to the default server instance and can be overridden on a per-server basis via
+   * your {@code application.conf}.
+   *
+   * @param transport The desired default transport protocol.
+   * @return This module instance for method chaining.
+   */
   public McpModule transport(@NonNull Transport transport) {
     this.defaultTransport = transport;
     return this;
   }
 
+  /**
+   * Registers a custom {@link McpInvoker} to intercept and wrap MCP operations.
+   *
+   * <p>This method allows you to inject cross-cutting concerns—such as logging, tracing, or SLF4J
+   * MDC context propagation—around your tools, prompts, and resources.
+   *
+   * <p><b>Chaining:</b> If called multiple times, the newly provided invoker is chained
+   * <i>before</i> the previously registered invokers. Ultimately, all custom invokers are
+   * automatically chained just before the framework's default exception-mapping invoker.
+   *
+   * @param invoker The custom invoker to register.
+   * @return This module instance for method chaining.
+   */
   public McpModule invoker(@NonNull McpInvoker invoker) {
-    this.invoker = invoker;
+    if (this.invoker != null) {
+      this.invoker = invoker.then(this.invoker);
+    } else {
+      this.invoker = invoker;
+    }
     return this;
   }
 
@@ -176,11 +213,11 @@ public class McpModule implements Extension {
     var services = app.getServices();
     var mcpJsonMapper = services.require(McpJsonMapper.class);
     // invoker
-    McpInvoker invoker = new DefaultMcpInvoker(app);
+    McpInvoker firstInvoker = new DefaultMcpInvoker(app);
     if (this.invoker != null) {
-      invoker = invoker.then(this.invoker);
+      firstInvoker = firstInvoker.then(this.invoker);
     }
-    services.put(McpInvoker.class, invoker);
+    services.put(McpInvoker.class, firstInvoker);
     // Group services by server
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {

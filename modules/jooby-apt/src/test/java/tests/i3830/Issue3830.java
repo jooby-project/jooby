@@ -64,8 +64,8 @@ public class Issue3830 {
                           public java.util.List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification> completions(io.jooby.Jooby app) {
                             var invoker = app.require(io.jooby.mcp.McpInvoker.class);
                             var completions = new java.util.ArrayList<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>();
-                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (exchange, req) -> invoker.invoke("completions/review_code", () -> this.reviewCodeCompletionHandler(exchange, exchange.transportContext(), req))));
-                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> invoker.invoke("completions/file:///users/{id}/{name}/profile", () -> this.getUserProfileCompletionHandler(exchange, exchange.transportContext(), req))));
+                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("completions/review_code", "tests.i3830.ExampleServer", "reviewCode"), () -> this.reviewCodeCompletionHandler(exchange, exchange.transportContext(), req))));
+                            completions.add(new io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("completions/file:///users/{id}/{name}/profile", "tests.i3830.ExampleServer", "getUserProfile"), () -> this.getUserProfileCompletionHandler(exchange, exchange.transportContext(), req))));
                             return completions;
                           }
 
@@ -73,8 +73,8 @@ public class Issue3830 {
                           public java.util.List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions(io.jooby.Jooby app) {
                             var invoker = app.require(io.jooby.mcp.McpInvoker.class);
                             var completions = new java.util.ArrayList<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>();
-                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (ctx, req) -> invoker.invoke("completions/review_code", () -> this.reviewCodeCompletionHandler(null, ctx, req))));
-                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (ctx, req) -> invoker.invoke("completions/file:///users/{id}/{name}/profile", () -> this.getUserProfileCompletionHandler(null, ctx, req))));
+                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.PromptReference("review_code"), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("completions/review_code", "tests.i3830.ExampleServer", "reviewCode"), () -> this.reviewCodeCompletionHandler(null, ctx, req))));
+                            completions.add(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification(new io.modelcontextprotocol.spec.McpSchema.ResourceReference("file:///users/{id}/{name}/profile"), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("completions/file:///users/{id}/{name}/profile", "tests.i3830.ExampleServer", "getUserProfile"), () -> this.getUserProfileCompletionHandler(null, ctx, req))));
                             return completions;
                           }
 
@@ -84,10 +84,10 @@ public class Issue3830 {
                             var invoker = app.require(io.jooby.mcp.McpInvoker.class);
                             var schemaGenerator = app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class);
 
-                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (exchange, req) -> invoker.invoke("tools/calculator", () -> this.add(exchange, exchange.transportContext(), req))));
-                            server.addPrompt(new io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (exchange, req) -> invoker.invoke("prompts/review_code", () -> this.reviewCode(exchange, exchange.transportContext(), req))));
-                            server.addResource(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (exchange, req) -> invoker.invoke("resources/file:///logs/app.log", () -> this.getLogs(exchange, exchange.transportContext(), req))));
-                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (exchange, req) -> invoker.invoke("resources/file:///users/{id}/{name}/profile", () -> this.getUserProfile(exchange, exchange.transportContext(), req))));
+                            server.addTool(new io.modelcontextprotocol.server.McpServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("tools/calculator", "tests.i3830.ExampleServer", "add"), () -> this.add(exchange, exchange.transportContext(), req))));
+                            server.addPrompt(new io.modelcontextprotocol.server.McpServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("prompts/review_code", "tests.i3830.ExampleServer", "reviewCode"), () -> this.reviewCode(exchange, exchange.transportContext(), req))));
+                            server.addResource(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("resources/file:///logs/app.log", "tests.i3830.ExampleServer", "getLogs"), () -> this.getLogs(exchange, exchange.transportContext(), req))));
+                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (exchange, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("resources/file:///users/{id}/{name}/profile", "tests.i3830.ExampleServer", "getUserProfile"), () -> this.getUserProfile(exchange, exchange.transportContext(), req))));
                           }
 
                           @Override
@@ -96,10 +96,10 @@ public class Issue3830 {
                             var invoker = app.require(io.jooby.mcp.McpInvoker.class);
                             var schemaGenerator = app.require(com.github.victools.jsonschema.generator.SchemaGenerator.class);
 
-                            server.addTool(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (ctx, req) -> invoker.invoke("tools/calculator", () -> this.add(null, ctx, req))));
-                            server.addPrompt(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (ctx, req) -> invoker.invoke("prompts/review_code", () -> this.reviewCode(null, ctx, req))));
-                            server.addResource(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (ctx, req) -> invoker.invoke("resources/file:///logs/app.log", () -> this.getLogs(null, ctx, req))));
-                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (ctx, req) -> invoker.invoke("resources/file:///users/{id}/{name}/profile", () -> this.getUserProfile(null, ctx, req))));
+                            server.addTool(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncToolSpecification(addToolSpec(schemaGenerator), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("tools/calculator", "tests.i3830.ExampleServer", "add"), () -> this.add(null, ctx, req))));
+                            server.addPrompt(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncPromptSpecification(reviewCodePromptSpec(), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("prompts/review_code", "tests.i3830.ExampleServer", "reviewCode"), () -> this.reviewCode(null, ctx, req))));
+                            server.addResource(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceSpecification(getLogsResourceSpec(), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("resources/file:///logs/app.log", "tests.i3830.ExampleServer", "getLogs"), () -> this.getLogs(null, ctx, req))));
+                            server.addResourceTemplate(new io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncResourceTemplateSpecification(getUserProfileResourceTemplateSpec(), (ctx, req) -> invoker.invoke(new io.jooby.mcp.McpOperation("resources/file:///users/{id}/{name}/profile", "tests.i3830.ExampleServer", "getUserProfile"), () -> this.getUserProfile(null, ctx, req))));
                           }
 
                           private io.modelcontextprotocol.spec.McpSchema.Tool addToolSpec(com.github.victools.jsonschema.generator.SchemaGenerator schemaGenerator) {

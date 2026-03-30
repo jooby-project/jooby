@@ -171,12 +171,13 @@ public class McpInspectorModule implements Extension {
                   new StartupException("MCP server named '%s' not found".formatted(defaultServer)));
     }
 
-    return srvConfigs.get(0);
+    return srvConfigs.getFirst();
   }
 
   private String buildConfigJson(McpServerConfig config, String location) {
     var endpoint = resolveEndpoint(config);
-    var transport = config.getTransport();
+    var transport =
+        config.isSseTransport() ? McpModule.Transport.SSE : McpModule.Transport.STREAMABLE_HTTP;
     return """
     {
       "defaultEnvironment": {
