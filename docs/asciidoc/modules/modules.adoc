@@ -8,6 +8,7 @@ Modules are distributed as separate dependencies. Below is the catalog of offici
 
 ==== AI
   * link:{uiVersion}/modules/langchain4j[LangChain4j]: Supercharge your Java application with the power of LLMs.
+  * link:{uiVersion}/modules/mcp[MCP]: The MCP module provides seamless integration with the Model Context Protocol.
 
 ==== Cloud
   * link:{uiVersion}/modules/awssdkv2[AWS-SDK v2]: Amazon Web Service module SDK 2.
