@@ -245,7 +245,7 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-pg-client</artifactId>
-      <version>5.0.8</version>
+      <version>5.0.10</version>
     </dependency>
 
     <dependency>
@@ -277,7 +277,7 @@
     <dependency>
       <groupId>org.asynchttpclient</groupId>
       <artifactId>async-http-client</artifactId>
-      <version>3.0.7</version>
+      <version>3.0.8</version>
     </dependency>
 
     <dependency>
