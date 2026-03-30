@@ -35,9 +35,7 @@ import reactor.core.publisher.Mono;
  */
 @SuppressWarnings("PMD")
 public class StatelessTransportProvider implements McpStatelessServerTransport {
-
-  private static final Logger LOG = LoggerFactory.getLogger(StatelessTransportProvider.class);
-
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private McpStatelessServerHandler mcpHandler;
   private final McpJsonMapper mcpJsonMapper;
   private final McpTransportContextExtractor<Context> contextExtractor;
@@ -66,26 +64,23 @@ public class StatelessTransportProvider implements McpStatelessServerTransport {
       return SendError.invalidAcceptHeader(ctx, List.of(TEXT_EVENT_STREAM, MediaType.json));
     }
 
-    McpTransportContext transportContext = this.contextExtractor.extract(ctx);
+    var transportContext = this.contextExtractor.extract(ctx);
     try {
       var body = ctx.body().valueOrNull();
       if (body == null) {
         return SendError.error(
             ctx, StatusCode.BAD_REQUEST, INVALID_REQUEST, "Request body is missing");
       }
-      McpSchema.JSONRPCMessage message = McpSchema.deserializeJsonRpcMessage(mcpJsonMapper, body);
+      var message = McpSchema.deserializeJsonRpcMessage(mcpJsonMapper, body);
 
       if (message instanceof McpSchema.JSONRPCRequest jsonrpcRequest) {
         try {
-          McpSchema.JSONRPCResponse jsonrpcResponse =
-              this.mcpHandler
-                  .handleRequest(transportContext, jsonrpcRequest)
-                  .contextWrite(
-                      reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
-                  .block();
-          return jsonrpcResponse;
+          return this.mcpHandler
+              .handleRequest(transportContext, jsonrpcRequest)
+              .contextWrite(reactorCtx -> reactorCtx.put(McpTransportContext.KEY, transportContext))
+              .block();
         } catch (Exception e) {
-          LOG.error("Failed to handle request.", e);
+          log.error("Failed to handle request", e);
           return SendError.internalError(ctx);
         }
       } else if (message instanceof McpSchema.JSONRPCNotification jsonrpcNotification) {
@@ -96,17 +91,17 @@ public class StatelessTransportProvider implements McpStatelessServerTransport {
               .block();
           return StatusCode.ACCEPTED;
         } catch (Exception e) {
-          LOG.error("Failed to handle notification", e);
+          log.error("Failed to handle notification", e);
           return SendError.internalError(ctx);
         }
       } else {
         return SendError.badRequest(ctx, "The server accepts either requests or notifications");
       }
     } catch (IllegalArgumentException | IOException e) {
-      LOG.error("Failed to deserialize message.", e);
+      log.error("Failed to deserialize a message", e);
       return SendError.badRequest(ctx, "Invalid message format");
     } catch (Exception e) {
-      LOG.error("Unexpected error handling message.", e);
+      log.error("Unexpected error handling message", e);
       return SendError.internalError(ctx);
     }
   }

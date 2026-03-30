@@ -56,7 +56,7 @@ import io.jooby.internal.mcp.McpServerConfig;
  * </ul>
  *
  * @author kliushnichenko
- * @since 1.9.0
+ * @since 4.2.0
  */
 public class McpInspectorModule implements Extension {
 

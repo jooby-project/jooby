@@ -30,7 +30,7 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
       McpTransportContextExtractor<Context> contextExtractor) {
     super(mcpJsonMapper, contextExtractor);
     this.messageEndpoint = serverConfig.getMessageEndpoint();
-    String sseEndpoint = serverConfig.getSseEndpoint();
+    var sseEndpoint = serverConfig.getSseEndpoint();
 
     app.head(sseEndpoint, ctx -> StatusCode.OK).produces(TEXT_EVENT_STREAM);
     app.sse(sseEndpoint, this::handleSseConnection);
@@ -43,9 +43,9 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
   }
 
   private void handleSseConnection(ServerSentEmitter sse) {
-    JoobyMcpSessionTransport transport = new JoobyMcpSessionTransport(mcpJsonMapper, sse);
-    McpServerSession session = sessionFactory.create(transport);
-    String sessionId = session.getId();
+    var transport = new JoobyMcpSessionTransport(mcpJsonMapper, sse);
+    var session = sessionFactory.create(transport);
+    var sessionId = session.getId();
 
     log.debug("New SSE connection established. Session ID: {}", sessionId);
     sessions.put(sessionId, session);
@@ -76,8 +76,8 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
           .build();
     }
 
-    String sessionId = ctx.query(SESSION_ID_KEY).value();
-    McpServerSession session = sessions.get(sessionId);
+    var sessionId = ctx.query(SESSION_ID_KEY).value();
+    var session = sessions.get(sessionId);
 
     if (session == null) {
       ctx.setResponseCode(StatusCode.NOT_FOUND);
@@ -87,10 +87,9 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
     }
 
     try {
-      McpTransportContext transportContext = this.contextExtractor.extract(ctx);
+      var transportContext = this.contextExtractor.extract(ctx);
       var body = ctx.body().value();
-      McpSchema.JSONRPCMessage message =
-          McpSchema.deserializeJsonRpcMessage(this.mcpJsonMapper, body);
+      var message = McpSchema.deserializeJsonRpcMessage(this.mcpJsonMapper, body);
 
       return session
           .handle(message)
@@ -98,13 +97,13 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
           .then(Mono.just((Object) StatusCode.OK))
           .onErrorResume(
               error -> {
-                log.error("Error processing message: {}", error.getMessage());
+                log.error("Error processing message", error);
                 return Mono.just(StatusCode.OK);
               })
           .switchIfEmpty(Mono.just((Object) StatusCode.OK))
           .block();
     } catch (IOException | IllegalArgumentException e) {
-      log.error("Failed to deserialize message: {}", e.getMessage());
+      log.error("Failed to deserialize a message", e);
       return McpError.builder(McpSchema.ErrorCodes.PARSE_ERROR)
           .message("Invalid message format")
           .build();
@@ -124,10 +123,10 @@ public class SseTransportProvider extends AbstractMcpTransportProvider {
       return Mono.fromRunnable(
           () -> {
             try {
-              String jsonText = mcpJsonMapper.writeValueAsString(message);
+              var jsonText = mcpJsonMapper.writeValueAsString(message);
               sse.send(new ServerSentMessage(jsonText).setEvent(MESSAGE_EVENT_TYPE));
             } catch (Exception e) {
-              log.error("Failed to send message: {}", e.getMessage());
+              log.error("Failed to send a message", e);
               sse.send(SSE_ERROR_EVENT, e.getMessage());
             }
           });

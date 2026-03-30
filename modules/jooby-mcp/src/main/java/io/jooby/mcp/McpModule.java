@@ -11,6 +11,9 @@ import static io.jooby.mcp.McpModule.Transport.STREAMABLE_HTTP;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
@@ -120,6 +123,7 @@ public class McpModule implements Extension {
       };
 
   private static final String MODULE_CONFIG_PREFIX = "mcp";
+  private static final Logger log = LoggerFactory.getLogger(McpModule.class);
 
   private Transport defaultTransport = STREAMABLE_HTTP;
 
@@ -166,9 +170,11 @@ public class McpModule implements Extension {
       // Internal usage only, required by mcp-inspector
       services.listOf(McpServerConfig.class).add(mcpConfig);
 
-      var capabilities = new McpSchema.ServerCapabilities.Builder();
-      serverEntry.getValue().forEach(it -> it.capabilities(capabilities));
+      var capabilitiesBuilder = new McpSchema.ServerCapabilities.Builder();
+      serverEntry.getValue().forEach(it -> it.capabilities(capabilitiesBuilder));
 
+      var capabilities = capabilitiesBuilder.build();
+      boolean stateless;
       if (mcpConfig.getTransport() == STATELESS_STREAMABLE_HTTP) {
         var transport =
             new StatelessTransportProvider(app, mcpJsonMapper, mcpConfig, CTX_EXTRACTOR);
@@ -176,7 +182,7 @@ public class McpModule implements Extension {
             McpServer.sync(transport)
                 .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
                 .completions(statelessCompletions(app, serverEntry))
-                .capabilities(capabilities.build())
+                .capabilities(capabilities)
                 .instructions(mcpConfig.getInstructions())
                 .build();
         // install services
@@ -188,6 +194,8 @@ public class McpModule implements Extension {
         services.put(
             ServiceKey.key(McpStatelessSyncServer.class, serverEntry.getKey()), statelessServer);
         services.listOf(McpStatelessSyncServer.class).add(statelessServer);
+
+        stateless = true;
 
         app.onStop(statelessServer::close);
       } else {
@@ -211,7 +219,7 @@ public class McpModule implements Extension {
                 })
                 .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
                 .completions(completions(app, serverEntry))
-                .capabilities(capabilities.build())
+                .capabilities(capabilities)
                 .instructions(mcpConfig.getInstructions())
                 .build();
         // install service
@@ -222,9 +230,36 @@ public class McpModule implements Extension {
         services.putIfAbsent(McpSyncServer.class, syncServer);
         services.put(ServiceKey.key(McpSyncServer.class, serverEntry.getKey()), syncServer);
         services.listOf(McpSyncServer.class).add(syncServer);
-
+        stateless = false;
         app.onStop(syncServer::close);
       }
+      // Startup message:
+      app.onStarting(
+          () -> {
+            var features = new ArrayList<String>();
+            if (capabilities.tools() != null) features.add("Tools");
+            if (capabilities.prompts() != null) features.add("Prompts");
+            if (capabilities.resources() != null) features.add("Resources");
+            var featuresStr = features.isEmpty() ? "None" : String.join(" | ", features);
+
+            log.info(
+                "MCP Server [{}({})] v{} online:",
+                mcpConfig.getName(),
+                serverEntry.getKey(),
+                mcpConfig.getVersion());
+            log.info("  ├─ Transport    : {}", mcpConfig.getTransport().getValue());
+            if (!stateless) {
+              log.info(
+                  "  ├─ Keep-Alive   : {}",
+                  mcpConfig.getKeepAliveInterval() == null
+                      ? "N/A"
+                      : mcpConfig.getKeepAliveInterval() + " s");
+              log.info(
+                  "  ├─ Session Rule : {}",
+                  mcpConfig.isDisallowDelete() ? "Disallow Deletion (Strict)" : "Allow Deletion");
+            }
+            log.info("  ╰─ Capabilities : {}", featuresStr);
+          });
     }
   }
 

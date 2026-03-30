@@ -22,7 +22,6 @@ import reactor.core.publisher.Mono;
 public abstract class AbstractMcpTransportProvider implements McpServerTransportProvider {
 
   protected final Logger log = LoggerFactory.getLogger(getClass());
-
   protected final McpJsonMapper mcpJsonMapper;
   protected final McpTransportContextExtractor<Context> contextExtractor;
   protected final ConcurrentHashMap<String, McpServerSession> sessions = new ConcurrentHashMap<>();
@@ -62,7 +61,7 @@ public abstract class AbstractMcpTransportProvider implements McpServerTransport
                     .doOnError(
                         e ->
                             log.error(
-                                "Failed to send message to {} session {}: {}",
+                                "Failed to send a message to {} session {}: {}",
                                 transportName(),
                                 session.getId(),
                                 e.getMessage()))

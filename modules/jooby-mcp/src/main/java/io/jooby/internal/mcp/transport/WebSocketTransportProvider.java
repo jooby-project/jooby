@@ -17,7 +17,6 @@ import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.McpTransportContextExtractor;
 import io.modelcontextprotocol.spec.McpSchema;
-import io.modelcontextprotocol.spec.McpServerSession;
 import reactor.core.publisher.Mono;
 
 @SuppressWarnings("PMD")
@@ -54,9 +53,9 @@ public class WebSocketTransportProvider extends AbstractMcpTransportProvider {
       return;
     }
 
-    JoobyMcpWebSocketTransport transport = new JoobyMcpWebSocketTransport(mcpJsonMapper, ws);
-    McpServerSession session = sessionFactory.create(transport);
-    String sessionId = session.getId();
+    var transport = new JoobyMcpWebSocketTransport(mcpJsonMapper, ws);
+    var session = sessionFactory.create(transport);
+    var sessionId = session.getId();
 
     ws.attribute(MCP_SESSION_ATTRIBUTE, sessionId);
     sessions.put(sessionId, session);
@@ -71,10 +70,9 @@ public class WebSocketTransportProvider extends AbstractMcpTransportProvider {
     }
 
     try {
-      Context ctx = ws.getContext();
-      McpTransportContext transportContext = this.contextExtractor.extract(ctx);
-      McpSchema.JSONRPCMessage message =
-          McpSchema.deserializeJsonRpcMessage(this.mcpJsonMapper, msg.value());
+      var ctx = ws.getContext();
+      var transportContext = this.contextExtractor.extract(ctx);
+      var message = McpSchema.deserializeJsonRpcMessage(this.mcpJsonMapper, msg.value());
 
       sessions
           .get(sessionId)
@@ -121,7 +119,7 @@ public class WebSocketTransportProvider extends AbstractMcpTransportProvider {
             try {
               if (!closed) ws.send(mcpJsonMapper.writeValueAsString(message));
             } catch (Exception e) {
-              log.error("Failed to send WebSocket message: {}", e.getMessage());
+              log.error("Failed to send WebSocket message", e);
             }
           });
     }
