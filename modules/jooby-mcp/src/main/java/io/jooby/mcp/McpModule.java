@@ -17,6 +17,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.exception.StartupException;
+import io.jooby.internal.mcp.DefaultMcpInvoker;
 import io.jooby.internal.mcp.McpServerConfig;
 import io.jooby.internal.mcp.transport.SseTransportProvider;
 import io.jooby.internal.mcp.transport.StatelessTransportProvider;
@@ -124,6 +125,8 @@ public class McpModule implements Extension {
 
   private final List<McpService> mcpServices = new ArrayList<>();
 
+  private McpInvoker invoker;
+
   public McpModule(McpService mcpService, McpService... mcpServices) {
     this.mcpServices.add(mcpService);
     if (mcpServices != null) {
@@ -136,10 +139,21 @@ public class McpModule implements Extension {
     return this;
   }
 
+  public McpModule invoker(@NonNull McpInvoker invoker) {
+    this.invoker = invoker;
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby app) {
     var services = app.getServices();
     var mcpJsonMapper = services.require(McpJsonMapper.class);
+    // invoker
+    McpInvoker invoker = new DefaultMcpInvoker(app);
+    if (this.invoker != null) {
+      invoker = invoker.then(this.invoker);
+    }
+    services.put(McpInvoker.class, invoker);
     // Group services by server
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {
@@ -161,7 +175,7 @@ public class McpModule implements Extension {
         var statelessServer =
             McpServer.sync(transport)
                 .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
-                .completions(statelessCompletions(serverEntry))
+                .completions(statelessCompletions(app, serverEntry))
                 .capabilities(capabilities.build())
                 .instructions(mcpConfig.getInstructions())
                 .build();
@@ -196,7 +210,7 @@ public class McpModule implements Extension {
                           "Unsupported transport: " + mcpConfig.getTransport());
                 })
                 .serverInfo(mcpConfig.getName(), mcpConfig.getVersion())
-                .completions(completions(serverEntry))
+                .completions(completions(app, serverEntry))
                 .capabilities(capabilities.build())
                 .instructions(mcpConfig.getInstructions())
                 .build();
@@ -215,17 +229,17 @@ public class McpModule implements Extension {
   }
 
   private static List<McpServerFeatures.SyncCompletionSpecification> completions(
-      Map.Entry<String, List<McpService>> serverEntry) {
+      Jooby application, Map.Entry<String, List<McpService>> serverEntry) {
     return serverEntry.getValue().stream()
-        .map(McpService::completions)
+        .map(it -> it.completions(application))
         .flatMap(List::stream)
         .toList();
   }
 
   private static List<McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions(
-      Map.Entry<String, List<McpService>> serverEntry) {
+      Jooby application, Map.Entry<String, List<McpService>> serverEntry) {
     return serverEntry.getValue().stream()
-        .map(McpService::statelessCompletions)
+        .map(it -> it.statelessCompletions(application))
         .flatMap(List::stream)
         .toList();
   }

@@ -23,9 +23,10 @@ public interface McpService {
 
   void capabilities(McpSchema.ServerCapabilities.Builder capabilities);
 
-  List<McpServerFeatures.SyncCompletionSpecification> completions();
+  List<McpServerFeatures.SyncCompletionSpecification> completions(Jooby application);
 
-  List<McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions();
+  List<McpStatelessServerFeatures.SyncCompletionSpecification> statelessCompletions(
+      Jooby application);
 
   String serverKey();
 }

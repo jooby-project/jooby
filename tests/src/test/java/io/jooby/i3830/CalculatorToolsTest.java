@@ -397,6 +397,77 @@ public class CalculatorToolsTest {
   }
 
   @ServerTest
+  public void shouldGetUnknownTool(ServerTestRunner runner) {
+    runner
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
+        .ready(
+            client -> {
+              String jsonRpcRequest =
+                  """
+                  {
+                    "jsonrpc": "2.0",
+                    "id": "req-tool-1",
+                    "method": "tools/call",
+                    "params": {
+                      "name": "some_tool",
+                      "arguments": { "topic": "Algebra" }
+                    }
+                  }
+                  """;
+
+              client.header("Content-Type", "application/json");
+              client.postJson(
+                  "/mcp",
+                  jsonRpcRequest,
+                  response -> {
+                    assertEquals(200, response.code());
+                    String body = response.body().string();
+                    assertThat(body)
+                        .isEqualToNormalizingWhitespace(
+                            """
+                            {"jsonrpc":"2.0","id":"req-tool-1","error":{"code":-32602,"message":"Unknown tool: invalid_tool_name","data":"Tool not found: some_tool"}}
+                            """);
+                  });
+            });
+  }
+
+  @ServerTest
+  public void shouldGetInvalidParams(ServerTestRunner runner) {
+    runner
+        .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))
+        .ready(
+            client -> {
+              String jsonRpcRequest =
+                  """
+                  {
+                    "jsonrpc": "2.0",
+                    "id": "req-tool-1",
+                    "method": "tools/call",
+                    "params": {
+                      "name": "add_numbers",
+                      "arguments": { "a": 5, "b": "10" }
+                    }
+                  }
+                  """;
+
+              client.header("Content-Type", "application/json");
+              client.postJson(
+                  "/mcp",
+                  jsonRpcRequest,
+                  response -> {
+                    assertEquals(200, response.code());
+                    String body = response.body().string();
+                    assertThat(body)
+                        .containsIgnoringWhitespaces(
+                            """
+                            "result":
+                            """)
+                        .containsIgnoringWhitespaces("\"isError\":true");
+                  });
+            });
+  }
+
+  @ServerTest
   public void shouldReadStaticResource(ServerTestRunner runner) {
     runner
         .define(app -> setupMcpApp(app, McpModule.Transport.STATELESS_STREAMABLE_HTTP))

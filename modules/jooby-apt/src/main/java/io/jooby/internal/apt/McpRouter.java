@@ -240,9 +240,11 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(
           statement(
               indent(4),
-              "override fun completions():"
+              "override fun completions(app: io.jooby.Jooby):"
                   + " List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>"
                   + " {"));
+      buffer.append(
+          statement(indent(6), "val invoker = app.require(io.jooby.mcp.McpInvoker::class.java)"));
       buffer.append(
           statement(
               indent(6),
@@ -255,7 +257,12 @@ public class McpRouter extends WebRouter<McpRoute> {
               indent(4),
               "public"
                   + " java.util.List<io.modelcontextprotocol.server.McpServerFeatures.SyncCompletionSpecification>"
-                  + " completions() {"));
+                  + " completions(io.jooby.Jooby app) {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "var invoker = app.require(io.jooby.mcp.McpInvoker.class)",
+              semicolon(kt)));
       buffer.append(
           statement(
               indent(6),
@@ -264,7 +271,6 @@ public class McpRouter extends WebRouter<McpRoute> {
               semicolon(kt)));
     }
 
-    // Loop over ALL possible refs, not just the ones with explicit handlers
     for (var ref : allCompletionRefs) {
       var isResource = ref.contains("://");
       var refObj =
@@ -275,17 +281,20 @@ public class McpRouter extends WebRouter<McpRoute> {
       String lambda;
       if (completionGroups.containsKey(ref)) {
         var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        var operationId = "completions/" + ref;
         lambda =
             kt
-                ? "{ exchange, req -> this."
+                ? "{ exchange, req -> invoker.invoke("
+                    + string(operationId)
+                    + ") { this."
                     + handlerName
-                    + "(exchange, exchange.transportContext(), req) }"
-                : "(exchange, req) -> this."
+                    + "(exchange, exchange.transportContext(), req) } }"
+                : "(exchange, req) -> invoker.invoke("
+                    + string(operationId)
+                    + ", () -> this."
                     + handlerName
-                    + "(exchange, exchange.transportContext(), req)";
-
+                    + "(exchange, exchange.transportContext(), req))";
       } else {
-        // Fallback: Return an empty completion result safely
         lambda =
             kt
                 ? "{ _, _ -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>()) }"
@@ -328,9 +337,11 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(
           statement(
               indent(4),
-              "override fun statelessCompletions():"
+              "override fun statelessCompletions(app: io.jooby.Jooby):"
                   + " List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>"
                   + " {"));
+      buffer.append(
+          statement(indent(6), "val invoker = app.require(io.jooby.mcp.McpInvoker::class.java)"));
       buffer.append(
           statement(
               indent(6),
@@ -343,7 +354,12 @@ public class McpRouter extends WebRouter<McpRoute> {
               indent(4),
               "public"
                   + " java.util.List<io.modelcontextprotocol.server.McpStatelessServerFeatures.SyncCompletionSpecification>"
-                  + " statelessCompletions() {"));
+                  + " statelessCompletions(io.jooby.Jooby app) {"));
+      buffer.append(
+          statement(
+              indent(6),
+              "var invoker = app.require(io.jooby.mcp.McpInvoker.class)",
+              semicolon(kt)));
       buffer.append(
           statement(
               indent(6),
@@ -352,7 +368,6 @@ public class McpRouter extends WebRouter<McpRoute> {
               semicolon(kt)));
     }
 
-    // Loop over ALL possible refs
     for (var ref : allCompletionRefs) {
       var isResource = ref.contains("://");
       var refObj =
@@ -363,12 +378,20 @@ public class McpRouter extends WebRouter<McpRoute> {
       String lambda;
       if (completionGroups.containsKey(ref)) {
         var handlerName = findTargetMethodName(ref) + "CompletionHandler";
+        var operationId = "completions/" + ref;
         lambda =
             kt
-                ? "{ ctx, req -> this." + handlerName + "(null, ctx, req) }"
-                : "(ctx, req) -> this." + handlerName + "(null, ctx, req)";
+                ? "{ ctx, req -> invoker.invoke("
+                    + string(operationId)
+                    + ") { this."
+                    + handlerName
+                    + "(null, ctx, req) } }"
+                : "(ctx, req) -> invoker.invoke("
+                    + string(operationId)
+                    + ", () -> this."
+                    + handlerName
+                    + "(null, ctx, req))";
       } else {
-        // Fallback: Return an empty completion result safely
         lambda =
             kt
                 ? "{ _, _ -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>()) }"
@@ -424,6 +447,8 @@ public class McpRouter extends WebRouter<McpRoute> {
                 indent(6),
                 "this.json ="
                     + " app.require(io.modelcontextprotocol.json.McpJsonMapper::class.java)"));
+        buffer.append(
+            statement(indent(6), "val invoker = app.require(io.jooby.mcp.McpInvoker::class.java)"));
 
         if (!tools.isEmpty()) {
           buffer.append(
@@ -445,6 +470,11 @@ public class McpRouter extends WebRouter<McpRoute> {
                 indent(6),
                 "this.json =" + " app.require(io.modelcontextprotocol.json.McpJsonMapper.class)",
                 semicolon(kt)));
+        buffer.append(
+            statement(
+                indent(6),
+                "var invoker = app.require(io.jooby.mcp.McpInvoker.class)",
+                semicolon(kt)));
 
         if (!tools.isEmpty()) {
           buffer.append(
@@ -464,22 +494,72 @@ public class McpRouter extends WebRouter<McpRoute> {
       for (var route : getRoutes()) {
         var methodName = route.getMethodName();
 
+        String mcpType = "";
+        String mcpName = "";
+        if (route.isMcpTool()) {
+          mcpType = "tools";
+          var ann =
+              AnnotationSupport.findAnnotationByName(
+                  route.getMethod(), "io.jooby.annotation.mcp.McpTool");
+          mcpName =
+              ann != null
+                  ? AnnotationSupport.findAnnotationValue(ann, "name"::equals).stream()
+                      .findFirst()
+                      .orElse("")
+                  : "";
+        } else if (route.isMcpPrompt()) {
+          mcpType = "prompts";
+          var ann =
+              AnnotationSupport.findAnnotationByName(
+                  route.getMethod(), "io.jooby.annotation.mcp.McpPrompt");
+          mcpName =
+              ann != null
+                  ? AnnotationSupport.findAnnotationValue(ann, "name"::equals).stream()
+                      .findFirst()
+                      .orElse("")
+                  : "";
+        } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
+          mcpType = "resources";
+          var ann =
+              AnnotationSupport.findAnnotationByName(
+                  route.getMethod(), "io.jooby.annotation.mcp.McpResource");
+          mcpName =
+              ann != null
+                  ? AnnotationSupport.findAnnotationValue(ann, "uri"::equals).stream()
+                      .findFirst()
+                      .orElse("")
+                  : "";
+        }
+        if (mcpName == null || mcpName.isEmpty()) mcpName = methodName;
+        String operationId = mcpType + "/" + mcpName;
+
         // --- Lambda Router Definition ---
         String lambda =
             kt
                 ? (isStateless
-                    ? "{ ctx, req -> this." + methodName + "(null, ctx, req) }"
-                    : "{ exchange, req -> this."
+                    ? "{ ctx, req -> invoker.invoke("
+                        + string(operationId)
+                        + ") { this."
                         + methodName
-                        + "(exchange, exchange.transportContext(), req) }")
+                        + "(null, ctx, req) } }"
+                    : "{ exchange, req -> invoker.invoke("
+                        + string(operationId)
+                        + ") { this."
+                        + methodName
+                        + "(exchange, exchange.transportContext(), req) } }")
                 : (isStateless
-                    ? "(ctx, req) -> this." + methodName + "(null, ctx, req)"
-                    : "(exchange, req) -> this."
+                    ? "(ctx, req) -> invoker.invoke("
+                        + string(operationId)
+                        + ", () -> this."
                         + methodName
-                        + "(exchange, exchange.transportContext(), req)");
+                        + "(null, ctx, req))"
+                    : "(exchange, req) -> invoker.invoke("
+                        + string(operationId)
+                        + ", () -> this."
+                        + methodName
+                        + "(exchange, exchange.transportContext(), req))");
 
         if (route.isMcpTool()) {
-          // Removed "mapper" from defArgs
           var defArgs = "schemaGenerator";
           if (kt) {
             buffer.append(
@@ -593,19 +673,11 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private fun ",
                 handlerName,
                 "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?,"
-                    + " transportContext:"
-                    + " io.modelcontextprotocol.common.McpTransportContext,"
-                    + " req:" // Removed '?'
+                    + " transportContext: io.modelcontextprotocol.common.McpTransportContext, req:"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest):"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteResult {"));
-
-        // Direct extraction, no fallback needed
         buffer.append(
-            statement(
-                indent(6),
-                "val ctx ="
-                    + " transportContext.get<io.jooby.Context>(io.jooby.Context::class.java.name)"));
-
+            statement(indent(6), "val ctx = transportContext.get(\"CTX\") as io.jooby.Context"));
         buffer.append(statement(indent(6), "val c = this.factory.apply(ctx)"));
         buffer.append(statement(indent(6), "val targetArg = req.argument()?.name() ?: \"\""));
         buffer.append(statement(indent(6), "val typedValue = req.argument()?.value() ?: \"\""));
@@ -617,17 +689,13 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private io.modelcontextprotocol.spec.McpSchema.CompleteResult ",
                 handlerName,
                 "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
-                    + " io.modelcontextprotocol.common.McpTransportContext"
-                    + " transportContext," // Guaranteed non-null
+                    + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {"));
-
-        // Direct extraction, no ternary operator
         buffer.append(
             statement(
                 indent(6),
                 "var ctx = (io.jooby.Context) transportContext.get(\"CTX\")",
                 semicolon(kt)));
-
         buffer.append(statement(indent(6), "var c = this.factory.apply(ctx)", semicolon(kt)));
         buffer.append(
             statement(
