@@ -68,7 +68,8 @@ function patchMcpProxyAddress(storageKey, newAddress) {
 
 function patch_mcp_inspector_config() {
     localStorage.setItem("lastConnectionType", "direct");
-    const url = location.origin + "/mcp-inspector";
+    const cp = document.getElementById('contextPath').value;
+    const url = location.origin + cp;
     patchMcpProxyAddress(INSPECTOR_CONFIG_KEY, url);
 }
 

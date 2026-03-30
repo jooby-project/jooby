@@ -69,23 +69,24 @@ public class McpInspectorModule implements Extension {
       <html lang="en">
       <head>
           <meta charset="UTF-8">
-          <link rel="icon" type="image/svg+xml" href="%s/mcp.svg">
+          <link rel="icon" type="image/svg+xml" href="%1$s/mcp.svg">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <title>MCP Inspector</title>
-          <script type="module" src="/mcp-inspector/static/initScript-B8iPFz0O.js"></script>
-          <script type="module" crossorigin src="%s/assets/index-B8iPFz0O.js"></script>
-          <link rel="stylesheet" crossorigin href="%s/assets/index-DdtP67NK.css">
+          <script type="module" src=".%2$s/static/initScript-B8iPFz0O.js"></script>
+          <script type="module" crossorigin src="%1$s/assets/index-B8iPFz0O.js"></script>
+          <link rel="stylesheet" crossorigin href="%1$s/assets/index-DdtP67NK.css">
       </head>
       <body>
           <div id="root" class="w-full"></div>
+          <input type="hidden" id="contextPath" value="%2$s" />
       </body>
-      %s
+      %3$s
       </html>
       """;
 
   private static final String AUTO_CONNECT_SCRIPT =
       """
-      <script src="/mcp-inspector/static/autoConnectScript-B8iPFz0O.js"></script>\
+      <script src=".%s/static/autoConnectScript-B8iPFz0O.js"></script>\
       """;
 
   private static final String DEFAULT_ENDPOINT = "/mcp-inspector";
@@ -117,12 +118,12 @@ public class McpInspectorModule implements Extension {
     this.indexHtml = buildIndexHtml();
     this.mcpSrvConfig = resolveMcpServerConfig(app);
 
-    app.assets("/mcp-inspector/static/*", "/mcpInspector/assets/");
+    app.assets(inspectorEndpoint + "/static/*", "/mcpInspector/assets/");
 
     app.get(inspectorEndpoint, ctx -> ctx.setResponseType(MediaType.html).render(this.indexHtml));
 
     app.get(
-        "/mcp-inspector/config",
+        inspectorEndpoint + "/config",
         ctx -> {
           var location = resolveLocation(ctx);
           var configJson = buildConfigJson(mcpSrvConfig, location);
@@ -131,8 +132,8 @@ public class McpInspectorModule implements Extension {
   }
 
   private String buildIndexHtml() {
-    var script = this.autoConnect ? AUTO_CONNECT_SCRIPT : "";
-    return INDEX_HTML_TEMPLATE.formatted(DIST, DIST, DIST, script);
+    var script = this.autoConnect ? AUTO_CONNECT_SCRIPT.formatted(inspectorEndpoint) : "";
+    return INDEX_HTML_TEMPLATE.formatted(DIST, inspectorEndpoint, script);
   }
 
   private String resolveLocation(Context ctx) {
@@ -195,10 +196,5 @@ public class McpInspectorModule implements Extension {
     } else {
       return config.getMcpEndpoint();
     }
-  }
-
-  @Override
-  public boolean lateinit() {
-    return true;
   }
 }
