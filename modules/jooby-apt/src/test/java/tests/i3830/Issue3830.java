@@ -47,12 +47,19 @@ public class Issue3830 {
                           }
 
                           private io.modelcontextprotocol.json.McpJsonMapper json;
+                          private boolean generateOutputSchema = false;
                           @Override
                           public void capabilities(io.modelcontextprotocol.spec.McpSchema.ServerCapabilities.Builder capabilities) {
                             capabilities.tools(true);
                             capabilities.prompts(true);
                             capabilities.resources(true, true);
                             capabilities.completions();
+                          }
+
+                          @Override
+                          public io.jooby.mcp.McpService generateOutputSchema(boolean generateOutputSchema) {
+                            this.generateOutputSchema = generateOutputSchema;
+                            return this;
                           }
 
                           @Override

@@ -154,6 +154,8 @@ public class McpModule implements Extension {
 
   private McpInvoker invoker;
 
+  private Boolean generateOutputSchema = null;
+
   /**
    * Creates a new MCP module initialized with the provided generated services.
    *
@@ -208,10 +210,26 @@ public class McpModule implements Extension {
     return this;
   }
 
+  /**
+   * Enabled/disables the generation of the output schema. It is automatically loaded from <code>
+   * mcp.generateOutputSchema</code> which by default is <code>false</code>.
+   *
+   * @param generateOutputSchema <code>true</code> to enable the generation of the output schema.
+   * @return This module instance for method chaining.
+   */
+  public McpModule generateOutputSchema(boolean generateOutputSchema) {
+    this.generateOutputSchema = generateOutputSchema;
+    return this;
+  }
+
   @Override
   public void install(@NonNull Jooby app) {
     var services = app.getServices();
     var mcpJsonMapper = services.require(McpJsonMapper.class);
+    var globalGenerateOutputSchema =
+        app.getConfig().hasPath("mcp.generateOutputSchema")
+            ? app.getConfig().getBoolean("mcp.generateOutputSchema")
+            : Optional.ofNullable(this.generateOutputSchema).orElse(Boolean.FALSE);
     // invoker
     McpInvoker firstInvoker = new DefaultMcpInvoker(app);
     if (this.invoker != null) {
@@ -221,8 +239,14 @@ public class McpModule implements Extension {
     // Group services by server
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {
-      var serverKey = Optional.ofNullable(mcpService.serverKey()).orElse("default");
-      mcpServiceMap.computeIfAbsent(serverKey, k -> new ArrayList<>()).add(mcpService);
+      var localGenerateOutputSchemaPath =
+          MODULE_CONFIG_PREFIX + "." + mcpService.serverKey() + ".generateOutputSchema";
+      var localGenerateOutputSchema =
+          app.getConfig().hasPath(localGenerateOutputSchemaPath)
+              ? app.getConfig().getBoolean(localGenerateOutputSchemaPath)
+              : globalGenerateOutputSchema;
+      mcpService.generateOutputSchema(localGenerateOutputSchema);
+      mcpServiceMap.computeIfAbsent(mcpService.serverKey(), k -> new ArrayList<>()).add(mcpService);
     }
     // Boot everything
     for (var serverEntry : mcpServiceMap.entrySet()) {

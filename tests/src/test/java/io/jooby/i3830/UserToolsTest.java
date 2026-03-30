@@ -29,6 +29,7 @@ public class UserToolsTest {
     }
     app.install(
         new McpModule(new UserToolsMcp_())
+            .generateOutputSchema(true)
             .transport(McpModule.Transport.STATELESS_STREAMABLE_HTTP));
   }
 

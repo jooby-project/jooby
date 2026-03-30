@@ -492,7 +492,6 @@ public class McpRoute extends WebRoute<McpRouter> {
                   ")"));
         }
 
-        // Switched from .set() to .put() for standard Map
         buffer.add(statement(indent(6), "props.put(", string(mcpName), ", schema_", mcpName, ")"));
 
         if (!param.isNullable(kt)) {
@@ -523,7 +522,6 @@ public class McpRoute extends WebRoute<McpRouter> {
                   semicolon(kt)));
         }
 
-        // Switched from .set() to .put() for standard Map
         buffer.add(
             statement(
                 indent(6),
@@ -540,51 +538,156 @@ public class McpRoute extends WebRoute<McpRouter> {
       }
     }
 
-    // --- OUTPUT SCHEMA GENERATION ---
-    String returnTypeStr = getReturnType().getRawType().toString();
-    boolean generateOutputSchema = hasOutputSchema();
+    // --- OUTPUT SCHEMA GENERATION (RUNTIME AWARE) ---
+    var outMeta = parseOutputSchemaMeta();
+    boolean isEligible = hasOutputSchema();
+
     String outputSchemaArg = "null";
 
-    if (generateOutputSchema) {
+    if (outMeta.isOff() || (!isEligible && outMeta.type() == null)) {
+      // Do nothing, outputSchemaArg remains "null"
+    } else {
       outputSchemaArg = getMethodName() + "OutputSchema";
+      String targetTypeStr =
+          outMeta.type() != null ? outMeta.type() : getReturnType().getRawType().toString();
+
+      if (kt) {
+        buffer.add(
+            statement(indent(6), "var ", outputSchemaArg, ": java.util.Map<String, Any>? = null"));
+      } else {
+        buffer.add(
+            statement(
+                indent(6),
+                "java.util.Map<String, Object> ",
+                outputSchemaArg,
+                " = null",
+                semicolon(kt)));
+      }
+
+      boolean needsRuntimeCheck = (outMeta.type() == null);
+      String ind = indent(6);
+
+      if (needsRuntimeCheck) {
+        buffer.add(statement(indent(6), "if (this.generateOutputSchema) {"));
+        ind = indent(8);
+      }
+
       if (kt) {
         buffer.add(
             statement(
-                indent(6),
+                ind,
                 "val ",
                 outputSchemaArg,
                 "Node = schemaGenerator.generateSchema(",
-                returnTypeStr,
+                targetTypeStr,
                 "::class.java)"));
-        // Use this.json to convert the output schema
         buffer.add(
             statement(
-                indent(6),
+                ind,
                 "val ",
                 outputSchemaArg,
-                " = this.json.convertValue(",
+                "Map = this.json.convertValue(",
                 outputSchemaArg,
                 "Node, java.util.Map::class.java) as java.util.Map<String, Any>"));
       } else {
         buffer.add(
             statement(
-                indent(6),
+                ind,
                 "var ",
                 outputSchemaArg,
                 "Node = schemaGenerator.generateSchema(",
-                returnTypeStr,
+                targetTypeStr,
                 ".class)",
                 semicolon(kt)));
-        // Use this.json to convert the output schema
         buffer.add(
             statement(
-                indent(6),
+                ind,
                 "var ",
                 outputSchemaArg,
-                " = this.json.convertValue(",
+                "Map = this.json.convertValue(",
                 outputSchemaArg,
                 "Node, java.util.Map.class)",
                 semicolon(kt)));
+      }
+
+      // Handle ArrayOf and MapOf Schema Wrapping
+      if (outMeta.schemaType() == SchemaType.ARRAY) {
+        if (kt) {
+          buffer.add(
+              statement(
+                  ind,
+                  "val ",
+                  outputSchemaArg,
+                  "Wrapped = java.util.LinkedHashMap<String, Any>()"));
+          buffer.add(statement(ind, outputSchemaArg, "Wrapped.put(\"type\", \"array\")"));
+          buffer.add(
+              statement(ind, outputSchemaArg, "Wrapped.put(\"items\", ", outputSchemaArg, "Map)"));
+          buffer.add(statement(ind, outputSchemaArg, " = ", outputSchemaArg, "Wrapped"));
+        } else {
+          buffer.add(
+              statement(
+                  ind,
+                  "var ",
+                  outputSchemaArg,
+                  "Wrapped = new java.util.LinkedHashMap<String, Object>()",
+                  semicolon(kt)));
+          buffer.add(
+              statement(ind, outputSchemaArg, "Wrapped.put(\"type\", \"array\")", semicolon(kt)));
+          buffer.add(
+              statement(
+                  ind,
+                  outputSchemaArg,
+                  "Wrapped.put(\"items\", ",
+                  outputSchemaArg,
+                  "Map)",
+                  semicolon(kt)));
+          buffer.add(
+              statement(ind, outputSchemaArg, " = ", outputSchemaArg, "Wrapped", semicolon(kt)));
+        }
+      } else if (outMeta.schemaType() == SchemaType.MAP) {
+        if (kt) {
+          buffer.add(
+              statement(
+                  ind,
+                  "val ",
+                  outputSchemaArg,
+                  "Wrapped = java.util.LinkedHashMap<String, Any>()"));
+          buffer.add(statement(ind, outputSchemaArg, "Wrapped.put(\"type\", \"object\")"));
+          buffer.add(
+              statement(
+                  ind,
+                  outputSchemaArg,
+                  "Wrapped.put(\"additionalProperties\", ",
+                  outputSchemaArg,
+                  "Map)"));
+          buffer.add(statement(ind, outputSchemaArg, " = ", outputSchemaArg, "Wrapped"));
+        } else {
+          buffer.add(
+              statement(
+                  ind,
+                  "var ",
+                  outputSchemaArg,
+                  "Wrapped = new java.util.LinkedHashMap<String, Object>()",
+                  semicolon(kt)));
+          buffer.add(
+              statement(ind, outputSchemaArg, "Wrapped.put(\"type\", \"object\")", semicolon(kt)));
+          buffer.add(
+              statement(
+                  ind,
+                  outputSchemaArg,
+                  "Wrapped.put(\"additionalProperties\", ",
+                  outputSchemaArg,
+                  "Map)",
+                  semicolon(kt)));
+          buffer.add(
+              statement(ind, outputSchemaArg, " = ", outputSchemaArg, "Wrapped", semicolon(kt)));
+        }
+      } else {
+        buffer.add(statement(ind, outputSchemaArg, " = ", outputSchemaArg, "Map", semicolon(kt)));
+      }
+
+      if (needsRuntimeCheck) {
+        buffer.add(statement(indent(6), "}"));
       }
     }
 
@@ -622,7 +725,6 @@ public class McpRoute extends WebRoute<McpRouter> {
               titleArg,
               ", ",
               string(description),
-              // Use this.json to convert the main schema map into JsonSchema
               ", this.json.convertValue(schema,"
                   + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
               outputSchemaArg,
@@ -660,7 +762,6 @@ public class McpRoute extends WebRoute<McpRouter> {
               titleArg,
               ", ",
               string(description),
-              // Use this.json to convert the main schema map into JsonSchema
               ", this.json.convertValue(schema,"
                   + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
               outputSchemaArg,
@@ -708,7 +809,7 @@ public class McpRoute extends WebRoute<McpRouter> {
               "private fun ",
               handlerName,
               "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?, transportContext:"
-                  + " io.modelcontextprotocol.common.McpTransportContext, req:" // Removed '?'
+                  + " io.modelcontextprotocol.common.McpTransportContext, req:"
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               "): io.modelcontextprotocol.spec.McpSchema.",
@@ -727,7 +828,7 @@ public class McpRoute extends WebRoute<McpRouter> {
               handlerName,
               "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
                   + " io.modelcontextprotocol.common.McpTransportContext"
-                  + " transportContext," // Guaranteed non-null
+                  + " transportContext,"
                   + " io.modelcontextprotocol.spec.McpSchema.",
               reqType,
               " req) {"));
@@ -969,11 +1070,22 @@ public class McpRoute extends WebRoute<McpRouter> {
 
     var methodCall = "c." + getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
 
-    // Prefix for Resources: "req.uri(), "
     String toMethodPrefix = (isMcpResource() || isMcpResourceTemplate()) ? "req.uri(), " : "";
 
-    // Suffix for Tools: ", true" or ", false"
-    String toMethodSuffix = isMcpTool() ? ", " + hasOutputSchema() : "";
+    // Resolve output schema flag for Handler runtime behavior
+    String toMethodSuffix = "";
+    if (isMcpTool()) {
+      var outMeta = parseOutputSchemaMeta();
+      boolean isEligible = hasOutputSchema();
+
+      if (outMeta.isOff() || (!isEligible && outMeta.type() == null)) {
+        toMethodSuffix = ", false";
+      } else if (outMeta.type() != null) {
+        toMethodSuffix = ", true";
+      } else {
+        toMethodSuffix = ", this.generateOutputSchema";
+      }
+    }
 
     if (getReturnType().isVoid()) {
       buffer.add(statement(indent(6), methodCall, semicolon(kt)));
@@ -1070,6 +1182,38 @@ public class McpRoute extends WebRoute<McpRouter> {
         && !isMcpClass;
   }
 
+  private String extractClassValue(String annotationName) {
+    var annotation = AnnotationSupport.findAnnotationByName(method, annotationName);
+    if (annotation == null) return null;
+    var val =
+        AnnotationSupport.findAnnotationValue(annotation, "value"::equals).stream()
+            .findFirst()
+            .orElse(null);
+    if (val != null && val.endsWith(".class")) {
+      return val.substring(0, val.length() - 6);
+    }
+    return val;
+  }
+
+  private OutputSchemaMeta parseOutputSchemaMeta() {
+    if (AnnotationSupport.findAnnotationByName(
+            method, "io.jooby.annotation.mcp.McpOutputSchema.Off")
+        != null) {
+      return new OutputSchemaMeta(true, null, SchemaType.NONE);
+    }
+
+    String fromType = extractClassValue("io.jooby.annotation.mcp.McpOutputSchema.From");
+    if (fromType != null) return new OutputSchemaMeta(false, fromType, SchemaType.FROM);
+
+    String arrayType = extractClassValue("io.jooby.annotation.mcp.McpOutputSchema.ArrayOf");
+    if (arrayType != null) return new OutputSchemaMeta(false, arrayType, SchemaType.ARRAY);
+
+    String mapType = extractClassValue("io.jooby.annotation.mcp.McpOutputSchema.MapOf");
+    if (mapType != null) return new OutputSchemaMeta(false, mapType, SchemaType.MAP);
+
+    return new OutputSchemaMeta(false, null, SchemaType.NONE);
+  }
+
   private McpAnnotation parseResourceAnnotation() {
     String rawAnnotations =
         extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "annotations");
@@ -1138,4 +1282,13 @@ public class McpRoute extends WebRoute<McpRouter> {
       String readOnlyHint, String destructiveHint, String idempotentHint, String openWorldHint) {}
 
   private record McpAnnotation(String audience, String lastModified, String priority) {}
+
+  private enum SchemaType {
+    NONE,
+    FROM,
+    ARRAY,
+    MAP
+  }
+
+  private record OutputSchemaMeta(boolean isOff, String type, SchemaType schemaType) {}
 }

@@ -188,10 +188,13 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(
           statement(
               indent(4), "private lateinit var json: io.modelcontextprotocol.json.McpJsonMapper"));
+      buffer.append(statement(indent(4), "private var generateOutputSchema: Boolean = false"));
     } else {
       buffer.append(
           statement(
               indent(4), "private io.modelcontextprotocol.json.McpJsonMapper json", semicolon(kt)));
+      buffer.append(
+          statement(indent(4), "private boolean generateOutputSchema = false", semicolon(kt)));
     }
 
     // --- capabilities() ---
@@ -223,6 +226,29 @@ public class McpRouter extends WebRouter<McpRoute> {
       buffer.append(statement(indent(6), "capabilities.completions()", semicolon(kt)));
     }
     buffer.append(statement(indent(4), "}\n"));
+
+    // --- generateOutputSchema() ---
+    if (kt) {
+      buffer.append(
+          statement(
+              indent(4),
+              "override fun generateOutputSchema(generateOutputSchema: Boolean):"
+                  + " io.jooby.mcp.McpService {"));
+      buffer.append(statement(indent(6), "this.generateOutputSchema = generateOutputSchema"));
+      buffer.append(statement(indent(6), "return this"));
+      buffer.append(statement(indent(4), "}\n"));
+    } else {
+      buffer.append(statement(indent(4), "@Override"));
+      buffer.append(
+          statement(
+              indent(4),
+              "public io.jooby.mcp.McpService generateOutputSchema(boolean generateOutputSchema)"
+                  + " {"));
+      buffer.append(
+          statement(indent(6), "this.generateOutputSchema = generateOutputSchema", semicolon(kt)));
+      buffer.append(statement(indent(6), "return this", semicolon(kt)));
+      buffer.append(statement(indent(4), "}\n"));
+    }
 
     // --- serverKey() ---
     var serverName = getMcpServerKey();

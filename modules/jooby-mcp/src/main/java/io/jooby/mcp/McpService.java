@@ -88,4 +88,6 @@ public interface McpService {
    * @return The target server key.
    */
   String serverKey();
+
+  McpService generateOutputSchema(boolean generateOutputSchema);
 }
