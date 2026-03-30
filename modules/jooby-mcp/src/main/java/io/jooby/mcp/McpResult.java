@@ -17,14 +17,55 @@ import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.spec.McpError;
 import io.modelcontextprotocol.spec.McpSchema;
 
+/**
+ * Result mapping utility for the Model Context Protocol (MCP) integration.
+ *
+ * <p>This class acts as the bridge between standard Java/Kotlin return types and the strict
+ * JSON-RPC payload structures required by the MCP specification. It is utilized heavily by the
+ * APT-generated routing classes ({@code *Mcp_}) to seamlessly translate user-defined method outputs
+ * into valid protocol responses.
+ *
+ * <h2>Conversion Strategies</h2>
+ *
+ * <ul>
+ *   <li><b>Pass-through:</b> If a method returns a native MCP schema object (e.g., {@link
+ *       McpSchema.CallToolResult}, {@link McpSchema.GetPromptResult}), it is returned as-is.
+ *   <li><b>Primitives & Strings:</b> Standard strings and primitives are automatically wrapped in
+ *       the appropriate textual content blocks (e.g., {@link McpSchema.TextContent}).
+ *   <li><b>POJOs & Collections:</b> Complex objects and lists are automatically serialized into
+ *       JSON strings using the configured {@link McpJsonMapper}, or passed as structured content
+ *       depending on the tool's schema capabilities.
+ *   <li><b>Prompts:</b> Raw strings or lists returned by a Prompt handler are automatically wrapped
+ *       in a {@link McpSchema.PromptMessage} assigned to the {@link McpSchema.Role#USER}.
+ * </ul>
+ *
+ * <p>By handling these conversions internally, developers can write natural, idiomatic Java/Kotlin
+ * methods without needing to couple their business logic to the MCP SDK classes.
+ *
+ * @author edgar
+ * @since 4.2.0
+ */
 public class McpResult {
 
   private final McpJsonMapper json;
 
+  /**
+   * Creates a new result mapper using the provided JSON mapper for object serialization.
+   *
+   * @param json The JSON mapper instance.
+   */
   public McpResult(McpJsonMapper json) {
     this.json = json;
   }
 
+  /**
+   * Converts a raw method return value into an MCP tool result.
+   *
+   * @param result The raw return value from the tool execution.
+   * @param structuredContent True if complex objects should be returned as structured data objects,
+   *     false to serialize them as JSON text.
+   * @return A valid {@link McpSchema.CallToolResult}.
+   */
   public McpSchema.CallToolResult toCallToolResult(Object result, boolean structuredContent) {
     try {
       if (result == null) {
@@ -50,6 +91,12 @@ public class McpResult {
     }
   }
 
+  /**
+   * Converts a raw method return value into an MCP prompt result.
+   *
+   * @param result The raw return value from the prompt execution.
+   * @return A valid {@link McpSchema.GetPromptResult}.
+   */
   public McpSchema.GetPromptResult toPromptResult(Object result) {
     if (result == null) {
       return new McpSchema.GetPromptResult(null, List.of());
@@ -73,6 +120,13 @@ public class McpResult {
     }
   }
 
+  /**
+   * Converts a raw method return value into an MCP resource result.
+   *
+   * @param uri The requested resource URI.
+   * @param result The raw return value from the resource execution.
+   * @return A valid {@link McpSchema.ReadResourceResult}.
+   */
   public McpSchema.ReadResourceResult toResourceResult(String uri, Object result) {
     try {
       if (result == null) {
@@ -91,6 +145,12 @@ public class McpResult {
     }
   }
 
+  /**
+   * Converts a raw method return value into an MCP completion result.
+   *
+   * @param result The raw return value from the completion execution.
+   * @return A valid {@link McpSchema.CompleteResult}.
+   */
   public McpSchema.CompleteResult toCompleteResult(Object result) {
     try {
       Objects.requireNonNull(result, "Completion result cannot be null");
