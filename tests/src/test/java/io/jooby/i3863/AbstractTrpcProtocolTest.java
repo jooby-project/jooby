@@ -27,7 +27,7 @@ public abstract class AbstractTrpcProtocolTest {
   private void setupApp(Jooby app) {
     installJsonEngine(app);
     app.install(new TrpcModule());
-    app.mvc(new MovieService_());
+    app.mvc(new MovieServiceTrpc_());
   }
 
   @ServerTest

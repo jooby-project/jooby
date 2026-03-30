@@ -35,8 +35,12 @@
 
     <module>jooby-langchain4j</module>
 
-    <!-- tRCP !-->
+    <!-- *RCP* !-->
+    <module>jooby-mcp</module>
+    <module>jooby-mcp-jackson2</module>
+    <module>jooby-mcp-jackson3</module>
     <module>jooby-trpc</module>
+    <module>jooby-grpc</module>
 
     <!-- data -->
     <module>jooby-hikari</module>
@@ -68,8 +72,6 @@
     <module>jooby-rocker</module>
     <module>jooby-thymeleaf</module>
     <module>jooby-camel</module>
-
-    <module>jooby-grpc</module>
 
     <!-- validation -->
     <module>jooby-avaje-validator</module>

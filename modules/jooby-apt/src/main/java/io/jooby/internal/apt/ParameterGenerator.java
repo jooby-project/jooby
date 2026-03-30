@@ -20,7 +20,7 @@ public enum ParameterGenerator {
     @Override
     public String toSourceCode(
         boolean kt,
-        MvcRoute route,
+        WebRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
         VariableElement parameter,
@@ -68,7 +68,7 @@ public enum ParameterGenerator {
     @Override
     public String toSourceCode(
         boolean kt,
-        MvcRoute route,
+        WebRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
         VariableElement parameter,
@@ -106,7 +106,7 @@ public enum ParameterGenerator {
     @Override
     public String toSourceCode(
         boolean kt,
-        MvcRoute route,
+        WebRoute route,
         AnnotationMirror annotation,
         TypeDefinition type,
         VariableElement parameter,
@@ -200,7 +200,7 @@ public enum ParameterGenerator {
 
   public String toSourceCode(
       boolean kt,
-      MvcRoute route,
+      WebRoute route,
       AnnotationMirror annotation,
       TypeDefinition type,
       VariableElement parameter,
@@ -402,7 +402,7 @@ public enum ParameterGenerator {
     this.typeRestrictions = typeRestrictions;
   }
 
-  public void verifyType(String type, String parameterName, MvcRoute route) {
+  public void verifyType(String type, String parameterName, WebRoute route) {
     if (!typeRestrictions.isEmpty()) {
       if (typeRestrictions.stream().noneMatch(type::equals)) {
         throw new IllegalArgumentException(

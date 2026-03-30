@@ -236,7 +236,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
    * @param modules Extra/additional modules to install.
    * @return Object mapper instance.
    */
-  public static ObjectMapper create(JacksonModule... modules) {
+  public static JsonMapper create(JacksonModule... modules) {
     JsonMapper.Builder builder = JsonMapper.builder();
 
     Stream.of(modules).forEach(builder::addModule);

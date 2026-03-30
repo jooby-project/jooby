@@ -18,13 +18,13 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 
 public class MvcParameter {
-  private final MvcRoute route;
+  private final WebRoute route;
   private final VariableElement parameter;
   private final Map<String, AnnotationMirror> annotations;
   private final TypeDefinition type;
   private final boolean requireBeanValidation;
 
-  public MvcParameter(MvcContext context, MvcRoute route, VariableElement parameter) {
+  public MvcParameter(MvcContext context, WebRoute route, VariableElement parameter) {
     this.route = route;
     this.parameter = parameter;
     this.annotations = annotationMap(parameter);
@@ -39,6 +39,35 @@ public class MvcParameter {
 
   public String getName() {
     return parameter.getSimpleName().toString();
+  }
+
+  public String getMcpName() {
+    var annotation = annotations.get("io.jooby.annotation.mcp.McpParam");
+    if (annotation != null) {
+      var customName =
+          io.jooby.internal.apt.AnnotationSupport.findAnnotationValue(annotation, "name"::equals)
+              .stream()
+              .findFirst()
+              .orElse("");
+
+      if (!customName.isEmpty()) {
+        return customName;
+      }
+    }
+    // Fallback to the actual Java parameter name
+    return getName();
+  }
+
+  public String getMcpDescription() {
+    var annotation = annotations.get("io.jooby.annotation.mcp.McpParam");
+    if (annotation != null) {
+      return io.jooby.internal.apt.AnnotationSupport.findAnnotationValue(
+              annotation, "description"::equals)
+          .stream()
+          .findFirst()
+          .orElse(null);
+    }
+    return null;
   }
 
   public String generateMapping(boolean kt) {

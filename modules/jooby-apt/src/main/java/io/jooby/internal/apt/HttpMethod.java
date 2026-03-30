@@ -27,14 +27,7 @@ public enum HttpMethod implements AnnotationSupport {
   OPTIONS,
   PATCH,
   POST,
-  PUT,
-  // Special
-  tRPC(
-      List.of(
-          "io.jooby.annotation.Trpc",
-          "io.jooby.annotation.Trpc.Mutation",
-          "io.jooby.annotation.Trpc.Query")),
-  JSON_RPC(List.of("io.jooby.annotation.JsonRpc"));
+  PUT;
 
   private final List<String> annotations;
 
@@ -42,10 +35,6 @@ public enum HttpMethod implements AnnotationSupport {
     var packageList =
         packages.length == 0 ? List.of("io.jooby.annotation", "jakarta.ws.rs") : List.of(packages);
     this.annotations = packageList.stream().map(it -> it + "." + name()).toList();
-  }
-
-  HttpMethod(List<String> annotations) {
-    this.annotations = annotations;
   }
 
   public List<String> path(Element element) {

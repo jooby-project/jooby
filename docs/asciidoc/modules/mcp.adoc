@@ -1,0 +1,356 @@
+== MCP
+
+https://modelcontextprotocol.io/[Model Context Protocol (MCP)] module for Jooby.
+
+The MCP module provides seamless integration with the Model Context Protocol, allowing your application to act as a standardized AI context server. It automatically bridges your Java/Kotlin methods with LLM clients by exposing them as Tools, Resources, and Prompts.
+
+=== Usage
+
+1) Add the dependencies (Jooby MCP, Jackson, and the APT processor):
+
+[dependency, artifactId="jooby-jackson3:Jackson Module, jooby-mcp-jackson3:MCP Jackson Module, jooby-mcp:MCP Module"]
+.
+
+[NOTE]
+====
+You must configure the Jooby Annotation Processor (APT) in your build. The MCP module relies on APT to generate high-performance routing code with zero reflection overhead.
+====
+
+2) Define a service and expose capabilities via annotations:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.annotation.mcp.McpTool;
+
+public class CalculatorService {
+
+  @McpTool(description = "Adds two numbers together")
+  public int add(int a, int b) {
+    return a + b;
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.annotation.mcp.McpTool
+
+class CalculatorService {
+
+  @McpTool(description = "Adds two numbers together")
+  fun add(a: Int, b: Int): Int {
+    return a + b
+  }
+}
+----
+
+3) Install the module using Jackson and the generated service:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.jackson3.Jackson3Module;
+import io.jooby.mcp.jackson3.McpJackson3Module;
+import io.jooby.mcp.McpModule;
+
+{
+  install(new Jackson3Module());                               <1>
+
+  install(new McpJackson3Module());                            <2>
+
+  install(new McpModule(new CalculatorServiceMcp_()));         <3>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jackson3.Jackson3Module
+import io.jooby.mcp.jackson3.McpJackson3Module
+import io.jooby.mcp.McpModule
+
+{
+  install(Jackson3Module())                                    <1>
+
+  install(McpJackson3Module())                                 <2>
+
+  install(McpModule(CalculatorServiceMcp_()))                  <3>
+}
+----
+
+<1> Install JSON support (Jackson is required for MCP JSON-RPC serialization). For Jackson 2, use `JacksonModule()` instead.
+<2> Install MCP JSON support. For Jackson 2, use `McpJackson2Module()` instead.
+<3> Install the MCP module with the APT-generated `McpService` dispatcher. The generated class always ends with the `Mcp_` suffix.
+
+=== Core Capabilities
+
+The module uses annotations to expose application logic to AI clients:
+
+- `@McpTool`: Exposes a method as an executable tool. The module automatically generates JSON schemas for the parameters.
+- `@McpPrompt`: Exposes a method as a reusable prompt template.
+- `@McpResource` / `@McpResourceTemplate`: Exposes static or dynamic data as an MCP resource (e.g., `file://config`).
+- `@McpCompletion`: Handles auto-completion logic for prompts and resources.
+
+=== Schema Descriptions & Javadoc
+
+Rich descriptions are highly recommended for LLM usage so the model understands exactly what a tool, prompt, or resource does. You can provide these descriptions directly in the MCP annotations (e.g., `@McpTool(description = "...")`).
+
+However, if you omit them, the Jooby Annotation Processor will automatically extract descriptions from your standard Javadoc comments, including method descriptions and `@param` tags.
+
+.Javadoc Extraction Example
+[source, java]
+----
+import io.jooby.annotation.mcp.McpTool;
+
+public class WeatherService {
+
+  /**
+   * Retrieves the current weather forecast for a given location.
+   *
+   * @param location The city and state, e.g., "San Francisco, CA"
+   * @param units The temperature unit to use (celsius or fahrenheit)
+   */
+  @McpTool
+  public WeatherForecast getWeather(String location, String units) {
+    // ...
+  }
+}
+----
+
+In the example above, the LLM will automatically receive the method's Javadoc summary as the tool description, and the `@param` comments as the descriptions for the `location` and `units` JSON schema properties.
+
+=== Transports
+
+By default, the MCP module starts a single server using the `STREAMABLE_HTTP` transport. You can easily switch to other supported transports such as `SSE` (Server-Sent Events), `WEBSOCKET`, or `STATELESS_STREAMABLE_HTTP`.
+
+.Changing Transport
+[source, java]
+----
+import io.jooby.mcp.McpModule.Transport;
+
+{
+  install(new McpModule(new CalculatorServiceMcp_())
+      .transport(Transport.WEBSOCKET));
+}
+----
+
+=== Output Schema Generation
+
+By default, the framework does *not* generate JSON output schemas for tools in order to save LLM context window tokens. You can enable it globally on the module, or override it per-method using the `@McpOutputSchema` annotation.
+
+.Programmatic Global Configuration
+[source, java]
+----
+{
+   // Enable output schema generation for all tools by default
+   install(new McpModule(new CalculatorServiceMcp_())
+       .generateOutputSchema(true));
+}
+----
+
+Alternatively, you can control output schema generation using your application configuration properties. Configuration properties always take precedence over the programmatic setup, and allow you to configure behavior per-server.
+
+.application.conf
+[source, properties]
+----
+# Global fallback for all servers
+mcp.generateOutputSchema = true
+
+# Per-server override (takes precedence over the global flag)
+mcp.calculator.generateOutputSchema = false
+----
+
+You can explicitly override the global/config flag and bypass Java type erasure using nested `@McpOutputSchema` annotations:
+
+.Per-Method Override
+[source, java]
+----
+import io.jooby.annotation.mcp.McpTool;
+import io.jooby.annotation.mcp.McpOutputSchema;
+
+public class UserService {
+
+  @McpTool
+  @McpOutputSchema.ArrayOf(User.class)          <1>
+  public List<Object> findUsers(String query) {
+    // ...
+  }
+
+  @McpTool
+  @McpOutputSchema.Off                          <2>
+  public HugeDataset getBigData() {
+    // ...
+  }
+}
+----
+
+<1> Forces array schema generation for `User`, overriding generic `Object` erasure and the global/config flag.
+<2> Explicitly disables schema generation for this specific tool.
+
+=== Custom Invokers & Telemetry
+
+You can inject custom logic (like SLF4J MDC context propagation, tracing, or custom error handling) around every tool, prompt, or resource execution by providing an `McpInvoker`.
+
+[NOTE]
+====
+Invokers are chained. You can register multiple invokers and they will wrap the execution in the order they were added:
+`install(new McpModule(...).invoker(new LoggingInvoker()).invoker(new SecurityInvoker()));`
+====
+
+.MDC Invoker Example
+[source, java]
+----
+import io.jooby.mcp.McpInvoker;
+import io.jooby.mcp.McpOperation;
+import org.slf4j.MDC;
+
+public class MdcMcpInvoker implements McpInvoker {
+  @Override
+  public <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action) {
+    try {
+      MDC.put("mcp.id", operation.id());                 <1>
+      MDC.put("mcp.class", operation.className());
+      MDC.put("mcp.method", operation.methodName());
+      return action.get();                               <2>
+    } finally {
+      MDC.remove("mcp.id");
+      MDC.remove("mcp.class");
+      MDC.remove("mcp.method");
+    }
+  }
+}
+
+{
+  install(new McpModule(new CalculatorServiceMcp_())
+      .invoker(new MdcMcpInvoker()));                    <3>
+}
+----
+
+<1> Extract rich contextual data from the `McpOperation` record.
+<2> Proceed with the execution chain.
+<3> Register the invoker. Jooby will safely map any business exceptions thrown by your action into valid MCP JSON-RPC errors.
+
+=== Multiple Servers
+
+You can run multiple, completely isolated MCP server instances within the same Jooby application by utilizing the `@McpServer("serverName")` annotation on your service classes.
+
+When bootstrapping multiple servers, you *must* provide configuration for each server in your `application.conf`.
+
+.application.conf
+[source, properties]
+----
+mcp.default.name = "default-mcp-server"
+mcp.default.version = "1.0.0"
+
+mcp.calculator.name = "calculator-mcp-server"
+mcp.calculator.version = "1.0.0"
+mcp.calculator.transport = "sse"
+mcp.calculator.mcpEndpoint = "/mcp/calculator/sse"
+----
+
+.Java Bootstrap
+[source, java]
+----
+{
+  // Bootstraps services each on their corresponding service base based on the @McpServer mappings
+  install(new McpModule(
+      new DefaultServiceMcp_(), 
+      new CalculatorServiceMcp_()
+  ));
+}
+----
+
+=== Debugging & Testing (MCP Inspector)
+
+When building an MCP server, it is highly recommended to test your tools, prompts, and resources locally before connecting them to a real LLM client.
+
+The `McpInspectorModule` provides a built-in, interactive web UI that acts as a dummy LLM client. It allows you to manually trigger tools, view generated output schemas, inspect resources, and debug JSON-RPC payloads in real-time.
+
+1) Add the inspector dependency (typically as a `test` or `development` dependency):
+
+[dependency, artifactId="jooby-mcp-inspector:MCP Inspector"]
+.
+
+2) Install the module, ensuring it is only active during development:
+
+.Java Bootstrap
+[source, java, role="primary"]
+----
+import io.jooby.mcp.McpModule;
+import io.jooby.mcp.inspector.McpInspectorModule;
+
+{
+  install(new McpModule(
+      new DefaultServiceMcp_(),
+      new CalculatorServiceMcp_()
+  ));
+
+  // Only enable the inspector UI in the 'dev' environment
+  if (getEnvironment().isActive("dev")) {
+    install(new McpInspectorModule());
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.mcp.McpModule
+import io.jooby.mcp.inspector.McpInspectorModule
+
+{
+  install(McpModule(
+      DefaultServiceMcp_(),
+      CalculatorServiceMcp_()
+  ))
+
+  // Only enable the inspector UI in the 'dev' environment
+  if (environment.isActive("dev")) {
+    install(McpInspectorModule())
+  }
+}
+----
+
+Once the application starts, open your browser and navigate to the default inspector route: `http://localhost:8080/mcp-inspector`.
+
+==== Inspector Configuration
+
+You can customize the behavior and mounting point of the Inspector UI using its programmatic builder methods:
+
+.Programmatic Setup
+[source, java, role="primary"]
+----
+{
+  if (getEnvironment().isActive("dev")) {
+    install(new McpInspectorModule()
+        .path("/debug/mcp")                           <1>
+        .defaultServer("calculator-mcp-server")       <2>
+        .autoConnect(true)                            <3>
+    );
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+{
+  if (environment.isActive("dev")) {
+    install(McpInspectorModule()
+        .path("/debug/mcp")                           <1>
+        .defaultServer("calculator-mcp-server")       <2>
+        .autoConnect(true)                            <3>
+    )
+  }
+}
+----
+
+<1> Changes the base path for the Inspector UI (defaults to `/mcp-inspector`).
+<2> Automatically selects a specific named server in the UI dropdown when dealing with multiple MCP servers.
+<3> Automatically connects to the selected server as soon as the page loads.
+
+=== Special Thanks
+
+A special thanks to https://github.com/kliushnichenko[kliushnichenko]. This MCP module was heavily inspired by and based upon their foundational work and contributions to the ecosystem.

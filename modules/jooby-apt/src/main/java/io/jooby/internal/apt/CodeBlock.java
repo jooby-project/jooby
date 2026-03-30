@@ -24,7 +24,9 @@ public class CodeBlock {
   }
 
   public static CharSequence string(CharSequence value) {
-    return "\"" + EscapeUtils.escapeJava(value) + "\"";
+    return value == null || "null".equals(value.toString())
+        ? "null"
+        : "\"" + EscapeUtils.escapeJava(value) + "\"";
   }
 
   public static CharSequence clazz(boolean kt) {
