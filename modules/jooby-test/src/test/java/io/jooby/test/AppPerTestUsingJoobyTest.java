@@ -18,7 +18,7 @@ public class AppPerTestUsingJoobyTest {
 
   static OkHttpClient client = new OkHttpClient();
 
-  @JoobyTest(value = TestApp.class)
+  @JoobyTest(value = TestApp.class, port = 0)
   public void sayHi(String serverPath) throws IOException {
     Request request = new Request.Builder().url(serverPath).build();
 
@@ -27,7 +27,7 @@ public class AppPerTestUsingJoobyTest {
     }
   }
 
-  @JoobyTest(value = TestApp.class)
+  @JoobyTest(value = TestApp.class, port = 0)
   public void sayH2i(int serverPort) throws IOException {
     Request request = new Request.Builder().url("http://localhost:" + serverPort + "/test").build();
 
@@ -36,7 +36,7 @@ public class AppPerTestUsingJoobyTest {
     }
   }
 
-  @JoobyTest(value = TestArgApp.class, factoryMethod = "createApp")
+  @JoobyTest(value = TestArgApp.class, factoryMethod = "createApp", port = 0)
   public void shouldUseFactoryMethod(int serverPort) throws IOException {
     Request request = new Request.Builder().url("http://localhost:" + serverPort + "/").build();
 
