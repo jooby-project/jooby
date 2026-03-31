@@ -39,7 +39,7 @@ import io.jooby.Jooby;
  */
 public class AvajeInjectModule implements Extension {
 
-  private final BeanScopeBuilder beanScope;
+  private final BeanScopeBuilder scopeBuilder;
 
   public static AvajeInjectModule of() {
     return new AvajeInjectModule(BeanScope.builder());
@@ -49,8 +49,8 @@ public class AvajeInjectModule implements Extension {
     return new AvajeInjectModule(beanScope);
   }
 
-  public AvajeInjectModule(@NonNull BeanScopeBuilder beanScope) {
-    this.beanScope = beanScope;
+  public AvajeInjectModule(@NonNull BeanScopeBuilder scopeBuilder) {
+    this.scopeBuilder = scopeBuilder;
   }
 
   @Override
@@ -60,7 +60,6 @@ public class AvajeInjectModule implements Extension {
 
   @Override
   public void install(Jooby application) {
-
     application
         .getServices()
         .entrySet()
@@ -69,20 +68,20 @@ public class AvajeInjectModule implements Extension {
               var key = e.getKey();
               var provider = e.getValue();
               if (key.getName() == null) {
-                beanScope.provideDefault(key.getType(), provider::get);
+                scopeBuilder.provideDefault(key.getType(), provider::get);
               } else {
-                beanScope.bean(key.getName(), key.getType(), provider);
+                scopeBuilder.bean(key.getName(), key.getType(), provider);
               }
             });
 
     final var environment = application.getEnvironment();
 
-    beanScope.bean(Environment.class, environment);
-    beanScope.profiles(environment.getActiveNames().toArray(String[]::new));
+    scopeBuilder.bean(Environment.class, environment);
+    scopeBuilder.profiles(environment.getActiveNames().toArray(String[]::new));
 
     // configuration properties
     final var config = environment.getConfig();
-    beanScope.configPlugin(new JoobyPropertyPlugin(config));
+    scopeBuilder.configPlugin(new JoobyPropertyPlugin(config));
 
     for (var entry : config.entrySet()) {
       String name = entry.getKey();
@@ -91,9 +90,11 @@ public class AvajeInjectModule implements Extension {
       if (value instanceof List<?> values) {
         value = values.stream().map(Object::toString).collect(Collectors.joining(","));
       }
-      beanScope.bean(name, String.class, value.toString());
+      scopeBuilder.bean(name, String.class, value.toString());
     }
 
-    application.registry(new AvajeInjectRegistry(beanScope.build()));
+    var beanScope = scopeBuilder.build();
+    application.registry(new AvajeInjectRegistry(beanScope));
+    application.onStop(beanScope);
   }
 }
