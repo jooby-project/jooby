@@ -536,6 +536,20 @@ public class Jooby implements Router, Registry {
   }
 
   /**
+   * Registers a tRPC router within the application.
+   *
+   * <p>This method provides a native DSL entry point for integrating a tRPC router. It provisions
+   * the tRPC extension by delegating to the underlying {@link #mvc(Extension)} route registration
+   * mechanism.
+   *
+   * @param trpcRouter The tRPC router extension to register. Must not be null.
+   * @return A {@link Route.Set} containing the registered tRPC endpoints.
+   */
+  public Route.Set trpc(@NonNull Extension trpcRouter) {
+    return mvc(trpcRouter);
+  }
+
+  /**
    * Add controller routes.
    *
    * @param router Mvc extension.

@@ -19,11 +19,11 @@ import io.jooby.rpc.trpc.TrpcModule;
 
 public class App extends Jooby {
   {
-    install(new JacksonModule()); // <1>
+    install(new JacksonModule());  // <1>
 
-    install(new TrpcModule());    // <2>
+    install(new TrpcModule());     // <2>
 
-    install(new MovieService_()); // <3>
+    trpc(new MovieServiceTrpc_()); // <3>
   }
 }
 ----
@@ -36,11 +36,11 @@ import io.jooby.json.JacksonModule
 import io.jooby.rpc.trpc.TrpcModule
 
 class App : Kooby({
-  install(JacksonModule()) // <1>
+  install(JacksonModule())         // <1>
 
-  install(TrpcModule())    // <2>
+  install(TrpcModule())            // <2>
 
-  install(MovieService_()) // <3>
+  trpc(MovieServiceTrpc_())        // <3>
 })
 ----
 
