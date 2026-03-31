@@ -45,7 +45,7 @@ public class AppPerTestUsingJoobyTest {
     }
   }
 
-  @JoobyTest(value = TestArgApp.class, factoryMethod = "createStaticApp")
+  @JoobyTest(value = TestArgApp.class, factoryMethod = "createStaticApp", port = 0)
   public void shouldUseStaticFactoryMethod(int serverPort) throws IOException {
     Request request = new Request.Builder().url("http://localhost:" + serverPort + "/").build();
 
