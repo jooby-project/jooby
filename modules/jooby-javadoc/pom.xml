@@ -13,11 +13,21 @@
   <artifactId>jooby-javadoc</artifactId>
   <name>jooby-javadoc</name>
 
-  <!--  <properties>-->
-  <!--    <Module-Name>io.jooby.javadoc</Module-Name>-->
-  <!--  </properties>-->
-
   <dependencies>
+    <!-- Source: https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.20.0</version>
+    </dependency>
+
+    <!-- Source: https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.15.0</version>
+    </dependency>
+
     <dependency>
       <groupId>com.puppycrawl.tools</groupId>
       <artifactId>checkstyle</artifactId>
@@ -71,20 +81,20 @@
     </dependency>
   </dependencies>
 
-  <!--  <build>-->
-  <!--    <plugins>-->
-  <!--      <plugin>-->
-  <!--        <groupId>org.apache.maven.plugins</groupId>-->
-  <!--        <artifactId>maven-jar-plugin</artifactId>-->
-  <!--        <version>${maven-jar-plugin.version}</version>-->
-  <!--        <configuration>-->
-  <!--          <archive>-->
-  <!--            <manifestEntries>-->
-  <!--              <Automatic-Module-Name>${Module-Name}</Automatic-Module-Name>-->
-  <!--            </manifestEntries>-->
-  <!--          </archive>-->
-  <!--        </configuration>-->
-  <!--      </plugin>-->
-  <!--    </plugins>-->
-  <!--  </build>-->
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <Automatic-Module-Name>io.jooby.javadoc</Automatic-Module-Name>
+              </manifestEntries>
+            </archive>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
 </project>
