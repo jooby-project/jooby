@@ -72,28 +72,45 @@ jobs:
           # Fetch milestone ID for the link
           MILESTONE_ID=$(gh api repos/${{ github.repository }}/milestones -q ".[] | select(.title==\"$VERSION_NUM\") | .number")
 
-          # 1. Fetch NEW features (requires the 'feature' label)
+          # 1. Fetch BREAKING changes (requires the 'break-change' label)
           gh issue list \
             --repo ${{ github.repository }} \
-            --search "milestone:\"$VERSION_NUM\" label:feature" \
+            --search "milestone:\"$VERSION_NUM\" label:break-change" \
+            --state all \
+            --limit 100 \
+            --json title,url \
+            --jq '.[] | "- [\(.title)](\(.url))"' > breaking_issues.md
+
+          # 2. Fetch NEW features (requires the 'feature' label)
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\" label:feature -label:break-change" \
             --state all \
             --limit 100 \
             --json title,url \
             --jq '.[] | "- [\(.title)](\(.url))"' > new_issues.md
 
-          # 2. Fetch OTHER changes (excludes 'feature' and 'dependencies')
+          # 3. Fetch OTHER changes (excludes 'feature', 'break-change', and 'dependencies')
           gh issue list \
             --repo ${{ github.repository }} \
-            --search "milestone:\"$VERSION_NUM\" -label:feature -label:dependencies" \
+            --search "milestone:\"$VERSION_NUM\" -label:feature -label:break-change -label:dependencies" \
             --state all \
             --limit 100 \
             --json title,url \
             --jq '.[] | "- [\(.title)](\(.url))"' > other_issues.md
 
-          # 3. Initialize the changelog file
+          # 4. Initialize the changelog file
           > changelog.md
 
-          # 4. Conditionally add "What's New" if new_issues.md has content (-s)
+          # 5. Conditionally add "Breaking Changes" if breaking_issues.md has content (-s)
+          if [ -s breaking_issues.md ]; then
+            echo "## ⚠️ Breaking Changes" >> changelog.md
+            echo "" >> changelog.md
+            cat breaking_issues.md >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 6. Conditionally add "What's New" if new_issues.md has content
           if [ -s new_issues.md ]; then
             echo "## 🚀 What's New" >> changelog.md
             echo "" >> changelog.md
@@ -101,7 +118,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 5. Conditionally add "Other Changes" if other_issues.md has content
+          # 7. Conditionally add "Other Changes" if other_issues.md has content
           if [ -s other_issues.md ]; then
             echo "## 🛠️ Changes" >> changelog.md
             echo "" >> changelog.md
@@ -109,7 +126,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 6. Build the rest of the changelog (Links & Sponsors)
+          # 8. Build the rest of the changelog (Links & Sponsors)
           cat << EOF >> changelog.md
           ### 🔗 Links & Resources
           - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
