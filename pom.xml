@@ -107,7 +107,7 @@
     <asm.version>9.9.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.3.24.Final</undertow.version>
+    <undertow.version>2.4.0.RC4</undertow.version>
     <jetty.version>12.1.7</jetty.version>
     <netty.version>4.2.12.Final</netty.version>
     <vertx.version>5.0.10</vertx.version>
