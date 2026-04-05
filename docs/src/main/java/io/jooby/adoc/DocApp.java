@@ -7,7 +7,9 @@ package io.jooby.adoc;
 
 import static org.slf4j.helpers.NOPLogger.NOP_LOGGER;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,6 +53,7 @@ public class DocApp extends Jooby {
     runApp(args, server, DocApp::new);
 
     Path outdir = basedir.resolve("asciidoc").resolve("site");
+    Path themeCssDir = basedir.resolve("js").resolve("styles");
 
     DirectoryWatcher watcher =
         DirectoryWatcher.builder()
@@ -69,6 +72,8 @@ public class DocApp extends Jooby {
                         } catch (Exception x) {
                           log.error("Site build resulted in exception", x);
                         }
+                      } else if (file.toString().endsWith("theme.css")) {
+                        Files.copy(file, outdir.resolve("js").resolve("styles").resolve("theme.css"), StandardCopyOption.REPLACE_EXISTING);
                       }
                   }
                 })

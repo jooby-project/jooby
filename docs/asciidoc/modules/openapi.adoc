@@ -411,7 +411,7 @@ Whitespaces (including new lines) are ignored. To introduce a new line, you must
 |===
 | Tag | Main | Controller | Method | Description
 
-|@version 4.0.4
+|@version
 | [x]
 |
 |

@@ -28,7 +28,7 @@
 
   /* Layout */
   --sidebar-width: 300px;
-  --content-max-width: 900px;
+  --content-max-width: 1050px; /* INCREASED from 900px */
   --border-radius: 6px;
 
   /* Typography Stacks */
@@ -129,7 +129,7 @@ li { margin-bottom: 0.35rem; }
   #content, #footer {
     max-width: var(--content-max-width);
     margin: 0 auto;
-    padding: 2.5rem 3rem;
+    padding: 2.5rem 1.5rem; /* REDUCED horizontal padding */
   }
 }
 
@@ -558,13 +558,13 @@ pre.highlightjs.badges-loaded code { opacity: 1; }
    ========================================================================== */
 table.tableblock {
   width: 100%;
-  table-layout: fixed !important;
+  table-layout: auto; /* FIXED: Let the browser respect Asciidoc col widths */
   border-collapse: separate;
   border-spacing: 0;
   margin: 1.5rem 0;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 table.tableblock td, table.tableblock th {
@@ -575,7 +575,7 @@ table.tableblock td, table.tableblock th {
   text-align: left;
   vertical-align: top;
   word-wrap: break-word;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word; /* FIXED: Removed 'anywhere' word chopping */
 }
 
 table.tableblock thead th {
@@ -583,12 +583,6 @@ table.tableblock thead th {
   font-weight: 600;
   border-bottom: 2px solid var(--border-color);
   color: var(--heading-color);
-  white-space: nowrap;
-}
-
-table.tableblock:not(:has(colgroup col[style*="width"])) td:first-child {
-  white-space: nowrap;
-  width: 1%;
 }
 
 table.tableblock td:first-child { font-weight: 500; color: var(--heading-color); }
@@ -800,4 +794,3 @@ html[data-theme="dark"] .DocSearch-Button-Keys kbd {
   color: #e2e8f0 !important;
   background: #334155 !important;
 }
-
