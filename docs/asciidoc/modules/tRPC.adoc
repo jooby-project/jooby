@@ -4,10 +4,12 @@ The tRPC module provides end-to-end type safety by integrating the https://trpc.
 
 Because tRPC is provided in its own module, you will need to add the `jooby-trpc-*` dependencies to your project. This integration allows you to write standard Java/Kotlin controllers and consume them directly in the browser using the official `@trpc/client`—complete with 100% type safety, autocomplete, and zero manual client generation.
 
-[dependency, artifactId="jooby-jackson3:Jackson Module, jooby-trpc-jackson3:Trpc Jackson Module, jooby-trpc:Trpc Module"]
-.
-
 ===== Usage
+
+Dependencies:
+
+[dependency, artifactId="jooby-jackson3:Jackson module, jooby-trpc-jackson3:Jackson tRPC JSON implementation, jooby-trpc: tRPC Module"]
+.
 
 Installing tRPC in your Jooby app is a 3-step process. Because tRPC relies heavily on JSON serialization to communicate with the frontend client, you must install a JSON module, followed by its corresponding tRPC bridge module, and finally the core `TrpcModule`.
 
@@ -19,16 +21,12 @@ import io.jooby.json.JacksonModule;
 import io.jooby.trpc.TrpcModule;
 import io.jooby.trpc.TrpcJackson2Module;
 
-public class App extends Jooby {
-  {
-    install(new Jackson3Module());        // <1>
+{
+  install(new Jackson3Module());                    // <1>
 
-    install(new TrpcJackson3Module());    // <2>
-    
-    install(new TrpcModule());            // <3>
-
-    trpc(new MovieServiceTrpc_());        // <4>
-  }
+  install(new TrpcJackson3Module());                // <2>
+  
+  install(new TrpcModule(new MovieServiceTrpc_())); // <3>
 }
 ----
 
@@ -40,15 +38,13 @@ import io.jooby.json.JacksonModule
 import io.jooby.trpc.TrpcModule
 import io.jooby.trpc.TrpcJackson2Module
 
-class App : Kooby({
-  install(Jackson3Module())               // <1>
+{
+  install(Jackson3Module())                         // <1>
 
-  install(TrpcJackson3Module())           // <2>
+  install(TrpcJackson3Module())                     // <2>
   
-  install(TrpcModule())                   // <3>
-
-  trpc(MovieServiceTrpc_())               // <4>
-})
+  install(TrpcModule(MovieServiceTrpc_()))          // <3>
+}
 ----
 
 1. Install a supported JSON engine (`Jackson3Module`, `JacksonModule` for Jackson 2, or `AvajeJsonbModule`).

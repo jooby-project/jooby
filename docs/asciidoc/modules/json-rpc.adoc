@@ -1,10 +1,15 @@
-==== JSON-RPC
+== JSON-RPC
 
 Jooby provides full support for the JSON-RPC 2.0 specification, allowing you to build robust RPC APIs using standard Java and Kotlin controllers.
 
 The implementation leverages Jooby's Annotation Processing Tool (APT) to generate highly optimized, reflection-free dispatchers at compile time.
 
-===== Usage
+=== Usage
+
+Add dependencies:
+
+[dependency, artifactId="jooby-jackson3:Jackson module, jooby-jsonrpc-jackson3:Jackson JSON-RPC implementation, jooby-jsonrpc:JSON-RPC Module"]
+.
 
 To expose a JSON-RPC endpoint, annotate your controller or service with `@JsonRpc`. You can optionally provide a namespace to the annotation, which will prefix all generated method names for that class.
 
@@ -50,7 +55,7 @@ The annotation dictates how the protocol methods are named and exposed:
 
 **Mixing Annotations:** You can freely mix standard REST annotations (like `@GET`, `@POST`) and `@JsonRpc` on the same class. The APT handles this by generating two entirely separate dispatchers: one standard MVC extension (e.g., `MovieService_`) and one JSON-RPC service (e.g., `MovieServiceRpc_`). They do not interfere with each other, allowing you to expose the exact same business logic over both REST and JSON-RPC simultaneously.
 
-===== Registration
+=== Registration
 
 Register the generated `JsonRpcService` in your application using the `jsonrpc` method. You must also install a supported JSON engine.
 
@@ -58,17 +63,14 @@ Register the generated `JsonRpcService` in your application using the `jsonrpc` 
 [source,java,role="primary"]
 ----
 import io.jooby.Jooby;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson3Module;
 
-public class App extends Jooby {
-  {
-    install(new JacksonModule());      // <1>
+{
+  install(new Jackson3Module());                      // <1>
 
-    jsonrpc(new MovieServiceRpc_());   // <2>
+  install(new JsonRpcJackson3Module());               // <2>
 
-    // Alternatively, you can override the default path:
-    // jsonrpc("/json-rpc", new MovieServiceRpc_());
-  }
+  install(new JsonRpcModule(new MovieServiceRpc_())); // <3>
 }
 ----
 
@@ -76,35 +78,34 @@ public class App extends Jooby {
 [source,kotlin,role="secondary"]
 ----
 import io.jooby.kt.Kooby
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson3Module
 
-class App : Kooby({
-  
-  install(JacksonModule())             // <1>
+{
+  install(Jackson3Module())                           // <1>
 
-  jsonrpc(MovieServiceRpc_())          // <2>
+  install(JsonRpcJackson3Module())                    // <2>
 
-  // Custom endpoint:
-  // jsonrpc("/json-rpc", MovieServiceRpc_())
-})
+  install(JsonRpcModule(MovieServiceRpc_()))          // <3>
+}
 ----
 
 1. Install a JSON engine
-2. Register the generated JSON-RPC service
+2. Install a JSON-RPC implementation
+3. Register the generated JSON-RPC service
 
-===== JSON Engine Support
+=== JSON Engine Support
 
 The JSON-RPC extension delegates payload parsing and serialization to Jooby's standard JSON modules while enforcing strict JSON-RPC 2.0 compliance (such as the mutual exclusivity of `result` and `error` fields).
 
 Supported engines include:
 
-* **Jackson 2** (`JacksonModule`)
-* **Jackson 3** (`Jackson3Module`)
-* **Avaje JSON-B** (`AvajeJsonbModule`)
+* **Jackson 2**: `JacksonModule`, `JsonRpcJackson2Module`
+* **Jackson 3**: `Jackson3Module`, `JsonRpcJackson3Module`
+* **Avaje JSON-B**: `AvajeJsonbModule`, `JsonRpcAvajeJsonbModule`
 
 No additional configuration is required. The generated dispatcher automatically hooks into the installed engine using the `JsonRpcParser` and `JsonRpcDecoder` interfaces, ensuring primitive types are strictly validated and parsed.
 
-===== Error Mapping
+=== Error Mapping
 
 Jooby seamlessly bridges standard Java application exceptions and HTTP status codes into the JSON-RPC 2.0 format using the `JsonRpcErrorCode` mapping. You do not need to throw custom protocol exceptions for standard failures.
 
@@ -123,7 +124,7 @@ When an application exception is thrown (like a `NotFoundException` with an HTTP
 }
 ----
 
-====== Standard Protocol Errors
+==== Standard Protocol Errors
 
 The engine handles core JSON-RPC 2.0 protocol errors automatically, returning HTTP 200 OK with the corresponding error payload:
 
@@ -135,7 +136,7 @@ The engine handles core JSON-RPC 2.0 protocol errors automatically, returning HT
 
 Application-defined errors map standard HTTP status codes to the `-32000` to `-32099` range (e.g., an HTTP 404 maps to `-32004`, an HTTP 401 maps to `-32001`).
 
-===== Batch Processing
+=== Batch Processing
 
 Batch processing is natively supported. Clients can send an array of JSON-RPC request objects, and the dispatcher will process them and return an array of corresponding response objects.
 

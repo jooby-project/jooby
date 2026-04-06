@@ -62,6 +62,11 @@ Modules are distributed as separate dependencies. Below is the catalog of offici
   * link:{uiVersion}/modules/rocker[Rocker]: Rocker template engine.
   * link:{uiVersion}/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.
 
+==== Remote Procedure Calls (RPC)
+  * link:{uiVersion}/modules/gRPC[gRPC]: A high-performance, strictly-typed protocol utilizing Protocol Buffers and HTTP/2 multiplexing. Ideal for backend-to-backend communication and polyglot microservices.
+  * link:{uiVersion}/modules/json-rpc[json-rpc]: A lightweight, stateless, and simple JSON-encoded protocol. Excellent for rapid integrations and environments where standard JSON is preferred.
+  * link:{uiVersion}/modules/tRPC[tRPC]: A RPC implementation that provides end-to-end type safety directly between your Java backend and TypeScript clients, without requiring intermediate build steps or code generation.
+
 ==== Security
   * link:{uiVersion}/modules/jasypt[Jasypt]: Encrypted configuration files.
   * link:{uiVersion}/modules/pac4j[Pac4j]: Security engine module.
