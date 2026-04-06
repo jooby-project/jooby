@@ -16,6 +16,23 @@ import io.jooby.internal.trpc.jackson2.JacksonTrpcResponseSerializer;
 import io.jooby.trpc.TrpcParser;
 import io.jooby.trpc.TrpcResponse;
 
+/**
+ * Implementation of jooby-trpc using Jackson 2.x. It provides the parser, decoder, reader, and
+ * serializer.
+ *
+ * <p>Usage:
+ *
+ * <pre>{@code
+ * {
+ *   install(new JacksonModule());
+ *   install(new TrpcJackson2Module());
+ *   install(new TrpcModule());
+ * }
+ * }</pre>
+ *
+ * @since 4.3.0
+ * @author edgar
+ */
 public class TrpcJackson2Module implements Extension {
   @Override
   public void install(@NonNull Jooby application) throws Exception {

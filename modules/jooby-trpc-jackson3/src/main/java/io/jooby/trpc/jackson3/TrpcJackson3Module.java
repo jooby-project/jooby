@@ -20,6 +20,23 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 
+/**
+ * Implementation of jooby-trpc using Jackson 3.x. It provides the parser, decoder, reader, and
+ * serializer.
+ *
+ * <p>Usage:
+ *
+ * <pre>{@code
+ * {
+ *   install(new Jackson3Module());
+ *   install(new TrpcJackson3Module());
+ *   install(new TrpcModule());
+ * }
+ * }</pre>
+ *
+ * @since 4.3.0
+ * @author edgar
+ */
 public class TrpcJackson3Module implements Extension {
   @Override
   public void install(@NonNull Jooby application) {

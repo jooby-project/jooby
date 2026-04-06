@@ -10,6 +10,12 @@ import io.avaje.jsonb.spi.JsonbComponent;
 import io.jooby.internal.trpc.avaje.jsonb.AvajeTrpcResponseAdapter;
 import io.jooby.trpc.TrpcResponse;
 
+/**
+ * Custom adapter for {@link TrpcResponse}.
+ *
+ * @since 4.3.0
+ * @author edgar
+ */
 public class TrpcJsonbExtension implements JsonbComponent {
   @Override
   public void register(Jsonb.Builder jsonb) {

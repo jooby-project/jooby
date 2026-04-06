@@ -15,6 +15,23 @@ import io.jooby.internal.trpc.avaje.jsonb.AvajeTrpcParser;
 import io.jooby.trpc.TrpcErrorCode;
 import io.jooby.trpc.TrpcParser;
 
+/**
+ * Implementation of jooby-trpc using avaje-jsonb. It provides the parser, decoder, reader, and
+ * serializer.
+ *
+ * <p>Usage:
+ *
+ * <pre>{@code
+ * {
+ *   install(new AvajeJsonbModule());
+ *   install(new TrpcAvajeJsonbModule());
+ *   install(new TrpcModule());
+ * }
+ * }</pre>
+ *
+ * @since 4.3.0
+ * @author edgar
+ */
 public class TrpcAvajeJsonbModule implements Extension {
   @Override
   public void install(@NonNull Jooby application) throws Exception {
