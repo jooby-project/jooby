@@ -5,7 +5,7 @@
  */
 package tests.i3864;
 
-import io.jooby.annotation.JsonRpc;
+import io.jooby.annotation.jsonrpc.JsonRpc;
 
 @JsonRpc("explicit")
 public class ExplicitMapping {

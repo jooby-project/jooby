@@ -24,8 +24,8 @@ public class Issue3863 {
         .withTrpcCode(
             source -> {
               assertThat(source)
-                  .contains("app.get(\"/trpc/users.getUserById\", this::trpcGetUserById);")
-                  .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);");
+                  .contains("app.get(path + \"/users.getUserById\", this::trpcGetUserById);")
+                  .contains("app.post(path + \"/users.createUser\", this::trpcCreateUser);");
             });
   }
 
@@ -36,8 +36,8 @@ public class Issue3863 {
             source -> {
               assertThat(source)
                   // tRPC
-                  .contains("app.get(\"/trpc/users.getUserById\", this::trpcGetUserById);")
-                  .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);");
+                  .contains("app.get(path + \"/users.getUserById\", this::trpcGetUserById);")
+                  .contains("app.post(path + \"/users.createUser\", this::trpcCreateUser);");
             })
         .withSourceCode(
             source -> {
@@ -55,10 +55,10 @@ public class Issue3863 {
             source -> {
               assertThat(source)
                   // tRPC
-                  .contains("app.post(\"/trpc/users.createUser\", this::trpcCreateUser);")
-                  .contains("app.post(\"/trpc/users.updateUser\", this::trpcUpdateUser);")
-                  .contains("app.post(\"/trpc/users.patchUser\", this::trpcPatchUser);")
-                  .contains("app.post(\"/trpc/users.deleteUser\", this::trpcDeleteUser);");
+                  .contains("app.post(path + \"/users.createUser\", this::trpcCreateUser);")
+                  .contains("app.post(path + \"/users.updateUser\", this::trpcUpdateUser);")
+                  .contains("app.post(path + \"/users.patchUser\", this::trpcPatchUser);")
+                  .contains("app.post(path + \"/users.deleteUser\", this::trpcDeleteUser);");
             })
         .withSourceCode(
             source -> {
@@ -78,8 +78,8 @@ public class Issue3863 {
             source -> {
               assertThat(source)
                   // tRPC
-                  .contains("app.get(\"/trpc/users.ping\", this::trpcPing);")
-                  .contains("app.get(\"/trpc/users.ping.since\", this::trpcPingInteger);");
+                  .contains("app.get(path + \"/users.ping\", this::trpcPing);")
+                  .contains("app.get(path + \"/users.ping.since\", this::trpcPingInteger);");
             });
   }
 }

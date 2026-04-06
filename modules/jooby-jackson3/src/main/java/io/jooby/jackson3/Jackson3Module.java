@@ -7,10 +7,7 @@ package io.jooby.jackson3;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -19,18 +16,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson3.*;
 import io.jooby.output.Output;
-import io.jooby.rpc.jsonrpc.JsonRpcErrorCode;
-import io.jooby.rpc.jsonrpc.JsonRpcParser;
-import io.jooby.rpc.jsonrpc.JsonRpcRequest;
-import io.jooby.rpc.jsonrpc.JsonRpcResponse;
-import io.jooby.rpc.trpc.TrpcErrorCode;
-import io.jooby.rpc.trpc.TrpcParser;
-import io.jooby.rpc.trpc.TrpcResponse;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -84,7 +72,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
 
   private final MediaType mediaType;
 
-  private final ObjectMapper mapper;
+  private ObjectMapper mapper;
   private ObjectMapper projectionMapper;
 
   private final TypeFactory typeFactory;
@@ -139,55 +127,54 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   @Override
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public void install(@NonNull Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
 
-    ServiceRegistry services = application.getServices();
-    Class mapperType = mapper.getClass();
-    services.put(mapperType, mapper);
-    services.put(ObjectMapper.class, mapper);
-    // tRPC
-    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
-    services
-        .mapOf(Class.class, TrpcErrorCode.class)
-        .put(StreamReadException.class, TrpcErrorCode.BAD_REQUEST)
-        .put(MismatchedInputException.class, TrpcErrorCode.BAD_REQUEST)
-        .put(DatabindException.class, TrpcErrorCode.BAD_REQUEST);
-
-    // JSON-RPC
-    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
-    services
-        .mapOf(Class.class, JsonRpcErrorCode.class)
-        .put(StreamReadException.class, JsonRpcErrorCode.INVALID_PARAMS)
-        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
-        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
+    var services = application.getServices();
+    bindMapper(services, mapper);
 
     // Parsing exception as 400
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
     application.errorCode(DatabindException.class, StatusCode.BAD_REQUEST);
 
-    application.onStarting(() -> onStarting(application, services, mapperType));
-
-    // 2. Branch off a specialized mapper JUST for Projections.
-    // .rebuild() copies the user's configuration, and we add our global MixIn
-    // strictly to this specialized instance.
-    projectionMapper = mapper.rebuild().addMixIn(Object.class, ProjectionMixIn.class).build();
+    application.onStarting(() -> onStarting(application, services));
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private void onStarting(Jooby application, ServiceRegistry services, Class mapperType) {
+  private void bindMapper(ServiceRegistry services, ObjectMapper mapper) {
+    Class mapperType = mapper.getClass();
+    services.put(mapperType, this.mapper);
+    services.put(ObjectMapper.class, this.mapper);
+  }
+
+  private void onStarting(Jooby application, ServiceRegistry services) {
+    var finalMapper = this.mapper;
+    var modules = computeModules(application);
     if (!modules.isEmpty()) {
       var builder = mapper.rebuild();
-      for (Class<? extends JacksonModule> type : modules) {
-        JacksonModule module = application.require(type);
-        builder.addModule(module);
-      }
-      var newMapper = builder.build();
-      services.put(mapperType, newMapper);
-      services.put(ObjectMapper.class, newMapper);
+      modules.forEach(builder::addModule);
+      // re-bind
+      finalMapper = builder.build();
+      this.mapper = finalMapper;
+      bindMapper(services, finalMapper);
     }
+    // Branch off a specialized mapper JUST for Projections.
+    projectionMapper = finalMapper.rebuild().addMixIn(Object.class, ProjectionMixIn.class).build();
+  }
+
+  private List<JacksonModule> computeModules(Jooby application) {
+    List<JacksonModule> result = new ArrayList<>();
+    for (Class<? extends JacksonModule> type : modules) {
+      var module = application.require(type);
+      result.add(module);
+    }
+    List<JacksonModule> moreModules =
+        application.getServices().getOrNull(Reified.list(JacksonModule.class));
+    if (moreModules != null) {
+      result.addAll(moreModules);
+    }
+    return result;
   }
 
   @Override
@@ -237,14 +224,9 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
    * @return Object mapper instance.
    */
   public static JsonMapper create(JacksonModule... modules) {
-    JsonMapper.Builder builder = JsonMapper.builder();
+    JsonMapper.Builder builder = JsonMapper.builder().findAndAddModules();
 
     Stream.of(modules).forEach(builder::addModule);
-    var rpcModule = new SimpleModule();
-    rpcModule.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
-    rpcModule.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
-    rpcModule.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
-    builder.addModule(rpcModule);
 
     return builder.build();
   }

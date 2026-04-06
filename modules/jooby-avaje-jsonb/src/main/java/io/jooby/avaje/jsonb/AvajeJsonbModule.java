@@ -10,19 +10,12 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import io.avaje.json.JsonDataException;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.*;
 import io.jooby.internal.avaje.jsonb.*;
 import io.jooby.output.Output;
-import io.jooby.rpc.jsonrpc.JsonRpcParser;
-import io.jooby.rpc.jsonrpc.JsonRpcRequest;
-import io.jooby.rpc.jsonrpc.JsonRpcResponse;
-import io.jooby.rpc.trpc.TrpcErrorCode;
-import io.jooby.rpc.trpc.TrpcParser;
-import io.jooby.rpc.trpc.TrpcResponse;
 
 /**
  * JSON module using Avaje-JsonB: <a
@@ -93,14 +86,6 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
     var services = application.getServices();
     services.put(Jsonb.class, jsonb);
-    // tRpc
-    services.put(TrpcParser.class, new AvajeTrpcParser(jsonb));
-    application.errorCode(JsonDataException.class, StatusCode.BAD_REQUEST);
-    services
-        .mapOf(Class.class, TrpcErrorCode.class)
-        .put(JsonDataException.class, TrpcErrorCode.BAD_REQUEST);
-    // JSON-RPC
-    services.put(JsonRpcParser.class, new AvajeJsonRpcParser(jsonb));
   }
 
   @Override
@@ -160,11 +145,6 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   public static Jsonb.Builder builder() {
-    var jsonb = Jsonb.builder();
-    jsonb.add(TrpcResponse.class, AvajeTrpcResponseAdapter::new);
-    jsonb.add(JsonRpcRequest.class, AvajeJsonRpcRequestAdapter::new);
-    jsonb.add(JsonRpcResponse.class, AvajeJsonRpcResponseAdapter::new);
-    jsonb.add(JsonRpcResponse.ErrorDetail.class, AvajeJsonRpcErrorAdapter::new);
-    return jsonb;
+    return Jsonb.builder();
   }
 }

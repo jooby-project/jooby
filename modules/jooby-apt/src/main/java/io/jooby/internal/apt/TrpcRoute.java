@@ -30,11 +30,11 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
   }
 
   private HttpMethod discoverTrpcMethod() {
-    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Query") != null)
-      return HttpMethod.GET;
-    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Mutation") != null)
-      return HttpMethod.POST;
-    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null) {
+    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.trpc.Trpc.Query")
+        != null) return HttpMethod.GET;
+    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.trpc.Trpc.Mutation")
+        != null) return HttpMethod.POST;
+    if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.trpc.Trpc") != null) {
       if (HttpMethod.GET.matches(method)) return HttpMethod.GET;
       return HttpMethod.POST;
     }
@@ -45,23 +45,23 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
     var namespace =
         Optional.ofNullable(
                 AnnotationSupport.findAnnotationByName(
-                    method.getEnclosingElement(), "io.jooby.annotation.Trpc"))
+                    method.getEnclosingElement(), "io.jooby.annotation.trpc.Trpc"))
             .flatMap(it -> AnnotationSupport.findAnnotationValue(it, VALUE).stream().findFirst())
             .map(it -> it + ".")
             .orElse("");
 
     var procedure =
         Stream.of(
-                "io.jooby.annotation.Trpc.Query",
-                "io.jooby.annotation.Trpc.Mutation",
-                "io.jooby.annotation.Trpc")
+                "io.jooby.annotation.trpc.Trpc.Query",
+                "io.jooby.annotation.trpc.Trpc.Mutation",
+                "io.jooby.annotation.trpc.Trpc")
             .map(it -> AnnotationSupport.findAnnotationByName(method, it))
             .filter(Objects::nonNull)
             .findFirst()
             .flatMap(it -> AnnotationSupport.findAnnotationValue(it, VALUE).stream().findFirst())
             .orElse(method.getSimpleName().toString());
 
-    return Stream.of("trpc", namespace + procedure)
+    return Stream.of(namespace + procedure)
         .map(segment -> segment.startsWith("/") ? segment.substring(1) : segment)
         .collect(Collectors.joining("/", "/", ""));
   }
@@ -86,7 +86,8 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
             isSuspendFun() ? "" : "app.",
             dslMethod,
             "(",
-            string(path.startsWith("/") ? path : "/" + path),
+            "path + ",
+            string(path),
             ", ",
             context.pipeline(
                 getReturnType().getRawType(), methodReference(kt, thisRef, targetMethod))));
@@ -138,10 +139,10 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
         innerReactiveType = kt ? "Unit" : "Void";
       }
       methodReturnTypeString =
-          rawReactiveType + "<io.jooby.rpc.trpc.TrpcResponse<" + innerReactiveType + ">>";
+          rawReactiveType + "<io.jooby.trpc.TrpcResponse<" + innerReactiveType + ">>";
     } else {
       methodReturnTypeString =
-          "io.jooby.rpc.trpc.TrpcResponse<"
+          "io.jooby.trpc.TrpcResponse<"
               + (returnType.isVoid() ? (kt ? "Unit" : "Void") : returnTypeString)
               + ">";
     }
@@ -173,7 +174,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
           statement(
               indent(2),
               var(kt),
-              "parser = ctx.require(io.jooby.rpc.trpc.TrpcParser",
+              "parser = ctx.require(io.jooby.trpc.TrpcParser",
               clazz(kt),
               ")",
               semicolon(kt)));
@@ -433,7 +434,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                       indent(4),
                       "val ",
                       parameterName,
-                      "Decoder: io.jooby.rpc.trpc.TrpcDecoder<",
+                      "Decoder: io.jooby.trpc.TrpcDecoder<",
                       type,
                       "> = parser.decoder(",
                       parameter.getType().toSourceCode(kt),
@@ -467,7 +468,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
               buffer.add(
                   statement(
                       indent(4),
-                      "io.jooby.rpc.trpc.TrpcDecoder<",
+                      "io.jooby.trpc.TrpcDecoder<",
                       genericType,
                       "> ",
                       parameterName,
@@ -527,7 +528,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".then(reactor.core.publisher.Mono.just(io.jooby.rpc.trpc.TrpcResponse.empty()))",
+                  ".then(reactor.core.publisher.Mono.just(io.jooby.trpc.TrpcResponse.empty()))",
                   semicolon(kt)));
         } else if (handler.contains("Mutiny")) {
           buffer.add(
@@ -535,7 +536,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".replaceWith(io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  ".replaceWith(io.jooby.trpc.TrpcResponse.empty())",
                   semicolon(kt)));
         } else if (handler.contains("ReactiveSupport")) {
           buffer.add(
@@ -543,7 +544,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".thenApply(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  ".thenApply(x -> io.jooby.trpc.TrpcResponse.empty())",
                   semicolon(kt)));
         } else if (handler.contains("Reactivex")) {
           buffer.add(
@@ -551,7 +552,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".toSingleDefault(io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  ".toSingleDefault(io.jooby.trpc.TrpcResponse.empty())",
                   semicolon(kt)));
         } else {
           buffer.add(
@@ -559,7 +560,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".map(x -> io.jooby.rpc.trpc.TrpcResponse.empty())",
+                  ".map(x -> io.jooby.trpc.TrpcResponse.empty())",
                   semicolon(kt)));
         }
       } else {
@@ -570,7 +571,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                   indent(controllerIndent),
                   "return ",
                   call,
-                  ".map { io.jooby.rpc.trpc.TrpcResponse.of(it) }"));
+                  ".map { io.jooby.trpc.TrpcResponse.of(it) }"));
         } else {
           if (handler.contains("ReactiveSupport")) {
             buffer.add(
@@ -578,7 +579,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                     indent(controllerIndent),
                     "return ",
                     call,
-                    ".thenApply(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    ".thenApply(io.jooby.trpc.TrpcResponse::of)",
                     semicolon(kt)));
           } else if (handler.contains("Mutiny")) {
             buffer.add(
@@ -586,7 +587,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                     indent(controllerIndent),
                     "return ",
                     call,
-                    ".onItem().transform(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    ".onItem().transform(io.jooby.trpc.TrpcResponse::of)",
                     semicolon(kt)));
           } else {
             // Reactor (Mono), RxJava (Single), etc.
@@ -595,7 +596,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
                     indent(controllerIndent),
                     "return ",
                     call,
-                    ".map(io.jooby.rpc.trpc.TrpcResponse::of)",
+                    ".map(io.jooby.trpc.TrpcResponse::of)",
                     semicolon(kt)));
           }
         }
@@ -605,13 +606,13 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
       buffer.add(
           statement(
               indent(controllerIndent),
-              "return io.jooby.rpc.trpc.TrpcResponse.empty()",
+              "return io.jooby.trpc.TrpcResponse.empty()",
               semicolon(kt)));
     } else {
       buffer.add(
           statement(
               indent(controllerIndent),
-              "return io.jooby.rpc.trpc.TrpcResponse.of(",
+              "return io.jooby.trpc.TrpcResponse.of(",
               call,
               nullable ? "!!" : "", // Shared nullability check
               ")",

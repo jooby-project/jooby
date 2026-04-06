@@ -37,8 +37,6 @@ import io.jooby.internal.RegistryRef;
 import io.jooby.internal.RouterImpl;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
-import io.jooby.rpc.jsonrpc.JsonRpcModule;
-import io.jooby.rpc.jsonrpc.JsonRpcService;
 import io.jooby.value.ValueFactory;
 
 /**
@@ -60,7 +58,7 @@ import io.jooby.value.ValueFactory;
  *
  * }</pre>
  *
- * More documentation at <a href="https://jooby.io">jooby.io</a>
+ * <p>More documentation at <a href="https://jooby.io">jooby.io</a>
  *
  * @author edgar
  * @since 2.0.0
@@ -103,8 +101,6 @@ public class Jooby implements Router, Registry {
   private EnvironmentOptions environmentOptions;
 
   private List<Locale> locales;
-
-  private Map<String, JsonRpcModule> dispatchers;
 
   private boolean lateInit;
 
@@ -299,7 +295,8 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Lazy creation configures and setup <code>SubApp</code> correctly, the next example won't work:
+   * <p>Lazy creation configures and setup <code>SubApp</code> correctly, the next example won't
+   * work:
    *
    * <pre>{@code
    * SubApp app = new SubApp();
@@ -307,8 +304,9 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services across the applications. For example make sure
-   * you don't configure the same service twice or more in the main and imported applications too.
+   * <p>Note: you must take care of application services across the applications. For example make
+   * sure you don't configure the same service twice or more in the main and imported applications
+   * too.
    *
    * @param factory Application factory.
    * @return Created routes.
@@ -331,7 +329,7 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * <p>Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
    * won't work:
    *
    * <pre>{@code
@@ -340,8 +338,9 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services across the applications. For example make sure
-   * you don't configure the same service twice or more in the main and imported applications too.
+   * <p>Note: you must take care of application services across the applications. For example make
+   * sure you don't configure the same service twice or more in the main and imported applications
+   * too.
    *
    * @param path Path prefix.
    * @param factory Application factory.
@@ -370,7 +369,7 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * <p>Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
    * won't work:
    *
    * <pre>{@code
@@ -379,8 +378,9 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services across the applications. For example make sure
-   * you don't configure the same service twice or more in the main and imported applications too.
+   * <p>Note: you must take care of application services across the applications. For example make
+   * sure you don't configure the same service twice or more in the main and imported applications
+   * too.
    *
    * @param path Sub path.
    * @param predicate HTTP predicate.
@@ -414,7 +414,7 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
+   * <p>Lazy creation allows to configure and setup <code>SubApp</code> correctly, the next example
    * won't work:
    *
    * <pre>{@code
@@ -423,8 +423,9 @@ public class Jooby implements Router, Registry {
    *
    * }</pre>
    *
-   * Note: you must take care of application services across the applications. For example make sure
-   * you don't configure the same service twice or more in the main and imported applications too.
+   * <p>Note: you must take care of application services across the applications. For example make
+   * sure you don't configure the same service twice or more in the main and imported applications
+   * too.
    *
    * @param predicate HTTP predicate.
    * @param factory Application factory.
@@ -494,48 +495,6 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Mounts and registers a JSON-RPC service at the specified custom path.
-   *
-   * <p>This method initializes a JSON-RPC dispatcher for the given path if one does not already
-   * exist, installs the dispatcher module into the application, and binds the provided {@link
-   * JsonRpcService} to it. Multiple services can be added to the same path.
-   *
-   * @param path The URL path where the JSON-RPC endpoint will be exposed (e.g., "/api/rpc").
-   * @param service The {@link JsonRpcService} instance containing the RPC methods to expose. Must
-   *     not be null.
-   * @return This {@link Jooby} instance to allow for method chaining.
-   */
-  public Jooby jsonRpc(String path, @NonNull JsonRpcService service) {
-    if (dispatchers == null) {
-      dispatchers = new HashMap<>();
-    }
-    dispatchers
-        .computeIfAbsent(
-            Router.normalizePath(path),
-            normalizedPath -> {
-              var dispatcher = new JsonRpcModule(normalizedPath);
-              install(dispatcher);
-              return dispatcher;
-            })
-        .add(service);
-    return this;
-  }
-
-  /**
-   * Mounts and registers a JSON-RPC service at the default path {@code "/rpc"}.
-   *
-   * <p>This is a convenience method that delegates to {@link #jsonRpc(String, JsonRpcService)}
-   * using the default endpoint path.
-   *
-   * @param service The {@link JsonRpcService} instance containing the RPC methods to expose. Must
-   *     not be null.
-   * @return This {@link Jooby} instance to allow for method chaining.
-   */
-  public Jooby jsonRpc(@NonNull JsonRpcService service) {
-    return jsonRpc("/rpc", service);
-  }
-
-  /**
    * Registers a tRPC router within the application.
    *
    * <p>This method provides a native DSL entry point for integrating a tRPC router. It provisions
@@ -556,19 +515,12 @@ public class Jooby implements Router, Registry {
    * @return Route set.
    */
   public Route.Set mvc(@NonNull Extension router) {
-    if (router instanceof JsonRpcService jsonRpcService) {
-      jsonRpc(jsonRpcService);
-      // NOOP
-      return new Route.Set(Collections.emptyList());
-    } else {
-      try {
-        int start = this.router.getRoutes().size();
-        router.install(this);
-        return new Route.Set(
-            this.router.getRoutes().subList(start, this.router.getRoutes().size()));
-      } catch (Exception cause) {
-        throw SneakyThrows.propagate(cause);
-      }
+    try {
+      int start = this.router.getRoutes().size();
+      router.install(this);
+      return new Route.Set(this.router.getRoutes().subList(start, this.router.getRoutes().size()));
+    } catch (Exception cause) {
+      throw SneakyThrows.propagate(cause);
     }
   }
 
@@ -1521,6 +1473,5 @@ public class Jooby implements Router, Registry {
     dest.readyCallbacks = source.readyCallbacks;
     dest.startingCallbacks = source.startingCallbacks;
     dest.stopCallbacks = source.stopCallbacks;
-    dest.dispatchers = source.dispatchers;
   }
 }

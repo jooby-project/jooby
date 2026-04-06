@@ -5,7 +5,7 @@
  */
 package tests.i3863;
 
-import io.jooby.annotation.Trpc;
+import io.jooby.annotation.trpc.Trpc;
 
 @Trpc("users")
 public class OverloadTrpc {

@@ -7,10 +7,12 @@ package io.jooby.i3868;
 
 import io.jooby.Jooby;
 import io.jooby.jackson.JacksonModule;
+import io.jooby.jsonrpc.jackson2.JsonRpcJackson2Module;
 
 public class Jackson2JsonRpcProtocolTest extends AbstractJsonRpcProtocolTest {
   @Override
   protected void installJsonEngine(Jooby app) {
     app.install(new JacksonModule());
+    app.install(new JsonRpcJackson2Module());
   }
 }

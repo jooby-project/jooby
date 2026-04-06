@@ -26,7 +26,7 @@ group = "io.jooby"
 dependencies {
   implementation "io.jooby:jooby-run:$version"
   implementation "io.jooby:jooby-openapi:$version"
-  implementation "io.jooby:jooby-trpc:$version"
+  implementation "io.jooby:jooby-trpc-generator:$version"
   implementation "com.github.spotbugs:spotbugs-annotations:4.7.2"
 }
 
