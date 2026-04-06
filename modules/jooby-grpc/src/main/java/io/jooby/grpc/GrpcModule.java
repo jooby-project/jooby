@@ -19,7 +19,7 @@ import io.jooby.internal.grpc.DefaultGrpcProcessor;
 import io.jooby.rpc.grpc.GrpcProcessor;
 
 /**
- * Native gRPC extension for Jooby. *
+ * Native gRPC extension for Jooby.
  *
  * <p>This module allows you to run strictly-typed gRPC services alongside standard Jooby HTTP
  * routes on the exact same port. It completely bypasses standard HTTP/1.1 pipelines in favor of a
