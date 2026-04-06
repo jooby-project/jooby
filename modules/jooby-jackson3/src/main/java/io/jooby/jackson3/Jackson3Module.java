@@ -16,15 +16,9 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson3.*;
 import io.jooby.output.Output;
-import io.jooby.rpc.jsonrpc.JsonRpcErrorCode;
-import io.jooby.rpc.jsonrpc.JsonRpcParser;
-import io.jooby.rpc.jsonrpc.JsonRpcRequest;
-import io.jooby.rpc.jsonrpc.JsonRpcResponse;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -140,14 +134,6 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
     var services = application.getServices();
     bindMapper(services, mapper);
 
-    // JSON-RPC
-    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
-    services
-        .mapOf(Class.class, JsonRpcErrorCode.class)
-        .put(StreamReadException.class, JsonRpcErrorCode.INVALID_PARAMS)
-        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
-        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
-
     // Parsing exception as 400
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);
     application.errorCode(DatabindException.class, StatusCode.BAD_REQUEST);
@@ -238,13 +224,9 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
    * @return Object mapper instance.
    */
   public static JsonMapper create(JacksonModule... modules) {
-    JsonMapper.Builder builder = JsonMapper.builder();
+    JsonMapper.Builder builder = JsonMapper.builder().findAndAddModules();
 
     Stream.of(modules).forEach(builder::addModule);
-    var rpcModule = new SimpleModule();
-    rpcModule.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
-    rpcModule.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
-    builder.addModule(rpcModule);
 
     return builder.build();
   }

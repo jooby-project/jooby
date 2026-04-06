@@ -27,10 +27,6 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson.*;
 import io.jooby.output.Output;
-import io.jooby.rpc.jsonrpc.JsonRpcErrorCode;
-import io.jooby.rpc.jsonrpc.JsonRpcParser;
-import io.jooby.rpc.jsonrpc.JsonRpcRequest;
-import io.jooby.rpc.jsonrpc.JsonRpcResponse;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson2.
@@ -150,13 +146,6 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
     application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
 
-    // JSON-RPC
-    services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
-    services
-        .mapOf(Class.class, JsonRpcErrorCode.class)
-        .put(MismatchedInputException.class, JsonRpcErrorCode.INVALID_PARAMS)
-        .put(DatabindException.class, JsonRpcErrorCode.INVALID_PARAMS);
-
     // Filter
     var defaultProvider = new SimpleFilterProvider().setFailOnUnknownId(false);
     mapper.addMixIn(Object.class, ProjectionMixIn.class);
@@ -232,14 +221,10 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
         JsonMapper.builder()
             .addModule(new ParameterNamesModule())
             .addModule(new Jdk8Module())
-            .addModule(new JavaTimeModule());
+            .addModule(new JavaTimeModule())
+            .findAndAddModules();
 
     Stream.of(modules).forEach(builder::addModule);
-    // RPC
-    var rpc = new SimpleModule();
-    rpc.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
-    rpc.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
-    builder.addModule(rpc);
 
     return builder.build();
   }

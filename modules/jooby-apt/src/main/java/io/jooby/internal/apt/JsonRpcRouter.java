@@ -27,7 +27,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
   public static JsonRpcRouter parse(MvcContext context, TypeElement controller) {
     var router = new JsonRpcRouter(context, controller);
     var classAnnotation =
-        AnnotationSupport.findAnnotationByName(controller, "io.jooby.annotation.JsonRpc");
+        AnnotationSupport.findAnnotationByName(controller, "io.jooby.annotation.jsonrpc.JsonRpc");
 
     var explicitlyAnnotated = new ArrayList<ExecutableElement>();
     var allPublicMethods = new ArrayList<ExecutableElement>();
@@ -47,7 +47,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
               || methodName.equals("clone")) continue;
 
           allPublicMethods.add(method);
-          if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc")
+          if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.jsonrpc.JsonRpc")
               != null) {
             explicitlyAnnotated.add(method);
           }
@@ -75,7 +75,8 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
   }
 
   private String getJsonRpcNamespace() {
-    var annotation = AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.JsonRpc");
+    var annotation =
+        AnnotationSupport.findAnnotationByName(clazz, "io.jooby.annotation.jsonrpc.JsonRpc");
     if (annotation != null) {
       return AnnotationSupport.findAnnotationValue(annotation, VALUE).stream()
           .findFirst()
@@ -116,7 +117,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
       buffer.append(
           statement(
               indent(6),
-              "app.services.listOf(io.jooby.rpc.jsonrpc.JsonRpcService::class.java).add(this)"));
+              "app.services.listOf(io.jooby.jsonrpc.JsonRpcService::class.java).add(this)"));
       buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
       buffer.append(statement(indent(4), "override fun getMethods(): List<String> {"));
@@ -127,13 +128,12 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
           statement(
               indent(4),
               "override fun execute(ctx: io.jooby.Context, req:"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcRequest): Any? {"));
+                  + " io.jooby.jsonrpc.JsonRpcRequest): Any? {"));
       buffer.append(statement(indent(6), "val c = factory.apply(ctx)"));
       buffer.append(statement(indent(6), "val method = req.method"));
       buffer.append(
           statement(
-              indent(6),
-              "val parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser::class.java)"));
+              indent(6), "val parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser::class.java)"));
       buffer.append(statement(indent(6), "return when(method) {"));
 
       for (int i = 0; i < getRoutes().size(); i++) {
@@ -146,7 +146,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
           statement(
               indent(8),
               "else -> throw"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,",
+                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,",
               string("Method not found: $method"),
               ")"));
       buffer.append(statement(indent(6), "}"));
@@ -159,7 +159,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
       buffer.append(
           statement(
               indent(6),
-              "app.getServices().listOf(io.jooby.rpc.jsonrpc.JsonRpcService.class).add(this);"));
+              "app.getServices().listOf(io.jooby.jsonrpc.JsonRpcService.class).add(this);"));
       buffer.append(statement(indent(4), "}", System.lineSeparator()));
 
       buffer.append(statement(indent(4), "@Override"));
@@ -171,13 +171,12 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
       buffer.append(
           statement(
               indent(4),
-              "public Object execute(io.jooby.Context ctx, io.jooby.rpc.jsonrpc.JsonRpcRequest req)"
+              "public Object execute(io.jooby.Context ctx, io.jooby.jsonrpc.JsonRpcRequest req)"
                   + " throws Exception {"));
       buffer.append(statement(indent(6), "var c = factory.apply(ctx);"));
       buffer.append(statement(indent(6), "var method = req.getMethod();"));
       buffer.append(
-          statement(
-              indent(6), "var parser = ctx.require(io.jooby.rpc.jsonrpc.JsonRpcParser.class);"));
+          statement(indent(6), "var parser = ctx.require(io.jooby.jsonrpc.JsonRpcParser.class);"));
       buffer.append(statement(indent(6), "switch(method) {"));
 
       for (int i = 0; i < getRoutes().size(); i++) {
@@ -191,7 +190,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
           statement(
               indent(10),
               "throw new"
-                  + " io.jooby.rpc.jsonrpc.JsonRpcException(io.jooby.rpc.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
+                  + " io.jooby.jsonrpc.JsonRpcException(io.jooby.jsonrpc.JsonRpcErrorCode.METHOD_NOT_FOUND,"
                   + " ",
               string("Method not found:"),
               " + method);"));
@@ -204,7 +203,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)
-        .replace("${implements}", "io.jooby.rpc.jsonrpc.JsonRpcService, io.jooby.Extension")
+        .replace("${implements}", "io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension")
         .replace("${constructors}", constructors(generatedClass, kt))
         .replace("${methods}", trimr(buffer));
   }

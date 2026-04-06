@@ -25,8 +25,8 @@ public abstract class AbstractJsonRpcProtocolTest {
   // Helper to keep test setup DRY
   private void setupApp(Jooby app) {
     installJsonEngine(app);
-    app.mvc(new MovieService_());
     app.mvc(new MovieServiceRpc_());
+    app.mvc(new MovieServiceRpcRpc_());
   }
 
   @ServerTest

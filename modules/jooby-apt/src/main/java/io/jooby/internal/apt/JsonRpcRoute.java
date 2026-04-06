@@ -22,7 +22,8 @@ public class JsonRpcRoute extends WebRoute<JsonRpcRouter> {
   }
 
   public String getJsonRpcMethodName() {
-    var annotation = AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.JsonRpc");
+    var annotation =
+        AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.jsonrpc.JsonRpc");
     if (annotation != null) {
       var val =
           AnnotationSupport.findAnnotationValue(annotation, VALUE).stream().findFirst().orElse("");
@@ -74,7 +75,7 @@ public class JsonRpcRoute extends WebRoute<JsonRpcRouter> {
 
   private List<String> generateRpcParameter(boolean kt, Consumer<String> arguments) {
     var statements = new ArrayList<String>();
-    var decoderInterface = "io.jooby.rpc.jsonrpc.JsonRpcDecoder";
+    var decoderInterface = "io.jooby.jsonrpc.JsonRpcDecoder";
     int baseIndent = 10;
 
     for (var parameter : parameters) {

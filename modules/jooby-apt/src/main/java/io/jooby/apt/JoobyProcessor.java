@@ -269,7 +269,7 @@ public class JoobyProcessor extends AbstractProcessor {
     supportedTypes.add("io.jooby.annotation.trpc.Trpc");
     supportedTypes.add("io.jooby.annotation.trpc.Trpc.Mutation");
     supportedTypes.add("io.jooby.annotation.trpc.Trpc.Query");
-    supportedTypes.add("io.jooby.annotation.JsonRpc");
+    supportedTypes.add("io.jooby.annotation.jsonrpc.JsonRpc");
     // Add MCP Annotations
     supportedTypes.add("io.jooby.annotation.mcp.McpCompletion");
     supportedTypes.add("io.jooby.annotation.mcp.McpTool");

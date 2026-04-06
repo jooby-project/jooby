@@ -15,7 +15,6 @@ module io.jooby {
   exports io.jooby.value;
   exports io.jooby.output;
   /* rpc */
-  exports io.jooby.rpc.jsonrpc;
   exports io.jooby.rpc.grpc;
 
   uses io.jooby.Server;
