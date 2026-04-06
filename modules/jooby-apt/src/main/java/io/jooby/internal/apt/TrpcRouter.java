@@ -100,12 +100,12 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
       buffer.append(indent(4)).append("@Throws(Exception::class)").append(System.lineSeparator());
       buffer
           .append(indent(4))
-          .append("override fun install(app: io.jooby.Jooby) {")
+          .append("override fun install(path: String, app: io.jooby.Jooby) {")
           .append(System.lineSeparator());
     } else {
       buffer
           .append(indent(4))
-          .append("public void install(io.jooby.Jooby app) throws Exception {")
+          .append("public void install(String path, io.jooby.Jooby app) throws Exception {")
           .append(System.lineSeparator());
     }
 
@@ -130,7 +130,7 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)
-        .replace("${implements}", "io.jooby.Extension")
+        .replace("${implements}", "io.jooby.trpc.TrpcService")
         .replace("${constructors}", constructors(generatedClass, kt))
         .replace("${methods}", trimr(buffer));
   }

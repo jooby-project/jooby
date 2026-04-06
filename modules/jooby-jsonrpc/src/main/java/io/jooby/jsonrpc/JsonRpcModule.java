@@ -35,8 +35,12 @@ import io.jooby.exception.TypeMismatchException;
  * <p>Usage:
  *
  * <pre>{@code
- * install(new JsonRpcDispatcher());
- * services().put(JsonRpcService.class, new MyServiceRpc(new MyService()));
+ * install(new Jackson3Module());
+ *
+ * install(new JsonRpcJackson3Module());
+ *
+ * install(new JsonRpcModule(new MyServiceRpc_()));
+ *
  * }</pre>
  *
  * @author Edgar Espina
@@ -47,11 +51,17 @@ public class JsonRpcModule implements Extension {
   private final Map<String, JsonRpcService> services = new HashMap<>();
   private final String path;
 
-  public JsonRpcModule(String path) {
+  public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
+    registry(service);
+    Arrays.stream(services).forEach(this::registry);
   }
 
-  public void add(JsonRpcService service) {
+  public JsonRpcModule(JsonRpcService service, JsonRpcService... services) {
+    this("/rpc", service, services);
+  }
+
+  private void registry(JsonRpcService service) {
     for (var method : service.getMethods()) {
       this.services.put(method, service);
     }

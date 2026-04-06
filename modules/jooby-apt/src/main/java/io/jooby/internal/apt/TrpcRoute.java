@@ -61,7 +61,7 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
             .flatMap(it -> AnnotationSupport.findAnnotationValue(it, VALUE).stream().findFirst())
             .orElse(method.getSimpleName().toString());
 
-    return Stream.of("trpc", namespace + procedure)
+    return Stream.of(namespace + procedure)
         .map(segment -> segment.startsWith("/") ? segment.substring(1) : segment)
         .collect(Collectors.joining("/", "/", ""));
   }
@@ -86,7 +86,8 @@ public class TrpcRoute extends WebRoute<TrpcRouter> {
             isSuspendFun() ? "" : "app.",
             dslMethod,
             "(",
-            string(path.startsWith("/") ? path : "/" + path),
+            "path + ",
+            string(path),
             ", ",
             context.pipeline(
                 getReturnType().getRawType(), methodReference(kt, thisRef, targetMethod))));

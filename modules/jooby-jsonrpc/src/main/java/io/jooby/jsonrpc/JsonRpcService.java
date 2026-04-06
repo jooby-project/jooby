@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
+import io.jooby.Jooby;
 
 /**
  * Interface for generated JSON-RPC service glue code (*Rpc classes).
@@ -24,6 +25,15 @@ public interface JsonRpcService {
    * @return All RPC method exposed by this service.
    */
   List<String> getMethods();
+
+  /**
+   * Registers the JSON-RPC service with the provided Jooby application.
+   *
+   * @param application The Jooby application instance where the JSON-RPC service will be installed.
+   *     Must not be null.
+   * @throws Exception If registration fails.
+   */
+  void install(@NonNull Jooby application) throws Exception;
 
   /**
    * Executes the requested method using the provided context and request data.

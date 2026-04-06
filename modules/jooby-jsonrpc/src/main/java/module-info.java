@@ -20,8 +20,11 @@
  * <p>Usage:
  *
  * <pre>{@code
- * install(new JsonRpcDispatcher());
- * services().put(JsonRpcService.class, new MyServiceRpc(new MyService()));
+ * install(new Jackson3Module());
+ *
+ * install(new JsonRpcJackson3Module());
+ *
+ * install(new JsonRpcModule(new MyServiceRpc_()));
  * }</pre>
  *
  * @author Edgar Espina

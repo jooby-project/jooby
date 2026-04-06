@@ -20,7 +20,7 @@ public class Issue3868 {
               assertThat(source)
                   .contains(
                       "public class DefaultMappingRpc_ implements"
-                          + " io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension {")
+                          + " io.jooby.jsonrpc.JsonRpcService {")
                   .contains("public java.util.List<String> getMethods() {")
                   .contains(
                       "return java.util.List.of(\"default.rpcMethod1\", \"default.rpcMethod2\")")

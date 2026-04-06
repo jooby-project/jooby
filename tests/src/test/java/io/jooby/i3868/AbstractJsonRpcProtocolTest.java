@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.jayway.jsonpath.JsonPath;
 import io.jooby.Jooby;
+import io.jooby.jsonrpc.JsonRpcModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -25,8 +26,9 @@ public abstract class AbstractJsonRpcProtocolTest {
   // Helper to keep test setup DRY
   private void setupApp(Jooby app) {
     installJsonEngine(app);
+    app.install(new JsonRpcModule(new MovieServiceRpcRpc_()));
+
     app.mvc(new MovieServiceRpc_());
-    app.mvc(new MovieServiceRpcRpc_());
   }
 
   @ServerTest

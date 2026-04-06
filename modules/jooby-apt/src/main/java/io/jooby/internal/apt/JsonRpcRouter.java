@@ -203,7 +203,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)
-        .replace("${implements}", "io.jooby.jsonrpc.JsonRpcService, io.jooby.Extension")
+        .replace("${implements}", "io.jooby.jsonrpc.JsonRpcService")
         .replace("${constructors}", constructors(generatedClass, kt))
         .replace("${methods}", trimr(buffer));
   }
