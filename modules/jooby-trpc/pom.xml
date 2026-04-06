@@ -24,18 +24,6 @@
       <artifactId>jakarta.ws.rs-api</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>io.github.classgraph</groupId>
-      <artifactId>classgraph</artifactId>
-      <version>4.8.184</version>
-    </dependency>
-
-    <dependency>
-      <groupId>cz.habarta.typescript-generator</groupId>
-      <artifactId>typescript-generator-core</artifactId>
-      <version>3.2.1263</version>
-    </dependency>
-
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>

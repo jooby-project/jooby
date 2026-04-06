@@ -7,10 +7,7 @@ package io.jooby.jackson;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -34,8 +31,6 @@ import io.jooby.rpc.jsonrpc.JsonRpcErrorCode;
 import io.jooby.rpc.jsonrpc.JsonRpcParser;
 import io.jooby.rpc.jsonrpc.JsonRpcRequest;
 import io.jooby.rpc.jsonrpc.JsonRpcResponse;
-import io.jooby.rpc.trpc.TrpcParser;
-import io.jooby.rpc.trpc.TrpcResponse;
 
 /**
  * JSON module using Jackson: https://jooby.io/modules/jackson2.
@@ -155,9 +150,6 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);
     application.errorCode(MismatchedInputException.class, StatusCode.BAD_REQUEST);
 
-    // tRPC
-    services.put(TrpcParser.class, new JacksonTrpcParser(mapper));
-
     // JSON-RPC
     services.put(JsonRpcParser.class, new JacksonJsonRpcParser(mapper));
     services
@@ -178,6 +170,13 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
           for (Class<? extends Module> type : modules) {
             Module module = application.require(type);
             mapper.registerModule(module);
+          }
+          List<Module> moreModules =
+              application.getServices().getOrNull(Reified.list(Module.class));
+          if (moreModules != null) {
+            for (Module module : moreModules) {
+              mapper.registerModule(module);
+            }
           }
         });
   }
@@ -238,7 +237,6 @@ public class JacksonModule implements Extension, MessageDecoder, MessageEncoder 
     Stream.of(modules).forEach(builder::addModule);
     // RPC
     var rpc = new SimpleModule();
-    rpc.addSerializer(TrpcResponse.class, new JacksonTrpcResponseSerializer());
     rpc.addDeserializer(JsonRpcRequest.class, new JacksonJsonRpcRequestDeserializer());
     rpc.addSerializer(JsonRpcResponse.class, new JacksonJsonRpcResponseSerializer());
     builder.addModule(rpc);

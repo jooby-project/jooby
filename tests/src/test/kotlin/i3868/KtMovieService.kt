@@ -18,7 +18,7 @@ class KtMovieService {
 
   /** Procedure: movies.create Takes a single complex object. */
   @POST
-  @Trpc
+  @JsonRpc
   fun create(movie: Movie): Movie {
     // In a real app, save to DB. For now, just return it.
     return movie

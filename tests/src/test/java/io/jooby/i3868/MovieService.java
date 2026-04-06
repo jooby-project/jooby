@@ -21,7 +21,6 @@ public class MovieService {
 
   /** Procedure: movies.create Takes a single complex object. */
   @POST
-  @Trpc
   public Movie create(Movie movie) {
     // In a real app, save to DB. For now, just return it.
     return movie;

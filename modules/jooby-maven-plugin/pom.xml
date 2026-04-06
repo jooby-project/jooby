@@ -31,7 +31,7 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-trpc</artifactId>
+      <artifactId>jooby-trpc-generator</artifactId>
       <version>${jooby.version}</version>
     </dependency>
 

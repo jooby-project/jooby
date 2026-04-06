@@ -39,7 +39,11 @@
     <module>jooby-mcp</module>
     <module>jooby-mcp-jackson2</module>
     <module>jooby-mcp-jackson3</module>
+    <module>jooby-trpc-jackson2</module>
+    <module>jooby-trpc-jackson3</module>
+    <module>jooby-trpc-avaje-jsonb</module>
     <module>jooby-trpc</module>
+    <module>jooby-trpc-generator</module>
     <module>jooby-grpc</module>
 
     <!-- data -->

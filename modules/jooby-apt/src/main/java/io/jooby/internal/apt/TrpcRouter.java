@@ -34,10 +34,13 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
             continue;
           }
 
-          if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc") != null
-              || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Query")
+          if (AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.trpc.Trpc")
                   != null
-              || AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.Trpc.Mutation")
+              || AnnotationSupport.findAnnotationByName(
+                      method, "io.jooby.annotation.trpc.Trpc.Query")
+                  != null
+              || AnnotationSupport.findAnnotationByName(
+                      method, "io.jooby.annotation.trpc.Trpc.Mutation")
                   != null) {
 
             TrpcRoute route = new TrpcRoute(router, method);

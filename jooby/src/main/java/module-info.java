@@ -17,7 +17,6 @@ module io.jooby {
   /* rpc */
   exports io.jooby.rpc.jsonrpc;
   exports io.jooby.rpc.grpc;
-  exports io.jooby.rpc.trpc;
 
   uses io.jooby.Server;
   uses io.jooby.SslProvider;

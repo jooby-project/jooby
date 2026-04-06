@@ -7,6 +7,7 @@ package tests.i3863;
 
 import io.jooby.Context;
 import io.jooby.annotation.*;
+import io.jooby.annotation.trpc.Trpc;
 
 @Trpc("users")
 @Path("/api/users")

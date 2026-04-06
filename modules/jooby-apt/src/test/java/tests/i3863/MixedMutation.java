@@ -6,6 +6,7 @@
 package tests.i3863;
 
 import io.jooby.annotation.*;
+import io.jooby.annotation.trpc.Trpc;
 
 @Trpc("users")
 public class MixedMutation {

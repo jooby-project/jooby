@@ -2,28 +2,32 @@
 
 The tRPC module provides end-to-end type safety by integrating the https://trpc.io/[tRPC] protocol directly into Jooby.
 
-Because the `io.jooby.trpc` package is included in Jooby core, there are no extra dependencies to add to your project. This integration allows you to write standard Java/Kotlin controllers and consume them directly in the browser using the official `@trpc/client`—complete with 100% type safety, autocomplete, and zero manual client generation.
+Because tRPC is provided in its own module, you will need to add the `jooby-trpc-*` dependencies to your project. This integration allows you to write standard Java/Kotlin controllers and consume them directly in the browser using the official `@trpc/client`—complete with 100% type safety, autocomplete, and zero manual client generation.
+
+[dependency, artifactId="jooby-jackson3:Jackson Module, jooby-trpc-jackson3:Trpc Jackson Module, jooby-trpc:Trpc Module"]
+.
 
 ===== Usage
 
-Because tRPC relies heavily on JSON serialization to communicate with the frontend client, a JSON module **must** be installed prior to the `TrpcModule`.
-
-NOTE: Currently, Jooby only provides the required `TrpcParser` SPI implementation for two JSON engines: **Jackson 2/3** and **AvajeJsonbModule**. Using other JSON modules (like Gson) will result in a missing service exception at startup.
+Installing tRPC in your Jooby app is a 3-step process. Because tRPC relies heavily on JSON serialization to communicate with the frontend client, you must install a JSON module, followed by its corresponding tRPC bridge module, and finally the core `TrpcModule`.
 
 .Java
 [source,java,role="primary"]
 ----
 import io.jooby.Jooby;
 import io.jooby.json.JacksonModule;
-import io.jooby.rpc.trpc.TrpcModule;
+import io.jooby.trpc.TrpcModule;
+import io.jooby.trpc.TrpcJackson2Module;
 
 public class App extends Jooby {
   {
-    install(new JacksonModule());  // <1>
+    install(new Jackson3Module());        // <1>
 
-    install(new TrpcModule());     // <2>
+    install(new TrpcJackson3Module());    // <2>
+    
+    install(new TrpcModule());            // <3>
 
-    trpc(new MovieServiceTrpc_()); // <3>
+    trpc(new MovieServiceTrpc_());        // <4>
   }
 }
 ----
@@ -33,20 +37,24 @@ public class App extends Jooby {
 ----
 import io.jooby.kt.Kooby
 import io.jooby.json.JacksonModule
-import io.jooby.rpc.trpc.TrpcModule
+import io.jooby.trpc.TrpcModule
+import io.jooby.trpc.TrpcJackson2Module
 
 class App : Kooby({
-  install(JacksonModule())         // <1>
+  install(Jackson3Module())               // <1>
 
-  install(TrpcModule())            // <2>
+  install(TrpcJackson3Module())           // <2>
+  
+  install(TrpcModule())                   // <3>
 
-  trpc(MovieServiceTrpc_())        // <3>
+  trpc(MovieServiceTrpc_())               // <4>
 })
 ----
 
-1. Install a supported JSON engine (Jackson or Avaje)
-2. Install the tRPC extension
-3. Register your @Trpc annotated controllers (using the APT generated route)
+1. Install a supported JSON engine (`Jackson3Module`, `JacksonModule` for Jackson 2, or `AvajeJsonbModule`).
+2. Install the corresponding bridge module (`TrcJackson3Module`, `TrpcJackson2Module`, or `TrpcAvajeJsonbModule`).
+3. Install the core tRPC extension (`TrpcModule`).
+4. Register your `@Trpc` annotated controllers (using the APT generated route).
 
 ===== Writing a Service
 
@@ -58,7 +66,7 @@ You can define your procedures using explicit tRPC annotations or a hybrid appro
 .Java
 [source,java,role="primary"]
 ----
-import io.jooby.annotation.Trpc;
+import io.jooby.annotation.trpc.Trpc;
 import io.jooby.annotation.DELETE;
 
 public record Movie(int id, String title, int year) {}
@@ -91,7 +99,7 @@ public class MovieService {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.annotation.Trpc
+import io.jooby.annotation.trpc.Trpc
 import io.jooby.annotation.DELETE
 
 data class Movie(val id: Int, val title: String, val year: Int)
@@ -197,7 +205,8 @@ If you throw custom domain exceptions, you can map them directly to tRPC error c
 .Java
 [source,java,role="primary"]
 ----
-import io.jooby.rpc.trpc.TrpcErrorCode;
+import io.jooby.trpc.TrpcModule;
+import io.jooby.trpc.TrpcErrorCode;
 
 {
   install(new TrpcModule());
@@ -213,8 +222,8 @@ import io.jooby.rpc.trpc.TrpcErrorCode;
 [source,kotlin,role="secondary"]
 ----
 import io.jooby.kt.Kooby
-import io.jooby.rpc.trpc.TrpcModule
-import io.jooby.rpc.trpc.TrpcErrorCode
+import io.jooby.trpc.TrpcModule
+import io.jooby.trpc.TrpcErrorCode
 
 class App : Kooby({
   install(TrpcModule())

@@ -5,8 +5,7 @@
  */
 package i3863
 
-import io.jooby.annotation.Trpc
-import io.jooby.annotation.Trpc.Mutation
+import io.jooby.annotation.trpc.Trpc
 import io.jooby.i3863.Metadata
 import io.jooby.i3863.Movie
 import java.util.stream.Collectors
@@ -17,13 +16,13 @@ class KMovieService {
     listOf<Movie?>(Movie(1, "The Godfather", 1972), Movie(2, "Pulp Fiction", 1994))
 
   /** Procedure: movies.create Takes a single complex object. */
-  @Mutation
+  @Trpc.Mutation
   fun create(movie: Movie?): Movie? {
     // In a real app, save to DB. For now, just return it.
     return movie
   }
 
-  @Mutation fun resetIndex() {}
+  @Trpc.Mutation fun resetIndex() {}
 
   /** Procedure: movies.bulkCreate Takes a List of complex objects. */
   @Trpc.Query
@@ -56,14 +55,14 @@ class KMovieService {
   }
 
   /** Procedure: movies.addReview Mix of String and int (Mutation) */
-  @Mutation
+  @Trpc.Mutation
   fun addReview(movieTitle: String, stars: Int, comment: String?): Map<String, Any> {
     // Business logic...
     return mapOf("title" to movieTitle, "rating" to stars, "status" to "published")
   }
 
   /** Procedure: movies.addReview Mix of String and int (Mutation) */
-  @Mutation
+  @Trpc.Mutation
   fun updateMetadata(id: Int, metadata: Metadata?): Metadata? {
     // Business logic...
     return metadata
