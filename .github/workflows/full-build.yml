@@ -1,6 +1,12 @@
 name: Full Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - main  # Only run push on main (merges/direct pushes)
+  pull_request:
+    branches:
+      - main  # Run on any PR targeting main
 
 jobs:
   build:
