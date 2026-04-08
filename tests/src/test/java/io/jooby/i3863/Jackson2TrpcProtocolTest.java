@@ -6,13 +6,13 @@
 package io.jooby.i3863;
 
 import io.jooby.Jooby;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.trpc.jackson2.TrpcJackson2Module;
 
 public class Jackson2TrpcProtocolTest extends AbstractTrpcProtocolTest {
   @Override
   protected void installJsonEngine(Jooby app) {
-    app.install(new JacksonModule());
+    app.install(new Jackson2Module());
     app.install(new TrpcJackson2Module());
   }
 }

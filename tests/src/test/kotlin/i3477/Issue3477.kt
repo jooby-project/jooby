@@ -5,7 +5,7 @@
  */
 package i3477
 
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
 import io.jooby.kt.Kooby
@@ -17,7 +17,7 @@ class Issue3477 {
     runner
       .use {
         Kooby {
-          install(JacksonModule())
+          install(Jackson2Module())
           mvc(C3477_())
         }
       }

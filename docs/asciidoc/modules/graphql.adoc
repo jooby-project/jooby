@@ -36,11 +36,11 @@ type Author {
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.json.Jackson2Module;
 import io.jooby.graphql.GraphQLModule;
 
 {
-  install(new JacksonModule());           <1>
+  install(new Jackson2Module());           <1>
 
   install(new GraphQLModule(
     RuntimeWiring.newRuntimeWiring()      <2>
@@ -56,11 +56,11 @@ import io.jooby.graphql.GraphQLModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.JacksonModule
+import io.jooby.json.Jackson2Module
 import io.jooby.graphql.GraphQLModule
 
 {
-  install(JacksonModule())                <1>
+  install(Jackson2Module())                <1>
 
   install(GraphQLModule(
     RuntimeWiring.newRuntimeWiring()      <2>
@@ -88,7 +88,7 @@ the async mode:
 .Async Mode
 [source, java, role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.json.Jackson2Module;
 import io.jooby.graphql.GraphQLModule;
 
 {
@@ -101,7 +101,7 @@ import io.jooby.graphql.GraphQLModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.JacksonModule
+import io.jooby.json.Jackson2Module
 import io.jooby.graphql.GraphQLModule
 
 {
@@ -122,7 +122,7 @@ By default the module only install a HTTP POST route. If you want a HTTP GET:
 .HTTP GET
 [source, java, role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.json.Jackson2Module;
 import io.jooby.graphql.GraphQLModule;
 
 {
@@ -135,7 +135,7 @@ import io.jooby.graphql.GraphQLModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.JacksonModule
+import io.jooby.json.Jackson2Module
 import io.jooby.graphql.GraphQLModule
 
 {
@@ -170,12 +170,12 @@ They are provided as optional dependencies.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.json.Jackson2Module;
 import io.jooby.graphql.GraphQLModule;
 import io.jooby.graphql.GraphiQLModule;
 
 {
-  install(new JacksonModule());           <1>
+  install(new Jackson2Module());           <1>
 
   install(new GraphQLModule(...));        <2>
 
@@ -186,12 +186,12 @@ import io.jooby.graphql.GraphiQLModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.JacksonModule
+import io.jooby.json.Jackson2Module
 import io.jooby.graphql.GraphQLModule
 import io.jooby.graphql.GraphiQLModule
 
 {
-  install(JacksonModule())                <1>
+  install(Jackson2Module())                <1>
 
   install(GraphQLModule(...))             <2>
 
@@ -217,12 +217,12 @@ https://github.com/graphql/graphiql[GraphiQL] should be up and running at `/grap
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.json.JacksonModule;
+import io.jooby.json.Jackson2Module;
 import io.jooby.graphql.GraphQLModule;
 import io.jooby.graphql.GraphQLPlaygroundModule;
 
 {
-  install(new JacksonModule());                    <1>
+  install(new Jackson2Module());                    <1>
 
   install(new GraphQLModule(...));                 <2>
 
@@ -233,12 +233,12 @@ import io.jooby.graphql.GraphQLPlaygroundModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.json.JacksonModule
+import io.jooby.json.Jackson2Module
 import io.jooby.graphql.GraphQLModule
 import io.jooby.graphql.GraphQLPlaygroundModule
 
 {
-  install(JacksonModule())                         <1>
+  install(Jackson2Module())                         <1>
 
   install(GraphQLModule(...))                      <2>
 

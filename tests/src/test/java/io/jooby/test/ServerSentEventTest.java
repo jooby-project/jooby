@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.jooby.ExecutionMode;
 import io.jooby.ServerSentMessage;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -32,7 +32,7 @@ public class ServerSentEventTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.sse(
                   "/",
@@ -85,7 +85,7 @@ public class ServerSentEventTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.sse(
                   "/json",
@@ -113,7 +113,7 @@ public class ServerSentEventTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.sse(
                   "/event-type",
@@ -170,7 +170,7 @@ public class ServerSentEventTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.sse(
                   "/multi-line",

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import io.jooby.hibernate.validator.HibernateValidatorModule;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.validation.BeanValidator;
@@ -25,7 +25,7 @@ public class Issue3751 {
         .define(
             app -> {
               app.install(new HibernateValidatorModule());
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.post(
                   "/3751-direct",
                   (ctx -> {

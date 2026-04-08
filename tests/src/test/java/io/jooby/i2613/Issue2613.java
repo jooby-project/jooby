@@ -14,7 +14,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.output.Output;
@@ -46,7 +46,7 @@ public class Issue2613 {
         .define(
             app -> {
               app.encoder(MediaType.html, new ThemeResultEncoder());
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.get("/2613/json", ctx -> ImmutableMap.of("foo", "bar")).produces(MediaType.json);
             })

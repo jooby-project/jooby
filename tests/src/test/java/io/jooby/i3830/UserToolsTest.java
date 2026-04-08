@@ -12,7 +12,7 @@ import org.assertj.core.api.Assertions;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.SneakyThrows;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -36,7 +36,7 @@ public class UserToolsTest {
   @ServerTest
   public void shouldReturnStructuredJsonObjectOnJackson2(ServerTestRunner runner) {
     runner
-        .define(app -> setupMcpApp(app, new JacksonModule(), new McpJackson2Module()))
+        .define(app -> setupMcpApp(app, new Jackson2Module(), new McpJackson2Module()))
         .ready(assertStructuredJson());
   }
 

@@ -6,7 +6,7 @@
 package io.jooby
 
 import io.jooby.internal.mvc.KotlinMvc_
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 import io.jooby.junit.ServerTest
 import io.jooby.junit.ServerTestRunner
 import io.jooby.kt.Kooby
@@ -150,7 +150,7 @@ class FeaturedKotlinTest {
     runner
       .use { ->
         Kooby {
-          install(JacksonModule())
+          install(Jackson2Module())
 
           use {
             RequestScope.bind("key", UUID.randomUUID().toString())

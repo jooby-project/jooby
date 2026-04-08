@@ -66,7 +66,7 @@ import io.jooby.handler.CsrfHandler;
 import io.jooby.handler.HeadHandler;
 import io.jooby.handler.TraceHandler;
 import io.jooby.handler.WebVariables;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -3044,7 +3044,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.get("/int", ctx -> ctx.render(1));
               app.get("/bytes", ctx -> ctx.render("bytes".getBytes(StandardCharsets.UTF_8)));
               app.get(
@@ -3674,7 +3674,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.use(new HeadHandler());
 
               app.get("/fn", ctx -> "string");
@@ -3984,7 +3984,7 @@ public class FeaturedTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.post(
                   "/",

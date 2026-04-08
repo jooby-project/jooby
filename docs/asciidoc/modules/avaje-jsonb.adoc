@@ -81,7 +81,7 @@ import io.jooby.avaje.jsonb.AvajeJsonbModule
 import io.avaje.jsonb.Jsonb
 
 {
-  install(JacksonModule())
+  install(AvajeJsonbModule())
 
   val jsonb = require<Jsonb>()
 }

@@ -89,15 +89,15 @@ You are free to access the HTTP context from the WebSocket configurer or callbac
 
 Structured data (like JSON) is supported using the Value API and the javadoc:WebSocket[render, java.lang.Object] method.
 
-To use structured messages, you need a registered javadoc:MessageDecoder[] and javadoc:MessageEncoder[]. In the following example, both are provided by the `JacksonModule`.
+To use structured messages, you need a registered javadoc:MessageDecoder[] and javadoc:MessageEncoder[]. In the following example, both are provided by the `Jackson2Module`.
 
 .JSON Example
 [source,java,role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule());                        // <1>
+  install(new Jackson2Module());                        // <1>
 
   ws("/ws", (ctx, configurer) -> {
     configurer.onMessage((ws, message) -> {
@@ -111,10 +111,10 @@ import io.jooby.jackson.JacksonModule;
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule())                             // <1>
+  install(Jackson2Module())                             // <1>
 
   ws("/ws") { ctx, configurer ->
     configurer.onMessage { ws, message -> 
@@ -134,10 +134,10 @@ Alternatively, you can explicitly tell the WebSocket which decoder/encoder to us
 .Explicit Content Types
 [source,java,role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule());                        // <1>
+  install(new Jackson2Module());                        // <1>
 
   ws("/ws", (ctx, configurer) -> {
     configurer.onMessage((ws, message) -> {
@@ -153,10 +153,10 @@ import io.jooby.jackson.JacksonModule;
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule())                             // <1>
+  install(Jackson2Module())                             // <1>
 
   ws("/ws") { ctx, configurer ->
     configurer.onMessage { ws, message -> 

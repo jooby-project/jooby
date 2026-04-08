@@ -14,7 +14,7 @@ import io.jooby.Extension;
 import io.jooby.Projected;
 import io.jooby.Projection;
 import io.jooby.avaje.jsonb.AvajeJsonbModule;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -25,7 +25,7 @@ public class Issue3853 {
 
   @ServerTest
   public void shouldProjectJackson2Data(ServerTestRunner runner) {
-    shouldProjectData(runner, new JacksonModule());
+    shouldProjectData(runner, new Jackson2Module());
   }
 
   @ServerTest
@@ -205,7 +205,7 @@ public class Issue3853 {
 
   @ServerTest
   public void jackson2ShouldNotThrowInvalidDefinitionException(ServerTestRunner runner) {
-    jacksonShouldNotThrowInvalidDefinitionException(runner, new JacksonModule());
+    jacksonShouldNotThrowInvalidDefinitionException(runner, new Jackson2Module());
   }
 
   @ServerTest

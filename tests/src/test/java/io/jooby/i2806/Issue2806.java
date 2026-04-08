@@ -12,7 +12,7 @@ import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.ServerOptions;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.output.OutputOptions;
@@ -30,7 +30,7 @@ public class Issue2806 {
                 .setMaxRequestSize(ServerOptions._16KB))
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.error(
                   (ctx, cause, code) -> {

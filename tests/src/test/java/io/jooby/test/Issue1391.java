@@ -7,7 +7,7 @@ package io.jooby.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.MediaType;
@@ -20,7 +20,7 @@ public class Issue1391 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.mvc(new Controller1391_());
             })
         .ready(
