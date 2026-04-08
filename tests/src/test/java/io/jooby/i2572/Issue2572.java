@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.json.JSONObject;
 
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -27,7 +27,7 @@ public class Issue2572 {
               Map<String, Object> state = new ConcurrentHashMap<>();
 
               CountDownLatch latch = new CountDownLatch(1);
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.get(
                   "/2572/state",

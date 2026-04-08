@@ -7,7 +7,7 @@ package io.jooby.i2525;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -17,7 +17,7 @@ public class Issue2525 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.get(
                   "/2525",
                   ctx -> {

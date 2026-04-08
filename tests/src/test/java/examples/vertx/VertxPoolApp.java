@@ -12,7 +12,7 @@ import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueFactory;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.vertx.VertxHandler;
 import io.jooby.vertx.VertxModule;
 import io.jooby.vertx.VertxServer;
@@ -38,7 +38,7 @@ public class VertxPoolApp extends Jooby {
                         .withValue(
                             "db.password", ConfigValueFactory.fromAnyRef("benchmarkdbpass"))));
 
-    install(new JacksonModule());
+    install(new Jackson2Module());
     install(new VertxModule());
     install(new VertxPgModule(PgBuilder::pool));
 

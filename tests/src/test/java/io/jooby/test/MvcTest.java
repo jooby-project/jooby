@@ -19,7 +19,7 @@ import io.jooby.Context;
 import io.jooby.ExecutionMode;
 import io.jooby.Jooby;
 import io.jooby.MessageDecoder;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.FormBody;
@@ -470,7 +470,7 @@ public class MvcTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.mvc(new MvcBody_());
 

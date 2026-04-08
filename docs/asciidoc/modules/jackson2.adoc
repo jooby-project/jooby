@@ -14,10 +14,10 @@ JSON support using https://github.com/FasterXML/jackson[Jackson 2] library.
 .Java
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule());                     <1>
+  install(new Jackson2Module());                     <1>
 
   get("/", ctx -> {
     MyObject myObject = ...;
@@ -34,10 +34,10 @@ import io.jooby.jackson.JacksonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(JacksonModule())                          <1>
+  install(Jackson2Module())                          <1>
 
   get("/") {
     val myObject = ...;
@@ -62,10 +62,10 @@ Access to default object mapper is available via require call:
 .Default object mapper
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule());
+  install(new Jackson2Module());
 
   ObjectMapper mapper = require(ObjectMapper.class);
   
@@ -76,10 +76,10 @@ import io.jooby.jackson.JacksonModule;
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule())
+  install(Jackson2Module())
 
   val mapper = require<ObjectMapper>()
 }
@@ -90,46 +90,46 @@ You can provide your own `ObjectMapper`:
 .Custom ObjectMapper
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
   ObjectMapper mapper = new ObjectMapper();
 
-  install(new JacksonModule(mapper));
+  install(new Jackson2Module(mapper));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
   val mapper = ObjectMapper()
 
-  install(JacksonModule(mapper))
+  install(Jackson2Module(mapper))
 }
 ----
 
-This allows to configure JacksonModule for doing `xml` processing:
+This allows to configure Jackson2Module for doing `xml` processing:
 
 .XmlMapper
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule(new XmlMapper()));
+  install(new Jackson2Module(new XmlMapper()));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule(XmlMapper()))
+  install(Jackson2Module(XmlMapper()))
 }
 ----
 
@@ -138,22 +138,22 @@ If you want `json` and `xml` processing then install twice:
 .XmlMapper
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule(new ObjectMapper()));
-  install(new JacksonModule(new XmlMapper()));
+  install(new Jackson2Module(new ObjectMapper()));
+  install(new Jackson2Module(new XmlMapper()));
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule(ObjectMapper()))
-  install(JacksonModule(XmlMapper()))
+  install(Jackson2Module(ObjectMapper()))
+  install(Jackson2Module(XmlMapper()))
 }
 ----
 
@@ -164,20 +164,20 @@ Jackson module can be provided by a link:{uiVersion}/#ecosystem-services-and-the
 .Provisioning Modules
 [source, java, role="primary"]
 ----
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 {
-  install(new JacksonModule().module(MyModule.class);
+  install(new Jackson2Module().module(MyModule.class);
 }
 ----
 
 .Kotlin
 [source, kt, role="secondary"]
 ----
-import io.jooby.jackson.JacksonModule
+import io.jooby.jackson.Jackson2Module
 
 {
-  install(JacksonModule().module(MyModule::class.java)
+  install(Jackson2Module().module(MyModule::class.java)
 }
 ----
 

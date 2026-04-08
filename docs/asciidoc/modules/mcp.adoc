@@ -80,7 +80,7 @@ import io.jooby.mcp.McpModule
 }
 ----
 
-<1> Install JSON support (Jackson is required for MCP JSON-RPC serialization). For Jackson 2, use `JacksonModule()` instead.
+<1> Install JSON support (Jackson is required for MCP JSON-RPC serialization). For Jackson 2, use `Jackson2Module()` instead.
 <2> Install MCP JSON support. For Jackson 2, use `McpJackson2Module()` instead.
 <3> Install the MCP module with the APT-generated `McpService` dispatcher. The generated class always ends with the `Mcp_` suffix.
 

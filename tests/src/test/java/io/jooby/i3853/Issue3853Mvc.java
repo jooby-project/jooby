@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.jooby.Extension;
 import io.jooby.avaje.jsonb.AvajeJsonbModule;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -18,7 +18,7 @@ public class Issue3853Mvc {
 
   @ServerTest
   public void shouldProjectJackson2Data(ServerTestRunner runner) {
-    shouldProjectData(runner, new JacksonModule());
+    shouldProjectData(runner, new Jackson2Module());
   }
 
   @ServerTest

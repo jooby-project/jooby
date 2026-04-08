@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -120,7 +120,7 @@ public class WebSocketTest {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.ws(
                   "/wsjson",

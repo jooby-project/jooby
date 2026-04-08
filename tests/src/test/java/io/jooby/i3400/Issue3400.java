@@ -8,7 +8,7 @@ package io.jooby.i3400;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.jooby.Jooby;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.MediaType;
@@ -27,7 +27,7 @@ public class Issue3400 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.mount(new AppA());
             })
         .ready(
@@ -48,7 +48,7 @@ public class Issue3400 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.install(AppA::new);
             })
         .ready(

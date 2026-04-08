@@ -31,7 +31,7 @@ import org.junit.jupiter.api.BeforeAll;
 
 import com.google.common.collect.ImmutableMap;
 import io.jooby.*;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.*;
@@ -45,7 +45,7 @@ public class Http2Test {
         .options(new ServerOptions().setHttp2(true))
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.post(
                   "/h2/multipart",
                   ctx -> {

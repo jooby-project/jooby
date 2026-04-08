@@ -17,7 +17,7 @@ import io.jooby.MediaType;
 import io.jooby.StatusCode;
 import io.jooby.exception.InvalidCsrfToken;
 import io.jooby.exception.StatusCodeException;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.problem.HttpProblem;
 
 public class App extends Jooby {
@@ -36,7 +36,7 @@ public class App extends Jooby {
                 List.of("io.jooby.exception.UnauthorizedException")));
     getEnvironment().setConfig(problemDetailsConfig.withFallback(getConfig()));
 
-    install(new JacksonModule());
+    install(new Jackson2Module());
 
     get(
         "/throw-simple-http-problem",

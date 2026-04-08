@@ -16,7 +16,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jooby.ExecutionMode;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.vertx.VertxModule;
@@ -48,7 +48,7 @@ public class Issue3778 {
               if (!onVertx) {
                 app.install(new VertxModule(new VertxOptions().setEventLoopPoolSize(4)));
               }
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
 
               app.use(vertx());
 

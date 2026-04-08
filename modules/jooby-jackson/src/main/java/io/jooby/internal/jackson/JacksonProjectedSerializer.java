@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.jooby.Projected;
 import io.jooby.Projection;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 public class JacksonProjectedSerializer extends JsonSerializer<Projected> {
   private final Map<Projection<?>, ObjectWriter> writerCache = new ConcurrentHashMap<>();
@@ -39,7 +39,7 @@ public class JacksonProjectedSerializer extends JsonSerializer<Projected> {
             p -> {
               var filters =
                   new SimpleFilterProvider()
-                      .addFilter(JacksonModule.FILTER_ID, new JacksonProjectionFilter(p));
+                      .addFilter(Jackson2Module.FILTER_ID, new JacksonProjectionFilter(p));
               return mapper.writer(filters);
             });
 

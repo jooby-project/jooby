@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import io.jooby.StatusCode;
 import io.jooby.hibernate.validator.HibernateValidatorModule;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.validation.BeanValidator;
@@ -24,7 +24,7 @@ public class Issue3530 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule());
+              app.install(new Jackson2Module());
               app.install(new HibernateValidatorModule());
 
               app.use(BeanValidator.validate());

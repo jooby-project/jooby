@@ -99,7 +99,7 @@ The JSON-RPC extension delegates payload parsing and serialization to Jooby's st
 
 Supported engines include:
 
-* **Jackson 2**: `JacksonModule`, `JsonRpcJackson2Module`
+* **Jackson 2**: `Jackson2Module`, `JsonRpcJackson2Module`
 * **Jackson 3**: `Jackson3Module`, `JsonRpcJackson3Module`
 * **Avaje JSON-B**: `AvajeJsonbModule`, `JsonRpcAvajeJsonbModule`
 

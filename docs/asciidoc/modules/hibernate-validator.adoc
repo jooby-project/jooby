@@ -191,7 +191,7 @@ It is possible to override the `title` and `status` code of the response above:
 ----
 
 {
-  install(new JacksonModule());
+  install(new Jackson2Module());
   install(new HibernateValidatorModule()
     .statusCode(StatusCode.BAD_REQUEST)
     .validationTitle("Incorrect input data")
@@ -205,7 +205,7 @@ If the default error handler doesn't fully meet your needs, you can always disab
 ----
 
 {
-  install(new JacksonModule());
+  install(new Jackson2Module());
   install(new HibernateValidatorModule().disableViolationHandler());
 
   error(ConstraintViolationException.class, new MyConstraintViolationHandler());

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.jooby.ServiceKey;
 import io.jooby.StatusCode;
 import io.jooby.guice.GuiceModule;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 
@@ -25,7 +25,7 @@ public class Issue3551 {
                   .put(
                       ServiceKey.key(Service3551.class, "service"),
                       new Service3551(app.getEnvironment()));
-              app.install(new JacksonModule().module(JacksonModule3551.class));
+              app.install(new Jackson2Module().module(JacksonModule3551.class));
 
               app.install(new GuiceModule());
 

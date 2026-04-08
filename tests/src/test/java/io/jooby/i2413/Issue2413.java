@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import io.jooby.MediaType;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import io.jooby.test.WebClient;
@@ -21,9 +21,9 @@ public class Issue2413 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule(new ObjectMapper()));
+              app.install(new Jackson2Module(new ObjectMapper()));
 
-              app.install(new JacksonModule(new XmlMapper()));
+              app.install(new Jackson2Module(new XmlMapper()));
 
               app.get("/2413", ctx -> new B2413("someId", "someName"));
             })
@@ -92,9 +92,9 @@ public class Issue2413 {
     runner
         .define(
             app -> {
-              app.install(new JacksonModule(new XmlMapper(), MediaType.xml));
+              app.install(new Jackson2Module(new XmlMapper(), MediaType.xml));
 
-              app.install(new JacksonModule(new ObjectMapper()));
+              app.install(new Jackson2Module(new ObjectMapper()));
 
               app.get("/2413", ctx -> new B2413("someId", "someName"));
             })

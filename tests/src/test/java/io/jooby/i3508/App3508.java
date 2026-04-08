@@ -11,7 +11,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.jooby.Extension;
 import io.jooby.Jooby;
-import io.jooby.jackson.JacksonModule;
+import io.jooby.jackson.Jackson2Module;
 
 public class App3508 extends Jooby {
   public App3508(Extension validator, boolean withProblemDetails) {
@@ -24,7 +24,7 @@ public class App3508 extends Jooby {
       getEnvironment().setConfig(problemDetailsConfig.withFallback(getConfig()));
     }
 
-    install(new JacksonModule());
+    install(new Jackson2Module());
     install(validator);
 
     mvc(new Controller3508_());

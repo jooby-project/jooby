@@ -31,7 +31,7 @@ public class JacksonJsonModuleTest {
     Context ctx = mock(Context.class);
     when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(OutputOptions.small()));
 
-    JacksonModule jackson = new JacksonModule(new ObjectMapper());
+    Jackson2Module jackson = new Jackson2Module(new ObjectMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
     assertEquals("{\"k\":\"v\"}", StandardCharsets.UTF_8.decode(buffer.asByteBuffer()).toString());
@@ -49,7 +49,7 @@ public class JacksonJsonModuleTest {
     Context ctx = mock(Context.class);
     when(ctx.body()).thenReturn(body);
 
-    JacksonModule jackson = new JacksonModule(new ObjectMapper());
+    Jackson2Module jackson = new Jackson2Module(new ObjectMapper());
 
     Map<String, String> result = (Map<String, String>) jackson.decode(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);
@@ -60,7 +60,7 @@ public class JacksonJsonModuleTest {
     Context ctx = mock(Context.class);
     when(ctx.getOutputFactory()).thenReturn(OutputFactory.create(OutputOptions.small()));
 
-    JacksonModule jackson = new JacksonModule(new XmlMapper());
+    Jackson2Module jackson = new Jackson2Module(new XmlMapper());
 
     var buffer = jackson.encode(ctx, mapOf("k", "v"));
     assertEquals(
@@ -80,7 +80,7 @@ public class JacksonJsonModuleTest {
     Context ctx = mock(Context.class);
     when(ctx.body()).thenReturn(body);
 
-    JacksonModule jackson = new JacksonModule(new XmlMapper());
+    Jackson2Module jackson = new Jackson2Module(new XmlMapper());
 
     Map<String, String> result = (Map<String, String>) jackson.decode(ctx, Map.class);
     assertEquals(mapOf("k", "v"), result);
