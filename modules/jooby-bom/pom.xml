@@ -7,14 +7,14 @@
   <parent>
     <groupId>io.jooby</groupId>
     <artifactId>modules</artifactId>
-    <version>4.3.0</version>
+    <version>4.3.1-SNAPSHOT</version>
   </parent>
 
   <groupId>io.jooby</groupId>
   <artifactId>jooby-bom</artifactId>
   <name>jooby-bom</name>
   <packaging>pom</packaging>
-  <version>4.3.0</version>
+  <version>4.3.1-SNAPSHOT</version>
   <description>Jooby (Bill of Materials)</description>
   <url>https://jooby.io</url>
 
@@ -167,17 +167,32 @@
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
-      <artifactId>jooby-javadoc</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jooby</groupId>
       <artifactId>jooby-jdbi</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-jetty</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jsonrpc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jsonrpc-avaje-jsonb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jsonrpc-jackson2</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-jsonrpc-jackson3</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -328,6 +343,26 @@
     <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby-trpc</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-trpc-avaje-jsonb</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-trpc-generator</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-trpc-jackson2</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-trpc-jackson3</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
