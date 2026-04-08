@@ -24,19 +24,15 @@ jobs:
           java-version: ${{ matrix.java_version }}
           distribution: 'temurin'
           cache: maven
-      - name: Install
-        run: mvn install -DskipTests -q -B
-        env:
-          BUILD_LOG_LEVEL: 'ERROR'
       - name: Build
-        run: mvn package
+        run: mvn -B install -P gradlePlugin --no-transfer-progress
         env:
           BUILD_PORT: 0
           BUILD_SECURE_PORT: 0
           BUILD_LOG_LEVEL: 'ERROR'
       - name: Test Result
         uses: mikepenz/action-junit-report@v5
-        if: failure()
+        if: always()
         with:
           check_name: JUnit ${{ matrix.kind }} ${{ matrix.java_version }} ${{ matrix.os }}
           report_paths: '*/target/*/TEST-*.xml'
