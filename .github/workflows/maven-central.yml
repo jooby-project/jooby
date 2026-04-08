@@ -78,31 +78,40 @@ jobs:
             --search "milestone:\"$VERSION_NUM\" label:break-change" \
             --state all \
             --limit 100 \
-            --json title,url \
-            --jq '.[] | "- [\(.title)](\(.url))"' > breaking_issues.md
+            --json title,number \
+            --jq '.[] | "- \(.title) #\(.number)"' > breaking_issues.md
 
-          # 2. Fetch NEW features (requires the 'feature' label)
+          # 2. Fetch NEW features (requires 'feature', excludes 'break-change')
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" label:feature -label:break-change" \
             --state all \
             --limit 100 \
-            --json title,url \
-            --jq '.[] | "- [\(.title)](\(.url))"' > new_issues.md
+            --json title,number \
+            --jq '.[] | "- \(.title) #\(.number)"' > new_issues.md
 
-          # 3. Fetch OTHER changes (excludes 'feature', 'break-change', and 'dependencies')
+          # 3. Fetch DEPRECATED changes (requires 'deprecated', excludes 'break-change')
           gh issue list \
             --repo ${{ github.repository }} \
-            --search "milestone:\"$VERSION_NUM\" -label:feature -label:break-change -label:dependencies" \
+            --search "milestone:\"$VERSION_NUM\" label:deprecated -label:break-change" \
             --state all \
             --limit 100 \
-            --json title,url \
-            --jq '.[] | "- [\(.title)](\(.url))"' > other_issues.md
+            --json title,number \
+            --jq '.[] | "- \(.title) #\(.number)"' > deprecated_issues.md
 
-          # 4. Initialize the changelog file
+          # 4. Fetch OTHER changes (excludes 'feature', 'break-change', 'deprecated', and 'dependencies')
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\" -label:feature -label:break-change -label:deprecated -label:dependencies" \
+            --state all \
+            --limit 100 \
+            --json title,number \
+            --jq '.[] | "- \(.title) #\(.number)"' > other_issues.md
+
+          # 5. Initialize the changelog file
           > changelog.md
 
-          # 5. Conditionally add "Breaking Changes" if breaking_issues.md has content (-s)
+          # 6. Conditionally add "Breaking Changes"
           if [ -s breaking_issues.md ]; then
             echo "## ⚠️ Breaking Changes" >> changelog.md
             echo "" >> changelog.md
@@ -110,7 +119,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 6. Conditionally add "What's New" if new_issues.md has content
+          # 7. Conditionally add "What's New"
           if [ -s new_issues.md ]; then
             echo "## 🚀 What's New" >> changelog.md
             echo "" >> changelog.md
@@ -118,7 +127,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 7. Conditionally add "Other Changes" if other_issues.md has content
+          # 8. Conditionally add "Other Changes"
           if [ -s other_issues.md ]; then
             echo "## 🛠️ Changes" >> changelog.md
             echo "" >> changelog.md
@@ -126,9 +135,17 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 8. Build the rest of the changelog (Links & Sponsors)
+          # 9. Conditionally add "Deprecated"
+          if [ -s deprecated_issues.md ]; then
+            echo "## 🗑️ Deprecated" >> changelog.md
+            echo "" >> changelog.md
+            cat deprecated_issues.md >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 10. Build the rest of the changelog (Links & Sponsors)
           cat << EOF >> changelog.md
-          ### 🔗 Links & Resources
+          ## 🔗 Links & Resources
           - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
           - [Closed Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
           - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
