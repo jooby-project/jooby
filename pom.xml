@@ -62,20 +62,20 @@
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>4.1.1</pebble.version>
     <jackson.version>2.21.2</jackson.version>
-    <jackson3.version>3.1.1</jackson3.version>
+    <jackson3.version>3.1.2</jackson3.version>
     <gson.version>2.13.2</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
     <rocker.version>2.4.0</rocker.version>
-    <thymeleaf.version>3.1.3.RELEASE</thymeleaf.version>
+    <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
     <jte.version>3.2.3</jte.version>
 
     <!-- data -->
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
-    <ebean.version>17.3.0</ebean.version>
-    <jdbi.version>3.52.0</jdbi.version>
+    <ebean.version>17.5.0</ebean.version>
+    <jdbi.version>3.52.1</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>25.0</graphql-java.version>
     <lettuce.version>7.5.1.RELEASE</lettuce.version>
@@ -113,7 +113,7 @@
     <vertx.version>5.0.10</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.46</swagger.version>
+    <swagger.version>2.2.47</swagger.version>
     <swagger-parser.version>2.1.39</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -121,8 +121,8 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>12.4</avaje.inject.version>
-    <avaje.jsonb.version>3.11</avaje.jsonb.version>
+    <avaje.inject.version>12.5</avaje.inject.version>
+    <avaje.jsonb.version>3.12</avaje.jsonb.version>
     <avaje.validator.version>2.17</avaje.validator.version>
 
     <!-- jakarta -->
@@ -137,7 +137,7 @@
     <pac4j.version>6.4.0</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.17.0</bucket4j-core.version>
+    <bucket4j-core.version>8.18.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.18.1</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -192,7 +192,7 @@
     <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <plexus-utils.version>4.0.3</plexus-utils.version>
-    <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
+    <stork-maven-plugin.version>3.3.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
@@ -1342,7 +1342,7 @@
             <dependency>
               <groupId>org.apache.ant</groupId>
               <artifactId>ant</artifactId>
-              <version>1.10.16</version>
+              <version>1.10.17</version>
             </dependency>
           </dependencies>
         </plugin>

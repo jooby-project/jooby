@@ -334,7 +334,7 @@
     <dependency>
       <groupId>org.asynchttpclient</groupId>
       <artifactId>async-http-client</artifactId>
-      <version>3.0.8</version>
+      <version>3.0.9</version>
     </dependency>
 
     <dependency>
