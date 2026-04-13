@@ -937,7 +937,7 @@ public class Jooby implements Router, Registry {
 
     router.initialize();
 
-    for (Extension extension : lateExtensions) {
+    for (var extension : lateExtensions) {
       try {
         extension.install(this);
       } catch (Throwable e) {
@@ -949,7 +949,7 @@ public class Jooby implements Router, Registry {
 
     this.startingCallbacks = fire(this.startingCallbacks);
 
-    router.start(this, server);
+    router.start(this);
 
     return this;
   }

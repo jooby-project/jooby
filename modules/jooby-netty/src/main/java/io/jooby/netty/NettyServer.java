@@ -150,12 +150,17 @@ public class NettyServer extends Server.Base {
                 transport, singleEventLoopGroup, options.getIoThreads(), worker);
       }
       this.dateLoop = new NettyDateService();
-
-      fireStart(List.of(application), eventLoop.worker());
-
       var outputFactory = (NettyOutputFactory) getOutputFactory();
       var allocator = outputFactory.getAllocator();
       var http2 = options.isHttp2() == Boolean.TRUE;
+
+      for (var app : applications) {
+        var services = app.getServices();
+        services.put(NettyEventLoopGroup.class, eventLoop);
+        services.put(ByteBufAllocator.class, allocator);
+      }
+
+      fireStart(List.of(application), eventLoop.worker());
 
       // Retrieve the GrpcProcessor from the application's service registry
       GrpcProcessor grpcProcessor =

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.kagkarlsson.scheduler.Scheduler;
 import com.github.kagkarlsson.scheduler.SchedulerName;
+import com.github.kagkarlsson.scheduler.event.ExecutionInterceptor;
 import com.github.kagkarlsson.scheduler.jdbc.AutodetectJdbcCustomization;
 import com.github.kagkarlsson.scheduler.jdbc.JdbcCustomization;
 import com.github.kagkarlsson.scheduler.serializer.Serializer;
@@ -73,6 +74,7 @@ public class DbSchedulerModule implements Extension {
   private ExecutorService dueExecutor;
   private ScheduledExecutorService housekeeperExecutor;
   private JdbcCustomization jdbcCustomization;
+  private final List<ExecutionInterceptor> executionInterceptors = new ArrayList<>();
 
   /**
    * Creates a new module.
@@ -123,6 +125,18 @@ public class DbSchedulerModule implements Extension {
    */
   public DbSchedulerModule withSchedulerName(@NonNull SchedulerName schedulerName) {
     this.schedulerName = schedulerName;
+    return this;
+  }
+
+  /**
+   * Adds an execution interceptor to the scheduler module. Execution interceptors are used to
+   * customize the behavior of task execution, such as logging, monitoring, or modifying tasks.
+   *
+   * @param interceptor An {@link ExecutionInterceptor} that intercepts task execution.
+   * @return This {@link DbSchedulerModule} to allow method chaining.
+   */
+  public DbSchedulerModule withExecutionInterceptor(@NonNull ExecutionInterceptor interceptor) {
+    this.executionInterceptors.add(interceptor);
     return this;
   }
 
@@ -280,7 +294,8 @@ public class DbSchedulerModule implements Extension {
       // schedulerListeners.forEach(builder::addSchedulerListener);
 
       // Register interceptors
-      // executionInterceptors.forEach(builder::addExecutionInterceptor);
+      executionInterceptors.forEach(builder::addExecutionInterceptor);
+
       var scheduler = builder.build();
 
       app.getServices().put(Scheduler.class, scheduler);

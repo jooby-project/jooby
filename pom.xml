@@ -136,6 +136,7 @@
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.4.0</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
+    <db-scheduler.version>16.7.1</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.18.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>

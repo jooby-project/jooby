@@ -111,9 +111,12 @@
     <module>jooby-rxjava3</module>
     <module>jooby-mutiny</module>
 
+    <!-- metrics -->
+    <module>jooby-metrics</module>
+    <module>jooby-opentelemetry</module>
+
     <!-- util -->
     <module>jooby-whoops</module>
-    <module>jooby-metrics</module>
     <module>jooby-jasypt</module>
 
     <!-- distribution -->

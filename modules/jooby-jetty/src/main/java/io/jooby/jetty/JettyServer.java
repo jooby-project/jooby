@@ -134,8 +134,6 @@ public class JettyServer extends io.jooby.Server.Base {
         ((QueuedThreadPool) threadPool).setName("worker");
       }
 
-      fireStart(List.of(application), threadPool);
-
       var acceptors = 1;
       var selectors = options.getIoThreads();
       server = new Server(threadPool);
@@ -272,17 +270,21 @@ public class JettyServer extends io.jooby.Server.Base {
         container.setIdleTimeout(Duration.ofMillis(timeout));
       }
       server.setHandler(context);
-      server.start();
 
-      // --- EXTRACT OS-ASSIGNED PORTS ---
+      for (var app : applications) {
+        var services = app.getServices();
+        services.put(Server.class, server);
+      }
+
+      fireStart(List.of(application), threadPool);
+
+      server.start();
       if (httpConector != null) {
         options.setPort(httpConector.getLocalPort());
       }
       if (secureConnector != null) {
         options.setSecurePort(secureConnector.getLocalPort());
       }
-      // ---------------------------------
-
       fireReady(applications);
     } catch (Exception x) {
       if (io.jooby.Server.isAddressInUse(x.getCause())) {

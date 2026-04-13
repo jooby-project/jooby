@@ -16,7 +16,7 @@ public class NettyEventLoopGroupImpl implements NettyEventLoopGroup {
   private final EventLoopGroup parent;
   private final EventLoopGroup child;
   private boolean closed;
-  private ExecutorService worker;
+  private final ExecutorService worker;
 
   public NettyEventLoopGroupImpl(
       NettyTransport transport, boolean single, int ioThreads, ExecutorService worker) {

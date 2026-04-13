@@ -548,7 +548,7 @@ public class RouterImpl implements Router {
     configureContextAsService(routerOptions.isContextAsService());
   }
 
-  @NonNull public Router start(@NonNull Jooby app, @NonNull Server server) {
+  @NonNull public Router start(@NonNull Jooby app) {
     started = true;
     var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {

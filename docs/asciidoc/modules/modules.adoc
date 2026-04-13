@@ -38,6 +38,7 @@ Modules are distributed as separate dependencies. Below is the catalog of offici
   * link:{uiVersion}/#tooling-and-operations-development[Jooby Run]: Run and hot reload your application. 
   * link:{uiVersion}/modules/whoops[Whoops]: Pretty page stacktrace reporter.
   * link:{uiVersion}/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
+  * link:{uiVersion}/modules/opentelemetry[Open Telemetry]: Application metrics using Open Telemetry library.
 
 ==== Event Bus
   * link:{uiVersion}/modules/camel[Camel]: Camel module for Jooby.
