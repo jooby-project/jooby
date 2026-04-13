@@ -1,0 +1,362 @@
+== OpenTelemetry
+
+The module provides the foundational engine for distributed tracing, metrics, and log correlation in your Jooby application. Its goal is to give you deep, vendor-neutral observability into your system. By integrating the https://opentelemetry.io/[OpenTelemetry] SDK, it automatically captures and exports telemetry data from HTTP requests, database connection pools, background jobs, and application logs.
+
+Because https://opentelemetry.io/[OpenTelemetry] is an open standard, you are not locked into a specific vendor. You can seamlessly route your telemetry data to any compatible APM, backend, or collector (such as SigNoz, DataDog, Jaeger, or Grafana) simply by changing your configuration properties.
+
+=== Usage
+
+1) Add the dependency:
+
+[dependency, artifactId="jooby-opentelemetry:OpenTelemetry Module"]
+.
+
+2) Install and use OpenTelemetry:
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.opentelemetry.OtelModule;
+import io.jooby.opentelemetry.OtelHttpTracing;
+
+{
+  install(new OtelModule());                               <1>
+
+  use(new OtelHttpTracing());                              <2>
+  
+  get("/", ctx -> {
+    return "Hello OTel";
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.OtelModule
+import io.jooby.opentelemetry.OtelHttpTracing
+
+{
+  install(OtelModule())                                    <1>
+  
+  use(OtelHttpTracing())                                   <2>
+  
+  get("/") { ctx ->
+    "Hello OTel"
+  }
+}
+----
+
+<1> Installs the core OpenTelemetry SDK engine. It **must be installed at the very beginning** of your application setup.
+<2> Adds the `OtelHttpTracing` filter to automatically intercept, create, and propagate spans for incoming HTTP requests.
+
+[NOTE]
+====
+**JVM Metrics:** Basic JVM operational metrics (such as memory usage, garbage collection times, and active thread counts) are automatically bound and exported by default the moment `OtelModule` is installed.
+====
+
+=== Exporters Configuration
+
+The OpenTelemetry SDK is completely driven by your application's configuration properties. Any property defined inside the `otel` block in your `application.conf` is automatically picked up by the SDK's auto-configuration engine.
+
+Here is how you can configure the exporters to send your data to various popular backends:
+
+==== SigNoz (or generic OTLP)
+SigNoz natively accepts the standard OTLP (OpenTelemetry Protocol) format over gRPC.
+
+.application.conf
+[source, properties]
+----
+otel {
+  service.name = "jooby-api"
+  traces.exporter = otlp
+  metrics.exporter = otlp
+  logs.exporter = otlp
+  exporter.otlp.protocol = grpc
+  exporter.otlp.endpoint = "http://localhost:4317"
+}
+----
+
+==== DataDog
+To send data to DataDog, you typically use the OTLP HTTP protocol pointing to the DataDog Agent running on your infrastructure, or directly to their intake API.
+
+.application.conf
+[source, properties]
+----
+otel {
+  service.name = "jooby-api"
+  traces.exporter = otlp
+  metrics.exporter = otlp
+  logs.exporter = otlp
+  exporter.otlp.protocol = http/protobuf
+  exporter.otlp.endpoint = "http://localhost:4318" # Assuming local DataDog Agent
+  # If sending directly to DataDog, you would include the API key in headers:
+  # exporter.otlp.headers = "DD-API-KEY=your_api_key_here"
+}
+----
+
+==== Jaeger
+Jaeger also natively supports accepting OTLP data.
+
+.application.conf
+[source, properties]
+----
+otel {
+  service.name = "jooby-api"
+  traces.exporter = otlp
+  metrics.exporter = none     # Jaeger is for traces only
+  logs.exporter = none        # Jaeger is for traces only
+  exporter.otlp.protocol = grpc
+  exporter.otlp.endpoint = "http://localhost:4317"
+}
+----
+
+=== Manual Tracing
+
+For tracing specific business logic, database queries, or external API calls deep within your service layer, this module provides an injectable `Trace` utility.
+
+You can retrieve it from the route context or inject it directly via DI to safely create and execute custom spans:
+
+.Manual Tracing
+[source, java, role = "primary"]
+----
+import io.jooby.opentelemetry.Trace;
+
+{
+  get("/books/{isbn}", ctx -> {
+    Trace trace = require(Trace.class);
+    String isbn = ctx.path("isbn").value();
+    
+    return trace.span("fetch_book")
+      .attribute("isbn", isbn)
+      .execute(span -> {
+        span.addEvent("Executing database query");
+        return repository.findByIsbn(isbn);
+      });
+  });
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.Trace
+
+{
+  get("/books/{isbn}") { ctx ->
+    val trace = require(Trace::class)
+    val isbn = ctx.path("isbn").value()
+    
+    trace.span("fetch_book")
+      .attribute("isbn", isbn)
+      .execute { span ->
+        span.addEvent("Executing database query")
+        repository.findByIsbn(isbn)
+      }
+  }
+}
+----
+
+The `execute` and `run` blocks automatically handle the span context lifecycle, error recording, and finalization, ensuring no spans are leaked even if exceptions are thrown.
+
+=== Extensions
+
+Additional integrations are provided via `OtelExtension` implementations. Many of these rely on official OpenTelemetry instrumentation libraries, which you must add to your project's classpath.
+
+[NOTE]
+====
+**Lifecycle & Lazy Initialization:** Although `OtelModule` must be installed at the very beginning of your application, its extensions are **lazily initialized**. They defer their execution to the application's `onStarting` lifecycle hook. This ensures that all target components provided by other modules (like database connection pools or background schedulers) are fully configured and available in the service registry before the OpenTelemetry extensions attempt to instrument them.
+====
+
+==== db-scheduler
+
+Automatically instruments the `db-scheduler` library. It tracks background task executions, measuring execution durations and recording successes and failures.
+
+.db-scheduler Integration
+[source, java, role = "primary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelDbScheduler;
+
+{
+  install(new DbSchedulerModule()
+    .withExecutionInterceptor(new OtelDbScheduler(require(OpenTelemetry.class)))
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelDbScheduler
+
+{
+  install(DbSchedulerModule()
+    .withExecutionInterceptor(OtelDbScheduler(require(OpenTelemetry::class)))
+  )
+}
+----
+
+==== HikariCP
+
+Instruments all registered `HikariDataSource` instances to export critical pool metrics (active/idle connections, timeouts).
+
+Required dependency:
+[dependency, groupId="io.opentelemetry.instrumentation", artifactId="opentelemetry-hikaricp-3.0", version="${otel-instrumentation.version}"]
+.
+
+[NOTE]
+====
+Installation order is critical. `OtelModule` must be installed **before** `HikariModule`.
+====
+
+.HikariCP Metrics
+[source, java, role = "primary"]
+----
+import io.jooby.hikari.HikariModule;
+import io.jooby.opentelemetry.instrumentation.OtelHikari;
+
+{
+  install(new OtelModule(new OtelHikari()));
+  
+  install(new HikariModule());
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.hikari.HikariModule
+import io.jooby.opentelemetry.instrumentation.OtelHikari
+
+{
+  install(OtelModule(OtelHikari()))
+  
+  install(HikariModule())
+}
+----
+
+==== Log4j2
+
+Seamlessly exports all application logs to your OpenTelemetry backend, automatically correlated with active trace and span IDs using a dynamic appender.
+
+Required dependency:
+[dependency, groupId="io.opentelemetry.instrumentation", artifactId="opentelemetry-log4j-appender-2.17", version="${otel-instrumentation.version}"]
+.
+
+.Log4j2 Integration
+[source, java, role = "primary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelLog4j2;
+
+{
+  install(new OtelModule(
+    new OtelLog4j2()
+  ));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelLog4j2
+
+{
+  install(OtelModule(
+    OtelLog4j2()
+  ))
+}
+----
+
+==== Logback
+
+Seamlessly exports all application logs to your OpenTelemetry backend, automatically correlated with active trace and span IDs using a dynamic appender.
+
+Required dependency:
+[dependency, groupId="io.opentelemetry.instrumentation", artifactId="opentelemetry-logback-appender-1.0", version="${otel-instrumentation.version}"]
+.
+
+.Logback Integration
+[source, java, role = "primary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelLogback;
+
+{
+  install(new OtelModule(
+    new OtelLogback()
+  ));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelLogback
+
+{
+  install(OtelModule(
+    OtelLogback()
+  ))
+}
+----
+
+==== Quartz
+
+Tracks background task executions handled by the Quartz scheduler, creating individual spans for each execution to monitor scheduling delays and execution durations.
+
+Required dependency:
+[dependency, groupId="io.opentelemetry.instrumentation", artifactId="opentelemetry-quartz-2.0", version="${otel-instrumentation.version}"]
+.
+
+.Quartz Integration
+[source, java, role = "primary"]
+----
+import io.jooby.quartz.QuartzModule;
+import io.jooby.opentelemetry.instrumentation.OtelQuartz;
+
+{
+  install(new OtelModule(new OtelQuartz()));
+  
+  install(new QuartzModule(MyJobs.class));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.quartz.QuartzModule
+import io.jooby.opentelemetry.instrumentation.OtelQuartz
+
+{
+  install(OtelModule(OtelQuartz()))
+  
+  install(QuartzModule(MyJobs::class.java))
+}
+----
+
+==== Server Metrics
+
+Exports native, server-specific operational metrics. It automatically detects your underlying HTTP server (Jetty, Netty, or Undertow) and exports deep metrics like event loop pending tasks, thread pool sizes, and memory usage.
+
+.Server Metrics
+[source, java, role = "primary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelServerMetrics;
+
+{
+  install(new OtelModule(
+    new OtelServerMetrics()
+  ));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.opentelemetry.instrumentation.OtelServerMetrics
+
+{
+  install(OtelModule(
+    OtelServerMetrics()
+  ))
+}
+----
