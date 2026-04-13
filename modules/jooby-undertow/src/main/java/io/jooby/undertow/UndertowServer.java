@@ -180,8 +180,12 @@ public class UndertowServer extends Server.Base {
       } else if (options.isHttpsOnly()) {
         throw new StartupException("Server configured for httpsOnly, but ssl options are not set");
       }
-      fireStart(applications, worker);
       server = builder.build();
+      for (var app : applications) {
+        app.getServices().put(Undertow.class, server);
+      }
+      fireStart(applications, worker);
+
       server.start();
 
       // --- EXTRACT OS-ASSIGNED PORTS ---

@@ -213,13 +213,16 @@ public class HikariModule implements Extension {
 
     ServiceRegistry registry = application.getServices();
     ServiceKey<DataSource> key = ServiceKey.key(DataSource.class, database);
-    /** Global default database: */
+    /* Global default database: */
     registry.putIfAbsent(KEY, dataSource);
 
-    /** Specific access: */
+    /* Specific access: */
     registry.put(key, dataSource);
+    /* List access: */
+    registry.listOf(DataSource.class).add(dataSource);
+    registry.listOf(HikariDataSource.class).add(dataSource);
 
-    application.onStop(dataSource::close);
+    application.onStop(dataSource);
   }
 
   /**
@@ -231,13 +234,11 @@ public class HikariModule implements Extension {
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database type or given jdbc connection string for unknown or bad urls.
    */
-  public static @NonNull String databaseType(@NonNull String url) {
-    String type =
-        Arrays.stream(url.toLowerCase().split(":"))
-            .filter(token -> !SKIP_TOKENS.contains(token))
-            .findFirst()
-            .orElse(url);
-    return type;
+  public static String databaseType(@NonNull String url) {
+    return Arrays.stream(url.toLowerCase().split(":"))
+        .filter(token -> !SKIP_TOKENS.contains(token))
+        .findFirst()
+        .orElse(url);
   }
 
   /**
@@ -288,69 +289,149 @@ public class HikariModule implements Extension {
     defaults.put(
         "maximumPoolSize",
         Math.max(MINIMUM_SIZE, Runtime.getRuntime().availableProcessors() * WORKER_FACTOR));
-    if ("derby".equals(database)) {
-      // url => jdbc:derby:${db};create=true
-      defaults.put("dataSourceClassName", "org.apache.derby.jdbc.ClientDataSource");
-    } else if ("db2".equals(database)) {
-      // url => jdbc:db2://127.0.0.1:50000/SAMPLE
-      defaults.put("dataSourceClassName", "com.ibm.db2.jcc.DB2SimpleDataSource");
-    } else if ("h2".equals(database)) {
-      // url => mem, fs or jdbc:h2:${db}
-      defaults.put("dataSourceClassName", "org.h2.jdbcx.JdbcDataSource");
-      defaults.put("dataSource.user", "sa");
-      defaults.put("dataSource.password", "");
-    } else if ("hsqldb".equals(database)) {
-      // url =>  jdbc:hsqldb:file:${db}
-      defaults.put("dataSourceClassName", "org.hsqldb.jdbc.JDBCDataSource");
-    } else if ("mariadb".equals(database)) {
-      // url jdbc:mariadb://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
-      defaults.put("dataSourceClassName", "org.mariadb.jdbc.MySQLDataSource");
-    } else if ("mysql".equals(database)) {
-      // url jdbc:mysql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
-      // 6.x
-      env.loadClass("com.mysql.cj.jdbc.MysqlDataSource")
-          .ifPresent(klass -> defaults.put("dataSourceClassName", klass.getName()));
-      // 5.x
-      if (!defaults.containsKey("dataSourceClassName")) {
-        env.loadClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource")
-            .ifPresent(
-                klass -> {
-                  defaults.put("dataSourceClassName", klass.getName());
-                  defaults.put(
-                      "dataSource.encoding", env.getConfig().getString(AvailableSettings.CHARSET));
-                  defaults.put("dataSource.cachePrepStmts", true);
-                  defaults.put("dataSource.prepStmtCacheSize", MYSQL5_STT_CACHE_SIZE);
-                  defaults.put("dataSource.prepStmtCacheSqlLimit", MYSQL5_STT_CACHE_SQL_LIMIT);
-                  defaults.put("dataSource.useServerPrepStmts", true);
-                });
+    if (database == null) {
+      return defaults;
+    }
+    switch (database) {
+      case "derby" ->
+          // url => jdbc:derby:${db};create=true
+          defaults.put("dataSourceClassName", "org.apache.derby.jdbc.ClientDataSource");
+      case "db2" ->
+          // url => jdbc:db2://127.0.0.1:50000/SAMPLE
+          defaults.put("dataSourceClassName", "com.ibm.db2.jcc.DB2SimpleDataSource");
+      case "h2" -> {
+        // url => mem, fs or jdbc:h2:${db}
+        defaults.put("dataSourceClassName", "org.h2.jdbcx.JdbcDataSource");
+        defaults.put("dataSource.user", "sa");
+        defaults.put("dataSource.password", "");
       }
-    } else if ("sqlserver".equals(database)) {
-      // url =>
-      // jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
-      defaults.put("dataSourceClassName", "com.microsoft.sqlserver.jdbc.SQLServerDataSource");
-    } else if ("oracle".equals(database)) {
-      // url => jdbc:oracle:thin:@//<host>:<port>/<service_name>
-      defaults.put("dataSourceClassName", "oracle.jdbc.pool.OracleDataSource");
-    } else if ("pgsql".equals(database)) {
-      // url => jdbc:pgsql://<server>[:<port>]/<database>
-      defaults.put("dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource");
-    } else if ("postgresql".equals(database)) {
-      // url => jdbc:postgresql://host:port/database
-      defaults.put("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
-    } else if ("sybase".equals(database)) {
-      // url => jdbc:jtds:sybase://<host>[:<port>][/<database_name>]
-      defaults.put("dataSourceClassName", "com.sybase.jdbcx.SybDataSource");
-    } else if ("firebirdsql".equals(database)) {
-      // jdbc:firebirdsql:host[/port]:<database>
-      defaults.put("dataSourceClassName", "org.firebirdsql.pool.FBSimpleDataSource");
-    } else if ("sqlite".equals(database)) {
-      // jdbc:sqlite:${db}
-      defaults.put("dataSourceClassName", "org.sqlite.SQLiteDataSource");
-    } else if ("log4jdbc".equals(database)) {
-      // jdbc:log4jdbc:${dbtype}:${db}
-      defaults.put("driverClassName", "net.sf.log4jdbc.DriverSpy");
+      case "hsqldb" ->
+          // url =>  jdbc:hsqldb:file:${db}
+          defaults.put("dataSourceClassName", "org.hsqldb.jdbc.JDBCDataSource");
+      case "mariadb" ->
+          // url jdbc:mariadb://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
+          defaults.put("dataSourceClassName", "org.mariadb.jdbc.MySQLDataSource");
+      case "mysql" -> {
+        // url jdbc:mysql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
+        // 6.x
+        env.loadClass("com.mysql.cj.jdbc.MysqlDataSource")
+            .ifPresent(klass -> defaults.put("dataSourceClassName", klass.getName()));
+        // 5.x
+        if (!defaults.containsKey("dataSourceClassName")) {
+          env.loadClass("com.mysql.jdbc.jdbc2.optional.MysqlDataSource")
+              .ifPresent(
+                  klass -> {
+                    defaults.put("dataSourceClassName", klass.getName());
+                    defaults.put(
+                        "dataSource.encoding",
+                        env.getConfig().getString(AvailableSettings.CHARSET));
+                    defaults.put("dataSource.cachePrepStmts", true);
+                    defaults.put("dataSource.prepStmtCacheSize", MYSQL5_STT_CACHE_SIZE);
+                    defaults.put("dataSource.prepStmtCacheSqlLimit", MYSQL5_STT_CACHE_SQL_LIMIT);
+                    defaults.put("dataSource.useServerPrepStmts", true);
+                  });
+        }
+      }
+      case "sqlserver" ->
+          // url =>
+          // jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+          defaults.put("dataSourceClassName", "com.microsoft.sqlserver.jdbc.SQLServerDataSource");
+      case "oracle" ->
+          // url => jdbc:oracle:thin:@//<host>:<port>/<service_name>
+          defaults.put("dataSourceClassName", "oracle.jdbc.pool.OracleDataSource");
+      case "pgsql" ->
+          // url => jdbc:pgsql://<server>[:<port>]/<database>
+          defaults.put("dataSourceClassName", "com.impossibl.postgres.jdbc.PGDataSource");
+      case "postgresql", "cockroach", "yugabyte" ->
+          // url => jdbc:postgresql://host:port/database
+          defaults.put("dataSourceClassName", "org.postgresql.ds.PGSimpleDataSource");
+      case "sybase" ->
+          // url => jdbc:jtds:sybase://<host>[:<port>][/<database_name>]
+          defaults.put("dataSourceClassName", "com.sybase.jdbcx.SybDataSource");
+      case "firebirdsql" ->
+          // jdbc:firebirdsql:host[/port]:<database>
+          defaults.put("dataSourceClassName", "org.firebirdsql.pool.FBSimpleDataSource");
+      case "sqlite" ->
+          // jdbc:sqlite:${db}
+          defaults.put("dataSourceClassName", "org.sqlite.SQLiteDataSource");
+      // --- OLAP & Analytics ---
+      case "clickhouse" ->
+          // jdbc:clickhouse://<host>:<port>/<database>
+          defaults.put("dataSourceClassName", "com.clickhouse.jdbc.ClickHouseDataSource");
+      case "snowflake" ->
+          // jdbc:snowflake://<account>.snowflakecomputing.com/?<options>
+          defaults.put("driverClassName", "net.snowflake.client.jdbc.SnowflakeDriver");
+      case "redshift" ->
+          // jdbc:redshift://<cluster>.<region>.redshift.amazonaws.com:<port>/<database>
+          defaults.put("driverClassName", "com.amazon.redshift.Driver");
+      case "trino" ->
+          // jdbc:trino://<host>:<port>/<catalog>/<schema>
+          defaults.put("driverClassName", "io.trino.jdbc.TrinoDriver");
+      // --- Proxies & Wrappers ---
+      case "log4jdbc" ->
+          // jdbc:log4jdbc:${dbtype}:${db}
+          defaults.put("driverClassName", "net.sf.log4jdbc.DriverSpy");
+      case "otel" ->
+          // jdbc:otel:${dbtype}:${db}
+          defaults.put(
+              "driverClassName", "io.opentelemetry.instrumentation.jdbc.OpenTelemetryDriver");
     }
     return defaults;
+  }
+
+  /**
+   * Forces the JVM to load and execute the static initialization block of the underlying JDBC
+   * Driver. This is specifically required for wrappers like OpenTelemetry that rely on
+   * java.sql.DriverManager instead of direct DataSource instantiation.
+   *
+   * @param database The target database type (e.g., "mysql", "postgresql")
+   * @param env The Jooby environment providing the classloader
+   */
+  private static void forceLoadDriver(String database, Environment env) {
+    if (database == null) {
+      return;
+    }
+
+    // Map the database string to its explicit java.sql.Driver implementation
+    var driverClassName =
+        switch (database) {
+          case "derby" -> "org.apache.derby.jdbc.ClientDriver";
+          case "db2" -> "com.ibm.db2.jcc.DB2Driver";
+          case "h2" -> "org.h2.Driver";
+          case "hsqldb" -> "org.hsqldb.jdbc.JDBCDriver";
+          case "mariadb" -> "org.mariadb.jdbc.Driver";
+          case "mysql" -> "com.mysql.cj.jdbc.Driver"; // Modern 6.x/8.x Driver
+          case "sqlserver" -> "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+          case "oracle" -> "oracle.jdbc.OracleDriver";
+          case "pgsql" -> "com.impossibl.postgres.jdbc.PGDriver";
+          case "postgresql", "cockroach", "yugabyte" -> "org.postgresql.Driver";
+          case "sybase" -> "com.sybase.jdbc4.jdbc.SybDriver";
+          case "firebirdsql" -> "org.firebirdsql.jdbc.FBDriver";
+          case "sqlite" -> "org.sqlite.JDBC";
+          // --- OLAP & Analytics ---
+          case "clickhouse" -> "com.clickhouse.jdbc.ClickHouseDriver";
+          case "snowflake" -> "net.snowflake.client.jdbc.SnowflakeDriver";
+          case "redshift" -> "com.amazon.redshift.Driver";
+          case "trino" -> "io.trino.jdbc.TrinoDriver";
+          default -> null;
+        };
+
+    if (driverClassName != null) {
+      try {
+        // The 'true' flag is the magic key: it forces the static {} block to execute,
+        // registering the driver globally with Java's DriverManager.
+        Class.forName(driverClassName, true, env.getClassLoader());
+      } catch (ClassNotFoundException e) {
+        // Graceful fallback for legacy MySQL 5.x users if the modern driver is missing
+        if ("mysql".equals(database)) {
+          try {
+            Class.forName("com.mysql.jdbc.Driver", true, env.getClassLoader());
+          } catch (ClassNotFoundException ignore) {
+            // Ignore missing driver; let the standard JDBC connection handle the failure later
+          }
+        }
+      }
+    }
   }
 
   static HikariConfig build(Environment env, String database) {
@@ -379,7 +460,7 @@ public class HikariModule implements Extension {
       dumpProperties(config, dbname, "dataSource.", properties::setProperty);
     }
 
-    /** *.dataSource AND *.hikari */
+    /* *.dataSource AND *.hikari */
     Stream.of(dbkey, dbname)
         .filter(Objects::nonNull)
         .distinct()
@@ -403,7 +484,10 @@ public class HikariModule implements Extension {
       configuration.remove("dataSource.url");
       configuration.setProperty("jdbcUrl", dburl);
     }
-
+    // wake driver for otel
+    if (dburl != null && dburl.startsWith("jdbc:otel:")) {
+      forceLoadDriver(databaseType(dburl.replace(":otel:", ":")), env);
+    }
     if (dbtype == null) {
       String poolName =
           Stream.of(

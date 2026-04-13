@@ -205,6 +205,12 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-opentelemetry</artifactId>
+      <version>${jooby.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-test</artifactId>
       <version>${jooby.version}</version>
     </dependency>
