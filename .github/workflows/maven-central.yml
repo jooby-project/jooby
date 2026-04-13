@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      issues: write # Required to update/close milestones
 
     steps:
       - uses: actions/checkout@v4
@@ -162,3 +163,25 @@ jobs:
 
           # Overwrite the existing release notes
           gh release edit $CURRENT_TAG --notes-file changelog.md
+
+      - name: Close Milestone
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT_TAG=${{ github.ref_name }}
+          VERSION_NUM=${CURRENT_TAG#v}
+
+          # Fetch the ID of the milestone only if it is currently open
+          MILESTONE_ID=$(gh api repos/${{ github.repository }}/milestones -q ".[] | select(.title==\"$VERSION_NUM\" and .state==\"open\") | .number")
+
+          if [ -n "$MILESTONE_ID" ]; then
+            echo "Closing milestone $VERSION_NUM (ID: $MILESTONE_ID)..."
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              repos/${{ github.repository }}/milestones/$MILESTONE_ID \
+              -f state='closed'
+            echo "Milestone closed successfully."
+          else
+            echo "No open milestone found matching version $VERSION_NUM. Skipping."
+          fi
