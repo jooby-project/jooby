@@ -60,6 +60,7 @@ fun main(args: Array<String>) {
 * **Reactive Ready:** Support for <<core-responses, reactive responses>> (CompletableFuture, RxJava, Reactor, Mutiny, and Kotlin Coroutines).
 * **Server Choice:** Run on https://www.eclipse.org/jetty[Jetty], https://netty.io[Netty], https://vertx.io[Vert.x], or http://undertow.io[Undertow].
 * **AI Ready:** Seamlessly expose your application's data and functions to Large Language Models (LLMs) using the first-class link:modules/mcp[Model Context Protocol (MCP)] module.
+* **Deep Observability:** Native, vendor-neutral distributed tracing, server metrics, and log correlation via link:modules/opentelemetry[OpenTelemetry] module.
 * **Extensible:** Scale to a full-stack framework using extensions and link:modules[modules].
 
 [TIP]
