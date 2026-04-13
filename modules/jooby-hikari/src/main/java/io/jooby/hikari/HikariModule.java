@@ -486,7 +486,8 @@ public class HikariModule implements Extension {
     }
     // wake driver for otel
     if (dburl != null && dburl.startsWith("jdbc:otel:")) {
-      forceLoadDriver(databaseType(dburl.replace(":otel:", ":")), env);
+      dbtype = databaseType(dburl.replace(":otel:", ":"));
+      forceLoadDriver(dbtype, env);
     }
     if (dbtype == null) {
       String poolName =
