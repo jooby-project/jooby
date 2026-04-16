@@ -794,3 +794,15 @@ html[data-theme="dark"] .DocSearch-Button-Keys kbd {
   color: #e2e8f0 !important;
   background: #334155 !important;
 }
+
+/* 1. Prevent the body from expanding beyond the device width */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* 2. Force inline code, links, and long text to wrap on mobile */
+:not(pre) > code, a {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
