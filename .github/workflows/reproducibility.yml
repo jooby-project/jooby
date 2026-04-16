@@ -1,0 +1,85 @@
+name: Reproducible Build Check
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Verify Deterministic Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'temurin'
+          cache: maven
+
+      - name: 📦 Install
+        run: mvn clean install -pl '!tests' -DskipTests -B --no-transfer-progress
+
+      - name: 🔍 Verify Reproducibility
+        run: mvn clean verify artifact:compare -pl '!tests' -DskipTests -B --no-transfer-progress
+
+      - name: 📊 Generate Visual Report
+        if: always()
+        run: |
+          echo "## 🔍 Reproducible Build Report" >> $GITHUB_STEP_SUMMARY
+
+          ALL_OK_FILES=""
+          ALL_KO_FILES=""
+          ALL_IGNORED_FILES=""
+
+          # Find all generated comparison files
+          COMPARE_FILES=$(find . -type f -name "*.buildcompare")
+
+          if [ -n "$COMPARE_FILES" ]; then
+            for COMPARE_FILE in $COMPARE_FILES; do
+              # Collect filenames instead of just summing the 'ok=' integers
+              OK_F=$(grep '^okFiles=' "$COMPARE_FILE" | cut -d'=' -f2 | tr -d '"')
+              KO_F=$(grep '^koFiles=' "$COMPARE_FILE" | cut -d'=' -f2 | tr -d '"')
+              IGN_F=$(grep '^ignoredFiles=' "$COMPARE_FILE" | cut -d'=' -f2 | tr -d '"')
+
+              ALL_OK_FILES="$ALL_OK_FILES $OK_F"
+              ALL_KO_FILES="$ALL_KO_FILES $KO_F"
+              ALL_IGNORED_FILES="$ALL_IGNORED_FILES $IGN_F"
+            done
+
+            # Calculate unique counts by splitting strings and using sort -u
+            TOTAL_OK=$(echo "$ALL_OK_FILES" | tr ' ' '\n' | grep -v '^$' | sort -u | wc -l)
+            TOTAL_KO=$(echo "$ALL_KO_FILES" | tr ' ' '\n' | grep -v '^$' | sort -u | wc -l)
+            TOTAL_IGNORED=$(echo "$ALL_IGNORED_FILES" | tr ' ' '\n' | grep -v '^$' | sort -u | wc -l)
+
+            # Identify unique failed files for the detailed report
+            UNIQUE_KO_FILES=$(echo "$ALL_KO_FILES" | tr ' ' '\n' | grep -v '^$' | sort -u)
+
+            # Draw the Markdown Table
+            echo "| Result | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ **OK** | **$TOTAL_OK** |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ **Failed (KO)** | **$TOTAL_KO** |" >> $GITHUB_STEP_SUMMARY
+            echo "| ⚠️ **Ignored** | **$TOTAL_IGNORED** |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Provide specific feedback
+            if [ "$TOTAL_KO" -gt 0 ]; then
+               echo "### 🚨 Reproducibility Drift Detected!" >> $GITHUB_STEP_SUMMARY
+               echo "The following files differ from the reference build:" >> $GITHUB_STEP_SUMMARY
+               echo "\`\`\`text" >> $GITHUB_STEP_SUMMARY
+               echo "$UNIQUE_KO_FILES" >> $GITHUB_STEP_SUMMARY
+               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            else
+               echo "### 🎉 100% Reproducible!" >> $GITHUB_STEP_SUMMARY
+               echo "The build is perfectly deterministic across all $TOTAL_OK artifacts." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ **Could not find any \`.buildcompare\` files.**" >> $GITHUB_STEP_SUMMARY
+          fi
