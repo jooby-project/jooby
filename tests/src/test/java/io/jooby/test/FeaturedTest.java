@@ -394,7 +394,14 @@ public class FeaturedTest {
                         int max = 532;
                         ResponseBody body = rsp.body();
                         long len = body.contentLength();
-                        assertTrue(len == min || len == max, "Content-Length:" + len);
+                        if (len == -1) {
+                          // etty 12's new compression architecture favors immediate streaming over
+                          // buffering. Because the server compresses the response on the fly,
+                          // it does not know the final compressed size of the file upfront.
+                          assertEquals("chunked", rsp.header("transfer-encoding"));
+                        } else {
+                          assertTrue(len == min || len == max, "Content-Length:" + len);
+                        }
                         assertEquals("gzip", rsp.header("content-encoding"));
                         assertEquals(text, ungzip(body.bytes()));
                       });

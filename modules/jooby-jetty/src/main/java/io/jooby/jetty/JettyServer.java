@@ -14,11 +14,11 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import org.eclipse.jetty.compression.server.CompressionHandler;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.DecoratedObjectFactory;
 import org.eclipse.jetty.util.compression.CompressionPool;
 import org.eclipse.jetty.util.compression.DeflaterPool;
@@ -248,7 +248,7 @@ public class JettyServer extends io.jooby.Server.Base {
 
       /* ********************************* Gzip *************************************/
       if (gzip) {
-        var gzipHandler = new GzipHandler();
+        var gzipHandler = new CompressionHandler();
         context.insertHandler(gzipHandler);
       }
       /* ********************************* WebSocket *************************************/

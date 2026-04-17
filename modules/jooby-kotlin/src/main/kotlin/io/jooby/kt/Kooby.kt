@@ -137,121 +137,101 @@ inline fun <T : Any> Context.query(klass: KClass<T>): T {
  * @author edgar
  * @since 2.0.0
  */
+@RouterDsl
+@OptionsDsl
 open class Kooby() : Jooby() {
 
   constructor(init: Kooby.() -> Unit) : this() {
     this.init()
   }
 
-  @RouterDsl
   fun use(handler: FilterContext.() -> Any): Kooby {
     super.use { next -> Route.Handler { ctx -> FilterContext(ctx, next).handler() } }
     return this
   }
 
-  @RouterDsl
   fun before(handler: HandlerContext.() -> Unit): Kooby {
     super.before { ctx -> HandlerContext(ctx).handler() }
     return this
   }
 
-  @RouterDsl
   fun after(handler: AfterContext.() -> Unit): Kooby {
     super.after { ctx, result, failure -> AfterContext(ctx, result, failure).handler() }
     return this
   }
 
-  @RouterDsl
   override fun path(pattern: String, action: Runnable): Set {
     return super.path(pattern, action)
   }
 
-  @RouterDsl
   override fun routes(action: Runnable): Set {
     return super.routes(action)
   }
 
-  @RouterDsl
   override fun get(pattern: String, handler: Route.Handler): Route {
     return super.get(pattern, handler)
   }
 
-  @RouterDsl
   fun get(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.GET, pattern, handler)
   }
 
-  @RouterDsl
   override fun post(pattern: String, handler: Route.Handler): Route {
     return super.post(pattern, handler)
   }
 
-  @RouterDsl
   fun post(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.POST, pattern, handler)
   }
 
-  @RouterDsl
   override fun put(pattern: String, handler: Route.Handler): Route {
     return super.put(pattern, handler)
   }
 
-  @RouterDsl
   fun put(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.PUT, pattern, handler)
   }
 
-  @RouterDsl
   override fun delete(pattern: String, handler: Route.Handler): Route {
     return super.delete(pattern, handler)
   }
 
-  @RouterDsl
   fun delete(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.DELETE, pattern, handler)
   }
 
-  @RouterDsl
   override fun patch(pattern: String, handler: Route.Handler): Route {
     return super.patch(pattern, handler)
   }
 
-  @RouterDsl
   fun patch(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.PATCH, pattern, handler)
   }
 
-  @RouterDsl
   override fun head(pattern: String, handler: Route.Handler): Route {
     return super.head(pattern, handler)
   }
 
-  @RouterDsl
   fun head(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.HEAD, pattern, handler)
   }
 
-  @RouterDsl
   override fun trace(pattern: String, handler: Route.Handler): Route {
     return super.trace(pattern, handler)
   }
 
-  @RouterDsl
   fun trace(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.TRACE, pattern, handler)
   }
 
-  @RouterDsl
   override fun options(pattern: String, handler: Route.Handler): Route {
     return super.options(pattern, handler)
   }
 
-  @RouterDsl
   fun options(pattern: String, handler: HandlerContext.() -> Any): Route {
     return route(Router.OPTIONS, pattern, handler)
   }
 
-  @RouterDsl
   fun coroutine(
     coroutineStart: CoroutineStart = CoroutineStart.DEFAULT,
     block: CoroutineRouter.() -> Unit,
@@ -268,33 +248,27 @@ open class Kooby() : Jooby() {
     return router
   }
 
-  @RouterDsl
   override fun route(method: String, pattern: String, handler: Route.Handler): Route {
     return super.route(method, pattern, handler)
   }
 
-  @RouterDsl
   fun route(method: String, pattern: String, handler: HandlerContext.() -> Any): Route {
     return super.route(method, pattern) { ctx -> handler(HandlerContext(ctx)) }
   }
 
-  @RouterDsl
   fun ws(pattern: String, handler: WebSocketInitContext.() -> Any): Route {
     return super.ws(pattern) { ctx, initializer -> handler(WebSocketInitContext(ctx, initializer)) }
   }
 
-  @RouterDsl
   fun sse(pattern: String, handler: ServerSentHandler.() -> Any): Route {
     return super.sse(pattern) { sse -> handler(ServerSentHandler(sse.context, sse)) }
   }
 
-  @OptionsDsl
   fun routerOptions(options: RouterOptions): Kooby {
     this.setRouterOptions(options)
     return this
   }
 
-  @OptionsDsl
   fun environmentOptions(configurer: EnvironmentOptions.() -> Unit): Environment {
     val options = EnvironmentOptions()
     configurer(options)
@@ -305,7 +279,6 @@ open class Kooby() : Jooby() {
 }
 
 /** cors: */
-@OptionsDsl
 fun cors(init: Cors.() -> Unit): Cors {
   val cors = Cors()
   cors.init()

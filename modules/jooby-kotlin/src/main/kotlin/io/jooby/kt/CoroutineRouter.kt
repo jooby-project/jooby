@@ -16,6 +16,16 @@ import kotlinx.coroutines.*
 internal class RouterCoroutineScope(override val coroutineContext: CoroutineContext) :
   CoroutineScope
 
+@DslMarker
+@Target(
+  AnnotationTarget.CLASS,
+  AnnotationTarget.TYPEALIAS,
+  AnnotationTarget.TYPE,
+  AnnotationTarget.FUNCTION,
+)
+annotation class CoroutineRouterDsl
+
+@CoroutineRouterDsl
 class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
 
   val coroutineScope: CoroutineScope by lazy {
@@ -39,7 +49,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
    * @param handler Error handler.
    * @return This router.
    */
-  @RouterDsl
   fun error(
     statusCode: StatusCode,
     handler: suspend ErrorHandlerContext.() -> Unit,
@@ -54,7 +63,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
    * @param handler Error handler.
    * @return This router.
    */
-  @RouterDsl
   fun error(
     type: KClass<Throwable>,
     handler: suspend ErrorHandlerContext.() -> Unit,
@@ -73,7 +81,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
    * @param handler Error handler.
    * @return This router.
    */
-  @RouterDsl
   fun error(
     predicate: Predicate<StatusCode>,
     handler: suspend ErrorHandlerContext.() -> Unit,
@@ -91,7 +98,6 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
    * @param handler Error handler.
    * @return This router.
    */
-  @RouterDsl
   fun error(handler: suspend ErrorHandlerContext.() -> Unit): CoroutineRouter {
     val chain =
       fun(
@@ -110,33 +116,25 @@ class CoroutineRouter(val coroutineStart: CoroutineStart, val router: Router) {
     return this
   }
 
-  @RouterDsl
   fun get(pattern: String, handler: suspend HandlerContext.() -> Any) = route(GET, pattern, handler)
 
-  @RouterDsl
   fun post(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(POST, pattern, handler)
 
-  @RouterDsl
   fun put(pattern: String, handler: suspend HandlerContext.() -> Any) = route(PUT, pattern, handler)
 
-  @RouterDsl
   fun delete(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(DELETE, pattern, handler)
 
-  @RouterDsl
   fun patch(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(PATCH, pattern, handler)
 
-  @RouterDsl
   fun head(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(HEAD, pattern, handler)
 
-  @RouterDsl
   fun trace(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(TRACE, pattern, handler)
 
-  @RouterDsl
   fun options(pattern: String, handler: suspend HandlerContext.() -> Any) =
     route(OPTIONS, pattern, handler)
 
