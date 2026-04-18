@@ -33,9 +33,79 @@ jobs:
         run: mvn -B install -P gradlePlugin --no-transfer-progress
         env:
           BUILD_LOG_LEVEL: 'ERROR'
-      - name: Tests
-        uses: mikepenz/action-junit-report@v5
+      - name: 📊 Test Report
         if: always()
-        with:
-          check_name: Test ${{ matrix.os }} ${{ matrix.java-version }}
-          report_paths: '*/target/*/TEST-*.xml'
+        run: |
+          echo "## 🧪 Test Summary (${{ matrix.os }} - Java ${{ matrix.java-version }})" >> $GITHUB_STEP_SUMMARY
+
+          # Use Python to safely parse the JUnit XML files and write to the summary
+          python3 -c '
+          import xml.etree.ElementTree as ET
+          import glob, os
+
+          # Find all JUnit XML reports
+          files = glob.glob("**/target/**/TEST-*.xml", recursive=True)
+
+          tests, failures, errors, skipped = 0, 0, 0, 0
+          failed_tests = set()
+          skipped_tests = set()
+
+          for f in files:
+              try:
+                  tree = ET.parse(f)
+                  root = tree.getroot()
+
+                  # Handle both <testsuite> and <testsuites> root elements
+                  suites = [root] if root.tag == "testsuite" else root.findall(".//testsuite")
+
+                  for suite in suites:
+                      tests += int(suite.attrib.get("tests", 0))
+                      failures += int(suite.attrib.get("failures", 0))
+                      errors += int(suite.attrib.get("errors", 0))
+                      skipped += int(suite.attrib.get("skipped", 0))
+
+                      # Collect names of failing and skipped tests
+                      for case in suite.findall("testcase"):
+                          if case.find("failure") is not None or case.find("error") is not None:
+                              # Strip the package path from the classname for a cleaner display
+                              cls = case.attrib.get("classname", "UnknownClass").split(".")[-1]
+                              name = case.attrib.get("name", "UnknownMethod")
+                              failed_tests.add(f"- `{cls}.{name}`")
+                          elif case.find("skipped") is not None:
+                              cls = case.attrib.get("classname", "UnknownClass").split(".")[-1]
+                              name = case.attrib.get("name", "UnknownMethod")
+                              skipped_tests.add(f"- `{cls}.{name}`")
+              except Exception as e:
+                  print(f"Error parsing {f}: {e}")
+
+          passed = tests - failures - errors - skipped
+          summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+
+          with open(summary_file, "a", encoding="utf-8") as f:
+              if not files:
+                  f.write("⚠️ **Could not find any `TEST-*.xml` files.**\n")
+              else:
+                  # Draw the Markdown Table
+                  f.write("| Result | Count |\n")
+                  f.write("|--------|-------|\n")
+                  f.write(f"| ✅ **Passed** | **{passed}** |\n")
+                  f.write(f"| ❌ **Failed/Errors** | **{failures + errors}** |\n")
+                  f.write(f"| ⚠️ **Skipped** | **{skipped}** |\n")
+                  f.write(f"| 📊 **Total Tests** | **{tests}** |\n\n")
+
+                  # Provide specific feedback for failures
+                  if failures > 0 or errors > 0:
+                      f.write("### 🚨 Test Failures Detected!\n")
+                      f.write("The following tests did not pass:\n")
+                      for test in sorted(failed_tests):
+                          f.write(f"{test}\n")
+                  else:
+                      f.write("### 🎉 100% Pass Rate!\n")
+                      f.write(f"The build is green across all {tests} tests.\n")
+
+                  # Provide specific feedback for skips
+                  if skipped > 0:
+                      f.write("\n### ⚠️ Skipped Tests\n")
+                      for test in sorted(skipped_tests):
+                          f.write(f"{test}\n")
+          '
