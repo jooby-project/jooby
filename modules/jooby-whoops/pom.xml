@@ -90,15 +90,10 @@
               <minimizeJar>true</minimizeJar>
               <artifactSet>
                 <includes>
-                  <!--                  <include>org.unbescape:unbescape</include>-->
                   <include>io.pebbletemplates:pebble</include>
                 </includes>
               </artifactSet>
               <relocations>
-                <!--                <relocation>-->
-                <!--                  <pattern>org.unbescape</pattern>-->
-                <!--                  <shadedPattern>io.jooby.internal.unbescape</shadedPattern>-->
-                <!--                </relocation>-->
                 <relocation>
                   <pattern>io.pebbletemplates.pebble</pattern>
                   <shadedPattern>io.jooby.internal.pebble</shadedPattern>
@@ -107,6 +102,17 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Automatic-Module-Name>io.jooby.whoops</Automatic-Module-Name>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
   </build>
