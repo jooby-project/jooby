@@ -31,6 +31,9 @@ import io.jooby.internal.graphql.GraphQLHandler;
  * <p>Usage:
  *
  * <pre>{@code
+ * // required:
+ * install(new Jackson2Module()); // or Jackson3Module, or AvajeJsonBModule, etc.
+ *
  * install(new GrapQLModule(graphQL));
  *
  * }</pre>
@@ -38,6 +41,8 @@ import io.jooby.internal.graphql.GraphQLHandler;
  * Module install a GET and POST route under <code>/graphql</code> path. Optionally, you can change
  * the route path by setting the <code>graphql.path</code> property in your application
  * configuration file.
+ *
+ * <p>NOTE: From 4.5.0 You must install a json module.
  *
  * @author edgar
  * @since 2.4.0

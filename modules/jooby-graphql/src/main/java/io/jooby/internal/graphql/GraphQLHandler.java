@@ -8,18 +8,15 @@ package io.jooby.internal.graphql;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
+import io.jooby.json.JsonDecoder;
 
 public class GraphQLHandler implements Route.Handler {
-  private static final Gson json = new GsonBuilder().create();
-
   protected GraphQL graphQL;
 
   public GraphQLHandler(GraphQL graphQL) {
@@ -36,6 +33,7 @@ public class GraphQLHandler implements Route.Handler {
     if (ctx.getMethod().equals(Router.POST)) {
       request = ctx.body(GraphQLRequest.class);
     } else {
+      var json = ctx.require(JsonDecoder.class);
       request = new GraphQLRequest();
       String query = ctx.query("query").value();
       String operationName = ctx.query("operationName").valueOrNull();
@@ -43,7 +41,7 @@ public class GraphQLHandler implements Route.Handler {
           ctx.query("variables")
               .toOptional()
               .filter(string -> !string.equals("{}"))
-              .map(str -> json.<Map<String, Object>>fromJson(str, Map.class))
+              .map(str -> json.<Map<String, Object>>decode(str, Map.class))
               .orElseGet(Collections::emptyMap);
       request.setOperationName(operationName);
       request.setQuery(query);
