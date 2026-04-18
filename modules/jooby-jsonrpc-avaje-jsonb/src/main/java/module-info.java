@@ -23,7 +23,7 @@ module io.jooby.jsonrpc.avaje.jsonb {
 
   requires io.jooby;
   requires io.jooby.jsonrpc;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
   requires io.avaje.jsonb;

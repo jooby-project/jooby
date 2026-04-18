@@ -54,7 +54,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 
 import com.google.common.base.Splitter;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.handlebars.HandlebarsModule;
 import io.jooby.handler.AccessLogHandler;
@@ -1042,13 +1041,11 @@ public class FeaturedTest {
             app -> {
               app.encoder(
                   io.jooby.MediaType.json,
-                  (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getOutputFactory().wrap("{" + value + "}"));
+                  (Context ctx, Object value) -> ctx.getOutputFactory().wrap("{" + value + "}"));
 
               app.encoder(
                   io.jooby.MediaType.xml,
-                  (@NonNull Context ctx, @NonNull Object value) ->
-                      ctx.getOutputFactory().wrap("<" + value + ">"));
+                  (Context ctx, Object value) -> ctx.getOutputFactory().wrap("<" + value + ">"));
 
               app.get(
                   "/defaults",

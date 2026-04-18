@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.TemplateLoader;
@@ -104,7 +103,7 @@ public class FreemarkerModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @NonNull Builder setTemplateLoader(@NonNull TemplateLoader loader) {
+    public Builder setTemplateLoader(TemplateLoader loader) {
       this.templateLoader = loader;
       return this;
     }
@@ -116,7 +115,7 @@ public class FreemarkerModule implements Extension {
      * @param value Optiona value.
      * @return This builder.
      */
-    public @NonNull Builder setSetting(@NonNull String name, @NonNull String value) {
+    public Builder setSetting(String name, String value) {
       this.settings.put(name, value);
       return this;
     }
@@ -127,7 +126,7 @@ public class FreemarkerModule implements Extension {
      * @param outputFormat Output format.
      * @return This builder.
      */
-    public @NonNull Builder setOutputFormat(@NonNull OutputFormat outputFormat) {
+    public Builder setOutputFormat(OutputFormat outputFormat) {
       this.outputFormat = outputFormat;
       return this;
     }
@@ -138,7 +137,7 @@ public class FreemarkerModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @NonNull Builder setTemplatesPath(@NonNull String templatesPath) {
+    public Builder setTemplatesPath(String templatesPath) {
       this.templatesPathString = templatesPath;
       return this;
     }
@@ -149,7 +148,7 @@ public class FreemarkerModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @NonNull Builder setTemplatesPath(@NonNull Path templatesPath) {
+    public Builder setTemplatesPath(Path templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -160,7 +159,7 @@ public class FreemarkerModule implements Extension {
      * @param env Application environment.
      * @return A new freemarker instance.
      */
-    public @NonNull Configuration build(@NonNull Environment env) {
+    public Configuration build(Environment env) {
       try {
         var freemarker = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
         freemarker.setOutputFormat(outputFormat);
@@ -237,7 +236,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param freemarker Freemarker to use.
    */
-  public FreemarkerModule(@NonNull Configuration freemarker) {
+  public FreemarkerModule(Configuration freemarker) {
     this.freemarker = freemarker;
   }
 
@@ -247,7 +246,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public FreemarkerModule(@NonNull String templatesPath) {
+  public FreemarkerModule(String templatesPath) {
     this.templatesPathString = templatesPath;
   }
 
@@ -256,7 +255,7 @@ public class FreemarkerModule implements Extension {
    *
    * @param templatesPath Template path.
    */
-  public FreemarkerModule(@NonNull Path templatesPath) {
+  public FreemarkerModule(Path templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -266,7 +265,7 @@ public class FreemarkerModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     if (freemarker == null) {
       freemarker =
           create()
@@ -285,7 +284,7 @@ public class FreemarkerModule implements Extension {
    *
    * @return A builder.
    */
-  public static @NonNull FreemarkerModule.Builder create() {
+  public static FreemarkerModule.Builder create() {
     return new FreemarkerModule.Builder();
   }
 }

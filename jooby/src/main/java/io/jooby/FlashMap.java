@@ -7,7 +7,6 @@ package io.jooby;
 
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.FlashMapImpl;
 
 /**
@@ -28,7 +27,7 @@ public interface FlashMap extends Map<String, String> {
    * @param template Cookie template.
    * @return A new flash map.
    */
-  static @NonNull FlashMap create(@NonNull Context ctx, @NonNull Cookie template) {
+  static FlashMap create(Context ctx, Cookie template) {
     return new FlashMapImpl(ctx, template);
   }
 
@@ -37,5 +36,5 @@ public interface FlashMap extends Map<String, String> {
    *
    * @return This flash map.
    */
-  @NonNull FlashMap keep();
+  FlashMap keep();
 }

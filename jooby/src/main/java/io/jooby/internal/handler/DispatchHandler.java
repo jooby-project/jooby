@@ -7,7 +7,6 @@ package io.jooby.internal.handler;
 
 import java.util.concurrent.Executor;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
 public class DispatchHandler implements Route.Filter {
@@ -17,8 +16,8 @@ public class DispatchHandler implements Route.Filter {
     this.executor = executor;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx ->
         ctx.dispatch(
             executor,

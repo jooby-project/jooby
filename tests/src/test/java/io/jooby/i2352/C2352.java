@@ -5,8 +5,9 @@
  */
 package io.jooby.i2352;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.annotation.FormParam;
 import io.jooby.annotation.POST;
 

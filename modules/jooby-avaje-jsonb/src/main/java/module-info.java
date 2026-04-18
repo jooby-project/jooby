@@ -8,6 +8,6 @@ module io.jooby.avaje.jsonb {
   exports io.jooby.avaje.jsonb;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires io.avaje.jsonb;
 }

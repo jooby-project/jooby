@@ -23,7 +23,7 @@ module io.jooby.jsonrpc.jackson3 {
 
   requires io.jooby;
   requires io.jooby.jsonrpc;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires tools.jackson.databind;
 }

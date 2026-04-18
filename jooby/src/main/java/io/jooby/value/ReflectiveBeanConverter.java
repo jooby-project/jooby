@@ -12,7 +12,6 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Consumer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.Usage;
@@ -90,7 +89,7 @@ public class ReflectiveBeanConverter implements Converter {
    *     and value is missing or null.
    */
   @Override
-  public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint)
+  public Object convert(Type type, Value value, ConversionHint hint)
       throws TypeMismatchException, ProvisioningException {
     var rawType = $Types.parameterizedType0(type);
     var allowEmptyBean = hint == ConversionHint.Empty;

@@ -5,11 +5,11 @@
  */
 package io.jooby.langchain4j;
 
+import org.jspecify.annotations.Nullable;
+
 import com.typesafe.config.Config;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Factory contract for creating LangChain4j chat models from Jooby configuration. Implementations
@@ -26,7 +26,7 @@ public interface ChatModelFactory {
    * @param config The configuration block for this model.
    * @return A non-null instance of a {@link ChatModel}.
    */
-  ChatModel createChatModel(@NonNull Config config);
+  ChatModel createChatModel(Config config);
 
   /**
    * Creates a streaming chat model. Returns {@code null} if the provider does not support
@@ -35,7 +35,7 @@ public interface ChatModelFactory {
    * @param config The configuration block for this model.
    * @return A {@link StreamingChatModel} or {@code null}.
    */
-  @Nullable default StreamingChatModel createStreamingModel(@NonNull Config config) {
+  @Nullable default StreamingChatModel createStreamingModel(Config config) {
     return null;
   }
 }

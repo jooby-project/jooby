@@ -9,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.whoops.Whoops;
@@ -43,7 +42,7 @@ public class WhoopsModule implements Extension {
    *
    * @param basedir Base dir.
    */
-  public WhoopsModule(@NonNull Path basedir) {
+  public WhoopsModule(Path basedir) {
     this.basedir = basedir;
   }
 
@@ -53,7 +52,7 @@ public class WhoopsModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     Config config = application.getConfig();
 
     boolean enabled =

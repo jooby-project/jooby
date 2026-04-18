@@ -1,3 +1,3 @@
 /** SSL support with conscrypt. */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.conscrypt;

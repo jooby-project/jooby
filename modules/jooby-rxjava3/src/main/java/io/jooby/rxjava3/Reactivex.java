@@ -8,7 +8,6 @@ package io.jooby.rxjava3;
 import static io.jooby.ReactiveSupport.newSubscriber;
 import static org.reactivestreams.FlowAdapters.toSubscriber;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.internal.rxjava3.RxObserver;
 import io.jooby.internal.rxjava3.RxSubscriber;
@@ -28,7 +27,7 @@ public class Reactivex {
   private static final Route.Filter RX =
       new Route.Reactive() {
         @Override
-        public Route.Handler apply(@NonNull Route.Handler next) {
+        public Route.Handler apply(Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
             if (ctx.isResponseStarted()) {

@@ -5,7 +5,8 @@
  */
 package tests.i3864;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.annotation.jsonrpc.JsonRpc;
 
 @JsonRpc

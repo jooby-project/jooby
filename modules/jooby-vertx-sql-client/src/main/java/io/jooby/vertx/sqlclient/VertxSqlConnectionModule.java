@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.typesafe.config.ConfigValueType;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.vertx.sqlclient.VertxPreparedQueryProxy;
 import io.jooby.internal.vertx.sqlclient.VertxPreparedQueryProxyList;
@@ -42,13 +41,13 @@ public abstract class VertxSqlConnectionModule implements Extension {
     this("db");
   }
 
-  public VertxSqlConnectionModule prepare(@NonNull Map<String, List<String>> statements) {
+  public VertxSqlConnectionModule prepare(Map<String, List<String>> statements) {
     preparedStatements = statements;
     return this;
   }
 
   @Override
-  public final void install(@NonNull Jooby application) throws Exception {
+  public final void install(Jooby application) throws Exception {
     var registry = application.getServices();
     var config = application.getConfig();
     var configOptions = config.getValue(name);

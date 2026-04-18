@@ -8,8 +8,8 @@ package io.jooby.internal;
 import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.DefaultContext;
@@ -24,28 +24,28 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
 
     private final Body body;
 
-    public WebSocketMessageBody(@NonNull Context context, Body body) {
+    public WebSocketMessageBody(Context context, Body body) {
       super(context);
       this.body = body;
     }
 
-    @NonNull @Override
+    @Override
     public Body body() {
       return body;
     }
 
-    @NonNull @Override
-    public <T> T body(@NonNull Type type) {
+    @Override
+    public <T> T body(Type type) {
       return body.to(type);
     }
 
-    @NonNull @Override
-    public <T> T body(@NonNull Class<T> type) {
+    @Override
+    public <T> T body(Class<T> type) {
       return body.to(type);
     }
 
-    @NonNull @Override
-    public <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
+    @Override
+    public <T> T decode(Type type, MediaType contentType) {
       return DefaultContext.super.decode(type, contentType);
     }
   }
@@ -54,34 +54,34 @@ public class WebSocketMessageImpl extends ByteArrayBody implements WebSocketMess
     super(ctx, bytes);
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Type type) {
+  @Override
+  public <T> T to(Type type) {
     MediaType contentType = ctx.getRoute().getConsumes().get(0);
     return new WebSocketMessageBody(ctx, this).decode(type, contentType);
   }
 
   @Override
-  public Value get(@NonNull String name) {
+  public Value get(String name) {
     return new MissingValue(ctx.getValueFactory(), name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Type type) {
+  public <T> T toNullable(Type type) {
     return this.to(type);
   }
 
   @Override
-  @NonNull public byte[] bytes() {
+  public byte[] bytes() {
     return super.bytes();
   }
 
   @Override
-  public @NonNull ByteBuffer byteBuffer() {
+  public ByteBuffer byteBuffer() {
     return ByteBuffer.wrap(bytes());
   }
 }

@@ -5,7 +5,6 @@
  */
 package io.jooby.trpc.jackson3;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.trpc.jackson3.JacksonTrpcParser;
@@ -39,7 +38,7 @@ import tools.jackson.databind.module.SimpleModule;
  */
 public class TrpcJackson3Module implements Extension {
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     var services = application.getServices();
     // tRPC error codes
     services

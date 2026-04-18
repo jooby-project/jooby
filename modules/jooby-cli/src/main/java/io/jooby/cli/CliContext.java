@@ -11,8 +11,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Map;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Provides an execution context for application commands as well as utility methods for read and
  * writing to the console.
@@ -35,8 +33,7 @@ public interface CliContext {
    * @param file Output file.
    * @throws IOException If something goes wrong.
    */
-  void writeTemplate(@NonNull String template, @NonNull Object model, @NonNull Path file)
-      throws IOException;
+  void writeTemplate(String template, Object model, Path file) throws IOException;
 
   /**
    * Copy a classpath resource to a file.
@@ -45,7 +42,7 @@ public interface CliContext {
    * @param dest Destination file.
    * @throws IOException If something goes wrong.
    */
-  void copyResource(@NonNull String source, @NonNull Path dest) throws IOException;
+  void copyResource(String source, Path dest) throws IOException;
 
   /**
    * Copy a classpath resource to a file.
@@ -55,8 +52,7 @@ public interface CliContext {
    * @param permissions File permissions.
    * @throws IOException If something goes wrong.
    */
-  void copyResource(
-      @NonNull String source, @NonNull Path dest, @NonNull Set<PosixFilePermission> permissions)
+  void copyResource(String source, Path dest, Set<PosixFilePermission> permissions)
       throws IOException;
 
   /**
@@ -77,28 +73,28 @@ public interface CliContext {
    * @param prompt User prompt.
    * @return Input value.
    */
-  @NonNull String readLine(@NonNull String prompt);
+  String readLine(String prompt);
 
   /**
    * Write a message to console.
    *
    * @param message Message.
    */
-  void println(@NonNull String message);
+  void println(String message);
 
   /**
    * Jooby version to use.
    *
    * @return Jooby version to use.
    */
-  @NonNull String getVersion();
+  String getVersion();
 
   /**
    * Working directory (where the projects are created).
    *
    * @return Working directory (where the projects are created).
    */
-  @NonNull Path getWorkspace();
+  Path getWorkspace();
 
   /**
    * Set workspace/working directory.
@@ -106,5 +102,5 @@ public interface CliContext {
    * @param workspace Workspace/working directory.
    * @throws IOException When directory doesn't exist.
    */
-  void setWorkspace(@NonNull Path workspace) throws IOException;
+  void setWorkspace(Path workspace) throws IOException;
 }

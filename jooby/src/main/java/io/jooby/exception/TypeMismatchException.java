@@ -7,7 +7,6 @@ package io.jooby.exception;
 
 import java.lang.reflect.Type;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.problem.HttpProblem;
 
 /**
@@ -27,7 +26,7 @@ public class TypeMismatchException extends BadRequestException {
    * @param type Parameter/attribute type.
    * @param cause Cause.
    */
-  public TypeMismatchException(@NonNull String name, @NonNull Type type, @NonNull Throwable cause) {
+  public TypeMismatchException(String name, Type type, Throwable cause) {
     super("Cannot convert value: '" + name + "', to: '" + type.getTypeName() + "'", cause);
     this.name = name;
   }
@@ -38,7 +37,7 @@ public class TypeMismatchException extends BadRequestException {
    * @param name Parameter/attribute name.
    * @param type Parameter/attribute type.
    */
-  public TypeMismatchException(@NonNull String name, @NonNull Type type) {
+  public TypeMismatchException(String name, Type type) {
     this(name, type, null);
   }
 
@@ -47,12 +46,12 @@ public class TypeMismatchException extends BadRequestException {
    *
    * @return Parameter/attribute name.
    */
-  public @NonNull String getName() {
+  public String getName() {
     return name;
   }
 
   @Override
-  public @NonNull HttpProblem toHttpProblem() {
+  public HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode, "Type Mismatch", getMessage());
   }
 }

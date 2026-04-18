@@ -17,7 +17,6 @@ import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -38,7 +37,7 @@ public class JoobyModule extends AbstractModule {
    *
    * @param application Jooby application.
    */
-  public JoobyModule(@NonNull Jooby application) {
+  public JoobyModule(Jooby application) {
     this.application = application;
   }
 

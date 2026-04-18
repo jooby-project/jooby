@@ -14,7 +14,6 @@ import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -75,7 +74,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
    *
    * @param gson Gson to use.
    */
-  public GsonModule(@NonNull Gson gson) {
+  public GsonModule(Gson gson) {
     this.gson = gson;
   }
 
@@ -85,7 +84,7 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -93,8 +92,8 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     services.put(Gson.class, gson);
   }
 
-  @NonNull @Override
-  public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
+  @Override
+  public Object decode(Context ctx, Type type) throws Exception {
     var body = ctx.body();
     if (body.isInMemory()) {
       return gson.fromJson(
@@ -106,8 +105,8 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
     }
   }
 
-  @NonNull @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+  @Override
+  public Output encode(Context ctx, Object value) {
     var buffer = ctx.getOutputFactory().allocate();
     ctx.setDefaultResponseType(MediaType.json);
     gson.toJson(value, buffer.asWriter());

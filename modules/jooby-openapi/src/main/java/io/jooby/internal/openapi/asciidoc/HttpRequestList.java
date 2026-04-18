@@ -12,17 +12,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 @JsonIncludeProperties({"operations"})
 public record HttpRequestList(AsciiDocContext context, List<HttpRequest> operations)
     implements Iterable<HttpRequest>, ToAsciiDoc {
-  @NonNull @Override
+  @Override
   public Iterator<HttpRequest> iterator() {
     return operations.iterator();
   }
 
-  @NonNull @Override
+  @Override
   public String toString() {
     return operations.toString();
   }

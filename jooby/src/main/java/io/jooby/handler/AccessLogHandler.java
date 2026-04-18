@@ -20,7 +20,6 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 
@@ -185,7 +184,7 @@ public class AccessLogHandler implements Route.Filter {
    *
    * @param userId User ID provider.
    */
-  public AccessLogHandler(@NonNull Function<Context, String> userId) {
+  public AccessLogHandler(Function<Context, String> userId) {
     this.userId = requireNonNull(userId, "User ID provider required.");
     dateFormatter(FORMATTER);
   }
@@ -195,8 +194,8 @@ public class AccessLogHandler implements Route.Filter {
     this(USER_OR_DASH);
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     long timestamp = System.currentTimeMillis();
     return ctx -> {
       // Take remote address here (less chances of loosing it on interrupted requests).
@@ -258,7 +257,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param log Log callback.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler log(@NonNull Consumer<String> log) {
+  public AccessLogHandler log(Consumer<String> log) {
     this.logRecord = requireNonNull(log, "Consumer is required.");
     return this;
   }
@@ -269,7 +268,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param formatter New formatter to use.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler dateFormatter(@NonNull DateTimeFormatter formatter) {
+  public AccessLogHandler dateFormatter(DateTimeFormatter formatter) {
     return dateFormatter(ts -> formatter.format(Instant.ofEpochMilli(ts)));
   }
 
@@ -279,7 +278,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param formatter New formatter to use.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler dateFormatter(final Function<Long, String> formatter) {
+  public AccessLogHandler dateFormatter(final Function<Long, String> formatter) {
     requireNonNull(formatter, "Formatter required.");
     this.df = formatter;
     return this;
@@ -291,7 +290,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param zoneId Zone id.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler dateFormatter(@NonNull ZoneId zoneId) {
+  public AccessLogHandler dateFormatter(ZoneId zoneId) {
     return dateFormatter(FORMATTER.withZone(zoneId));
   }
 
@@ -300,7 +299,7 @@ public class AccessLogHandler implements Route.Filter {
    *
    * @return This instance.
    */
-  public @NonNull AccessLogHandler extended() {
+  public AccessLogHandler extended() {
     return requestHeader(USER_AGENT, REFERER);
   }
 
@@ -310,7 +309,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param names Header names.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler requestHeader(@NonNull String... names) {
+  public AccessLogHandler requestHeader(String... names) {
     this.requestHeaders = Arrays.asList(names);
     return this;
   }
@@ -321,7 +320,7 @@ public class AccessLogHandler implements Route.Filter {
    * @param names Header names.
    * @return This instance.
    */
-  public @NonNull AccessLogHandler responseHeader(@NonNull String... names) {
+  public AccessLogHandler responseHeader(String... names) {
     this.responseHeaders = Arrays.asList(names);
     return this;
   }

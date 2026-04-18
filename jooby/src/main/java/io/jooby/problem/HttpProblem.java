@@ -9,7 +9,8 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.StatusCode;
 
 /**

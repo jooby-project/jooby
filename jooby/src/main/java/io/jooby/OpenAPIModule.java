@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.handler.Asset;
 import io.jooby.handler.AssetSource;
@@ -94,7 +94,7 @@ public class OpenAPIModule implements Extension {
     }
 
     @Nullable @Override
-    public Asset resolve(@NonNull String path) {
+    public Asset resolve(String path) {
       return assets.get(path);
     }
   }
@@ -113,7 +113,7 @@ public class OpenAPIModule implements Extension {
      * @param filePath File name.
      * @return File format.
      */
-    public static Format from(@NonNull String filePath) {
+    public static Format from(String filePath) {
       for (Format value : values()) {
         if (filePath.endsWith("." + value.name().toLowerCase())) {
           return value;
@@ -141,7 +141,7 @@ public class OpenAPIModule implements Extension {
    *
    * @param path Custom path to use.
    */
-  public OpenAPIModule(@NonNull String path) {
+  public OpenAPIModule(String path) {
     this.openAPIPath = Router.normalizePath(path);
   }
 
@@ -160,7 +160,7 @@ public class OpenAPIModule implements Extension {
    * @param path Path.
    * @return This module.
    */
-  public @NonNull OpenAPIModule file(@NonNull String path) {
+  public OpenAPIModule file(String path) {
     customFiles.add(path);
     return this;
   }
@@ -172,7 +172,7 @@ public class OpenAPIModule implements Extension {
    * @param contextPath Context path/Path prefix.
    * @return This module.
    */
-  public @NonNull OpenAPIModule contextPath(@NonNull String contextPath) {
+  public OpenAPIModule contextPath(String contextPath) {
     this.contextPath = contextPath;
     return this;
   }
@@ -183,7 +183,7 @@ public class OpenAPIModule implements Extension {
    * @param path Swagger-ui path.
    * @return This module.
    */
-  public @NonNull OpenAPIModule swaggerUI(@NonNull String path) {
+  public OpenAPIModule swaggerUI(String path) {
     this.swaggerUIPath = Router.normalizePath(path);
     return this;
   }
@@ -194,7 +194,7 @@ public class OpenAPIModule implements Extension {
    * @param path Redoc path.
    * @return This module.
    */
-  public @NonNull OpenAPIModule redoc(@NonNull String path) {
+  public OpenAPIModule redoc(String path) {
     this.redocPath = Router.normalizePath(path);
     return this;
   }
@@ -207,13 +207,13 @@ public class OpenAPIModule implements Extension {
    * @param format Supported formats.
    * @return This module.
    */
-  public @NonNull OpenAPIModule format(@NonNull Format... format) {
+  public OpenAPIModule format(Format... format) {
     this.format = EnumSet.copyOf(Arrays.asList(format));
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var filePaths = computeOpenAPIFiles(application);
 
     /*

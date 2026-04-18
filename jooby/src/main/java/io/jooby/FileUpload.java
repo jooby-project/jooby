@@ -8,8 +8,7 @@ package io.jooby;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * File upload class, file upload are available when request body is encoded as {@link
@@ -37,14 +36,14 @@ public interface FileUpload extends java.io.Closeable {
    *
    * @return File key. That's the field form name, not the file name.
    */
-  @NonNull String getName();
+  String getName();
 
   /**
    * Name of file upload.
    *
    * @return Name of file upload.
    */
-  @NonNull String getFileName();
+  String getFileName();
 
   /**
    * Content type of file upload.
@@ -58,21 +57,21 @@ public interface FileUpload extends java.io.Closeable {
    *
    * @return Content as input stream.
    */
-  @NonNull InputStream stream();
+  InputStream stream();
 
   /**
    * Content as byte array.
    *
    * @return Content as byte array.
    */
-  @NonNull byte[] bytes();
+  byte[] bytes();
 
   /**
    * File system path to access file content.
    *
    * @return File system path to access file content.
    */
-  @NonNull Path path();
+  Path path();
 
   /**
    * File size or <code>-1</code> when unknown.

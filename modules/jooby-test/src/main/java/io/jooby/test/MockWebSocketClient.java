@@ -8,8 +8,8 @@ package io.jooby.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocketCloseStatus;
 
@@ -41,7 +41,7 @@ public class MockWebSocketClient {
    * @param message Message.
    * @return This client.
    */
-  public MockWebSocketClient send(@NonNull Object message) {
+  public MockWebSocketClient send(Object message) {
     if (isOpen()) {
       configurer.fireOnMessage(message);
     } else {

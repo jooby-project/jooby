@@ -10,7 +10,6 @@ import static io.jooby.SneakyThrows.throwingConsumer;
 import java.util.Collections;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import freemarker.template.*;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
@@ -27,7 +26,7 @@ class FreemarkerTemplateEngine implements TemplateEngine {
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
-  @NonNull @Override
+  @Override
   public List<String> extensions() {
     return extensions;
   }

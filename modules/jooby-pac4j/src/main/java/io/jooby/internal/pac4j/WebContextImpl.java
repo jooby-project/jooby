@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import org.pac4j.core.context.Cookie;
 import org.pac4j.core.context.session.SessionStore;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SameSite;
 import io.jooby.pac4j.Pac4jContext;
@@ -35,7 +34,7 @@ public class WebContextImpl implements Pac4jContext {
   }
 
   @Override
-  public @NonNull Context getContext() {
+  public Context getContext() {
     return context;
   }
 
@@ -157,7 +156,7 @@ public class WebContextImpl implements Pac4jContext {
     return context.getRequestPath();
   }
 
-  @NonNull @Override
+  @Override
   public SessionStore getSessionStore() {
     return sessionStore;
   }

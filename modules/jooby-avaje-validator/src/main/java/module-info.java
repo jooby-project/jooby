@@ -8,7 +8,7 @@ module io.jooby.avaje.validator {
   exports io.jooby.avaje.validator;
 
   requires transitive io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires transitive io.avaje.validation;
   requires org.slf4j;

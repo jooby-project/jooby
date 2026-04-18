@@ -5,8 +5,8 @@
  */
 package io.jooby.jstachio;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Environment;
 import io.jstach.jstachio.spi.JStachioConfig;
 
@@ -18,7 +18,7 @@ class JoobyJStachioConfig implements JStachioConfig {
   }
 
   @Override
-  public @Nullable String getProperty(@NonNull String key) {
+  public @Nullable String getProperty(String key) {
     return environment.getProperty(key);
   }
 }

@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Router options:
  *
@@ -302,7 +300,7 @@ public class RouterOptions {
    * @param trustProxy True to enable.
    * @return This options.
    */
-  @NonNull public RouterOptions setTrustProxy(boolean trustProxy) {
+  public RouterOptions setTrustProxy(boolean trustProxy) {
     this.trustProxy = trustProxy;
     return this;
   }

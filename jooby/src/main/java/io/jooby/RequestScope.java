@@ -8,8 +8,7 @@ package io.jooby;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Thread-Local request scope implementation useful for save/store request attribute and access to
@@ -31,7 +30,7 @@ public final class RequestScope {
    * @param key The key against which to check for a given value within the current thread.
    * @return True if there is currently a session bound.
    */
-  public static boolean hasBind(@NonNull Object key) {
+  public static boolean hasBind(Object key) {
     return get(key) != null;
   }
 
@@ -43,7 +42,7 @@ public final class RequestScope {
    * @param <T> Bind type.
    * @return Any previously bound session (should be null in most cases).
    */
-  public static @Nullable <T> T bind(@NonNull Object key, @NonNull T value) {
+  public static @Nullable <T> T bind(Object key, T value) {
     return (T) threadMap(true).put(key, value);
   }
 
@@ -54,7 +53,7 @@ public final class RequestScope {
    * @param <T> Bind type.
    * @return The bound session if one, else null.
    */
-  public static @Nullable <T> T unbind(@NonNull Object key) {
+  public static @Nullable <T> T unbind(Object key) {
     var contextMap = threadMap();
     T existing = null;
     if (contextMap != null) {
@@ -71,7 +70,7 @@ public final class RequestScope {
    * @param <T> Object type.
    * @return Binded value or <code>null</code>.
    */
-  public static @Nullable <T> T get(@NonNull Object key) {
+  public static @Nullable <T> T get(Object key) {
     var contextMap = threadMap();
     if (contextMap == null) {
       return null;

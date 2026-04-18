@@ -7,7 +7,6 @@ package io.jooby.mcp;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StartupException;
@@ -98,7 +97,7 @@ public class McpInspectorModule implements Extension {
   private McpServerConfig mcpSrvConfig;
   private String indexHtml;
 
-  public McpInspectorModule path(@NonNull String inspectorEndpoint) {
+  public McpInspectorModule path(String inspectorEndpoint) {
     this.inspectorEndpoint = inspectorEndpoint;
     return this;
   }
@@ -108,13 +107,13 @@ public class McpInspectorModule implements Extension {
     return this;
   }
 
-  public McpInspectorModule defaultServer(@NonNull String mcpServerName) {
+  public McpInspectorModule defaultServer(String mcpServerName) {
     this.defaultServer = mcpServerName;
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby app) {
+  public void install(Jooby app) {
     this.indexHtml = buildIndexHtml();
     this.mcpSrvConfig = resolveMcpServerConfig(app);
 

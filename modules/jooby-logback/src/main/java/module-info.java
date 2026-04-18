@@ -6,7 +6,7 @@ module io.jooby.logback {
   exports io.jooby.logback;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires org.slf4j;
   requires ch.qos.logback.classic;
 

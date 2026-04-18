@@ -9,8 +9,8 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.exception.RegistryException;
 import jakarta.inject.Provider;
 
@@ -141,7 +141,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default <T> T get(@NonNull ServiceKey<T> key) {
+  default <T> T get(ServiceKey<T> key) {
     T service = getOrNull(key);
     if (service == null) {
       throw new RegistryException("Service not found: " + key);
@@ -157,7 +157,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default <T> T get(@NonNull Class<T> type) {
+  default <T> T get(Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
@@ -169,7 +169,7 @@ public interface ServiceRegistry extends Registry {
    * @return Service.
    * @throws RegistryException If there was a runtime failure while providing an instance.
    */
-  default <T> T get(@NonNull Reified<T> type) {
+  default <T> T get(Reified<T> type) {
     return get(ServiceKey.key(type));
   }
 
@@ -180,7 +180,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service/resource type.
    * @return Service or <code>null</code>.
    */
-  default @Nullable <T> T getOrNull(@NonNull Reified<T> type) {
+  default @Nullable <T> T getOrNull(Reified<T> type) {
     return getOrNull(ServiceKey.key(type));
   }
 
@@ -191,7 +191,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service/resource type.
    * @return Service or <code>null</code>.
    */
-  default @Nullable <T> T getOrNull(@NonNull Class<T> type) {
+  default @Nullable <T> T getOrNull(Class<T> type) {
     return getOrNull(ServiceKey.key(type));
   }
 
@@ -202,7 +202,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service/resource type.
    * @return Service or <code>null</code>.
    */
-  @Nullable <T> T getOrNull(@NonNull ServiceKey<T> key);
+  @Nullable <T> T getOrNull(ServiceKey<T> key);
 
   /**
    * List binder. You can gradually add service of the same type and retrieve them all as list.
@@ -211,7 +211,7 @@ public interface ServiceRegistry extends Registry {
    * @return A new list binder.
    * @param <T> Service type.
    */
-  default <T> MultiBinder<T> listOf(@NonNull Class<T> type) {
+  default <T> MultiBinder<T> listOf(Class<T> type) {
     return multiBinder(Reified.list(type), MultiBinder.list());
   }
 
@@ -222,7 +222,7 @@ public interface ServiceRegistry extends Registry {
    * @return A new list binder.
    * @param <T> Service type.
    */
-  default <T> MultiBinder<T> listOf(@NonNull Reified<T> type) {
+  default <T> MultiBinder<T> listOf(Reified<T> type) {
     return multiBinder(Reified.list(type.getType()), MultiBinder.list());
   }
 
@@ -233,7 +233,7 @@ public interface ServiceRegistry extends Registry {
    * @return A new set binder.
    * @param <T> Service type.
    */
-  default <T> MultiBinder<T> setOf(@NonNull Class<T> type) {
+  default <T> MultiBinder<T> setOf(Class<T> type) {
     return multiBinder(Reified.set(type), MultiBinder.set());
   }
 
@@ -244,7 +244,7 @@ public interface ServiceRegistry extends Registry {
    * @return A new set binder.
    * @param <T> Service type.
    */
-  default <T> MultiBinder<T> setOf(@NonNull Reified<T> type) {
+  default <T> MultiBinder<T> setOf(Reified<T> type) {
     return multiBinder(Reified.set(type.getType()), MultiBinder.set());
   }
 
@@ -257,7 +257,7 @@ public interface ServiceRegistry extends Registry {
    * @param <K> Key type.
    * @param <V> Service type.
    */
-  default <K, V> MapBinder<K, V> mapOf(@NonNull Class<K> keyType, @NonNull Class<V> valueType) {
+  default <K, V> MapBinder<K, V> mapOf(Class<K> keyType, Class<V> valueType) {
     return multiBinder(Reified.map(keyType, valueType), new MapBinder<>());
   }
 
@@ -270,12 +270,12 @@ public interface ServiceRegistry extends Registry {
    * @param <K> Key type.
    * @param <V> Service type.
    */
-  default <K, V> MapBinder<K, V> mapOf(@NonNull Class<K> keyType, @NonNull Reified<V> valueType) {
+  default <K, V> MapBinder<K, V> mapOf(Class<K> keyType, Reified<V> valueType) {
     return multiBinder(Reified.map(keyType, valueType.getType()), new MapBinder<>());
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  private <P extends Provider> P multiBinder(@NonNull Reified reified, @NonNull P multibinder) {
+  private <P extends Provider> P multiBinder(Reified reified, P multibinder) {
     ServiceKey<?> key = ServiceKey.key(reified);
     var existing = putIfAbsent(key, multibinder);
     if (existing != null) {
@@ -296,7 +296,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T put(@NonNull Class<T> type, Provider<T> service) {
+  default @Nullable <T> T put(Class<T> type, Provider<T> service) {
     return put(ServiceKey.key(type), service);
   }
 
@@ -308,7 +308,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T put(@NonNull ServiceKey<T> key, Provider<T> service);
+  @Nullable <T> T put(ServiceKey<T> key, Provider<T> service);
 
   /**
    * Put a service in this registry. This method overrides any previous registered service.
@@ -318,7 +318,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T put(@NonNull Class<T> type, T service) {
+  default @Nullable <T> T put(Class<T> type, T service) {
     return put(ServiceKey.key(type), service);
   }
 
@@ -330,7 +330,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T put(@NonNull ServiceKey<T> key, T service);
+  @Nullable <T> T put(ServiceKey<T> key, T service);
 
   /**
    * If the specified key is not already associated with a service (or is mapped to null) associates
@@ -341,7 +341,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T putIfAbsent(@NonNull ServiceKey<T> key, T service);
+  @Nullable <T> T putIfAbsent(ServiceKey<T> key, T service);
 
   /**
    * If the specified key is not already associated with a service (or is mapped to null) associates
@@ -352,7 +352,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@NonNull Class<T> type, T service) {
+  default @Nullable <T> T putIfAbsent(Class<T> type, T service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
@@ -365,7 +365,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@NonNull Class<T> type, Provider<T> service) {
+  default @Nullable <T> T putIfAbsent(Class<T> type, Provider<T> service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
@@ -378,7 +378,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@NonNull Reified<T> type, T service) {
+  default @Nullable <T> T putIfAbsent(Reified<T> type, T service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
@@ -391,7 +391,7 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  default @Nullable <T> T putIfAbsent(@NonNull Reified<T> type, Provider<T> service) {
+  default @Nullable <T> T putIfAbsent(Reified<T> type, Provider<T> service) {
     return putIfAbsent(ServiceKey.key(type), service);
   }
 
@@ -404,27 +404,27 @@ public interface ServiceRegistry extends Registry {
    * @param <T> Service type.
    * @return Previously registered service or <code>null</code>.
    */
-  @Nullable <T> T putIfAbsent(@NonNull ServiceKey<T> key, Provider<T> service);
+  @Nullable <T> T putIfAbsent(ServiceKey<T> key, Provider<T> service);
 
-  default @Override <T> T require(@NonNull Class<T> type) {
+  default @Override <T> T require(Class<T> type) {
     return get(ServiceKey.key(type));
   }
 
-  default @Override <T> T require(@NonNull Class<T> type, @NonNull String name) {
+  default @Override <T> T require(Class<T> type, String name) {
     return get(ServiceKey.key(type, name));
   }
 
-  default @Override <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  default @Override <T> T require(ServiceKey<T> key) throws RegistryException {
     return get(key);
   }
 
-  @NonNull @Override
-  default <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+  @Override
+  default <T> T require(Reified<T> type, String name) throws RegistryException {
     return get(ServiceKey.key(type, name));
   }
 
-  @NonNull @Override
-  default <T> T require(@NonNull Reified<T> type) throws RegistryException {
+  @Override
+  default <T> T require(Reified<T> type) throws RegistryException {
     return get(ServiceKey.key(type));
   }
 }

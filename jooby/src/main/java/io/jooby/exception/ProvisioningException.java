@@ -11,8 +11,7 @@ import java.lang.reflect.Parameter;
 import java.util.StringJoiner;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Provisioning exception, throws by MVC routes when parameter binding fails.
@@ -28,7 +27,7 @@ public class ProvisioningException extends BadRequestException {
    * @param parameter Failing parameter.
    * @param cause Cause. Nullable.
    */
-  public ProvisioningException(@NonNull Parameter parameter, @Nullable Throwable cause) {
+  public ProvisioningException(Parameter parameter, @Nullable Throwable cause) {
     this(
         "Unable to provision parameter: '"
             + toString(parameter)
@@ -43,7 +42,7 @@ public class ProvisioningException extends BadRequestException {
    * @param message Error message.
    * @param cause Cause.
    */
-  public ProvisioningException(@NonNull String message, @Nullable Throwable cause) {
+  public ProvisioningException(String message, @Nullable Throwable cause) {
     super(message, cause);
   }
 
@@ -53,7 +52,7 @@ public class ProvisioningException extends BadRequestException {
    * @param parameter Parameter.
    * @return Description.
    */
-  public static String toString(@NonNull Parameter parameter) {
+  public static String toString(Parameter parameter) {
     return parameter.getName() + ": " + parameter.getParameterizedType();
   }
 
@@ -63,7 +62,7 @@ public class ProvisioningException extends BadRequestException {
    * @param method Parameter.
    * @return Description.
    */
-  public static String toString(@NonNull Executable method) {
+  public static String toString(Executable method) {
     StringBuilder buff = new StringBuilder();
     if (method instanceof Constructor) {
       buff.append("constructor ");

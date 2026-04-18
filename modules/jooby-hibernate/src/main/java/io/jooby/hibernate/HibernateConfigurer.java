@@ -12,7 +12,6 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Allow to customize Hibernate bootstrap components.
@@ -31,7 +30,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@NonNull BootstrapServiceRegistryBuilder builder, @NonNull Config config) {}
+  public void configure(BootstrapServiceRegistryBuilder builder, Config config) {}
 
   /**
    * Hook into service registry and customize it.
@@ -39,7 +38,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@NonNull StandardServiceRegistryBuilder builder, @NonNull Config config) {}
+  public void configure(StandardServiceRegistryBuilder builder, Config config) {}
 
   /**
    * Hook into metadata sources and customize it.
@@ -47,7 +46,7 @@ public class HibernateConfigurer {
    * @param sources Sources.
    * @param config Configuration.
    */
-  public void configure(@NonNull MetadataSources sources, @NonNull Config config) {}
+  public void configure(MetadataSources sources, Config config) {}
 
   /**
    * Hook into metadata builder and customize it.
@@ -55,7 +54,7 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@NonNull MetadataBuilder builder, @NonNull Config config) {}
+  public void configure(MetadataBuilder builder, Config config) {}
 
   /**
    * Hook into SessionFactory creation and customize it.
@@ -63,5 +62,5 @@ public class HibernateConfigurer {
    * @param builder Builder.
    * @param config Configuration.
    */
-  public void configure(@NonNull SessionFactoryBuilder builder, @NonNull Config config) {}
+  public void configure(SessionFactoryBuilder builder, Config config) {}
 }

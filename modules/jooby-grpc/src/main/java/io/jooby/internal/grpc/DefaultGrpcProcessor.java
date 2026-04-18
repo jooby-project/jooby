@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.CallOptions;
 import io.grpc.ManagedChannel;
 import io.grpc.MethodDescriptor;
@@ -69,7 +68,7 @@ public class DefaultGrpcProcessor implements GrpcProcessor {
   }
 
   @Override
-  public @NonNull Flow.Subscriber<ByteBuffer> process(@NonNull GrpcExchange exchange) {
+  public Flow.Subscriber<ByteBuffer> process(GrpcExchange exchange) {
     // Route paths: /{package.Service}/{Method}
     String path = exchange.getRequestPath();
     // Remove the leading slash to match the gRPC method registry format

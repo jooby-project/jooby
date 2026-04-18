@@ -22,7 +22,6 @@ import org.jline.terminal.TerminalBuilder;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.cli.CommandContextImpl;
 import io.jooby.internal.cli.JLineCompleter;
 import picocli.CommandLine;
@@ -60,7 +59,7 @@ public class Cli extends Cmd {
   private @CommandLine.Unmatched List<String> args;
 
   @Override
-  public void run(@NonNull CliContext ctx) {
+  public void run(CliContext ctx) {
     List<String> args =
         this.args.stream()
             .filter(Objects::nonNull)

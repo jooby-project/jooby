@@ -9,7 +9,6 @@ import java.util.*;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.grpc.BindableService;
 import io.grpc.MethodDescriptor;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -122,7 +121,7 @@ public class GrpcModule implements Extension {
    * @throws Exception If an error occurs during installation.
    */
   @Override
-  public void install(@NonNull Jooby app) throws Exception {
+  public void install(Jooby app) throws Exception {
     var serverName = app.getName();
     var builder = InProcessServerBuilder.forName(serverName);
     final Map<String, MethodDescriptor<?, ?>> registry = new HashMap<>();

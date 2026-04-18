@@ -5,7 +5,7 @@
  */
 package io.jooby.jsonrpc;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a JSON-RPC 2.0 Response object.

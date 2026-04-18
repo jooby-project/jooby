@@ -12,13 +12,12 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Flow;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
 public class ConcurrentHandler implements Route.Reactive {
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       Object result = next.apply(ctx);
       if (ctx.isResponseStarted()) {

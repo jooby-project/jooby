@@ -26,8 +26,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Server;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
@@ -55,18 +55,17 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+    public void onOpen(WebSocket webSocket, Response response) {
       opened.countDown();
     }
 
     @Override
-    public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+    public void onClosed(WebSocket webSocket, int code, String reason) {
       closed.set(true);
     }
 
     @Override
-    public void onFailure(
-        @NonNull WebSocket webSocket, @NonNull Throwable e, @Nullable Response response) {
+    public void onFailure(WebSocket webSocket, Throwable e, @Nullable Response response) {
       if (!Server.connectionLost(e)) {
         System.err.println("Unexpected web socket error: " + testName);
         e.printStackTrace();
@@ -74,12 +73,12 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+    public void onMessage(WebSocket webSocket, String text) {
       messages.offer(text);
     }
 
     @Override
-    public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
       messages.offer(new String(bytes.toByteArray(), StandardCharsets.UTF_8));
     }
 
@@ -92,7 +91,7 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+    public void onClosing(WebSocket webSocket, int code, String reason) {
       super.onClosing(webSocket, code, reason);
     }
   }
@@ -272,16 +271,16 @@ public class WebClient implements AutoCloseable {
             req.build(),
             new EventSourceListener() {
               @Override
-              public void onClosed(@NonNull EventSource eventSource) {
+              public void onClosed(EventSource eventSource) {
                 eventSource.cancel();
               }
 
               @Override
               public void onEvent(
-                  @NonNull EventSource eventSource,
+                  EventSource eventSource,
                   @Nullable String id,
                   @Nullable String type,
-                  @NonNull String data) {
+                  String data) {
                 // retry is not part of public API
                 ServerSentMessage message = new ServerSentMessage(data).setId(id).setEvent(type);
                 messages.offer(message);
@@ -289,14 +288,12 @@ public class WebClient implements AutoCloseable {
 
               @Override
               public void onFailure(
-                  @NonNull EventSource eventSource,
-                  @Nullable Throwable t,
-                  @Nullable Response response) {
+                  EventSource eventSource, @Nullable Throwable t, @Nullable Response response) {
                 super.onFailure(eventSource, t, response);
               }
 
               @Override
-              public void onOpen(@NonNull EventSource eventSource, @NonNull Response response) {
+              public void onOpen(EventSource eventSource, Response response) {
                 super.onOpen(eventSource, response);
               }
             });

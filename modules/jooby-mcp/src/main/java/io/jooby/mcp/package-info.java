@@ -105,5 +105,5 @@
  * @author edgar
  * @since 4.2.0
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.mcp;

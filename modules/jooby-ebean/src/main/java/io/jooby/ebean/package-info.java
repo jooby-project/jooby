@@ -1,3 +1,3 @@
 /** Ebean module. */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.ebean;

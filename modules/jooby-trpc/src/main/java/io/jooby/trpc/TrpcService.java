@@ -5,7 +5,6 @@
  */
 package io.jooby.trpc;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
 
 /**
@@ -23,5 +22,5 @@ public interface TrpcService {
    * @param application Main application.
    * @throws Exception If something goes wrong.
    */
-  void install(@NonNull String path, @NonNull Jooby application) throws Exception;
+  void install(String path, Jooby application) throws Exception;
 }

@@ -8,8 +8,6 @@ package io.jooby.rpc.grpc;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Flow;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Core Service Provider Interface (SPI) for the gRPC extension.
  *
@@ -47,5 +45,5 @@ public interface GrpcProcessor {
    * @throws IllegalStateException If an unregistered path bypasses the {@link
    *     #isGrpcMethod(String)} guard.
    */
-  Flow.Subscriber<ByteBuffer> process(@NonNull GrpcExchange exchange);
+  Flow.Subscriber<ByteBuffer> process(GrpcExchange exchange);
 }

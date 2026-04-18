@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypeReference;
 import org.objectweb.asm.tree.*;
 
 import io.jooby.*;
@@ -437,17 +438,10 @@ public class AnnotationParser {
         }
 
         /* HTTP Type: */
-        List<AnnotationNode> annotations;
-        if (method.visibleParameterAnnotations != null
-            && i < method.visibleParameterAnnotations.length) {
-          annotations = method.visibleParameterAnnotations[i];
-        } else {
-          annotations = Collections.emptyList();
-        }
+        var annotations = getParameterAnnotations(method, i);
 
-        if (annotations != null
-            && annotations.stream()
-                .anyMatch(n -> IGNORED_ANNOTATIONS.contains(ASMType.parse(n.desc)))) {
+        if (annotations.stream()
+            .anyMatch(n -> IGNORED_ANNOTATIONS.contains(ASMType.parse(n.desc)))) {
 
           continue;
         }
@@ -527,6 +521,39 @@ public class AnnotationParser {
     return result;
   }
 
+  public static List<AnnotationNode> getParameterAnnotations(MethodNode method, int paramIndex) {
+    List<AnnotationNode> allAnnotations = new ArrayList<>();
+
+    // 1. Extract standard parameter annotations (Visible & Invisible)
+    var vis = method.visibleParameterAnnotations;
+    var invis = method.invisibleParameterAnnotations;
+
+    if (vis != null && paramIndex < vis.length && vis[paramIndex] != null) {
+      allAnnotations.addAll(vis[paramIndex]);
+    }
+    if (invis != null && paramIndex < invis.length && invis[paramIndex] != null) {
+      allAnnotations.addAll(invis[paramIndex]);
+    }
+
+    // 2. Extract type annotations for this specific parameter (Visible & Invisible)
+    // By packing them into a list, we avoid writing the same extraction loop twice.
+    for (var typeList :
+        Arrays.asList(method.visibleTypeAnnotations, method.invisibleTypeAnnotations)) {
+      if (typeList != null) {
+        for (TypeAnnotationNode typeAnno : typeList) {
+          TypeReference typeRef = new TypeReference(typeAnno.typeRef);
+
+          if (typeRef.getSort() == TypeReference.METHOD_FORMAL_PARAMETER
+              && typeRef.getFormalParameterIndex() == paramIndex) {
+            allAnnotations.add(typeAnno);
+          }
+        }
+      }
+    }
+
+    return allAnnotations.isEmpty() ? Collections.emptyList() : allAnnotations;
+  }
+
   private static Optional<?> convertValue(ParserContext ctx, String javaType, String value) {
     try {
       switch (javaType) {
@@ -562,13 +589,31 @@ public class AnnotationParser {
   }
 
   private static boolean isNullable(MethodNode method, int paramIndex) {
-    if (paramIndex < method.invisibleAnnotableParameterCount) {
-      List<AnnotationNode> annotations = method.invisibleParameterAnnotations[paramIndex];
-      if (annotations != null) {
-        return annotations.stream()
-            .anyMatch(a -> a.desc.equals("Lorg/jetbrains/annotations/Nullable;"));
+    var allAnnotations = getParameterAnnotations(method, paramIndex);
+    boolean hasNullable = false;
+    boolean hasNonNull = false;
+
+    for (var anno : allAnnotations) {
+      if (anno.desc.contains("Nullable")) {
+        hasNullable = true;
+      } else if (anno.desc.contains("NonNull") || anno.desc.contains("NotNull")) {
+        hasNonNull = true;
       }
     }
+
+    // Explicit @NonNull or @NotNull always wins
+    if (hasNonNull) {
+      return false;
+    }
+
+    // Explicit @Nullable wins
+    if (hasNullable) {
+      return true;
+    }
+
+    // Default fallback: If there are no explicit nullability annotations,
+    // assume it is nullable (standard Java behavior).
+    // This fixes the bug where ANY unrelated annotation made it return false!
     return true;
   }
 

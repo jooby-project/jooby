@@ -9,8 +9,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Factory class for {@link Output}.
  *
@@ -25,7 +23,7 @@ public interface OutputFactory {
    * @param options Output options.
    * @return Default output factory.
    */
-  static OutputFactory create(@NonNull OutputOptions options) {
+  static OutputFactory create(OutputOptions options) {
     return new ByteBufferedOutputFactory(options);
   }
 
@@ -98,7 +96,7 @@ public interface OutputFactory {
    * @param charset Charset to use.
    * @return Readonly buffer.
    */
-  default Output wrap(@NonNull String value, @NonNull Charset charset) {
+  default Output wrap(String value, Charset charset) {
     return wrap(value.getBytes(charset));
   }
 
@@ -108,7 +106,7 @@ public interface OutputFactory {
    * @param buffer Input buffer.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull ByteBuffer buffer);
+  Output wrap(ByteBuffer buffer);
 
   /**
    * Readonly buffer created from byte array.
@@ -116,7 +114,7 @@ public interface OutputFactory {
    * @param bytes Byte array.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull byte[] bytes);
+  Output wrap(byte[] bytes);
 
   /**
    * Readonly buffer created from byte array.
@@ -126,7 +124,7 @@ public interface OutputFactory {
    * @param length Length.
    * @return Readonly buffer.
    */
-  Output wrap(@NonNull byte[] bytes, int offset, int length);
+  Output wrap(byte[] bytes, int offset, int length);
 
   /**
    * Special implementation when output factory is requested from {@link io.jooby.Context}.

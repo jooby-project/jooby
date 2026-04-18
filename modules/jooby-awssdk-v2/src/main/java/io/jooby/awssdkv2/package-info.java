@@ -29,7 +29,5 @@
  * @author edgar
  * @since 3.3.1
  */
-@ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.awssdkv2;
-
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;

@@ -5,7 +5,6 @@
  */
 package io.jooby.exception;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 
 /**
@@ -21,7 +20,7 @@ public class BadRequestException extends StatusCodeException {
    *
    * @param message Message.
    */
-  public BadRequestException(@NonNull String message) {
+  public BadRequestException(String message) {
     super(StatusCode.BAD_REQUEST, message);
   }
 
@@ -31,7 +30,7 @@ public class BadRequestException extends StatusCodeException {
    * @param message Message.
    * @param cause Throwable.
    */
-  public BadRequestException(@NonNull String message, @NonNull Throwable cause) {
+  public BadRequestException(String message, Throwable cause) {
     super(StatusCode.BAD_REQUEST, message, cause);
   }
 }

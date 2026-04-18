@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
+import org.jspecify.annotations.Nullable;
+
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.internal.SslContextProvider;
 import io.jooby.output.OutputOptions;
 
@@ -156,7 +156,7 @@ public class ServerOptions {
    * @param conf Configuration object.
    * @return Server options.
    */
-  public static Optional<ServerOptions> from(@NonNull Config conf) {
+  public static Optional<ServerOptions> from(Config conf) {
     if (conf.hasPath("server")) {
       var options = new ServerOptions();
       if (conf.hasPath("server.port")) {
@@ -239,7 +239,7 @@ public class ServerOptions {
    * @param server Name of the underlying server.
    * @return This options.
    */
-  public ServerOptions setServer(@NonNull String server) {
+  public ServerOptions setServer(String server) {
     this.server = server;
     return this;
   }
@@ -268,7 +268,7 @@ public class ServerOptions {
    * @param port Server port or <code>0</code> to pick a random port.
    * @return This options.
    */
-  public @NonNull ServerOptions setPort(int port) {
+  public ServerOptions setPort(int port) {
     this.port = Math.max(0, port);
     return this;
   }
@@ -297,7 +297,7 @@ public class ServerOptions {
    * @param securePort Port number or <code>0</code> for random number.
    * @return This options.
    */
-  public @NonNull ServerOptions setSecurePort(@Nullable Integer securePort) {
+  public ServerOptions setSecurePort(@Nullable Integer securePort) {
     if (securePort == null) {
       this.securePort = null;
     } else {
@@ -321,7 +321,7 @@ public class ServerOptions {
    * @param httpsOnly True to bind only HTTPS.
    * @return This options.
    */
-  public @NonNull ServerOptions setHttpsOnly(boolean httpsOnly) {
+  public ServerOptions setHttpsOnly(boolean httpsOnly) {
     this.httpsOnly = httpsOnly;
     return this;
   }
@@ -364,7 +364,7 @@ public class ServerOptions {
    * @param workerThreads Number of worker threads to use.
    * @return This options.
    */
-  public @NonNull ServerOptions setWorkerThreads(int workerThreads) {
+  public ServerOptions setWorkerThreads(int workerThreads) {
     this.workerThreads = workerThreads;
     return this;
   }
@@ -386,7 +386,7 @@ public class ServerOptions {
    * @param compressionLevel Value between <code>0..9</code> or <code>null</code>.
    * @return This options.
    */
-  public @NonNull ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
+  public ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
     this.compressionLevel = compressionLevel;
     return this;
   }
@@ -429,7 +429,7 @@ public class ServerOptions {
    * @param output Options.
    * @return This instance.
    */
-  public ServerOptions setOutput(@NonNull OutputOptions output) {
+  public ServerOptions setOutput(OutputOptions output) {
     this.output = output;
     return this;
   }
@@ -498,7 +498,7 @@ public class ServerOptions {
    *     </code>.
    * @return The maximum size in bytes of an http request header. Default is <code>8kb</code>.
    */
-  public @NonNull ServerOptions setMaxHeaderSize(int maxHeaderSize) {
+  public ServerOptions setMaxHeaderSize(int maxHeaderSize) {
     this.maxHeaderSize = maxHeaderSize;
     return this;
   }
@@ -540,7 +540,7 @@ public class ServerOptions {
    * @param ssl SSL options.
    * @return Server options.
    */
-  public @NonNull ServerOptions setSsl(@Nullable SslOptions ssl) {
+  public ServerOptions setSsl(@Nullable SslOptions ssl) {
     this.ssl = ssl;
     return this;
   }
@@ -607,7 +607,7 @@ public class ServerOptions {
    * @param loader Resource loader.
    * @return SSLContext or <code>null</code> when SSL is disabled.
    */
-  public @Nullable SSLContext getSSLContext(@NonNull ClassLoader loader) {
+  public @Nullable SSLContext getSSLContext(ClassLoader loader) {
     if (isSSLEnabled()) {
       setSecurePort(Optional.ofNullable(securePort).orElse(SERVER_SECURE_PORT));
       SslOptions options = Optional.ofNullable(ssl).orElseGet(SslOptions::selfSigned);

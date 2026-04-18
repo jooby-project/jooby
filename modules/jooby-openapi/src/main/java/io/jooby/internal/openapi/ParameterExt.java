@@ -8,11 +8,10 @@ package io.jooby.internal.openapi;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.AnnotationNode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
@@ -76,7 +75,7 @@ public class ParameterExt extends Parameter {
     return javaType + " " + getName();
   }
 
-  public static Parameter header(@NonNull String name, @Nullable String value) {
+  public static Parameter header(String name, @Nullable String value) {
     return basic(name, "header", value);
   }
 
@@ -96,7 +95,7 @@ public class ParameterExt extends Parameter {
     this.annotations = annotations;
   }
 
-  public static Parameter basic(@NonNull String name, @NonNull String in, @Nullable String value) {
+  public static Parameter basic(String name, String in, @Nullable String value) {
     ParameterExt param = new ParameterExt();
     param.setName(name);
     param.setIn(in);

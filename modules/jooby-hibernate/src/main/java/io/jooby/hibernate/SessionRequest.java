@@ -12,7 +12,6 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
 import io.jooby.internal.hibernate.RequestSessionFactory;
@@ -63,7 +62,7 @@ public class SessionRequest implements Route.Filter {
    *
    * @param name Name of the session factory.
    */
-  public SessionRequest(@NonNull String name) {
+  public SessionRequest(String name) {
     this(ServiceKey.key(SessionFactory.class, name));
   }
 
@@ -79,8 +78,8 @@ public class SessionRequest implements Route.Filter {
             ServiceKey.key(SessionProvider.class, sessionFactoryKey.getName()));
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       var sessionFactory = ctx.require(sessionFactoryKey);
       try (var session = sessionProvider.create(ctx, sessionFactory)) {
@@ -108,7 +107,7 @@ public class SessionRequest implements Route.Filter {
    *
    * @return The service key for accessing to the configured {@link SessionFactory} service.
    */
-  public @NonNull ServiceKey<SessionFactory> getSessionFactoryKey() {
+  public ServiceKey<SessionFactory> getSessionFactoryKey() {
     return sessionFactoryKey;
   }
 }

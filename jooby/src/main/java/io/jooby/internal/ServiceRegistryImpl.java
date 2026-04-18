@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.ServiceKey;
 import io.jooby.ServiceRegistry;
 import jakarta.inject.Provider;
@@ -19,18 +19,18 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
   private final Map<ServiceKey<?>, Provider<?>> registry = new ConcurrentHashMap<>();
 
-  @NonNull @Override
+  @Override
   public Set<ServiceKey<?>> keySet() {
     return registry.keySet();
   }
 
-  @NonNull @Override
+  @Override
   public Set<Map.Entry<ServiceKey<?>, Provider<?>>> entrySet() {
     return registry.entrySet();
   }
 
   @Nullable @Override
-  public <T> T getOrNull(@NonNull ServiceKey<T> key) {
+  public <T> T getOrNull(ServiceKey<T> key) {
     var provider = registry.get(key);
     if (provider == null) {
       return null;
@@ -39,22 +39,22 @@ public class ServiceRegistryImpl implements ServiceRegistry {
   }
 
   @Nullable @Override
-  public <T> T put(@NonNull ServiceKey<T> key, T service) {
+  public <T> T put(ServiceKey<T> key, T service) {
     return put(key, singleton(service));
   }
 
   @Nullable @Override
-  public <T> T put(@NonNull ServiceKey<T> key, Provider<T> service) {
+  public <T> T put(ServiceKey<T> key, Provider<T> service) {
     return (T) registry.put(key, service);
   }
 
   @Nullable @Override
-  public <T> T putIfAbsent(@NonNull ServiceKey<T> type, T service) {
+  public <T> T putIfAbsent(ServiceKey<T> type, T service) {
     return putIfAbsent(type, singleton(service));
   }
 
   @Nullable @Override
-  public <T> T putIfAbsent(@NonNull ServiceKey<T> key, Provider<T> service) {
+  public <T> T putIfAbsent(ServiceKey<T> key, Provider<T> service) {
     return (T) registry.putIfAbsent(key, service);
   }
 

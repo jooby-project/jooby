@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Utility class that group one or more completion listeners and execute them in reverse order.
  *
@@ -28,7 +26,7 @@ public class CompletionListeners {
    *
    * @param listener Listener.
    */
-  public void addListener(@NonNull Route.Complete listener) {
+  public void addListener(Route.Complete listener) {
     if (listeners == null) {
       listeners = new ArrayList<>();
     }
@@ -40,7 +38,7 @@ public class CompletionListeners {
    *
    * @param ctx Listeners.
    */
-  public void run(@NonNull Context ctx) {
+  public void run(Context ctx) {
     if (listeners != null) {
       Throwable cause = null;
       for (int i = listeners.size() - 1; i >= 0; i--) {

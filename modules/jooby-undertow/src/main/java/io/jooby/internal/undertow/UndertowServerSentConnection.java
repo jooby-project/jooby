@@ -22,7 +22,6 @@ import org.xnio.ChannelListeners;
 import org.xnio.IoUtils;
 import org.xnio.channels.StreamSinkChannel;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ServerSentMessage;
 import io.jooby.output.Output;
@@ -169,7 +168,7 @@ public class UndertowServerSentConnection implements Channel {
    *
    * @param dest Destination buffer.
    */
-  private void transferTo(@NonNull Output source, @NonNull ByteBuffer dest) {
+  private void transferTo(Output source, ByteBuffer dest) {
     transferTo(source, 0, dest, dest.position(), source.size());
   }
 
@@ -183,8 +182,7 @@ public class UndertowServerSentConnection implements Channel {
    * @param destPos the position in {@code dest} to where copying should start
    * @param length the amount of data to copy
    */
-  private void transferTo(
-      @NonNull Output source, int srcPos, @NonNull ByteBuffer dest, int destPos, int length) {
+  private void transferTo(Output source, int srcPos, ByteBuffer dest, int destPos, int length) {
     dest = dest.duplicate().clear();
     dest.put(destPos, source.asByteBuffer(), srcPos, length);
   }

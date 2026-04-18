@@ -49,10 +49,9 @@ import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.Fields;
 import org.eclipse.jetty.util.Promise;
 import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.ByteRange;
 import io.jooby.internal.jetty.http2.JettyHeaders;
@@ -124,13 +123,13 @@ public class JettyContext implements DefaultContext, Callback {
     this.inEventLoop = invocationType == InvocationType.NON_BLOCKING;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, Object> getAttributes() {
     return attributes;
   }
 
   @Override
-  public @NonNull Map<String, String> cookieMap() {
+  public Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = Collections.emptyMap();
       var cookies = Request.getCookies(request);
@@ -144,7 +143,7 @@ public class JettyContext implements DefaultContext, Callback {
     return cookies;
   }
 
-  @NonNull @Override
+  @Override
   public Body body() {
     InputStream in = Content.Source.asInputStream(request);
     long len = request.getLength();
@@ -154,56 +153,56 @@ public class JettyContext implements DefaultContext, Callback {
     return Body.of(this, in, len);
   }
 
-  @NonNull @Override
+  @Override
   public Router getRouter() {
     return router;
   }
 
-  @NonNull @Override
+  @Override
   public String getMethod() {
     return method;
   }
 
-  @NonNull @Override
-  public Context setMethod(@NonNull String method) {
+  @Override
+  public Context setMethod(String method) {
     this.method = method.toUpperCase();
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Route getRoute() {
     return route;
   }
 
-  @NonNull @Override
+  @Override
   public Context setRoute(Route route) {
     this.route = route;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getRequestPath() {
     return requestPath;
   }
 
-  @NonNull @Override
-  public Context setRequestPath(@NonNull String path) {
+  @Override
+  public Context setRequestPath(String path) {
     this.requestPath = path;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, String> pathMap() {
     return pathMap;
   }
 
-  @NonNull @Override
+  @Override
   public Context setPathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public QueryString query() {
     if (query == null) {
       query = QueryString.create(getValueFactory(), request.getHttpURI().getQuery());
@@ -211,7 +210,7 @@ public class JettyContext implements DefaultContext, Callback {
     return query;
   }
 
-  @NonNull @Override
+  @Override
   public Formdata form() {
     if (formdata == null) {
       formdata = Formdata.create(getValueFactory());
@@ -271,12 +270,12 @@ public class JettyContext implements DefaultContext, Callback {
     return formdata;
   }
 
-  @NonNull @Override
-  public Value header(@NonNull String name) {
+  @Override
+  public Value header(String name) {
     return Value.create(getValueFactory(), name, request.getHeaders().getValuesList(name));
   }
 
-  @NonNull @Override
+  @Override
   public Value header() {
     if (headers == null) {
       Map<String, Collection<String>> headerMap = new LinkedHashMap<>();
@@ -288,13 +287,13 @@ public class JettyContext implements DefaultContext, Callback {
     return headers;
   }
 
-  @NonNull @Override
+  @Override
   public String getHost() {
     return host == null ? DefaultContext.super.getHost() : host;
   }
 
-  @NonNull @Override
-  public Context setHost(@NonNull String host) {
+  @Override
+  public Context setHost(String host) {
     this.host = host;
     return this;
   }
@@ -304,13 +303,13 @@ public class JettyContext implements DefaultContext, Callback {
     return port > 0 ? port : DefaultContext.super.getPort();
   }
 
-  @NonNull @Override
+  @Override
   public Context setPort(int port) {
     this.port = port;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getRemoteAddress() {
     if (remoteAddress == null) {
       remoteAddress = Optional.ofNullable(Request.getRemoteAddr(request)).orElse("").trim();
@@ -318,24 +317,24 @@ public class JettyContext implements DefaultContext, Callback {
     return remoteAddress;
   }
 
-  @NonNull @Override
-  public Context setRemoteAddress(@NonNull String remoteAddress) {
+  @Override
+  public Context setRemoteAddress(String remoteAddress) {
     this.remoteAddress = remoteAddress;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getProtocol() {
     return request.getConnectionMetaData().getProtocol();
   }
 
-  @NonNull @Override
+  @Override
   public List<Certificate> getClientCertificates() {
     var clientCertificates = request.getAttribute("org.eclipse.jetty.server.peerCertificates");
     return clientCertificates == null ? List.of() : List.of((Certificate[]) clientCertificates);
   }
 
-  @NonNull @Override
+  @Override
   public String getScheme() {
     if (scheme == null) {
       scheme = request.isSecure() ? "https" : "http";
@@ -343,8 +342,8 @@ public class JettyContext implements DefaultContext, Callback {
     return scheme;
   }
 
-  @NonNull @Override
-  public Context setScheme(@NonNull String scheme) {
+  @Override
+  public Context setScheme(String scheme) {
     this.scheme = scheme;
     return this;
   }
@@ -354,13 +353,13 @@ public class JettyContext implements DefaultContext, Callback {
     return inEventLoop;
   }
 
-  @NonNull @Override
-  public Context dispatch(@NonNull Runnable action) {
+  @Override
+  public Context dispatch(Runnable action) {
     return dispatch(router.getWorker(), action);
   }
 
-  @NonNull @Override
-  public Context dispatch(@NonNull Executor executor, @NonNull Runnable action) {
+  @Override
+  public Context dispatch(Executor executor, Runnable action) {
     if (inEventLoop) {
       inEventLoop = false;
       executor.execute(action);
@@ -370,8 +369,8 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
-  public Context upgrade(@NonNull WebSocket.Initializer handler) {
+  @Override
+  public Context upgrade(WebSocket.Initializer handler) {
     try {
       responseStarted = true;
       request.setAttribute(JettyContext.class.getName(), this);
@@ -386,8 +385,8 @@ public class JettyContext implements DefaultContext, Callback {
     }
   }
 
-  @NonNull @Override
-  public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
+  @Override
+  public Context upgrade(ServerSentEmitter.Handler handler) {
     try {
       responseStarted = true;
       handler.handle(new JettyServerSentEmitter(this, response));
@@ -397,66 +396,66 @@ public class JettyContext implements DefaultContext, Callback {
     }
   }
 
-  @NonNull @Override
+  @Override
   public StatusCode getResponseCode() {
     return StatusCode.valueOf(response.getStatus());
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseCode(int statusCode) {
     response.setStatus(statusCode);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @NonNull @Override
-  public Context setDefaultResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setDefaultResponseType(MediaType contentType) {
     if (responseType == null) {
       setResponseType(contentType);
     }
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setResponseType(MediaType contentType) {
     this.responseType = contentType;
     response.getHeaders().put(JettyHeaders.contentType(contentType));
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull String contentType) {
+  @Override
+  public Context setResponseType(String contentType) {
     return setResponseType(MediaType.valueOf(contentType));
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull String value) {
+  @Override
+  public Context setResponseHeader(String name, String value) {
     response.getHeaders().put(name, value);
     return this;
   }
 
-  @NonNull @Override
-  public Context removeResponseHeader(@NonNull String name) {
+  @Override
+  public Context removeResponseHeader(String name) {
     response.getHeaders().remove(name);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context removeResponseHeaders() {
     response.reset();
     return this;
   }
 
   @Nullable @Override
-  public String getResponseHeader(@NonNull String name) {
+  public String getResponseHeader(String name) {
     return response.getHeaders().get(name);
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseLength(long length) {
     response.getHeaders().put(CONTENT_LENGTH, length);
     return this;
@@ -467,7 +466,7 @@ public class JettyContext implements DefaultContext, Callback {
     return response.getHeaders().getLongField(CONTENT_LENGTH);
   }
 
-  @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
+  public Context setResponseCookie(Cookie cookie) {
     if (responseCookies == null) {
       responseCookies = new HashMap<>();
     }
@@ -480,28 +479,28 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Sender responseSender() {
     responseStarted = true;
     ifSetChunked();
     return new JettySender(this, response);
   }
 
-  @NonNull @Override
+  @Override
   public OutputStream responseStream() {
     responseStarted = true;
     ifSetChunked();
     return new JettyOutputStream(asOutputStream(response), this);
   }
 
-  @NonNull @Override
+  @Override
   public PrintWriter responseWriter(MediaType type) {
     setResponseType(type);
     return new PrintWriter(
         responseStream(), false, Optional.ofNullable(type.getCharset()).orElse(UTF_8));
   }
 
-  @NonNull @Override
+  @Override
   public Context send(StatusCode statusCode) {
     responseStarted = true;
     response.setStatus(statusCode.value());
@@ -509,8 +508,8 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ByteBuffer[] data) {
+  @Override
+  public Context send(ByteBuffer[] data) {
     var length = response.getHeaders().getLongField(CONTENT_LENGTH);
     if (length <= 0) {
       setResponseLength(BufferUtil.remaining(data));
@@ -520,24 +519,24 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull byte[] data) {
+  @Override
+  public Context send(byte[] data) {
     return send(ByteBuffer.wrap(data));
   }
 
-  @NonNull @Override
-  public Context send(@NonNull String data, @NonNull Charset charset) {
+  @Override
+  public Context send(String data, Charset charset) {
     return send(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
-  @NonNull @Override
-  public Context send(@NonNull Output output) {
+  @Override
+  public Context send(Output output) {
     output.send(this);
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ByteBuffer data) {
+  @Override
+  public Context send(ByteBuffer data) {
     var length = response.getHeaders().getLongField(CONTENT_LENGTH);
     if (length <= 0) {
       setResponseLength(BufferUtil.remaining(data));
@@ -547,22 +546,22 @@ public class JettyContext implements DefaultContext, Callback {
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ReadableByteChannel channel) {
+  @Override
+  public Context send(ReadableByteChannel channel) {
     ifSetChunked();
     return sendStreamInternal(Channels.newInputStream(channel));
   }
 
   @Override
-  public @NonNull Context send(@NonNull FileDownload file) {
+  public Context send(FileDownload file) {
     if (file.deleteOnComplete()) {
       register(DeleteFileTask.of(file));
     }
     return DefaultContext.super.send(file);
   }
 
-  @NonNull @Override
-  public Context send(@NonNull InputStream in) {
+  @Override
+  public Context send(InputStream in) {
     try {
       if (in instanceof FileInputStream) {
         setResponseLength(((FileInputStream) in).getChannel().size());
@@ -573,7 +572,7 @@ public class JettyContext implements DefaultContext, Callback {
     }
   }
 
-  private Context sendStreamInternal(@NonNull InputStream in) {
+  private Context sendStreamInternal(InputStream in) {
     try {
       var len = response.getHeaders().getLongField(CONTENT_LENGTH);
       InputStream stream;
@@ -593,8 +592,8 @@ public class JettyContext implements DefaultContext, Callback {
     }
   }
 
-  @NonNull @Override
-  public Context send(@NonNull FileChannel file) {
+  @Override
+  public Context send(FileChannel file) {
     try {
       response.getHeaders().put(CONTENT_LENGTH, file.size());
       return sendStreamInternal(Channels.newInputStream(file));
@@ -616,13 +615,13 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   @Override
-  public @NonNull Context setResetHeadersOnError(boolean resetHeadersOnError) {
+  public Context setResetHeadersOnError(boolean resetHeadersOnError) {
     this.resetHeadersOnError = resetHeadersOnError;
     return this;
   }
 
-  @NonNull @Override
-  public Context onComplete(@NonNull Route.Complete task) {
+  @Override
+  public Context onComplete(Route.Complete task) {
     if (listeners == null) {
       listeners = new CompletionListeners();
     }

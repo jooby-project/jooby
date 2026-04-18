@@ -5,8 +5,8 @@
  */
 package io.jooby.vertx;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Jooby;
 import io.jooby.Server;
 import io.jooby.internal.vertx.VertxEventLoopGroup;
@@ -45,7 +45,7 @@ public class VertxServer extends NettyServer {
    *
    * @param vertx Use the provided vertx instance.
    */
-  public VertxServer(@NonNull Vertx vertx) {
+  public VertxServer(Vertx vertx) {
     this.vertx = vertx;
   }
 
@@ -54,7 +54,7 @@ public class VertxServer extends NettyServer {
    *
    * @param options Use the provided vertx options.
    */
-  public VertxServer(@NonNull VertxOptions options) {
+  public VertxServer(VertxOptions options) {
     this(Vertx.vertx(options));
   }
 
@@ -65,7 +65,7 @@ public class VertxServer extends NettyServer {
   public VertxServer() {}
 
   @Override
-  public Server init(@NonNull Jooby application) {
+  public Server init(Jooby application) {
     if (this.vertx == null) {
       var nThreads = getOptions().getIoThreads();
       var options =

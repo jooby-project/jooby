@@ -6,7 +6,6 @@
 package io.jooby.awssdkv2;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -18,7 +17,7 @@ import software.amazon.awssdk.utils.StringUtils;
 public class ConfigCredentialsProvider implements AwsCredentialsProvider {
   private final Config config;
 
-  public ConfigCredentialsProvider(@NonNull Config config) {
+  public ConfigCredentialsProvider(Config config) {
     this.config = config;
   }
 

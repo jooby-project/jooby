@@ -8,7 +8,7 @@ module io.jooby.ebean {
   exports io.jooby.ebean;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires io.ebean;
 }

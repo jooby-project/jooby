@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
@@ -31,8 +32,6 @@ import org.pac4j.core.util.serializer.Serializer;
 import org.pac4j.http.client.indirect.FormClient;
 import org.pac4j.http.credentials.authenticator.test.SimpleTestUsernamePasswordAuthenticator;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -162,9 +161,8 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull Authorizer authorizer,
-      @NonNull Function<com.typesafe.config.Config, Client> provider) {
+  public Pac4jModule client(
+      Authorizer authorizer, Function<com.typesafe.config.Config, Client> provider) {
     return client("*", authorizer, provider);
   }
 
@@ -179,10 +177,10 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
-      @NonNull Class<? extends Authorizer> authorizer,
-      @NonNull Function<com.typesafe.config.Config, Client> provider) {
+  public Pac4jModule client(
+      String pattern,
+      Class<? extends Authorizer> authorizer,
+      Function<com.typesafe.config.Config, Client> provider) {
     return client(
         pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)), provider);
   }
@@ -198,10 +196,10 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
-      @NonNull Authorizer authorizer,
-      @NonNull Function<com.typesafe.config.Config, Client> provider) {
+  public Pac4jModule client(
+      String pattern,
+      Authorizer authorizer,
+      Function<com.typesafe.config.Config, Client> provider) {
     return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), provider);
   }
 
@@ -217,10 +215,10 @@ public class Pac4jModule implements Extension {
    * @param provider Client factory.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
+  public Pac4jModule client(
+      String pattern,
       @Nullable String authorizer,
-      @NonNull Function<com.typesafe.config.Config, Client> provider) {
+      Function<com.typesafe.config.Config, Client> provider) {
     if (clientMap == null) {
       clientMap = initializeClients(options);
     }
@@ -234,7 +232,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public Pac4jModule client(@NonNull Class<? extends Client> client) {
+  public Pac4jModule client(Class<? extends Client> client) {
     return client("*", client);
   }
 
@@ -245,7 +243,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public Pac4jModule client(@NonNull String pattern, @NonNull Class<? extends Client> client) {
+  public Pac4jModule client(String pattern, Class<? extends Client> client) {
     return client(pattern, (String) null, client);
   }
 
@@ -260,7 +258,7 @@ public class Pac4jModule implements Extension {
    * @return This module.
    */
   public Pac4jModule client(
-      @NonNull Class<? extends Authorizer> authorizer, @NonNull Class<? extends Client> client) {
+      Class<? extends Authorizer> authorizer, Class<? extends Client> client) {
     return client("*", authorizer, client);
   }
 
@@ -274,8 +272,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull Authorizer authorizer, @NonNull Class<? extends Client> client) {
+  public Pac4jModule client(Authorizer authorizer, Class<? extends Client> client) {
     return client("*", authorizer, client);
   }
 
@@ -290,10 +287,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
-      @NonNull Class<? extends Authorizer> authorizer,
-      @NonNull Class<? extends Client> client) {
+  public Pac4jModule client(
+      String pattern, Class<? extends Authorizer> authorizer, Class<? extends Client> client) {
     return client(
         pattern, registerAuthorizer(authorizer, new ForwardingAuthorizer(authorizer)), client);
   }
@@ -309,10 +304,7 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
-      @NonNull Authorizer authorizer,
-      @NonNull Class<? extends Client> client) {
+  public Pac4jModule client(String pattern, Authorizer authorizer, Class<? extends Client> client) {
     return client(pattern, registerAuthorizer(authorizer.getClass(), authorizer), client);
   }
 
@@ -328,10 +320,8 @@ public class Pac4jModule implements Extension {
    * @param client Client class.
    * @return This module.
    */
-  public @NonNull Pac4jModule client(
-      @NonNull String pattern,
-      @Nullable String authorizer,
-      @NonNull Class<? extends Client> client) {
+  public Pac4jModule client(
+      String pattern, @Nullable String authorizer, Class<? extends Client> client) {
     if (clientMap == null) {
       clientMap = initializeClients(options);
     }
@@ -340,7 +330,7 @@ public class Pac4jModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby app) throws Exception {
+  public void install(Jooby app) throws Exception {
     var services = app.getServices();
     services.putIfAbsent(Pac4jOptions.class, options);
     app.getServices().put(Config.class, options);

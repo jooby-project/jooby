@@ -9,7 +9,7 @@ module io.jooby.thymeleaf {
   exports io.jooby.thymeleaf;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires thymeleaf;
 }

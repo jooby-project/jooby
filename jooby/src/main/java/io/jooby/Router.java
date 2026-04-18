@@ -27,11 +27,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.MissingValueException;
 import io.jooby.handler.AssetHandler;
 import io.jooby.handler.AssetSource;
@@ -60,7 +59,7 @@ public interface Router extends Registry {
      *
      * @return Matched route.
      */
-    @NonNull Route route();
+    Route route();
 
     /**
      * Executes matched route.
@@ -69,7 +68,7 @@ public interface Router extends Registry {
      * @param pipeline Route pipeline.
      * @return route response.
      */
-    Object execute(@NonNull Context context, @NonNull Route.Handler pipeline);
+    Object execute(Context context, Route.Handler pipeline);
 
     /**
      * Executes matched route.
@@ -77,7 +76,7 @@ public interface Router extends Registry {
      * @param context Web Context.
      * @return route response.
      */
-    default Object execute(@NonNull Context context) {
+    default Object execute(Context context) {
       return execute(context, route().getPipeline());
     }
 
@@ -86,7 +85,7 @@ public interface Router extends Registry {
      *
      * @return Path pattern variables.
      */
-    @NonNull Map<String, String> pathMap();
+    Map<String, String> pathMap();
   }
 
   /** HTTP GET. */
@@ -127,28 +126,28 @@ public interface Router extends Registry {
    *
    * @return Application configuration.
    */
-  @NonNull Config getConfig();
+  Config getConfig();
 
   /**
    * Application environment.
    *
    * @return Application environment.
    */
-  @NonNull Environment getEnvironment();
+  Environment getEnvironment();
 
   /**
    * Returns the supported locales.
    *
    * @return The supported locales.
    */
-  @NonNull List<Locale> getLocales();
+  List<Locale> getLocales();
 
   /**
    * Mutable map of application attributes.
    *
    * @return Mutable map of application attributes.
    */
-  @NonNull Map<String, Object> getAttributes();
+  Map<String, Object> getAttributes();
 
   /**
    * Get an attribute by his key. This is just a utility method around {@link #getAttributes()}.
@@ -157,7 +156,7 @@ public interface Router extends Registry {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  @NonNull default <T> T getAttribute(@NonNull String key) {
+  default <T> T getAttribute(String key) {
     @SuppressWarnings("unchecked")
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
@@ -173,7 +172,7 @@ public interface Router extends Registry {
    * @param value Attribute value.
    * @return This router.
    */
-  @NonNull default Router setAttribute(@NonNull String key, Object value) {
+  default Router setAttribute(String key, Object value) {
     getAttributes().put(key, value);
     return this;
   }
@@ -186,14 +185,14 @@ public interface Router extends Registry {
    *
    * @return Service registry.
    */
-  @NonNull ServiceRegistry getServices();
+  ServiceRegistry getServices();
 
   /**
    * Server options.
    *
    * @return Server options.
    */
-  @NonNull ServerOptions getServerOptions();
+  ServerOptions getServerOptions();
 
   /**
    * Set application context path. Context path is the base path for all routes. Default is: <code>/
@@ -202,7 +201,7 @@ public interface Router extends Registry {
    * @param contextPath Context path.
    * @return This router.
    */
-  @NonNull Router setContextPath(@NonNull String contextPath);
+  Router setContextPath(String contextPath);
 
   /**
    * Get application context path (a.k.a as base path).
@@ -235,7 +234,7 @@ public interface Router extends Registry {
    * @param parameterName Form field name.
    * @return This router.
    */
-  @NonNull Router setHiddenMethod(@NonNull String parameterName);
+  Router setHiddenMethod(String parameterName);
 
   /**
    * Provides a way to override the current HTTP method using lookup strategy.
@@ -243,7 +242,7 @@ public interface Router extends Registry {
    * @param provider Lookup strategy.
    * @return This router.
    */
-  @NonNull Router setHiddenMethod(@NonNull Function<Context, Optional<String>> provider);
+  Router setHiddenMethod(Function<Context, Optional<String>> provider);
 
   /**
    * Provides a way to set the current user from a {@link Context}. Current user can be retrieve it
@@ -252,7 +251,7 @@ public interface Router extends Registry {
    * @param provider User provider/factory.
    * @return This router.
    */
-  @NonNull Router setCurrentUser(@NonNull Function<Context, Object> provider);
+  Router setCurrentUser(Function<Context, Object> provider);
 
   /* ***********************************************************************************************
    * use(Router)
@@ -278,7 +277,7 @@ public interface Router extends Registry {
    * @param subrouter Subrouter.
    * @return Created routes.
    */
-  @NonNull Route.Set domain(@NonNull String domain, @NonNull Router subrouter);
+  Route.Set domain(String domain, Router subrouter);
 
   /**
    * Enabled routes for specific domain. Domain matching is done using the <code>host</code> header.
@@ -301,7 +300,7 @@ public interface Router extends Registry {
    * @param body Route action.
    * @return Created routes.
    */
-  @NonNull Route.Set domain(@NonNull String domain, @NonNull Runnable body);
+  Route.Set domain(String domain, Runnable body);
 
   /**
    * Import routes from given router. Predicate works like a filter and only when predicate pass the
@@ -327,7 +326,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Router router);
+  Route.Set mount(Predicate<Context> predicate, Router router);
 
   /**
    * Import routes from given action. Predicate works like a filter and only when predicate pass the
@@ -355,7 +354,7 @@ public interface Router extends Registry {
    * @param body Route action.
    * @return Created routes.
    */
-  @NonNull Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body);
+  Route.Set mount(Predicate<Context> predicate, Runnable body);
 
   /**
    * Import all routes from the given router and prefix them with the given path.
@@ -366,7 +365,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull Route.Set mount(@NonNull String path, @NonNull Router router);
+  Route.Set mount(String path, Router router);
 
   /**
    * Import all routes from the given router.
@@ -376,7 +375,7 @@ public interface Router extends Registry {
    * @param router Router to import.
    * @return Created routes.
    */
-  @NonNull Route.Set mount(@NonNull Router router);
+  Route.Set mount(Router router);
 
   /* ***********************************************************************************************
    * Mvc
@@ -390,7 +389,7 @@ public interface Router extends Registry {
    * @param handler WebSocket handler.
    * @return A new route.
    */
-  @NonNull Route ws(@NonNull String pattern, @NonNull WebSocket.Initializer handler);
+  Route ws(String pattern, WebSocket.Initializer handler);
 
   /**
    * Add a server-sent event handler.
@@ -399,14 +398,14 @@ public interface Router extends Registry {
    * @param handler Handler.
    * @return A new route.
    */
-  @NonNull Route sse(@NonNull String pattern, @NonNull ServerSentEmitter.Handler handler);
+  Route sse(String pattern, ServerSentEmitter.Handler handler);
 
   /**
    * Returns all routes.
    *
    * @return All routes.
    */
-  @NonNull List<Route> getRoutes();
+  List<Route> getRoutes();
 
   /**
    * Register a route response encoder.
@@ -414,7 +413,7 @@ public interface Router extends Registry {
    * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @NonNull Router encoder(@NonNull MessageEncoder encoder);
+  Router encoder(MessageEncoder encoder);
 
   /**
    * Register a route response encoder.
@@ -423,7 +422,7 @@ public interface Router extends Registry {
    * @param encoder MessageEncoder instance.
    * @return This router.
    */
-  @NonNull Router encoder(@NonNull MediaType contentType, @NonNull MessageEncoder encoder);
+  Router encoder(MediaType contentType, MessageEncoder encoder);
 
   /**
    * Application temporary directory. This method initialize the {@link Environment} when isn't set
@@ -431,7 +430,7 @@ public interface Router extends Registry {
    *
    * @return Application temporary directory.
    */
-  @NonNull Path getTmpdir();
+  Path getTmpdir();
 
   /**
    * Register a decoder for the given content type.
@@ -440,14 +439,14 @@ public interface Router extends Registry {
    * @param decoder MessageDecoder.
    * @return This router.
    */
-  @NonNull Router decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder);
+  Router decoder(MediaType contentType, MessageDecoder decoder);
 
   /**
    * Returns the worker thread pool. This thread pool is used to run application blocking code.
    *
    * @return Worker thread pool.
    */
-  @NonNull Executor getWorker();
+  Executor getWorker();
 
   /**
    * Set a worker thread pool. This thread pool is used to run application blocking code.
@@ -455,7 +454,7 @@ public interface Router extends Registry {
    * @param worker Worker thread pool.
    * @return This router.
    */
-  @NonNull Router setWorker(@NonNull Executor worker);
+  Router setWorker(Executor worker);
 
   /**
    * Set the default worker thread pool. Via this method the underlying web server set/suggests the
@@ -467,7 +466,7 @@ public interface Router extends Registry {
    * @param worker Default worker thread pool.
    * @return This router.
    */
-  Router setDefaultWorker(@NonNull Executor worker);
+  Router setDefaultWorker(Executor worker);
 
   /**
    * Output factory.
@@ -482,7 +481,7 @@ public interface Router extends Registry {
    * @param filter Filter.
    * @return This router.
    */
-  Router use(@NonNull Route.Filter filter);
+  Router use(Route.Filter filter);
 
   /**
    * Add a before route decorator to the route pipeline.
@@ -490,7 +489,7 @@ public interface Router extends Registry {
    * @param before Before decorator.
    * @return This router.
    */
-  @NonNull Router before(@NonNull Route.Before before);
+  Router before(Route.Before before);
 
   /**
    * Add an after route decorator to the route pipeline.
@@ -498,7 +497,7 @@ public interface Router extends Registry {
    * @param after After decorator.
    * @return This router.
    */
-  @NonNull Router after(@NonNull Route.After after);
+  Router after(Route.After after);
 
   /**
    * Dispatch route pipeline to the {@link #getWorker()} worker thread pool. After dispatch
@@ -507,7 +506,7 @@ public interface Router extends Registry {
    * @param body Dispatch body.
    * @return This router.
    */
-  @NonNull Router dispatch(@NonNull Runnable body);
+  Router dispatch(Runnable body);
 
   /**
    * Dispatch route pipeline to the given executor. After dispatch application code is allowed to do
@@ -518,7 +517,7 @@ public interface Router extends Registry {
    * @param body Dispatch body.
    * @return This router.
    */
-  @NonNull Router dispatch(@NonNull Executor executor, @NonNull Runnable body);
+  Router dispatch(Executor executor, Runnable body);
 
   /**
    * Group one or more routes. Useful for applying cross cutting concerns to the enclosed routes.
@@ -526,7 +525,7 @@ public interface Router extends Registry {
    * @param body Route body.
    * @return All routes created.
    */
-  @NonNull Route.Set routes(@NonNull Runnable body);
+  Route.Set routes(Runnable body);
 
   /**
    * Group one or more routes under a common path prefix. Useful for applying cross-cutting concerns
@@ -536,7 +535,7 @@ public interface Router extends Registry {
    * @param body Route body.
    * @return All routes created.
    */
-  @NonNull Route.Set path(@NonNull String pattern, @NonNull Runnable body);
+  Route.Set path(String pattern, Runnable body);
 
   /**
    * Add a HTTP GET handler.
@@ -545,7 +544,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route get(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route get(String pattern, Route.Handler handler) {
     return route(GET, pattern, handler);
   }
 
@@ -556,7 +555,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route post(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route post(String pattern, Route.Handler handler) {
     return route(POST, pattern, handler);
   }
 
@@ -567,7 +566,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route put(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route put(String pattern, Route.Handler handler) {
     return route(PUT, pattern, handler);
   }
 
@@ -578,7 +577,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route delete(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route delete(String pattern, Route.Handler handler) {
     return route(DELETE, pattern, handler);
   }
 
@@ -589,7 +588,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route patch(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route patch(String pattern, Route.Handler handler) {
     return route(PATCH, pattern, handler);
   }
 
@@ -600,7 +599,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route head(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route head(String pattern, Route.Handler handler) {
     return route(HEAD, pattern, handler);
   }
 
@@ -611,7 +610,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route options(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route options(String pattern, Route.Handler handler) {
     return route(OPTIONS, pattern, handler);
   }
 
@@ -622,7 +621,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull default Route trace(@NonNull String pattern, @NonNull Route.Handler handler) {
+  default Route trace(String pattern, Route.Handler handler) {
     return route(TRACE, pattern, handler);
   }
 
@@ -633,7 +632,7 @@ public interface Router extends Registry {
    * @param source File system directory.
    * @return A route.
    */
-  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull Path source) {
+  default AssetHandler assets(String pattern, Path source) {
     return assets(pattern, AssetSource.create(source));
   }
 
@@ -649,7 +648,7 @@ public interface Router extends Registry {
    * @param source File-System folder when exists, or fallback to a classpath folder.
    * @return AssetHandler.
    */
-  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull String source) {
+  default AssetHandler assets(String pattern, String source) {
     Path path =
         Stream.of(source.split("/"))
             .reduce(Paths.get(System.getProperty("user.dir")), Path::resolve, Path::resolve);
@@ -667,8 +666,7 @@ public interface Router extends Registry {
    * @param sources additional Asset sources.
    * @return A route.
    */
-  default @NonNull AssetHandler assets(
-      @NonNull String pattern, @NonNull AssetSource source, @NonNull AssetSource... sources) {
+  default AssetHandler assets(String pattern, AssetSource source, AssetSource... sources) {
     AssetSource[] allSources;
     if (sources.length == 0) {
       allSources = new AssetSource[] {source};
@@ -687,7 +685,7 @@ public interface Router extends Registry {
    * @param handler Asset handler.
    * @return A route.
    */
-  default @NonNull AssetHandler assets(@NonNull String pattern, @NonNull AssetHandler handler) {
+  default AssetHandler assets(String pattern, AssetHandler handler) {
     route(GET, pattern, handler);
     return handler;
   }
@@ -700,7 +698,7 @@ public interface Router extends Registry {
    * @param handler Application code.
    * @return A route.
    */
-  @NonNull Route route(@NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler);
+  Route route(String method, String pattern, Route.Handler handler);
 
   /**
    * Find a matching route using the given context.
@@ -711,7 +709,7 @@ public interface Router extends Registry {
    * @param ctx Web Context.
    * @return A route match result.
    */
-  @NonNull Match match(@NonNull Context ctx);
+  Match match(Context ctx);
 
   /**
    * Find a matching route using the given context.
@@ -723,7 +721,7 @@ public interface Router extends Registry {
    * @param path Path to match.
    * @return A route match result.
    */
-  boolean match(@NonNull String pattern, @NonNull String path);
+  boolean match(String pattern, String path);
 
   /* Error handler: */
 
@@ -734,7 +732,7 @@ public interface Router extends Registry {
    * @param statusCode Status code.
    * @return This router.
    */
-  @NonNull Router errorCode(@NonNull Class<? extends Throwable> type, @NonNull StatusCode statusCode);
+  Router errorCode(Class<? extends Throwable> type, StatusCode statusCode);
 
   /**
    * Computes the status code for the given exception.
@@ -742,7 +740,7 @@ public interface Router extends Registry {
    * @param cause Exception.
    * @return Status code.
    */
-  @NonNull StatusCode errorCode(@NonNull Throwable cause);
+  StatusCode errorCode(Throwable cause);
 
   /**
    * Add a custom error handler that matches the given status code.
@@ -751,7 +749,7 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull default Router error(@NonNull StatusCode statusCode, @NonNull ErrorHandler handler) {
+  default Router error(StatusCode statusCode, ErrorHandler handler) {
     return error(statusCode::equals, handler);
   }
 
@@ -762,7 +760,7 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull default Router error(@NonNull Class<? extends Throwable> type, @NonNull ErrorHandler handler) {
+  default Router error(Class<? extends Throwable> type, ErrorHandler handler) {
     return error(
         (ctx, x, statusCode) -> {
           if (type.isInstance(x) || type.isInstance(x.getCause())) {
@@ -778,7 +776,7 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull default Router error(@NonNull Predicate<StatusCode> predicate, @NonNull ErrorHandler handler) {
+  default Router error(Predicate<StatusCode> predicate, ErrorHandler handler) {
     return error(
         (ctx, x, statusCode) -> {
           if (predicate.test(statusCode)) {
@@ -793,28 +791,28 @@ public interface Router extends Registry {
    * @param handler Error handler.
    * @return This router.
    */
-  @NonNull Router error(@NonNull ErrorHandler handler);
+  Router error(ErrorHandler handler);
 
   /**
    * Get the error handler.
    *
    * @return An error handler.
    */
-  @NonNull ErrorHandler getErrorHandler();
+  ErrorHandler getErrorHandler();
 
   /**
    * Application logger.
    *
    * @return Application logger.
    */
-  @NonNull Logger getLog();
+  Logger getLog();
 
   /**
    * Router options.
    *
    * @return Router options.
    */
-  @NonNull RouterOptions getRouterOptions();
+  RouterOptions getRouterOptions();
 
   /**
    * Set router options.
@@ -822,14 +820,14 @@ public interface Router extends Registry {
    * @param options router options.
    * @return This router.
    */
-  @NonNull Router setRouterOptions(@NonNull RouterOptions options);
+  Router setRouterOptions(RouterOptions options);
 
   /**
    * Session store. Default is {@link SessionStore#UNSUPPORTED}.
    *
    * @return Session store.
    */
-  @NonNull SessionStore getSessionStore();
+  SessionStore getSessionStore();
 
   /**
    * Set session store.
@@ -837,7 +835,7 @@ public interface Router extends Registry {
    * @param store Session store.
    * @return This router.
    */
-  @NonNull Router setSessionStore(@NonNull SessionStore store);
+  Router setSessionStore(SessionStore store);
 
   /**
    * Get an executor from application registry.
@@ -845,7 +843,7 @@ public interface Router extends Registry {
    * @param name Executor name.
    * @return Executor.
    */
-  default @NonNull Executor executor(@NonNull String name) {
+  default Executor executor(String name) {
     return require(Executor.class, name);
   }
 
@@ -856,7 +854,7 @@ public interface Router extends Registry {
    * @param executor Executor.
    * @return This router.
    */
-  @NonNull Router executor(@NonNull String name, @NonNull Executor executor);
+  Router executor(String name, Executor executor);
 
   /**
    * Template for the flash cookie. Default name is: <code>jooby.flash</code>.
@@ -872,7 +870,7 @@ public interface Router extends Registry {
    * @param flashCookie The cookie template.
    * @return This router.
    */
-  Router setFlashCookie(@NonNull Cookie flashCookie);
+  Router setFlashCookie(Cookie flashCookie);
 
   /**
    * Value factory.
@@ -887,7 +885,7 @@ public interface Router extends Registry {
    * @param valueFactory Value factory.
    * @return This router.
    */
-  Router setValueFactory(@NonNull ValueFactory valueFactory);
+  Router setValueFactory(ValueFactory valueFactory);
 
   /**
    * Ensure path start with a <code>/</code>(leading slash).
@@ -908,7 +906,7 @@ public interface Router extends Registry {
    * @param path Path to process.
    * @return Path without trailing slashes.
    */
-  static String noTrailingSlash(@NonNull String path) {
+  static String noTrailingSlash(String path) {
     StringBuilder buff = new StringBuilder(path);
     int i = buff.length() - 1;
     while (i > 0 && buff.charAt(i) == '/') {
@@ -962,7 +960,7 @@ public interface Router extends Registry {
    * @param pattern Path pattern.
    * @return Path keys.
    */
-  static @NonNull List<String> pathKeys(@NonNull String pattern) {
+  static List<String> pathKeys(String pattern) {
     return pathKeys(pattern, (k, v) -> {});
   }
 
@@ -975,8 +973,7 @@ public interface Router extends Registry {
    * @param consumer Listen for key and regex variables found.
    * @return Path keys.
    */
-  static @NonNull List<String> pathKeys(
-      @NonNull String pattern, BiConsumer<String, String> consumer) {
+  static List<String> pathKeys(String pattern, BiConsumer<String, String> consumer) {
     List<String> result = new ArrayList<>();
     int start = -1;
     int end = Integer.MAX_VALUE;
@@ -1043,7 +1040,7 @@ public interface Router extends Registry {
    * @param pattern Pattern.
    * @return One or more patterns.
    */
-  static @NonNull List<String> expandOptionalVariables(@NonNull String pattern) {
+  static List<String> expandOptionalVariables(String pattern) {
     if (pattern == null || pattern.isEmpty() || pattern.equals("/")) {
       return Collections.singletonList("/");
     }
@@ -1135,7 +1132,7 @@ public interface Router extends Registry {
    * @param values Path keys.
    * @return Path.
    */
-  static @NonNull String reverse(@NonNull String pattern, @NonNull Object... values) {
+  static String reverse(String pattern, Object... values) {
     Map<String, Object> keys = new HashMap<>();
     IntStream.range(0, values.length).forEach(k -> keys.put(Integer.toString(k), values[k]));
     return reverse(pattern, keys);
@@ -1148,7 +1145,7 @@ public interface Router extends Registry {
    * @param keys Path keys.
    * @return Path.
    */
-  static @NonNull String reverse(@NonNull String pattern, @NonNull Map<String, Object> keys) {
+  static String reverse(String pattern, Map<String, Object> keys) {
     StringBuilder path = new StringBuilder();
     int start = 0;
     int end = Integer.MAX_VALUE;

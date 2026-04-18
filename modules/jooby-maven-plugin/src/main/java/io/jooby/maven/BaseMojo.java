@@ -38,8 +38,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectDependenciesResolver;
 import org.eclipse.aether.graph.Dependency;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Base class which provides common utility method to more specific plugins: like classpath
  * resources.
@@ -109,8 +107,7 @@ public abstract class BaseMojo extends AbstractMojo {
    * @param mainClass Main class.
    * @throws Throwable If something goes wrong.
    */
-  protected abstract void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
-      throws Throwable;
+  protected abstract void doExecute(List<MavenProject> projects, String mainClass) throws Throwable;
 
   /**
    * Multiple projects for multimodule project. Otherwise single project.

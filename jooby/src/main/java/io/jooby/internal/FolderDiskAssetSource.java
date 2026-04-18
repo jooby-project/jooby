@@ -8,20 +8,20 @@ package io.jooby.internal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.handler.Asset;
 import io.jooby.handler.AssetSource;
 
 public class FolderDiskAssetSource implements AssetSource {
   private Path location;
 
-  public FolderDiskAssetSource(@NonNull Path location) {
+  public FolderDiskAssetSource(Path location) {
     this.location = location.normalize().toAbsolutePath();
   }
 
   @Nullable @Override
-  public Asset resolve(@NonNull String path) {
+  public Asset resolve(String path) {
     Path resource = location.resolve(path).normalize().toAbsolutePath();
     if (resource.startsWith(location)) {
       if (Files.isRegularFile(resource)) {

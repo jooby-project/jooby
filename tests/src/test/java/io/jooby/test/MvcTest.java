@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.Assertions;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import examples.*;
 import io.jooby.Context;
 import io.jooby.ExecutionMode;
@@ -123,22 +122,21 @@ public class MvcTest {
             app -> {
               app.encoder(
                   io.jooby.MediaType.json,
-                  (@NonNull Context ctx, @NonNull Object value) ->
+                  (Context ctx, Object value) ->
                       ctx.getOutputFactory()
                           .wrap(("{" + value + "}").getBytes(StandardCharsets.UTF_8)));
 
               app.encoder(
                   io.jooby.MediaType.xml,
-                  (@NonNull Context ctx, @NonNull Object value) ->
+                  (Context ctx, Object value) ->
                       ctx.getOutputFactory()
                           .wrap(("<" + value + ">").getBytes(StandardCharsets.UTF_8)));
 
               app.decoder(
                   io.jooby.MediaType.json,
                   new MessageDecoder() {
-                    @NonNull @Override
-                    public Message decode(@NonNull Context ctx, @NonNull Type type)
-                        throws Exception {
+                    @Override
+                    public Message decode(Context ctx, Type type) throws Exception {
                       return new Message("{" + ctx.body().value("") + "}");
                     }
                   });
@@ -146,9 +144,8 @@ public class MvcTest {
               app.decoder(
                   xml,
                   new MessageDecoder() {
-                    @NonNull @Override
-                    public Message decode(@NonNull Context ctx, @NonNull Type type)
-                        throws Exception {
+                    @Override
+                    public Message decode(Context ctx, Type type) throws Exception {
                       return new Message("<" + ctx.body().value("") + ">");
                     }
                   });

@@ -7,7 +7,6 @@ package io.jooby.internal.netty;
 
 import java.nio.ByteBuffer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -26,7 +25,7 @@ public class NettyOutputStatic implements NettyByteBufRef {
     return buffer.remaining();
   }
 
-  @NonNull public ByteBuf byteBuf() {
+  public ByteBuf byteBuf() {
     return Unpooled.wrappedBuffer(buffer);
   }
 

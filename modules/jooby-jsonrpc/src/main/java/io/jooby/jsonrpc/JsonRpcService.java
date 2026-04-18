@@ -7,7 +7,6 @@ package io.jooby.jsonrpc;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Jooby;
 
@@ -33,7 +32,7 @@ public interface JsonRpcService {
    *     Must not be null.
    * @throws Exception If registration fails.
    */
-  void install(@NonNull Jooby application) throws Exception;
+  void install(Jooby application) throws Exception;
 
   /**
    * Executes the requested method using the provided context and request data.
@@ -43,5 +42,5 @@ public interface JsonRpcService {
    * @return The result of the method invocation.
    * @throws Exception If an error occurs during execution.
    */
-  Object execute(@NonNull Context ctx, @NonNull JsonRpcRequest req) throws Exception;
+  Object execute(Context ctx, JsonRpcRequest req) throws Exception;
 }

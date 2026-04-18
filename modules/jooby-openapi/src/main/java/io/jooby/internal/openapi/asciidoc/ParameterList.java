@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.swagger.v3.oas.models.parameters.Parameter;
 
 @JsonIgnoreProperties({"includes"})
@@ -39,7 +38,7 @@ public class ParameterList extends AbstractList<Parameter> {
     return parameters.size();
   }
 
-  @NonNull @Override
+  @Override
   public String toString() {
     return parameters.stream().map(Parameter::getName).collect(Collectors.joining(", "));
   }

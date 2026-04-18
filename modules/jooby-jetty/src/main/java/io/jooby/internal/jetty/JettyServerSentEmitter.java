@@ -15,7 +15,6 @@ import org.eclipse.jetty.io.EofException;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
@@ -55,13 +54,13 @@ public class JettyServerSentEmitter implements ServerSentEmitter, Callback {
     return open.get();
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return Context.readOnly(jetty);
   }
 
-  @NonNull @Override
-  public ServerSentEmitter send(@NonNull ServerSentMessage data) {
+  @Override
+  public ServerSentEmitter send(ServerSentMessage data) {
     if (isOpen()) {
       fromOutput(response, this, data.encode(jetty)).send(false);
     }

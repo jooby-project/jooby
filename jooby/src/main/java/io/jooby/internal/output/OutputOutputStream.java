@@ -8,7 +8,6 @@ package io.jooby.internal.output;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 
@@ -23,7 +22,7 @@ public class OutputOutputStream extends OutputStream {
 
   private boolean closed;
 
-  public OutputOutputStream(@NonNull BufferedOutput output) {
+  public OutputOutputStream(BufferedOutput output) {
     this.output = output;
   }
 
@@ -34,7 +33,7 @@ public class OutputOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(@NonNull byte[] b, int off, int len) throws IOException {
+  public void write(byte[] b, int off, int len) throws IOException {
     checkClosed();
     if (len > 0) {
       this.output.write(b, off, len);

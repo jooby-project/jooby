@@ -11,7 +11,6 @@ import java.nio.ByteBuffer;
 
 import org.eclipse.jetty.server.Response;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
 import io.jooby.output.Output;
 
@@ -25,13 +24,13 @@ public class JettySender implements Sender {
   }
 
   @Override
-  public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
+  public Sender write(byte[] data, Callback callback) {
     response.write(false, ByteBuffer.wrap(data), toJettyCallback(ctx, callback));
     return this;
   }
 
-  @NonNull @Override
-  public Sender write(@NonNull Output output, @NonNull Callback callback) {
+  @Override
+  public Sender write(Output output, Callback callback) {
     fromOutput(response, toJettyCallback(ctx, callback), output).send(false);
     return this;
   }

@@ -15,8 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a file download.
@@ -73,8 +72,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public FileDownload(
-      Mode mode, @NonNull InputStream content, @NonNull String fileName, long fileSize) {
+  public FileDownload(Mode mode, InputStream content, String fileName, long fileSize) {
     try {
       this.fileName = Paths.get(fileName).getFileName().toString();
       this.contentType = MediaType.byFile(this.fileName);
@@ -100,7 +98,7 @@ public class FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public FileDownload(Mode mode, @NonNull InputStream content, @NonNull String fileName) {
+  public FileDownload(Mode mode, InputStream content, String fileName) {
     this(mode, content, fileName, -1);
   }
 
@@ -111,7 +109,7 @@ public class FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public FileDownload(Mode mode, @NonNull byte[] content, @NonNull String fileName) {
+  public FileDownload(Mode mode, byte[] content, String fileName) {
     this(mode, new ByteArrayInputStream(content), fileName, content.length);
   }
 
@@ -123,7 +121,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @throws IOException For IO exception while reading file.
    */
-  public FileDownload(Mode mode, @NonNull Path file, @NonNull String fileName) throws IOException {
+  public FileDownload(Mode mode, Path file, String fileName) throws IOException {
     this(mode, new FileInputStream(file.toFile()), fileName, Files.size(file));
     this.file = file;
   }
@@ -135,7 +133,7 @@ public class FileDownload {
    * @param file File content.
    * @throws IOException For IO exception while reading file.
    */
-  public FileDownload(Mode mode, @NonNull Path file) throws IOException {
+  public FileDownload(Mode mode, Path file) throws IOException {
     this(mode, file, file.getFileName().toString());
     this.file = file;
   }
@@ -262,8 +260,7 @@ public class FileDownload {
    * @param fileSize File size or <code>-1</code> if unknown.
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(
-      @NonNull InputStream content, @NonNull String fileName, long fileSize) {
+  public static Builder build(InputStream content, String fileName, long fileSize) {
     return mode -> new FileDownload(mode, content, fileName, fileSize);
   }
 
@@ -275,7 +272,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@NonNull InputStream content, @NonNull String fileName) {
+  public static Builder build(InputStream content, String fileName) {
     return mode -> new FileDownload(mode, content, fileName);
   }
 
@@ -287,7 +284,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @return a {@link Builder} with the specified content
    */
-  public static Builder build(@NonNull byte[] content, @NonNull String fileName) {
+  public static Builder build(byte[] content, String fileName) {
     return mode -> new FileDownload(mode, content, fileName);
   }
 
@@ -299,7 +296,7 @@ public class FileDownload {
    * @param fileName Filename.
    * @return a {@link Builder} with the specified content
    */
-  public static BuilderExt build(@NonNull Path file, @NonNull String fileName) {
+  public static BuilderExt build(Path file, String fileName) {
     return new BuilderExt() {
       private boolean deleteOnComplete;
 
@@ -329,7 +326,7 @@ public class FileDownload {
    * @param file File content.
    * @return a {@link Builder} with the specified content
    */
-  public static BuilderExt build(@NonNull Path file) {
+  public static BuilderExt build(Path file) {
     return build(file, file.getFileName().toString());
   }
 }

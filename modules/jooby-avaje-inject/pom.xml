@@ -17,11 +17,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.github.spotbugs</groupId>
-      <artifactId>spotbugs-annotations</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>io.jooby</groupId>
       <artifactId>jooby</artifactId>
     </dependency>

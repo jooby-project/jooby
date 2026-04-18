@@ -8,7 +8,6 @@ package io.jooby.internal.netty;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.netty.NettyEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 
@@ -30,17 +29,17 @@ public class NettyEventLoopGroupImpl implements NettyEventLoopGroup {
   }
 
   @Override
-  public @NonNull EventLoopGroup acceptor() {
+  public EventLoopGroup acceptor() {
     return parent;
   }
 
   @Override
-  public @NonNull EventLoopGroup eventLoop() {
+  public EventLoopGroup eventLoop() {
     return child;
   }
 
   @Override
-  public @NonNull ExecutorService worker() {
+  public ExecutorService worker() {
     return worker;
   }
 

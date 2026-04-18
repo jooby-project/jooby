@@ -12,7 +12,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.output.OutputOutputStream;
 import io.jooby.internal.output.OutputWriter;
 
@@ -56,7 +55,7 @@ public interface BufferedOutput extends Output {
    * @param charset Charset to use.
    * @return An output stream.
    */
-  default Writer asWriter(@NonNull Charset charset) {
+  default Writer asWriter(Charset charset) {
     return new OutputWriter(this, charset);
   }
 
@@ -94,7 +93,7 @@ public interface BufferedOutput extends Output {
    * @param source the char sequence to write into this buffer
    * @return this output
    */
-  default BufferedOutput write(@NonNull String source) {
+  default BufferedOutput write(String source) {
     return write(source, StandardCharsets.UTF_8);
   }
 
@@ -106,7 +105,7 @@ public interface BufferedOutput extends Output {
    * @param charset the charset to encode the char sequence with
    * @return this output
    */
-  default BufferedOutput write(@NonNull String source, @NonNull Charset charset) {
+  default BufferedOutput write(String source, Charset charset) {
     if (!source.isEmpty()) {
       return write(source.getBytes(charset));
     }
@@ -120,7 +119,7 @@ public interface BufferedOutput extends Output {
    * @param source the bytes to be written into this buffer
    * @return this output
    */
-  default BufferedOutput write(@NonNull ByteBuffer source) {
+  default BufferedOutput write(ByteBuffer source) {
     if (source.hasArray()) {
       return write(source.array(), source.arrayOffset() + source.position(), source.remaining());
     } else {
@@ -138,7 +137,7 @@ public interface BufferedOutput extends Output {
    * @param charset Charset.
    * @return this output
    */
-  default BufferedOutput write(@NonNull CharBuffer source, @NonNull Charset charset) {
+  default BufferedOutput write(CharBuffer source, Charset charset) {
     if (!source.isEmpty()) {
       return write(charset.encode(source));
     }

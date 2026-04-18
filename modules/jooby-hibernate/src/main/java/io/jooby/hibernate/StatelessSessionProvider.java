@@ -8,8 +8,6 @@ package io.jooby.hibernate;
 import org.hibernate.StatelessSession;
 import org.hibernate.StatelessSessionBuilder;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Allow to customize a Session before opening it.
  *
@@ -23,5 +21,5 @@ public interface StatelessSessionProvider {
    * @param builder Session builder.
    * @return A new session.
    */
-  @NonNull StatelessSession newSession(@NonNull StatelessSessionBuilder builder);
+  StatelessSession newSession(StatelessSessionBuilder builder);
 }

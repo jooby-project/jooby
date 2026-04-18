@@ -8,7 +8,6 @@ package io.jooby.vertx;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.vertx.VertxRegistry;
@@ -90,7 +89,7 @@ public class VertxModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     // Ensure single instance
     if (application.getServices().getOrNull(Vertx.class) != null) {
       throw new IllegalStateException("Vertx already exists.");

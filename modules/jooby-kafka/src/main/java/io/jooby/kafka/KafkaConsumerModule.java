@@ -7,7 +7,6 @@ package io.jooby.kafka;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -48,7 +47,7 @@ public class KafkaConsumerModule implements Extension {
    *
    * @param key Kafka key.
    */
-  public KafkaConsumerModule(@NonNull String key) {
+  public KafkaConsumerModule(String key) {
     this.key = key;
   }
 
@@ -58,7 +57,7 @@ public class KafkaConsumerModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     KafkaHelper.install(application, key, KafkaConsumer::new);
   }
 }

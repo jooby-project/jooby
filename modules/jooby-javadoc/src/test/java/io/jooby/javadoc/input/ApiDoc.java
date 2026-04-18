@@ -7,7 +7,6 @@ package io.jooby.javadoc.input;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
@@ -42,7 +41,7 @@ public class ApiDoc {
    * @return Welcome message <code>200</code>.
    * @throws NullPointerException One something is null.
    */
-  @NonNull @GET
+  @GET
   public String hello(
       @QueryParam List<List<String>> name,
       @QueryParam int age,

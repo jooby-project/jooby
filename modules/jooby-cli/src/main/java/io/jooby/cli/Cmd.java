@@ -5,8 +5,6 @@
  */
 package io.jooby.cli;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Base class for application commands.
  *
@@ -30,14 +28,14 @@ public abstract class Cmd implements Runnable {
    * @param context Command context.
    * @throws Exception If something goes wrong.
    */
-  public abstract void run(@NonNull CliContext context) throws Exception;
+  public abstract void run(CliContext context) throws Exception;
 
   /**
    * Set command context.
    *
    * @param context Command context.
    */
-  public void setContext(@NonNull CliContext context) {
+  public void setContext(CliContext context) {
     this.context = context;
   }
 

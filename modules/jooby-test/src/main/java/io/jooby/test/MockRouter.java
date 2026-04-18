@@ -11,7 +11,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.Route;
@@ -53,7 +52,7 @@ public class MockRouter {
       this.value = value;
     }
 
-    @NonNull @Override
+    @Override
     public Object value() {
       return value;
     }
@@ -74,7 +73,7 @@ public class MockRouter {
    *
    * @param application Source application.
    */
-  public MockRouter(@NonNull Jooby application) {
+  public MockRouter(Jooby application) {
     if (application.problemDetailsIsEnabled()) {
       application.error(ProblemDetailsHandler.from(application.getConfig()));
     }
@@ -88,7 +87,7 @@ public class MockRouter {
    * @param session Global session.
    * @return This router.
    */
-  public @NonNull MockRouter setSession(@NonNull MockSession session) {
+  public MockRouter setSession(MockSession session) {
     this.session = session;
     return this;
   }
@@ -108,7 +107,7 @@ public class MockRouter {
    * @param worker Worker executor.
    * @return This router.
    */
-  public MockRouter setWorker(@NonNull Executor worker) {
+  public MockRouter setWorker(Executor worker) {
     this.worker = worker;
     return this;
   }
@@ -119,7 +118,7 @@ public class MockRouter {
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
-  @NonNull public MockValue get(@NonNull String path) {
+  public MockValue get(String path) {
     return get(path, newContext());
   }
 
@@ -155,7 +154,7 @@ public class MockRouter {
    * @param callback Websocket client callback.
    * @return Web socket client.
    */
-  public MockWebSocketClient ws(@NonNull String path, Consumer<MockWebSocketClient> callback) {
+  public MockWebSocketClient ws(String path, Consumer<MockWebSocketClient> callback) {
     MockValue value = get(path, newContext());
     if (value.value() instanceof MockWebSocketConfigurer) {
       MockWebSocketConfigurer configurer = value.value(MockWebSocketConfigurer.class);
@@ -184,7 +183,7 @@ public class MockRouter {
    * @param context Context to use.
    * @return Route response.
    */
-  @NonNull public MockValue get(@NonNull String path, @NonNull Context context) {
+  public MockValue get(String path, Context context) {
     return call(Router.GET, path, context);
   }
 
@@ -195,7 +194,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue get(@NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue get(String path, Consumer<MockResponse> consumer) {
     return get(path, newContext(), consumer);
   }
 
@@ -207,10 +206,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue get(
-      @NonNull String path,
-      @NonNull MockContext context,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue get(String path, MockContext context, Consumer<MockResponse> consumer) {
     return call(Router.GET, path, context, consumer);
   }
 
@@ -220,7 +216,7 @@ public class MockRouter {
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
-  public MockValue post(@NonNull String path) {
+  public MockValue post(String path) {
     return post(path, newContext());
   }
 
@@ -231,7 +227,7 @@ public class MockRouter {
    * @param context Context to use.
    * @return Route response.
    */
-  @NonNull public MockValue post(@NonNull String path, @NonNull Context context) {
+  public MockValue post(String path, Context context) {
     return call(Router.POST, path, context);
   }
 
@@ -242,7 +238,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue post(@NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue post(String path, Consumer<MockResponse> consumer) {
     return post(path, newContext(), consumer);
   }
 
@@ -254,10 +250,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue post(
-      @NonNull String path,
-      @NonNull MockContext context,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue post(String path, MockContext context, Consumer<MockResponse> consumer) {
     return call(Router.POST, path, context, consumer);
   }
 
@@ -267,7 +260,7 @@ public class MockRouter {
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
-  public MockValue delete(@NonNull String path) {
+  public MockValue delete(String path) {
     return delete(path, newContext());
   }
 
@@ -278,7 +271,7 @@ public class MockRouter {
    * @param context Context to use.
    * @return Route response.
    */
-  @NonNull public MockValue delete(@NonNull String path, @NonNull Context context) {
+  public MockValue delete(String path, Context context) {
     return call(Router.DELETE, path, context);
   }
 
@@ -289,7 +282,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue delete(@NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue delete(String path, Consumer<MockResponse> consumer) {
     return delete(path, newContext(), consumer);
   }
 
@@ -301,10 +294,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue delete(
-      @NonNull String path,
-      @NonNull MockContext context,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue delete(String path, MockContext context, Consumer<MockResponse> consumer) {
     return call(Router.DELETE, path, context, consumer);
   }
 
@@ -314,7 +304,7 @@ public class MockRouter {
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
-  public MockValue put(@NonNull String path) {
+  public MockValue put(String path) {
     return put(path, newContext());
   }
 
@@ -325,7 +315,7 @@ public class MockRouter {
    * @param context Context to use.
    * @return Route response.
    */
-  @NonNull public MockValue put(@NonNull String path, @NonNull Context context) {
+  public MockValue put(String path, Context context) {
     return call(Router.PUT, path, context);
   }
 
@@ -336,7 +326,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue put(@NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue put(String path, Consumer<MockResponse> consumer) {
     return put(path, newContext(), consumer);
   }
 
@@ -348,10 +338,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue put(
-      @NonNull String path,
-      @NonNull MockContext context,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue put(String path, MockContext context, Consumer<MockResponse> consumer) {
     return call(Router.PUT, path, context, consumer);
   }
 
@@ -361,7 +348,7 @@ public class MockRouter {
    * @param path Path to match. Might includes the queryString.
    * @return Route response.
    */
-  public MockValue patch(@NonNull String path) {
+  public MockValue patch(String path) {
     return patch(path, newContext());
   }
 
@@ -372,7 +359,7 @@ public class MockRouter {
    * @param context Context to use.
    * @return Route response.
    */
-  @NonNull public MockValue patch(@NonNull String path, @NonNull Context context) {
+  public MockValue patch(String path, Context context) {
     return call(Router.PATCH, path, context);
   }
 
@@ -383,7 +370,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue patch(@NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue patch(String path, Consumer<MockResponse> consumer) {
     return patch(path, newContext(), consumer);
   }
 
@@ -395,10 +382,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue patch(
-      @NonNull String path,
-      @NonNull MockContext context,
-      @NonNull Consumer<MockResponse> consumer) {
+  public MockValue patch(String path, MockContext context, Consumer<MockResponse> consumer) {
     return call(Router.PATCH, path, context, consumer);
   }
 
@@ -410,7 +394,7 @@ public class MockRouter {
    * @param context Web context.
    * @return Route response.
    */
-  public MockValue call(@NonNull String method, @NonNull String path, @NonNull Context context) {
+  public MockValue call(String method, String path, Context context) {
     return call(supplier.get(), method, path, context, NOOP);
   }
 
@@ -422,8 +406,7 @@ public class MockRouter {
    * @param consumer Response metadata callback.
    * @return Route response.
    */
-  public MockValue call(
-      @NonNull String method, @NonNull String path, @NonNull Consumer<MockResponse> consumer) {
+  public MockValue call(String method, String path, Consumer<MockResponse> consumer) {
     return call(method, path, newContext(), consumer);
   }
 
@@ -437,10 +420,7 @@ public class MockRouter {
    * @return Route response.
    */
   public MockValue call(
-      @NonNull String method,
-      @NonNull String path,
-      @NonNull MockContext ctx,
-      @NonNull Consumer<MockResponse> consumer) {
+      String method, String path, MockContext ctx, Consumer<MockResponse> consumer) {
     return call(supplier.get(), method, path, ctx, consumer);
   }
 

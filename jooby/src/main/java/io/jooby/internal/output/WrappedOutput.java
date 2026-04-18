@@ -7,7 +7,6 @@ package io.jooby.internal.output;
 
 import java.nio.ByteBuffer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
@@ -22,7 +21,7 @@ public record WrappedOutput(ByteBuffer buffer) implements Output {
   }
 
   @Override
-  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
+  public void transferTo(SneakyThrows.Consumer<ByteBuffer> consumer) {
     consumer.accept(asByteBuffer());
   }
 

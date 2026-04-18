@@ -1,3 +1,3 @@
 /** Unit test support for Jooby. */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.test;

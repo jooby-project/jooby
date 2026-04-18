@@ -128,7 +128,7 @@ public class JsonRpcRouter extends WebRouter<JsonRpcRoute> {
           statement(
               indent(4),
               "override fun execute(ctx: io.jooby.Context, req:"
-                  + " io.jooby.jsonrpc.JsonRpcRequest): Any? {"));
+                  + " io.jooby.jsonrpc.JsonRpcRequest): Any {"));
       buffer.append(statement(indent(6), "val c = factory.apply(ctx)"));
       buffer.append(statement(indent(6), "val method = req.method"));
       buffer.append(

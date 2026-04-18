@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.RegistryException;
 import io.jooby.exception.StatusCodeException;
@@ -172,40 +171,40 @@ public class RouterImpl implements Router {
     stack.addLast(new Stack(chi, null));
   }
 
-  @NonNull @Override
+  @Override
   public Config getConfig() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override
+  @Override
   public Environment getEnvironment() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override
+  @Override
   public List<Locale> getLocales() {
     throw new UnsupportedOperationException();
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, Object> getAttributes() {
     return attributes;
   }
 
-  @NonNull @Override
+  @Override
   public RouterOptions getRouterOptions() {
     return routerOptions;
   }
 
-  @NonNull @Override
-  public Router setRouterOptions(@NonNull RouterOptions options) {
+  @Override
+  public Router setRouterOptions(RouterOptions options) {
     this.routerOptions = options;
     ((Chi) chi).failOnDuplicateRoutes = options.isFailOnDuplicateRoutes();
     return this;
   }
 
-  @NonNull @Override
-  public Router setContextPath(@NonNull String basePath) {
+  @Override
+  public Router setContextPath(String basePath) {
     if (!routes.isEmpty()) {
       throw new IllegalStateException("Base path must be set before adding any routes.");
     }
@@ -213,17 +212,17 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Path getTmpdir() {
     return Paths.get(System.getProperty("java.io.tmpdir"));
   }
 
-  @NonNull @Override
+  @Override
   public String getContextPath() {
     return basePath == null ? "/" : basePath;
   }
 
-  @NonNull @Override
+  @Override
   public List<Route> getRoutes() {
     return routes;
   }
@@ -255,18 +254,18 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull @Override
-  public Route.Set domain(@NonNull String domain, @NonNull Runnable body) {
+  @Override
+  public Route.Set domain(String domain, Runnable body) {
     return mount(domainPredicate(domain), body);
   }
 
-  @NonNull @Override
-  public Route.Set domain(@NonNull String domain, @NonNull Router subrouter) {
+  @Override
+  public Route.Set domain(String domain, Router subrouter) {
     return mount(domainPredicate(domain), subrouter);
   }
 
-  @NonNull @Override
-  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Runnable body) {
+  @Override
+  public Route.Set mount(Predicate<Context> predicate, Runnable body) {
     var tree = new Chi(routerOptions.isFailOnDuplicateRoutes());
     putPredicate(predicate, tree);
     int start = this.routes.size();
@@ -275,9 +274,7 @@ public class RouterImpl implements Router {
   }
 
   public Router install(
-      @NonNull String path,
-      @NonNull Predicate<Context> predicate,
-      @NonNull SneakyThrows.Supplier<Jooby> factory) {
+      String path, Predicate<Context> predicate, SneakyThrows.Supplier<Jooby> factory) {
     var existingRouter = this.chi;
     try {
       var tree = new Chi(routerOptions.isFailOnDuplicateRoutes());
@@ -290,8 +287,8 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull @Override
-  public Route.Set mount(@NonNull Predicate<Context> predicate, @NonNull Router subrouter) {
+  @Override
+  public Route.Set mount(Predicate<Context> predicate, Router subrouter) {
     /* Override services: */
     overrideAll(this, subrouter);
     /* Routes: */
@@ -305,8 +302,8 @@ public class RouterImpl implements Router {
         });
   }
 
-  @NonNull @Override
-  public Route.Set mount(@NonNull String path, @NonNull Router router) {
+  @Override
+  public Route.Set mount(String path, Router router) {
     int start = this.routes.size();
     /** Override services: */
     overrideAll(this, router);
@@ -317,43 +314,43 @@ public class RouterImpl implements Router {
     return new Route.Set(this.routes.subList(start, this.routes.size()));
   }
 
-  @NonNull @Override
-  public Route.Set mount(@NonNull Router router) {
+  @Override
+  public Route.Set mount(Router router) {
     return mount("/", router);
   }
 
-  @NonNull @Override
-  public Router encoder(@NonNull MessageEncoder encoder) {
+  @Override
+  public Router encoder(MessageEncoder encoder) {
     this.encoder.add(MediaType.all, encoder);
     return this;
   }
 
-  @NonNull @Override
-  public Router encoder(@NonNull MediaType contentType, @NonNull MessageEncoder encoder) {
+  @Override
+  public Router encoder(MediaType contentType, MessageEncoder encoder) {
     this.encoder.add(contentType, encoder);
     return this;
   }
 
-  @NonNull @Override
-  public Router decoder(@NonNull MediaType contentType, @NonNull MessageDecoder decoder) {
+  @Override
+  public Router decoder(MediaType contentType, MessageDecoder decoder) {
     decoders.put(contentType.getValue(), decoder);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Executor getWorker() {
     return worker;
   }
 
-  @NonNull @Override
+  @Override
   public Router setWorker(Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     workerRef.executor = worker;
     return this;
   }
 
-  @NonNull @Override
-  public Router setDefaultWorker(@NonNull Executor worker) {
+  @Override
+  public Router setDefaultWorker(Executor worker) {
     ForwardingExecutor workerRef = (ForwardingExecutor) this.worker;
     if (workerRef.executor == null) {
       workerRef.executor = worker;
@@ -361,101 +358,99 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override
-  public Router use(@NonNull Route.Filter filter) {
+  @Override
+  public Router use(Route.Filter filter) {
     stack.peekLast().then(filter);
     return this;
   }
 
   @Override
-  @NonNull public Router after(@NonNull Route.After after) {
+  public Router after(Route.After after) {
     stack.peekLast().then(after);
     return this;
   }
 
-  @NonNull @Override
-  public Router before(@NonNull Route.Before before) {
+  @Override
+  public Router before(Route.Before before) {
     stack.peekLast().then(before);
     return this;
   }
 
-  @NonNull @Override
-  public Router error(@NonNull ErrorHandler handler) {
+  @Override
+  public Router error(ErrorHandler handler) {
     err = err == null ? handler : err.then(handler);
     return this;
   }
 
-  @NonNull @Override
-  public Router dispatch(@NonNull Runnable body) {
+  @Override
+  public Router dispatch(Runnable body) {
     return newStack(push(chi).executor(worker), body);
   }
 
-  @NonNull @Override
-  public Router dispatch(@NonNull Executor executor, @NonNull Runnable action) {
+  @Override
+  public Router dispatch(Executor executor, Runnable action) {
     return newStack(push(chi).executor(executor), action);
   }
 
-  @NonNull @Override
-  public Route.Set routes(@NonNull Runnable action) {
+  @Override
+  public Route.Set routes(Runnable action) {
     return path("/", action);
   }
 
   @Override
-  @NonNull public Route.Set path(@NonNull String pattern, @NonNull Runnable action) {
+  public Route.Set path(String pattern, Runnable action) {
     int start = this.routes.size();
     newStack(chi, pattern, action);
     return new Route.Set(this.routes.subList(start, this.routes.size()));
   }
 
-  @NonNull @Override
+  @Override
   public SessionStore getSessionStore() {
     return sessionStore;
   }
 
-  @NonNull @Override
+  @Override
   public Router setSessionStore(SessionStore sessionStore) {
     this.sessionStore = sessionStore;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public ValueFactory getValueFactory() {
     return valueFactory;
   }
 
-  @NonNull @Override
-  public Router setValueFactory(@NonNull ValueFactory valueFactory) {
+  @Override
+  public Router setValueFactory(ValueFactory valueFactory) {
     this.valueFactory = valueFactory;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public OutputFactory getOutputFactory() {
     return outputFactory;
   }
 
-  public void setOutputFactory(@NonNull OutputFactory outputFactory) {
+  public void setOutputFactory(OutputFactory outputFactory) {
     this.outputFactory = outputFactory;
   }
 
-  @NonNull @Override
-  public Route ws(@NonNull String pattern, @NonNull WebSocket.Initializer handler) {
+  @Override
+  public Route ws(String pattern, WebSocket.Initializer handler) {
     return route(WS, pattern, new WebSocketHandler(handler));
   }
 
-  @NonNull @Override
-  public Route sse(@NonNull String pattern, @NonNull ServerSentEmitter.Handler handler) {
+  @Override
+  public Route sse(String pattern, ServerSentEmitter.Handler handler) {
     return route(SSE, pattern, new ServerSentEventHandler(handler)).setExecutorKey("worker");
   }
 
   @Override
-  public Route route(
-      @NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler) {
+  public Route route(String method, String pattern, Route.Handler handler) {
     return newRoute(method, pattern, handler);
   }
 
-  private Route newRoute(
-      @NonNull String method, @NonNull String pattern, @NonNull Route.Handler handler) {
+  private Route newRoute(String method, String pattern, Route.Handler handler) {
     RouteTree tree = stack.getLast().tree;
     /** Pattern: */
     PathBuilder pathBuilder = new PathBuilder();
@@ -548,7 +543,7 @@ public class RouterImpl implements Router {
     configureContextAsService(routerOptions.isContextAsService());
   }
 
-  @NonNull public Router start(@NonNull Jooby app) {
+  public Router start(Jooby app) {
     started = true;
     var globalErrHandler = defineGlobalErrorHandler(app);
     if (err == null) {
@@ -657,8 +652,8 @@ public class RouterImpl implements Router {
     return LoggerFactory.getLogger(getClass());
   }
 
-  @NonNull @Override
-  public Router executor(@NonNull String name, @NonNull Executor executor) {
+  @Override
+  public Router executor(String name, Executor executor) {
     services.put(ServiceKey.key(Executor.class, name), executor);
     return this;
   }
@@ -679,13 +674,13 @@ public class RouterImpl implements Router {
     }
   }
 
-  @NonNull @Override
+  @Override
   public ErrorHandler getErrorHandler() {
     return err;
   }
 
-  @NonNull @Override
-  public Match match(@NonNull Context ctx) {
+  @Override
+  public Match match(Context ctx) {
     if (preDispatchInitializer != null) {
       preDispatchInitializer.apply(ctx);
     }
@@ -703,15 +698,14 @@ public class RouterImpl implements Router {
   }
 
   @Override
-  public boolean match(@NonNull String pattern, @NonNull String path) {
+  public boolean match(String pattern, String path) {
     Chi chi = new Chi(false);
     chi.insert(Router.GET, pattern, ROUTE_MARK);
     return chi.exists(Router.GET, path);
   }
 
-  @NonNull @Override
-  public Router errorCode(
-      @NonNull Class<? extends Throwable> type, @NonNull StatusCode statusCode) {
+  @Override
+  public Router errorCode(Class<? extends Throwable> type, StatusCode statusCode) {
     if (errorCodes == null) {
       errorCodes = new HashMap<>();
     }
@@ -719,8 +713,8 @@ public class RouterImpl implements Router {
     return this;
   }
 
-  @NonNull @Override
-  public StatusCode errorCode(@NonNull Throwable x) {
+  @Override
+  public StatusCode errorCode(Throwable x) {
     if (x instanceof StatusCodeException) {
       return ((StatusCodeException) x).getStatusCode();
     }
@@ -743,48 +737,48 @@ public class RouterImpl implements Router {
     return StatusCode.SERVER_ERROR;
   }
 
-  @NonNull @Override
+  @Override
   public ServiceRegistry getServices() {
     return services;
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Class<T> type, @NonNull String name) throws RegistryException {
+  @Override
+  public <T> T require(Class<T> type, String name) throws RegistryException {
     return services.require(type, name);
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Class<T> type) throws RegistryException {
+  @Override
+  public <T> T require(Class<T> type) throws RegistryException {
     return services.require(type);
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  @Override
+  public <T> T require(ServiceKey<T> key) throws RegistryException {
     return services.require(key);
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+  @Override
+  public <T> T require(Reified<T> type, String name) throws RegistryException {
     return services.require(type, name);
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+  @Override
+  public <T> T require(Reified<T> type) throws RegistryException {
     return services.require(type);
   }
 
-  @NonNull @Override
+  @Override
   public Cookie getFlashCookie() {
     return flashCookie;
   }
 
-  @NonNull @Override
-  public Router setFlashCookie(@NonNull Cookie flashCookie) {
+  @Override
+  public Router setFlashCookie(Cookie flashCookie) {
     this.flashCookie = requireNonNull(flashCookie);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public ServerOptions getServerOptions() {
     return serverOptions;
   }
@@ -794,20 +788,20 @@ public class RouterImpl implements Router {
     services.put(ServerOptions.class, serverOptions);
   }
 
-  @NonNull @Override
-  public Router setHiddenMethod(@NonNull String parameterName) {
+  @Override
+  public Router setHiddenMethod(String parameterName) {
     setHiddenMethod(new DefaultHiddenMethodLookup(parameterName));
     return this;
   }
 
-  @NonNull @Override
-  public Router setHiddenMethod(@NonNull Function<Context, Optional<String>> provider) {
+  @Override
+  public Router setHiddenMethod(Function<Context, Optional<String>> provider) {
     addPreDispatchInitializer(new HiddenMethodInitializer(provider));
     return this;
   }
 
-  @NonNull @Override
-  public Router setCurrentUser(@NonNull Function<Context, Object> provider) {
+  @Override
+  public Router setCurrentUser(Function<Context, Object> provider) {
     addPreDispatchInitializer(new CurrentUserInitializer(provider));
     return this;
   }
@@ -847,7 +841,7 @@ public class RouterImpl implements Router {
     return stack;
   }
 
-  private Router newStack(@NonNull Stack stack, @NonNull Runnable action, Route.Filter... filter) {
+  private Router newStack(Stack stack, Runnable action, Route.Filter... filter) {
     Stream.of(filter).forEach(stack::then);
     this.stack.addLast(stack);
     action.run();
@@ -883,7 +877,7 @@ public class RouterImpl implements Router {
     it.setSummary(src.getSummary());
   }
 
-  private void putPredicate(@NonNull Predicate<Context> predicate, Chi tree) {
+  private void putPredicate(Predicate<Context> predicate, Chi tree) {
     if (predicateMap == null) {
       predicateMap = new LinkedHashMap<>();
     }
@@ -932,7 +926,7 @@ public class RouterImpl implements Router {
     return ctx -> ctx.getHost().equals(domain);
   }
 
-  private void copyRoutes(@NonNull String path, @NonNull Router router) {
+  private void copyRoutes(String path, Router router) {
     String prefix = Router.leadingSlash(path);
     for (Route route : router.getRoutes()) {
       String routePattern = new PathBuilder(prefix, route.getPattern()).toString();

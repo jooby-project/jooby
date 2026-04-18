@@ -29,7 +29,6 @@ import org.jline.reader.LineReader;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.TemplateLoader;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.cli.Cli;
 import io.jooby.cli.CliContext;
 
@@ -80,12 +79,12 @@ public class CommandContextImpl implements CliContext {
     }
   }
 
-  @NonNull @Override
+  @Override
   public String getVersion() {
     return (String) configuration.getOrDefault("version", version);
   }
 
-  @NonNull @Override
+  @Override
   public Path getWorkspace() {
     String workspace =
         (String) configuration.getOrDefault("workspace", System.getProperty("user.dir"));
@@ -93,7 +92,7 @@ public class CommandContextImpl implements CliContext {
   }
 
   @Override
-  public void setWorkspace(@NonNull Path workspace) throws IOException {
+  public void setWorkspace(Path workspace) throws IOException {
     if (!Files.isDirectory(workspace)) {
       throw new FileNotFoundException(workspace.toAbsolutePath().toString());
     }

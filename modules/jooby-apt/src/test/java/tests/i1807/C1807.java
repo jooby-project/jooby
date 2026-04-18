@@ -5,7 +5,8 @@
  */
 package tests.i1807;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.annotation.FormParam;
 import io.jooby.annotation.POST;
 import io.jooby.annotation.Path;

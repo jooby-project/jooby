@@ -8,10 +8,10 @@ package io.jooby.caffeine;
 import java.time.Duration;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SessionStore;
 import io.jooby.SessionToken;
 
@@ -40,7 +40,7 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param cache Cache.
    */
-  public CaffeineSessionStore(@NonNull SessionToken token, @NonNull Cache<String, Object> cache) {
+  public CaffeineSessionStore(SessionToken token, Cache<String, Object> cache) {
     super(token);
     this.cache = cache;
   }
@@ -50,35 +50,35 @@ public class CaffeineSessionStore extends SessionStore.InMemory {
    *
    * @param timeout Session timeout.
    */
-  public CaffeineSessionStore(@NonNull SessionToken token, @NonNull Duration timeout) {
+  public CaffeineSessionStore(SessionToken token, Duration timeout) {
     super(token);
     this.cache = Caffeine.newBuilder().expireAfterAccess(timeout).build();
   }
 
   /** Creates a new session store with timeout of <code>30 minutes</code>. */
-  public CaffeineSessionStore(@NonNull SessionToken token) {
+  public CaffeineSessionStore(SessionToken token) {
     this(token, Duration.ofMinutes(DEFAULT_TIMEOUT));
   }
 
   @Override
-  protected Data getOrCreate(@NonNull String sessionId, @NonNull Function<String, Data> factory) {
+  protected Data getOrCreate(String sessionId, Function<String, Data> factory) {
     return (Data) cache.get(sessionId, factory);
   }
 
   @Override
-  protected @Nullable Data getOrNull(@NonNull String sessionId) {
+  protected @Nullable Data getOrNull(String sessionId) {
     return (Data) cache.getIfPresent(sessionId);
   }
 
   @Override
-  protected @Nullable Data remove(@NonNull String sessionId) {
+  protected @Nullable Data remove(String sessionId) {
     Data data = (Data) cache.getIfPresent(sessionId);
     cache.invalidate(sessionId);
     return data;
   }
 
   @Override
-  protected void put(@NonNull String sessionId, @NonNull Data data) {
+  protected void put(String sessionId, Data data) {
     cache.put(sessionId, data);
   }
 }

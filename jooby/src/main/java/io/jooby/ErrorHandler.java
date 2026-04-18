@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Catch and encode application errors.
  *
@@ -22,7 +20,7 @@ public interface ErrorHandler {
    * @param cause Application error.
    * @param code Status code.
    */
-  void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code);
+  void apply(Context ctx, Throwable cause, StatusCode code);
 
   /**
    * Chain this error handler with next and produces a new error handler.
@@ -30,7 +28,7 @@ public interface ErrorHandler {
    * @param next Next error handler.
    * @return A new error handler.
    */
-  @NonNull default ErrorHandler then(@NonNull ErrorHandler next) {
+  default ErrorHandler then(ErrorHandler next) {
     return (ctx, cause, statusCode) -> {
       apply(ctx, cause, statusCode);
       if (!ctx.isResponseStarted()) {
@@ -48,7 +46,7 @@ public interface ErrorHandler {
    * @param statusCode Status code.
    * @return Single line message.
    */
-  static @NonNull String errorMessage(@NonNull Context ctx, @NonNull StatusCode statusCode) {
+  static String errorMessage(Context ctx, StatusCode statusCode) {
     return ctx.getMethod()
         + " "
         + ctx.getRequestPath()
@@ -63,7 +61,7 @@ public interface ErrorHandler {
    *
    * @return Default error handler.
    */
-  static @NonNull DefaultErrorHandler create() {
+  static DefaultErrorHandler create() {
     return new DefaultErrorHandler();
   }
 }

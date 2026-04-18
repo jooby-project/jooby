@@ -7,7 +7,6 @@ package io.jooby.i3868;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.*;
 import io.jooby.annotation.jsonrpc.JsonRpc;
 import io.jooby.exception.NotFoundException;
@@ -27,7 +26,7 @@ public class MovieServiceRpc {
     return movie;
   }
 
-  public @NonNull Movie getById(int id) {
+  public Movie getById(int id) {
     return database.stream()
         .filter(m -> m.id() == id)
         .findFirst()

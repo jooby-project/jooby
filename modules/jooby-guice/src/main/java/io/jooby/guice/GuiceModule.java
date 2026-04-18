@@ -12,7 +12,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -49,7 +48,7 @@ public class GuiceModule implements Extension {
    *
    * @param injector Injector to use.
    */
-  public GuiceModule(@NonNull Injector injector) {
+  public GuiceModule(Injector injector) {
     this.injector = injector;
   }
 
@@ -58,7 +57,7 @@ public class GuiceModule implements Extension {
    *
    * @param modules Module to add.
    */
-  public GuiceModule(@NonNull Module... modules) {
+  public GuiceModule(Module... modules) {
     this.modules = modules;
   }
 
@@ -68,7 +67,7 @@ public class GuiceModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     if (injector == null) {
       var env = application.getEnvironment();
       List<Module> modules = new ArrayList<>();

@@ -16,7 +16,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.StatusCode;
@@ -65,10 +64,7 @@ public class ConstraintViolationHandler implements ErrorHandler {
   private final boolean problemDetailsEnabled;
 
   public ConstraintViolationHandler(
-      @NonNull StatusCode statusCode,
-      @NonNull String title,
-      boolean logException,
-      boolean problemDetailsEnabled) {
+      StatusCode statusCode, String title, boolean logException, boolean problemDetailsEnabled) {
     this.statusCode = statusCode;
     this.title = title;
     this.logException = logException;
@@ -76,7 +72,7 @@ public class ConstraintViolationHandler implements ErrorHandler {
   }
 
   @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  public void apply(Context ctx, Throwable cause, StatusCode code) {
     if (cause instanceof ConstraintViolationException ex) {
       if (logException) {
         log.error(ErrorHandler.errorMessage(ctx, code), cause);

@@ -9,7 +9,7 @@ module io.jooby.hikari {
 
   requires io.jooby;
   requires org.slf4j;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires java.sql;
   requires com.zaxxer.hikari;

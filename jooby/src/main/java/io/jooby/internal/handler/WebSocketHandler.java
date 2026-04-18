@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.StatusCode;
 import io.jooby.WebSocket;
@@ -21,8 +20,8 @@ public class WebSocketHandler implements WebSocket.Handler {
     return handler;
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
+  @Override
+  public Object apply(Context ctx) {
     boolean webSocket = ctx.header("Upgrade").value("").equalsIgnoreCase("WebSocket");
     if (webSocket) {
       ctx.upgrade(handler);

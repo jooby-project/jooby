@@ -10,7 +10,6 @@ import static io.jooby.internal.IOUtils.bounded;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.StatusCode;
@@ -83,11 +82,11 @@ public class SingleByteRange implements ByteRange {
    * @return Value for <code>Content-Range</code> response header.
    */
   @Override
-  public @NonNull String getContentRange() {
+  public String getContentRange() {
     return contentRange;
   }
 
-  @NonNull @Override
+  @Override
   public StatusCode getStatusCode() {
     return StatusCode.PARTIAL_CONTENT;
   }
@@ -107,7 +106,7 @@ public class SingleByteRange implements ByteRange {
    * @return This byte range request.
    */
   @Override
-  public @NonNull ByteRange apply(@NonNull Context ctx) {
+  public ByteRange apply(Context ctx) {
     ctx.setResponseHeader("Accept-Ranges", "bytes");
     ctx.setResponseHeader("Content-Range", contentRange);
     ctx.setResponseLength(contentLength);
@@ -127,7 +126,7 @@ public class SingleByteRange implements ByteRange {
    * @throws IOException When truncation fails.
    */
   @Override
-  public @NonNull InputStream apply(@NonNull InputStream input) throws IOException {
+  public InputStream apply(InputStream input) throws IOException {
     return bounded(input, start, end);
   }
 

@@ -27,7 +27,6 @@ import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.AvailableSettings;
 import io.jooby.Environment;
 import io.jooby.Extension;
@@ -141,7 +140,7 @@ public class HikariModule implements Extension {
    *
    * @param database Database key, database type or connection string.
    */
-  public HikariModule(@NonNull String database) {
+  public HikariModule(String database) {
     this.database = database;
   }
 
@@ -164,7 +163,7 @@ public class HikariModule implements Extension {
    *
    * @param hikari Hikari configuration.
    */
-  public HikariModule(@NonNull HikariConfig hikari) {
+  public HikariModule(HikariConfig hikari) {
     this(hikari.getPoolName());
     this.hikari = hikari;
   }
@@ -197,7 +196,7 @@ public class HikariModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     if (hikari == null) {
       hikari = build(application.getEnvironment(), database);
     }
@@ -234,7 +233,7 @@ public class HikariModule implements Extension {
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database type or given jdbc connection string for unknown or bad urls.
    */
-  public static String databaseType(@NonNull String url) {
+  public static String databaseType(String url) {
     return Arrays.stream(url.toLowerCase().split(":"))
         .filter(token -> !SKIP_TOKENS.contains(token))
         .findFirst()
@@ -249,7 +248,7 @@ public class HikariModule implements Extension {
    * @param url Jdbc connection string (a.k.a jdbc url)
    * @return Database name.
    */
-  public static @NonNull String databaseName(@NonNull String url) {
+  public static String databaseName(String url) {
     int len = url.length();
     int q = url.indexOf('?');
     if (q == -1) {

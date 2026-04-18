@@ -18,7 +18,6 @@ import org.pac4j.core.engine.SecurityLogic;
 import org.pac4j.core.matching.matcher.DefaultMatchers;
 import org.pac4j.core.util.Pac4jConstants;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
@@ -51,8 +50,8 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
     }
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (pattern == null) {
         return perform(ctx, new GrantAccessAdapterImpl(ctx, config, next));
@@ -66,8 +65,8 @@ public class SecurityFilterImpl implements Route.Filter, Route.Handler {
     };
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public Object apply(Context ctx) throws Exception {
     return perform(ctx, new GrantAccessAdapterImpl(ctx, config));
   }
 

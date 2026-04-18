@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import gg.jte.TemplateEngine;
 import io.jooby.Context;
 import io.jooby.MapModelAndView;
@@ -26,7 +25,7 @@ class JteTemplateEngine implements io.jooby.TemplateEngine {
     this.extensions = List.of(".jte", ".kte");
   }
 
-  @NonNull @Override
+  @Override
   public List<String> extensions() {
     return extensions;
   }

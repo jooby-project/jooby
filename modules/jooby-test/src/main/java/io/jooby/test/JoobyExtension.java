@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.extension.TestInstancePostProcessor;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 
 /**
@@ -94,8 +93,7 @@ public class JoobyExtension
     return app;
   }
 
-  private static Supplier<Jooby> reflectionProvider(
-      @NonNull Class<? extends Jooby> applicationType) {
+  private static Supplier<Jooby> reflectionProvider(Class<? extends Jooby> applicationType) {
     return () ->
         (Jooby)
             Stream.of(applicationType.getDeclaredConstructors())

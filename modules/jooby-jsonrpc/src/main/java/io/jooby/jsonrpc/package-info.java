@@ -30,5 +30,5 @@
  * @author Edgar Espina
  * @since 4.0.17
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.jsonrpc;

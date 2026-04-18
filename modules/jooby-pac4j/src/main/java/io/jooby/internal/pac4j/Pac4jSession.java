@@ -8,8 +8,8 @@ package io.jooby.internal.pac4j;
 import java.time.Instant;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.*;
 import io.jooby.pac4j.Pac4jUntrustedDataFound;
 import io.jooby.value.Value;
@@ -21,7 +21,7 @@ class Pac4jSession implements Session {
 
   private final Session session;
 
-  public Pac4jSession(@NonNull Session session) {
+  public Pac4jSession(Session session) {
     this.session = session;
   }
 
@@ -29,11 +29,11 @@ class Pac4jSession implements Session {
     return session.getId();
   }
 
-  @NonNull public Value get(@NonNull String name) {
+  public Value get(String name) {
     return session.get(name);
   }
 
-  @NonNull public Instant getLastAccessedTime() {
+  public Instant getLastAccessedTime() {
     return session.getLastAccessedTime();
   }
 
@@ -41,12 +41,12 @@ class Pac4jSession implements Session {
     session.destroy();
   }
 
-  @NonNull public Session setId(String id) {
+  public Session setId(String id) {
     session.setId(id);
     return this;
   }
 
-  @NonNull public Value remove(@NonNull String name) {
+  public Value remove(String name) {
     return session.remove(name);
   }
 
@@ -54,12 +54,12 @@ class Pac4jSession implements Session {
     return session.isNew();
   }
 
-  @NonNull public Session setNew(boolean isNew) {
+  public Session setNew(boolean isNew) {
     session.setNew(isNew);
     return this;
   }
 
-  @NonNull public Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
+  public Session setLastAccessedTime(Instant lastAccessedTime) {
     session.setLastAccessedTime(lastAccessedTime);
     return this;
   }
@@ -68,12 +68,12 @@ class Pac4jSession implements Session {
     return session.isModify();
   }
 
-  @NonNull public Session setCreationTime(@NonNull Instant creationTime) {
+  public Session setCreationTime(Instant creationTime) {
     session.setCreationTime(creationTime);
     return this;
   }
 
-  @NonNull public Session setModify(boolean modify) {
+  public Session setModify(boolean modify) {
     session.setModify(modify);
     return this;
   }
@@ -83,11 +83,11 @@ class Pac4jSession implements Session {
     return this;
   }
 
-  @NonNull public Instant getCreationTime() {
+  public Instant getCreationTime() {
     return session.getCreationTime();
   }
 
-  @NonNull public Map<String, String> toMap() {
+  public Map<String, String> toMap() {
     return session.toMap();
   }
 
@@ -102,7 +102,7 @@ class Pac4jSession implements Session {
 
   public static Context create(Context ctx) {
     return new ForwardingContext(ctx) {
-      @NonNull @Override
+      @Override
       public Session session() {
         return new Pac4jSession(super.session());
       }
@@ -115,8 +115,8 @@ class Pac4jSession implements Session {
     };
   }
 
-  @NonNull @Override
-  public Session put(@NonNull String name, @NonNull String value) {
+  @Override
+  public Session put(String name, String value) {
     if (value != null) {
       if (value.startsWith(PAC4J) || value.startsWith(BIN)) {
         throw new Pac4jUntrustedDataFound(name);

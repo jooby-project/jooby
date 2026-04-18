@@ -13,8 +13,8 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.Session;
@@ -58,7 +58,7 @@ public class JwtSessionStore implements SessionStore {
    * @param token Session token.
    * @param key Secret key.
    */
-  public JwtSessionStore(@NonNull SessionToken token, @NonNull String key) {
+  public JwtSessionStore(SessionToken token, String key) {
     this(token, Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8)));
   }
 
@@ -69,37 +69,37 @@ public class JwtSessionStore implements SessionStore {
    * @param token Session token.
    * @param key Secret key.
    */
-  public JwtSessionStore(@NonNull SessionToken token, @NonNull SecretKey key) {
+  public JwtSessionStore(SessionToken token, SecretKey key) {
     this.store = SessionStore.signed(token, decoder(key), encoder(key));
   }
 
-  @NonNull @Override
-  public Session newSession(@NonNull Context ctx) {
+  @Override
+  public Session newSession(Context ctx) {
     return store.newSession(ctx);
   }
 
   @Nullable @Override
-  public Session findSession(@NonNull Context ctx) {
+  public Session findSession(Context ctx) {
     return store.findSession(ctx);
   }
 
   @Override
-  public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+  public void deleteSession(Context ctx, Session session) {
     store.deleteSession(ctx, session);
   }
 
   @Override
-  public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+  public void touchSession(Context ctx, Session session) {
     store.touchSession(ctx, session);
   }
 
   @Override
-  public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+  public void saveSession(Context ctx, Session session) {
     store.saveSession(ctx, session);
   }
 
   @Override
-  public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
+  public void renewSessionId(Context ctx, Session session) {
     store.renewSessionId(ctx, session);
   }
 

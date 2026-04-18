@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collector;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.vertx.core.Future;
 import io.vertx.core.impl.VertxThread;
 import io.vertx.sqlclient.*;
@@ -23,7 +22,7 @@ public record VertxPreparedQueryProxy(String name) implements PreparedQuery<RowS
     return VertxThreadLocalPreparedObject.<PreparedQuery<RowSet<Row>>>get(name).get(0);
   }
 
-  @NonNull public String toString() {
+  public String toString() {
     return Thread.currentThread().getName() + ":" + name;
   }
 

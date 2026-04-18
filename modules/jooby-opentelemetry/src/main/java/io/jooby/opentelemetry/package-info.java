@@ -101,5 +101,5 @@
  * @since 4.3.1
  * @author edgar
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.opentelemetry;

@@ -5,13 +5,12 @@
  */
 package examples;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 
 public class HandlerA implements Route.Handler {
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public Object apply(Context ctx) throws Exception {
     return null;
   }
 }

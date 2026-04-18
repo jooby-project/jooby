@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson3.*;
 import io.jooby.output.Output;
@@ -91,7 +90,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
    * @param mapper Object mapper to use.
    * @param contentType Content type.
    */
-  public Jackson3Module(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
+  public Jackson3Module(ObjectMapper mapper, MediaType contentType) {
     this.mapper = mapper;
     this.typeFactory = mapper.getTypeFactory();
     this.mediaType = contentType;
@@ -102,7 +101,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
    *
    * @param mapper Object mapper to use.
    */
-  public Jackson3Module(@NonNull ObjectMapper mapper) {
+  public Jackson3Module(ObjectMapper mapper) {
     this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
@@ -127,7 +126,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
 
@@ -178,7 +177,7 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+  public Output encode(Context ctx, Object value) {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
     if (value instanceof Projected<?> projected) {

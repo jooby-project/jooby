@@ -5,7 +5,6 @@
  */
 package io.jooby.jsonrpc.jackson3;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.jsonrpc.jackson3.JacksonJsonRpcParser;
@@ -35,7 +34,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
  */
 public class JsonRpcJackson3Module implements Extension {
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     // JSON-RPC
     var services = application.getServices();
     services.put(

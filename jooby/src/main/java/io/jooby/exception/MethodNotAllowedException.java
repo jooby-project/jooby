@@ -7,7 +7,6 @@ package io.jooby.exception;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 
@@ -28,7 +27,7 @@ public class MethodNotAllowedException extends StatusCodeException {
    * @param method Requested method.
    * @param allow Allow methods.
    */
-  public MethodNotAllowedException(@NonNull String method, @NonNull List<String> allow) {
+  public MethodNotAllowedException(String method, List<String> allow) {
     super(StatusCode.METHOD_NOT_ALLOWED, method);
     this.allow = allow;
   }

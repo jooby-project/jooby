@@ -8,7 +8,7 @@ module io.jooby.jdbi {
   exports io.jooby.jdbi;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires java.sql;
   requires org.jdbi.v3.core;

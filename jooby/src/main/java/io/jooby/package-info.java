@@ -19,5 +19,5 @@
  *
  * More documentation at <a href="https://jooby.io">jooby.io</a>
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby;

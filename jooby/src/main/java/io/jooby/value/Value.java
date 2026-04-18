@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Context;
 import io.jooby.Formdata;
 import io.jooby.SneakyThrows;
@@ -61,7 +61,7 @@ public interface Value extends Iterable<Value> {
    * @param name Field name.
    * @return Field value.
    */
-  Value get(@NonNull String name);
+  Value get(String name);
 
   /**
    * Get a value that matches the given name or fallback back to default value.
@@ -70,7 +70,7 @@ public interface Value extends Iterable<Value> {
    * @param defaultValue Default Value.
    * @return Field value.
    */
-  Value getOrDefault(@NonNull String name, @NonNull String defaultValue);
+  Value getOrDefault(String name, String defaultValue);
 
   /**
    * The number of values this one has. For single values size is <code>0</code>.
@@ -99,7 +99,7 @@ public interface Value extends Iterable<Value> {
    * @param expression Text expression.
    * @return Resolved text.
    */
-  default String resolve(@NonNull String expression) {
+  default String resolve(String expression) {
     return resolve(expression, "${", "}");
   }
 
@@ -117,7 +117,7 @@ public interface Value extends Iterable<Value> {
    * @param ignoreMissing On missing values, keep the expression as it is.
    * @return Resolved text.
    */
-  default String resolve(@NonNull String expression, boolean ignoreMissing) {
+  default String resolve(String expression, boolean ignoreMissing) {
     return resolve(expression, ignoreMissing, "${", "}");
   }
 
@@ -136,8 +136,7 @@ public interface Value extends Iterable<Value> {
    * @param endDelim End delimiter.
    * @return Resolved text.
    */
-  default String resolve(
-      @NonNull String expression, @NonNull String startDelim, @NonNull String endDelim) {
+  default String resolve(String expression, String startDelim, String endDelim) {
     return resolve(expression, false, startDelim, endDelim);
   }
 
@@ -158,10 +157,7 @@ public interface Value extends Iterable<Value> {
    * @return Resolved text.
    */
   default String resolve(
-      @NonNull String expression,
-      boolean ignoreMissing,
-      @NonNull String startDelim,
-      @NonNull String endDelim) {
+      String expression, boolean ignoreMissing, String startDelim, String endDelim) {
     if (expression.isEmpty()) {
       return "";
     }
@@ -398,7 +394,7 @@ public interface Value extends Iterable<Value> {
    * @param defaultValue Default value.
    * @return Convert this value to String (if possible) or fallback to given value when missing.
    */
-  default String value(@NonNull String defaultValue) {
+  default String value(String defaultValue) {
     try {
       return value();
     } catch (MissingValueException x) {
@@ -422,7 +418,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Target type.
    * @return Converted value.
    */
-  default <T> T value(@NonNull SneakyThrows.Function<String, T> fn) {
+  default <T> T value(SneakyThrows.Function<String, T> fn) {
     return fn.apply(value());
   }
 
@@ -454,7 +450,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Enum type.
    * @return Enum.
    */
-  default <T extends Enum<T>> T toEnum(@NonNull SneakyThrows.Function<String, T> fn) {
+  default <T extends Enum<T>> T toEnum(SneakyThrows.Function<String, T> fn) {
     return toEnum(fn, String::toUpperCase);
   }
 
@@ -467,8 +463,7 @@ public interface Value extends Iterable<Value> {
    * @return Enum.
    */
   default <T extends Enum<T>> T toEnum(
-      @NonNull SneakyThrows.Function<String, T> fn,
-      @NonNull Function<String, String> nameProvider) {
+      SneakyThrows.Function<String, T> fn, Function<String, String> nameProvider) {
     return fn.apply(nameProvider.apply(value()));
   }
 
@@ -544,7 +539,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Item type.
    * @return Value or empty optional.
    */
-  default <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  default <T> Optional<T> toOptional(Class<T> type) {
     try {
       return Optional.ofNullable(toNullable(type));
     } catch (MissingValueException x) {
@@ -559,7 +554,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Item type.
    * @return List of items.
    */
-  default <T> List<T> toList(@NonNull Class<T> type) {
+  default <T> List<T> toList(Class<T> type) {
     return List.of(to(type));
   }
 
@@ -570,7 +565,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Item type.
    * @return Set of items.
    */
-  default <T> Set<T> toSet(@NonNull Class<T> type) {
+  default <T> Set<T> toSet(Class<T> type) {
     return Set.of(to(type));
   }
 
@@ -584,7 +579,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Element type.
    * @return Instance of the type.
    */
-  <T> T to(@NonNull Class<T> type);
+  <T> T to(Class<T> type);
 
   /**
    * Convert this value to the given type. Support values are single-value, array-value and
@@ -594,7 +589,7 @@ public interface Value extends Iterable<Value> {
    * @param <T> Element type.
    * @return Instance of the type or <code>null</code>.
    */
-  @Nullable <T> T toNullable(@NonNull Class<T> type);
+  @Nullable <T> T toNullable(Class<T> type);
 
   /**
    * Value as multi-value map.
@@ -626,7 +621,7 @@ public interface Value extends Iterable<Value> {
    * @param name Name of missing value.
    * @return Missing value.
    */
-  static Value missing(@NonNull ValueFactory valueFactory, @NonNull String name) {
+  static Value missing(ValueFactory valueFactory, String name) {
     return new MissingValue(valueFactory, name);
   }
 
@@ -638,8 +633,7 @@ public interface Value extends Iterable<Value> {
    * @param value Value.
    * @return Single value.
    */
-  static Value value(
-      @NonNull ValueFactory valueFactory, @NonNull String name, @NonNull String value) {
+  static Value value(ValueFactory valueFactory, String name, String value) {
     return new SingleValue(valueFactory, name, value);
   }
 
@@ -651,8 +645,7 @@ public interface Value extends Iterable<Value> {
    * @param values Field values.
    * @return Array value.
    */
-  static Value array(
-      @NonNull ValueFactory valueFactory, @NonNull String name, @NonNull List<String> values) {
+  static Value array(ValueFactory valueFactory, String name, List<String> values) {
     return new ArrayValue(valueFactory, name).add(values);
   }
 
@@ -667,8 +660,7 @@ public interface Value extends Iterable<Value> {
    * @param values Field values.
    * @return A value.
    */
-  static Value create(
-      @NonNull ValueFactory valueFactory, @NonNull String name, @Nullable List<String> values) {
+  static Value create(ValueFactory valueFactory, String name, @Nullable List<String> values) {
     if (values == null || values.isEmpty()) {
       return missing(valueFactory, name);
     }
@@ -689,8 +681,7 @@ public interface Value extends Iterable<Value> {
    * @param value Field values.
    * @return A value.
    */
-  static Value create(
-      @NonNull ValueFactory valueFactory, @NonNull String name, @Nullable String value) {
+  static Value create(ValueFactory valueFactory, String name, @Nullable String value) {
     if (value == null) {
       return missing(valueFactory, name);
     }
@@ -704,8 +695,7 @@ public interface Value extends Iterable<Value> {
    * @param values Map values.
    * @return A hash/object value.
    */
-  static Value hash(
-      @NonNull ValueFactory valueFactory, @NonNull Map<String, Collection<String>> values) {
+  static Value hash(ValueFactory valueFactory, Map<String, Collection<String>> values) {
     var node = new HashValue(valueFactory, null);
     node.put(values);
     return node;
@@ -717,7 +707,7 @@ public interface Value extends Iterable<Value> {
    * @param valueFactory Current context.
    * @return A hash/object value.
    */
-  static Formdata formdata(@NonNull ValueFactory valueFactory) {
+  static Formdata formdata(ValueFactory valueFactory) {
     return new MultipartNode(valueFactory);
   }
 
@@ -728,8 +718,7 @@ public interface Value extends Iterable<Value> {
    * @param values Map values.
    * @return A hash/object value.
    */
-  static Value headers(
-      @NonNull ValueFactory valueFactory, @NonNull Map<String, Collection<String>> values) {
+  static Value headers(ValueFactory valueFactory, Map<String, Collection<String>> values) {
     var node = new HeadersValue(valueFactory);
     node.put(values);
     return node;

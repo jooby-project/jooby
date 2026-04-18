@@ -8,7 +8,7 @@ module io.jooby.gson {
   exports io.jooby.gson;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires com.google.gson;
 }

@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
@@ -57,12 +56,12 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return Context.readOnly(netty);
   }
 
-  @NonNull @Override
+  @Override
   public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       var output = data.encode(netty);
@@ -87,7 +86,7 @@ public class NettyServerSentEmitter implements ServerSentEmitter, GenericFutureL
     this.closeTask = task;
   }
 
-  @NonNull @Override
+  @Override
   public void close() {
     if (open.compareAndSet(true, false)) {
       try {

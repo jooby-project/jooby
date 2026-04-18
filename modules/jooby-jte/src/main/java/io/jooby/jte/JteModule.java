@@ -12,8 +12,8 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.resolve.DirectoryCodeResolver;
@@ -51,7 +51,7 @@ public class JteModule implements Extension {
    * @param sourceDirectory Where templates are located.
    * @param classDirectory Where compiled templates are located. Only for production mode.
    */
-  public JteModule(@NonNull Path sourceDirectory, @NonNull Path classDirectory) {
+  public JteModule(Path sourceDirectory, Path classDirectory) {
     this.sourceDirectory = requireNonNull(sourceDirectory, "Source directory is required.");
     this.classDirectory = requireNonNull(classDirectory, "Class directory is required.");
   }
@@ -65,7 +65,7 @@ public class JteModule implements Extension {
    *
    * @param sourceDirectory Where templates are located.
    */
-  public JteModule(@NonNull Path sourceDirectory) {
+  public JteModule(Path sourceDirectory) {
     this.sourceDirectory = requireNonNull(sourceDirectory, "Source directory is required.");
   }
 
@@ -74,12 +74,12 @@ public class JteModule implements Extension {
    *
    * @param templateEngine Attach this module to provided template engine.
    */
-  public JteModule(@NonNull TemplateEngine templateEngine) {
+  public JteModule(TemplateEngine templateEngine) {
     this.templateEngine = requireNonNull(templateEngine, "Template engine is required.");
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     if (templateEngine == null) {
       this.templateEngine = create(application.getEnvironment(), sourceDirectory, classDirectory);
     }
@@ -107,9 +107,7 @@ public class JteModule implements Extension {
    * @return
    */
   public static TemplateEngine create(
-      @NonNull Environment environment,
-      @NonNull Path sourceDirectory,
-      @Nullable Path classDirectory) {
+      Environment environment, Path sourceDirectory, @Nullable Path classDirectory) {
     boolean dev = environment.isActive("dev", "test");
     if (dev) {
       requireNonNull(sourceDirectory, "Source directory is required.");

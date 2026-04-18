@@ -12,7 +12,6 @@ import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.annotation.Transactional;
 import io.jooby.internal.hibernate.RequestSessionFactory;
@@ -63,7 +62,7 @@ public class TransactionalRequest implements Route.Filter {
    *
    * @param name Name of the session factory.
    */
-  public TransactionalRequest(@NonNull String name) {
+  public TransactionalRequest(String name) {
     this(ServiceKey.key(SessionFactory.class, name));
   }
 
@@ -108,8 +107,8 @@ public class TransactionalRequest implements Route.Filter {
     return this;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         var sessionFactory = ctx.require(sessionFactoryKey);

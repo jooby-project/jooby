@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.handler.Asset;
@@ -32,7 +31,7 @@ public class FileAsset implements Asset {
    *
    * @param file Asset file.
    */
-  public FileAsset(@NonNull Path file) {
+  public FileAsset(Path file) {
     this.file = file;
   }
 
@@ -54,7 +53,7 @@ public class FileAsset implements Asset {
     }
   }
 
-  @NonNull @Override
+  @Override
   public MediaType getContentType() {
     return MediaType.byFile(file);
   }

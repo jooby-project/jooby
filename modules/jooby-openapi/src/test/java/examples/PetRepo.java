@@ -7,17 +7,15 @@ package examples;
 
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 public interface PetRepo {
 
-  @NonNull List<Pet> pets(PetQuery query);
+  List<Pet> pets(PetQuery query);
 
-  @NonNull Pet findById(long id);
+  Pet findById(long id);
 
-  @NonNull Pet save(@NonNull Pet pet);
+  Pet save(Pet pet);
 
-  @NonNull Pet update(@NonNull Pet pet);
+  Pet update(Pet pet);
 
   void deleteById(long id);
 }

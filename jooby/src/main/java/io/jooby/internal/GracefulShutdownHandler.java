@@ -9,7 +9,6 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.function.LongUnaryOperator;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
@@ -44,8 +43,8 @@ public class GracefulShutdownHandler implements Route.Filter {
     this.await = await;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       long snapshot = stateUpdater.updateAndGet(this, incrementActive);
       if (isShutdown(snapshot)) {

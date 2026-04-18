@@ -17,7 +17,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -58,7 +57,7 @@ class LangChain4jModuleTest {
     assertEquals(mockStreamModel, services.get(StreamingChatModel.class));
   }
 
-  @NonNull private static Jooby createApp(Config config) {
+  private static Jooby createApp(Config config) {
     var app = new Jooby();
     var environment = mock(Environment.class);
     when(environment.getConfig()).thenReturn(config);

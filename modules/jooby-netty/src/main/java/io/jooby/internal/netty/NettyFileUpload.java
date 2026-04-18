@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 import io.netty.buffer.ByteBufInputStream;
@@ -26,7 +25,7 @@ public class NettyFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return upload.getName();
   }

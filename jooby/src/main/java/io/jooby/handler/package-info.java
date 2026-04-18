@@ -1,3 +1,3 @@
 /** Built-in middleware. */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.handler;

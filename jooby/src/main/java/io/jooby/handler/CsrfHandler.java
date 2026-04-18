@@ -11,7 +11,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -100,7 +99,7 @@ public class CsrfHandler implements Route.Before {
   }
 
   @Override
-  public void apply(@NonNull Context ctx) throws Exception {
+  public void apply(Context ctx) throws Exception {
 
     Session session = ctx.session();
     String token =
@@ -138,7 +137,7 @@ public class CsrfHandler implements Route.Before {
    * @param generator A custom token generator.
    * @return This filter.
    */
-  public @NonNull CsrfHandler setTokenGenerator(@NonNull Function<Context, String> generator) {
+  public CsrfHandler setTokenGenerator(Function<Context, String> generator) {
     this.generator = generator;
     return this;
   }
@@ -151,7 +150,7 @@ public class CsrfHandler implements Route.Before {
    * @param filter Predicate to use.
    * @return This filter.
    */
-  public @NonNull CsrfHandler setRequestFilter(@NonNull Predicate<Context> filter) {
+  public CsrfHandler setRequestFilter(Predicate<Context> filter) {
     this.filter = filter;
     return this;
   }

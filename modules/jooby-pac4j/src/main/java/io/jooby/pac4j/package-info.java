@@ -1,3 +1,3 @@
 /** Pac4j module. */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.pac4j;

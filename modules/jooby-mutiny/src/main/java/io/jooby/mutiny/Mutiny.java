@@ -9,7 +9,6 @@ import static io.jooby.ReactiveSupport.newSubscriber;
 
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.smallrye.mutiny.Multi;
@@ -37,8 +36,8 @@ public class Mutiny {
           }
         }
 
-        @NonNull @Override
-        public Route.Handler apply(@NonNull Route.Handler next) {
+        @Override
+        public Route.Handler apply(Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
             if (ctx.isResponseStarted()) {

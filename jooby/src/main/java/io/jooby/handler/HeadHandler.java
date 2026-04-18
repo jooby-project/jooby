@@ -5,7 +5,6 @@
  */
 package io.jooby.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.Router;
 import io.jooby.internal.HeadContext;
@@ -32,7 +31,7 @@ public class HeadHandler implements Route.Filter {
   public HeadHandler() {}
 
   @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.HEAD)) {
         return DefaultHandler.DEFAULT.apply(next).apply(new HeadContext(ctx));
@@ -43,7 +42,7 @@ public class HeadHandler implements Route.Filter {
   }
 
   @Override
-  public void setRoute(@NonNull Route route) {
+  public void setRoute(Route route) {
     route.setHttpHead(true);
   }
 }

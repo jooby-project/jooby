@@ -7,7 +7,6 @@ package io.jooby.vertx.mysqlclient;
 
 import java.util.function.Supplier;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.vertx.sqlclient.VertxSqlClientModule;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mysqlclient.MySQLBuilder;
@@ -52,8 +51,7 @@ public class VertxMySQLModule extends VertxSqlClientModule {
    * @param name Database key.
    * @param builder Client supplier.
    */
-  public VertxMySQLModule(
-      @NonNull String name, @NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
+  public VertxMySQLModule(String name, Supplier<ClientBuilder<? extends SqlClient>> builder) {
     super(name);
     this.builder = builder;
   }
@@ -63,7 +61,7 @@ public class VertxMySQLModule extends VertxSqlClientModule {
    *
    * @param builder Client supplier.
    */
-  public VertxMySQLModule(@NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
+  public VertxMySQLModule(Supplier<ClientBuilder<? extends SqlClient>> builder) {
     this("db", builder);
   }
 

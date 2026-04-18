@@ -8,7 +8,6 @@ package io.jooby.internal.pac4j;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.http.url.UrlResolver;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
@@ -67,8 +66,8 @@ public class DevLoginForm implements Route.Handler {
     this.callbackPath = callbackPath;
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public Object apply(Context ctx) throws Exception {
     String error = ctx.query("error").value("");
     String username = ctx.query("username").value("");
 

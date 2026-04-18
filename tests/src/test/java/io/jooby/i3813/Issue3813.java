@@ -5,8 +5,8 @@
  */
 package io.jooby.i3813;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
 import okhttp3.Response;
@@ -36,35 +36,31 @@ public class Issue3813 {
                   "/3813",
                   new WebSocketListener() {
                     @Override
-                    public void onOpen(@NonNull WebSocket ws, @NonNull Response response) {}
+                    public void onOpen(WebSocket ws, Response response) {}
 
                     @Override
-                    public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                    public void onMessage(WebSocket webSocket, String text) {
                       super.onMessage(webSocket, text);
                     }
 
                     @Override
-                    public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
+                    public void onMessage(WebSocket webSocket, ByteString bytes) {
                       super.onMessage(webSocket, bytes);
                     }
 
                     @Override
-                    public void onClosing(
-                        @NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                    public void onClosing(WebSocket webSocket, int code, String reason) {
                       super.onClosing(webSocket, code, reason);
                     }
 
                     @Override
-                    public void onClosed(
-                        @NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                    public void onClosed(WebSocket webSocket, int code, String reason) {
                       super.onClosed(webSocket, code, reason);
                     }
 
                     @Override
                     public void onFailure(
-                        @NonNull WebSocket webSocket,
-                        @NonNull Throwable t,
-                        @Nullable Response response) {
+                        WebSocket webSocket, Throwable t, @Nullable Response response) {
                       super.onFailure(webSocket, t, response);
                     }
                   });

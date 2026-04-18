@@ -9,7 +9,6 @@ import com.github.victools.jsonschema.generator.OptionPreset;
 import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.modelcontextprotocol.json.McpJsonMapper;
@@ -18,7 +17,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 public class McpJackson3Module implements Extension {
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var services = application.getServices();
     var jsonMapper = services.require(JsonMapper.class);
     var mcpJsonMapper = new JacksonMcpJsonMapper(jsonMapper);

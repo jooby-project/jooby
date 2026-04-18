@@ -5,8 +5,7 @@
  */
 package io.jooby.test;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Access to raw response value from {@link MockRouter} or cast response to something else.
@@ -29,7 +28,7 @@ public interface MockValue {
    * @param <T> Response type.
    * @return Response value.
    */
-  default @NonNull <T> T value(@NonNull Class<T> type) {
+  default <T> T value(Class<T> type) {
     Object instance = value();
     if (instance == null) {
       throw new ClassCastException("Found: null, expected: " + type);

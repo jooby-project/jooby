@@ -12,8 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
@@ -38,17 +38,17 @@ public class SingleValue implements Value {
   }
 
   @Override
-  public @NonNull Value get(int index) {
+  public Value get(int index) {
     return get(Integer.toString(index));
   }
 
   @Override
-  public @NonNull Value get(@NonNull String name) {
+  public Value get(String name) {
     return new MissingValue(factory, this.name + "." + name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(factory, this.name + "." + name, defaultValue);
   }
 
@@ -58,7 +58,7 @@ public class SingleValue implements Value {
   }
 
   @Override
-  public @NonNull String value() {
+  public String value() {
     return value;
   }
 
@@ -68,32 +68,32 @@ public class SingleValue implements Value {
   }
 
   @Override
-  public @NonNull Iterator<Value> iterator() {
+  public Iterator<Value> iterator() {
     return List.of((Value) this).iterator();
   }
 
-  @NonNull @Override
-  public <T> List<T> toList(@NonNull Class<T> type) {
+  @Override
+  public <T> List<T> toList(Class<T> type) {
     return Collections.singletonList(to(type));
   }
 
-  @NonNull @Override
-  public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @Override
+  public <T> Set<T> toSet(Class<T> type) {
     return Collections.singleton(to(type));
   }
 
-  @NonNull @Override
-  public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  @Override
+  public <T> Optional<T> toOptional(Class<T> type) {
     return Optional.ofNullable(toNullable(type));
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Class<T> type) {
+  @Override
+  public <T> T to(Class<T> type) {
     return factory.convert(type, this);
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Class<T> type) {
+  public <T> T toNullable(Class<T> type) {
     return factory.convert(type, this, ConversionHint.Nullable);
   }
 

@@ -8,8 +8,8 @@ package io.jooby;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.internal.NoByteRange;
 import io.jooby.internal.NotSatisfiableByteRange;
 import io.jooby.internal.SingleByteRange;
@@ -44,7 +44,7 @@ public interface ByteRange {
    * @param contentLength Content length.
    * @return Byte range instance.
    */
-  static @NonNull ByteRange parse(@Nullable String value, long contentLength) {
+  static ByteRange parse(@Nullable String value, long contentLength) {
     if (contentLength <= 0 || value == null) {
       // NOOP
       return new NoByteRange(contentLength);
@@ -129,7 +129,7 @@ public interface ByteRange {
    *
    * @return Value for <code>Content-Range</code> response header.
    */
-  @NonNull String getContentRange();
+  String getContentRange();
 
   /**
    * For partial requests this method returns {@link StatusCode#PARTIAL_CONTENT}.
@@ -141,7 +141,7 @@ public interface ByteRange {
    *
    * @return Status code.
    */
-  @NonNull StatusCode getStatusCode();
+  StatusCode getStatusCode();
 
   /**
    * For partial request this method set the following byte range response headers:
@@ -157,7 +157,7 @@ public interface ByteRange {
    * @param ctx Web context.
    * @return This byte range request.
    */
-  @NonNull ByteRange apply(@NonNull Context ctx);
+  ByteRange apply(Context ctx);
 
   /**
    * For partial requests this method generates a new truncated input stream.
@@ -170,5 +170,5 @@ public interface ByteRange {
    * @return A truncated input stream for partial request or same input stream.
    * @throws IOException When truncation fails.
    */
-  @NonNull InputStream apply(@NonNull InputStream input) throws IOException;
+  InputStream apply(InputStream input) throws IOException;
 }

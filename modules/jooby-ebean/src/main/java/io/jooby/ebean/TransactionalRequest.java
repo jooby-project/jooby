@@ -5,7 +5,6 @@
  */
 package io.jooby.ebean;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
 import io.jooby.Route;
 import io.jooby.ServiceKey;
@@ -30,7 +29,7 @@ public class TransactionalRequest implements Route.Filter {
    *
    * @param name Ebean service name.
    */
-  public TransactionalRequest(@NonNull String name) {
+  public TransactionalRequest(String name) {
     key = ServiceKey.key(Database.class, name);
   }
 
@@ -54,8 +53,8 @@ public class TransactionalRequest implements Route.Filter {
     return this;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         var db = ctx.require(key);

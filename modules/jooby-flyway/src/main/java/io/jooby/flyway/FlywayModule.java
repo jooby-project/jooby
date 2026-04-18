@@ -13,7 +13,6 @@ import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.flywaydb.core.api.migration.JavaMigration;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -54,7 +53,7 @@ public class FlywayModule implements Extension {
    *
    * @param name The name/key of the data source to attach.
    */
-  public FlywayModule(@NonNull String name) {
+  public FlywayModule(String name) {
     this.name = name;
   }
 
@@ -75,13 +74,13 @@ public class FlywayModule implements Extension {
    * @param migrations The manually added Java-based migrations. An empty array if none.
    * @return This module.
    */
-  public FlywayModule javaMigrations(@NonNull JavaMigration... migrations) {
+  public FlywayModule javaMigrations(JavaMigration... migrations) {
     this.javaMigrations = List.of(migrations);
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var environment = application.getEnvironment();
     var registry = application.getServices();
     var dataSource = registry.getOrNull(ServiceKey.key(DataSource.class, name));

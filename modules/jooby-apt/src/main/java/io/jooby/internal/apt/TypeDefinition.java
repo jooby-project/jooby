@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -30,7 +32,7 @@ public class TypeDefinition {
 
   public TypeDefinition(Types types, TypeMirror type, boolean projection) {
     this.typeUtils = types;
-    this.type = type;
+    this.type = stripAnnotations(types, type);
     this.unwrapType = unwrapType(type);
     this.rawType = typeUtils.erasure(unwrapType);
     this.projection = projection;
@@ -203,5 +205,41 @@ public class TypeDefinition {
 
   private String typeName(Class type) {
     return type.isArray() ? type.getComponentType().getName() + "[]" : type.getName();
+  }
+
+  private TypeMirror stripAnnotations(Types types, TypeMirror typeMirror) {
+    switch (typeMirror.getKind()) {
+      case DECLARED:
+        DeclaredType declaredType = (DeclaredType) typeMirror;
+        TypeElement element = (TypeElement) declaredType.asElement();
+
+        // If the type has generics (e.g., List<String>), we must strip them recursively
+        TypeMirror[] typeArgs =
+            declaredType.getTypeArguments().stream()
+                .map(arg -> stripAnnotations(types, arg))
+                .toArray(TypeMirror[]::new);
+
+        return types.getDeclaredType(element, typeArgs);
+
+      case ARRAY:
+        ArrayType arrayType = (ArrayType) typeMirror;
+        TypeMirror cleanComponent = stripAnnotations(types, arrayType.getComponentType());
+        return types.getArrayType(cleanComponent);
+
+      // For primitives (int, boolean, etc.)
+      case BOOLEAN:
+      case BYTE:
+      case SHORT:
+      case INT:
+      case LONG:
+      case CHAR:
+      case FLOAT:
+      case DOUBLE:
+        return types.getPrimitiveType(typeMirror.getKind());
+
+      default:
+        // Fallback for TypeVariables, Wildcards, etc.
+        return typeMirror;
+    }
   }
 }

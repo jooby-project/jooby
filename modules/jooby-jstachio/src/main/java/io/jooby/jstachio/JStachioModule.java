@@ -8,8 +8,8 @@ package io.jooby.jstachio;
 import java.util.ServiceLoader;
 import java.util.function.BiFunction;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -43,7 +43,7 @@ public class JStachioModule implements Extension {
    * @param jstachio the jstachio instance to be used instead of the default.
    * @return this
    */
-  public @NonNull JStachioModule jstachio(@Nullable JStachio jstachio) {
+  public JStachioModule jstachio(@Nullable JStachio jstachio) {
     this.jstachio = jstachio;
     return this;
   }
@@ -55,7 +55,7 @@ public class JStachioModule implements Extension {
    * @return this
    * @throws IllegalArgumentException if the bufferSize is less than <code>0</code>.
    */
-  public @NonNull JStachioModule bufferSize(int bufferSize) {
+  public JStachioModule bufferSize(int bufferSize) {
     if (bufferSize < 0) {
       throw new IllegalArgumentException("bufferSize should be greater than 0");
     }
@@ -83,7 +83,7 @@ public class JStachioModule implements Extension {
    * {@inheritDoc}
    */
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     JStachio j = this.jstachio;
     ServiceRegistry services = application.getServices();
     if (j == null) {

@@ -18,8 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -61,12 +61,12 @@ public class NettyBody implements Body {
   }
 
   @Override
-  public Value get(@NonNull String name) {
+  public Value get(String name) {
     return Value.missing(ctx.getValueFactory(), name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
@@ -87,7 +87,7 @@ public class NettyBody implements Body {
     }
   }
 
-  @NonNull @Override
+  @Override
   public String value() {
     return value(StandardCharsets.UTF_8);
   }
@@ -97,13 +97,13 @@ public class NettyBody implements Body {
     return "body";
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Type type) {
+  @Override
+  public <T> T to(Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Type type) {
+  public <T> T toNullable(Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 

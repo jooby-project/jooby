@@ -8,8 +8,8 @@ package io.jooby;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.internal.reflect.$Types;
 
 /**
@@ -88,7 +88,7 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static <T> ServiceKey<T> key(@NonNull Class<T> type) {
+  public static <T> ServiceKey<T> key(Class<T> type) {
     return new ServiceKey<>(type, type, null);
   }
 
@@ -100,7 +100,7 @@ public final class ServiceKey<T> {
    * @param <T> Type.
    * @return A new resource key.
    */
-  public static <T> ServiceKey<T> key(@NonNull Class<T> type, @NonNull String name) {
+  public static <T> ServiceKey<T> key(Class<T> type, String name) {
     return new ServiceKey<>(type, type, name);
   }
 
@@ -113,7 +113,7 @@ public final class ServiceKey<T> {
    * @return A new resource key.
    */
   @SuppressWarnings("unchecked")
-  public static <T> ServiceKey<T> key(@NonNull Reified<T> type, @NonNull String name) {
+  public static <T> ServiceKey<T> key(Reified<T> type, String name) {
     return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), name);
   }
 
@@ -125,7 +125,7 @@ public final class ServiceKey<T> {
    * @return A new resource key.
    */
   @SuppressWarnings("unchecked")
-  public static <T> ServiceKey<T> key(@NonNull Reified<T> type) {
+  public static <T> ServiceKey<T> key(Reified<T> type) {
     return new ServiceKey<>(type.getType(), (Class<T>) type.getRawType(), null);
   }
 }

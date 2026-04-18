@@ -5,7 +5,8 @@
  */
 package source;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.annotation.GET;
 import io.jooby.annotation.QueryParam;
 

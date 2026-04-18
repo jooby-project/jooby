@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Simple extension contract for adding and reusing commons application infrastructure components
  * and/or integrate with external libraries.
@@ -35,5 +33,5 @@ public interface Extension {
    * @param application Jooby application.
    * @throws Exception If something goes wrong.
    */
-  void install(@NonNull Jooby application) throws Exception;
+  void install(Jooby application) throws Exception;
 }

@@ -11,8 +11,8 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.SneakyThrows;
 import io.jooby.exception.ProvisioningException;
 import io.jooby.exception.TypeMismatchException;
@@ -48,7 +48,7 @@ public class ValueFactory {
    *
    * @param lookup Lookup to use.
    */
-  public ValueFactory(@NonNull MethodHandles.Lookup lookup) {
+  public ValueFactory(MethodHandles.Lookup lookup) {
     this.lookup = lookup;
     this.fallback = new ReflectiveBeanConverter(this, lookup);
     StandardConverter.register(this);
@@ -71,7 +71,7 @@ public class ValueFactory {
    * @param lookup Look up to use.
    * @return This instance.
    */
-  public @NonNull ValueFactory lookup(@NonNull MethodHandles.Lookup lookup) {
+  public ValueFactory lookup(MethodHandles.Lookup lookup) {
     this.lookup = lookup;
     this.fallback = new ReflectiveBeanConverter(this, lookup);
     return this;
@@ -83,7 +83,7 @@ public class ValueFactory {
    * @param defaultHint Default conversion hint.
    * @return This instance.
    */
-  public @NonNull ValueFactory hint(@NonNull ConversionHint defaultHint) {
+  public ValueFactory hint(ConversionHint defaultHint) {
     this.defaultHint = defaultHint;
     return this;
   }
@@ -105,7 +105,7 @@ public class ValueFactory {
    * @param converter Converter.
    * @return This instance.
    */
-  public @NonNull ValueFactory put(@NonNull Type type, @NonNull Converter converter) {
+  public ValueFactory put(Type type, Converter converter) {
     converterMap.put(type, converter);
     return this;
   }
@@ -132,8 +132,7 @@ public class ValueFactory {
    * @throws ProvisioningException when convert target type constructor requires a non-null value
    *     and value is missing or null.
    */
-  public <T> T convert(@NonNull Type type, @NonNull Value value)
-      throws TypeMismatchException, ProvisioningException {
+  public <T> T convert(Type type, Value value) throws TypeMismatchException, ProvisioningException {
     return convert(type, value, defaultHint);
   }
 
@@ -159,7 +158,7 @@ public class ValueFactory {
    * @throws ProvisioningException when convert target type constructor requires a non-null value
    *     and value is missing or null.
    */
-  public <T> T convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint)
+  public <T> T convert(Type type, Value value, ConversionHint hint)
       throws TypeMismatchException, ProvisioningException {
     T result = convertInternal(type, value, hint);
     if (result == null && hint == ConversionHint.Strict) {
@@ -169,8 +168,7 @@ public class ValueFactory {
   }
 
   @SuppressWarnings("unchecked")
-  private <T> T convertInternal(
-      @NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+  private <T> T convertInternal(Type type, Value value, ConversionHint hint) {
     var converter = converterMap.get(type);
     if (converter != null) {
       // Specific converter at type level.

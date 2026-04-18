@@ -8,7 +8,6 @@ package io.jooby;
 import java.util.Collections;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.Output;
 
 /**
@@ -37,7 +36,7 @@ public interface TemplateEngine extends MessageEncoder {
   Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception;
 
   @Override
-  default Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  default Output encode(Context ctx, Object value) throws Exception {
     // initialize flash and session attributes (if any)
     ctx.flashOrNull();
     ctx.sessionOrNull();
@@ -53,7 +52,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @param modelAndView View to check.
    * @return True when view is supported.
    */
-  default boolean supports(@NonNull ModelAndView modelAndView) {
+  default boolean supports(ModelAndView modelAndView) {
     String view = modelAndView.getView();
     for (String extension : extensions()) {
       if (view.endsWith(extension)) {
@@ -69,7 +68,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @return Number of file extensions supported by the template engine. Default is <code>.html
    *     </code>.
    */
-  default @NonNull List<String> extensions() {
+  default List<String> extensions() {
     return Collections.singletonList(".html");
   }
 
@@ -79,7 +78,7 @@ public interface TemplateEngine extends MessageEncoder {
    * @param templatesPath Template path.
    * @return Normalized path.
    */
-  static @NonNull String normalizePath(@NonNull String templatesPath) {
+  static String normalizePath(String templatesPath) {
     if (templatesPath == null) {
       return null;
     }

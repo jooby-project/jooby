@@ -5,7 +5,6 @@
  */
 package io.jooby.javadoc.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.javadoc.input.sub.SubPackageHandler;
@@ -28,7 +27,7 @@ public class LambdaRefApp extends Jooby {
    *
    * @param id Pet ID.
    */
-  private @NonNull String findPetById(Context ctx) {
+  private String findPetById(Context ctx) {
     var id = ctx.path("id").value();
     return "Pets";
   }
@@ -39,7 +38,7 @@ public class LambdaRefApp extends Jooby {
    Description in next line.
    @param id Path ID.
   */
-  private static @NonNull String staticFindPetById(Context ctx) {
+  private static String staticFindPetById(Context ctx) {
     var id = ctx.path("id").value();
     return "Pets";
   }

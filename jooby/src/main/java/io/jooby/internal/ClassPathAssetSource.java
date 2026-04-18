@@ -14,8 +14,8 @@ import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.handler.Asset;
 import io.jooby.handler.AssetSource;
 
@@ -41,7 +41,7 @@ public class ClassPathAssetSource implements AssetSource {
   }
 
   @Nullable @Override
-  public Asset resolve(@NonNull String path) {
+  public Asset resolve(String path) {
     String fullpath;
     if (isDir) {
       fullpath = safePath(prefix + path);

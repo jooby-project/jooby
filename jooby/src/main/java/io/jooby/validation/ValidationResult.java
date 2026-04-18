@@ -8,8 +8,8 @@ package io.jooby.validation;
 import java.util.LinkedList;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 import io.jooby.problem.HttpProblemMappable;
@@ -37,7 +37,7 @@ public class ValidationResult implements HttpProblemMappable {
     this.errors = errors;
   }
 
-  @NonNull @Override
+  @Override
   public HttpProblem toHttpProblem() {
     return HttpProblem.builder()
         .title(title)
@@ -64,8 +64,7 @@ public class ValidationResult implements HttpProblemMappable {
    * @param messages Messages.
    * @param type Error type.
    */
-  public record Error(
-      @Nullable String field, @NonNull List<String> messages, @NonNull ErrorType type) {}
+  public record Error(@Nullable String field, List<String> messages, ErrorType type) {}
 
   /** Error type, describe when it is a generic/global error or specific/field error. */
   public enum ErrorType {

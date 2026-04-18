@@ -15,7 +15,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.FileAsset;
@@ -36,7 +35,7 @@ public interface Asset extends AutoCloseable {
    * @param resource File resource.
    * @return File resource asset.
    */
-  static Asset create(@NonNull Path resource) {
+  static Asset create(Path resource) {
     return new FileAsset(resource);
   }
 
@@ -47,7 +46,7 @@ public interface Asset extends AutoCloseable {
    * @param resource Asset URL.
    * @return URL asset.
    */
-  static Asset create(@NonNull String path, @NonNull URL resource) {
+  static Asset create(String path, URL resource) {
     try {
       if ("jar".equals(resource.getProtocol())) {
         return new JarAsset((JarURLConnection) resource.openConnection());

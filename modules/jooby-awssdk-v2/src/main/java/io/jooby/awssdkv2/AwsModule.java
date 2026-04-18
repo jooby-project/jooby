@@ -10,7 +10,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -52,7 +51,7 @@ public class AwsModule implements Extension {
   private final AwsCredentialsProvider credentialsProvider;
   private final List<Function<AwsCredentialsProvider, Object>> factoryList = new ArrayList<>();
 
-  public AwsModule(@NonNull AwsCredentialsProvider credentialsProvider) {
+  public AwsModule(AwsCredentialsProvider credentialsProvider) {
     this.credentialsProvider = credentialsProvider;
   }
 
@@ -71,13 +70,13 @@ public class AwsModule implements Extension {
    * @param provider Service provider/factory.
    * @return AWS service.
    */
-  public @NonNull AwsModule setup(@NonNull Function<AwsCredentialsProvider, Object> provider) {
+  public AwsModule setup(Function<AwsCredentialsProvider, Object> provider) {
     factoryList.add(provider);
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var config = application.getConfig();
     var credentialsProvider =
         Optional.ofNullable(this.credentialsProvider)
@@ -118,7 +117,7 @@ public class AwsModule implements Extension {
    * @param config Application properties.
    * @return Credentials provider.
    */
-  public static @NonNull AwsCredentialsProvider newCredentialsProvider(@NonNull Config config) {
+  public static AwsCredentialsProvider newCredentialsProvider(Config config) {
     return AwsCredentialsProviderChain.of(
         DefaultCredentialsProvider.create(), new ConfigCredentialsProvider(config));
   }

@@ -20,7 +20,7 @@ module io.jooby.trpc.avaje.jsonb {
 
   requires io.jooby;
   requires io.jooby.trpc;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires io.avaje.jsonb;
 

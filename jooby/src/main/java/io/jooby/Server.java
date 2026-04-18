@@ -21,10 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.MutedServer;
 import io.jooby.output.OutputFactory;
@@ -94,13 +93,13 @@ public interface Server {
 
     private final AtomicBoolean stopping = new AtomicBoolean();
 
-    protected void fireStart(@NonNull List<Jooby> applications, @NonNull Executor defaultWorker) {
+    protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
       }
     }
 
-    protected void fireReady(@NonNull List<Jooby> applications) {
+    protected void fireReady(List<Jooby> applications) {
       for (Jooby app : applications) {
         app.ready(this);
       }
@@ -133,7 +132,7 @@ public interface Server {
     }
 
     @Override
-    public Server setOptions(@NonNull ServerOptions options) {
+    public Server setOptions(ServerOptions options) {
       this.options = options;
       return this;
     }
@@ -145,7 +144,7 @@ public interface Server {
    * @param application Application being deployed.
    * @return This instance.
    */
-  default Server init(@NonNull Jooby application) {
+  default Server init(Jooby application) {
     var registry = application.getServices();
     var options = getOptions();
     options.setServer(getName());
@@ -170,7 +169,7 @@ public interface Server {
    * @param options Server options.
    * @return This server.
    */
-  Server setOptions(@NonNull ServerOptions options);
+  Server setOptions(ServerOptions options);
 
   /**
    * Get server name.
@@ -192,7 +191,7 @@ public interface Server {
    * @param application Application to start.
    * @return This server.
    */
-  Server start(@NonNull Jooby... application);
+  Server start(Jooby... application);
 
   /**
    * Utility method to turn off odd logger. This helps to ensure same startup log lines across
@@ -220,7 +219,7 @@ public interface Server {
    *
    * @param predicate Customize connection lost error.
    */
-  static void addConnectionLost(@NonNull Predicate<Throwable> predicate) {
+  static void addConnectionLost(Predicate<Throwable> predicate) {
     Base.connectionLostListeners.add(predicate);
   }
 
@@ -231,7 +230,7 @@ public interface Server {
    *
    * @param predicate Customize connection lost error.
    */
-  static void addAddressInUse(@NonNull Predicate<Throwable> predicate) {
+  static void addAddressInUse(Predicate<Throwable> predicate) {
     Base.addressInUseListeners.add(predicate);
   }
 
@@ -282,7 +281,7 @@ public interface Server {
    * @param options Optional server options.
    * @return A server.
    */
-  static Server loadServer(@NonNull ServerOptions options) {
+  static Server loadServer(ServerOptions options) {
     List<Server> servers =
         stream(
                 spliteratorUnknownSize(
