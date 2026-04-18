@@ -73,6 +73,8 @@ import io.jooby.rpc.grpc.GrpcProcessor;
 public class GrpcModule implements Extension {
   private final List<BindableService> services = new ArrayList<>();
   private final List<Class<? extends BindableService>> serviceClasses = new ArrayList<>();
+  private SneakyThrows.Consumer<InProcessServerBuilder> serverCustomizer;
+  private SneakyThrows.Consumer<InProcessChannelBuilder> channelCustomizer;
 
   static {
     // Optionally remove existing handlers attached to the j.u.l root logger
@@ -112,6 +114,30 @@ public class GrpcModule implements Extension {
   }
 
   /**
+   * Customizes the in-process gRPC server using the provided server customizer. This method accepts
+   * a consumer that applies custom settings to an {@code InProcessServerBuilder} instance.
+   *
+   * @param serverCustomizer a consumer to customize the {@code InProcessServerBuilder}.
+   * @return this {@code GrpcModule} instance for method chaining.
+   */
+  public GrpcModule withServer(SneakyThrows.Consumer<InProcessServerBuilder> serverCustomizer) {
+    this.serverCustomizer = serverCustomizer;
+    return this;
+  }
+
+  /**
+   * Configures the gRPC channel using a consumer that applies custom settings to an {@code
+   * InProcessChannelBuilder} instance.
+   *
+   * @param channelConsumer a consumer to customize the {@code InProcessChannelBuilder}.
+   * @return this {@code GrpcModule} instance for method chaining.
+   */
+  public GrpcModule withChannel(SneakyThrows.Consumer<InProcessChannelBuilder> channelConsumer) {
+    this.channelCustomizer = channelConsumer;
+    return this;
+  }
+
+  /**
    * Installs the gRPC extension into the Jooby application. *
    *
    * <p>This method sets up the {@link GrpcProcessor} SPI, registers native fallback routes, and
@@ -142,12 +168,22 @@ public class GrpcModule implements Extension {
             var service = app.require(serviceClass);
             bindService(app, builder, registry, service);
           }
+          // Sync both
+          builder.maxInboundMessageSize(app.getServerOptions().getMaxRequestSize());
+          builder.maxInboundMetadataSize(app.getServerOptions().getMaxRequestSize());
+          if (serverCustomizer != null) {
+            serverCustomizer.accept(builder);
+          }
           var grpcServer = builder.build().start();
 
           // KEEP .directExecutor() here!
           // This ensures that when the background gRPC worker finishes, it instantly pushes
           // the response back to Undertow/Netty without wasting time on another thread hop.
-          var channel = InProcessChannelBuilder.forName(serverName).directExecutor().build();
+          var channelBuilder = InProcessChannelBuilder.forName(serverName).directExecutor();
+          if (channelCustomizer != null) {
+            channelCustomizer.accept(channelBuilder);
+          }
+          var channel = channelBuilder.build();
           processor.setChannel(channel);
 
           app.onStop(channel::shutdownNow);
