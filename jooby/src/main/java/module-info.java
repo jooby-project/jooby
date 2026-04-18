@@ -9,6 +9,7 @@ module io.jooby {
   exports io.jooby;
   exports io.jooby.annotation;
   exports io.jooby.exception;
+  exports io.jooby.json;
   exports io.jooby.handler;
   exports io.jooby.validation;
   exports io.jooby.problem;

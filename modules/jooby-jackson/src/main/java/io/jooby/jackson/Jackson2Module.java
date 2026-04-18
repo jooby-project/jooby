@@ -25,6 +25,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.jooby.*;
 import io.jooby.internal.jackson.*;
+import io.jooby.json.JsonCodec;
+import io.jooby.json.JsonDecoder;
+import io.jooby.json.JsonEncoder;
 import io.jooby.output.Output;
 
 /**
@@ -140,6 +143,11 @@ public class Jackson2Module implements Extension, MessageDecoder, MessageEncoder
     Class mapperType = mapper.getClass();
     services.put(mapperType, mapper);
     services.put(ObjectMapper.class, mapper);
+    // Json Codec
+    var jsonCodec = new JacksonJsonCodec(mapper);
+    services.putIfAbsent(JsonCodec.class, jsonCodec);
+    services.putIfAbsent(JsonEncoder.class, jsonCodec);
+    services.putIfAbsent(JsonDecoder.class, jsonCodec);
 
     // Parsing exception as 400
     application.errorCode(JsonParseException.class, StatusCode.BAD_REQUEST);

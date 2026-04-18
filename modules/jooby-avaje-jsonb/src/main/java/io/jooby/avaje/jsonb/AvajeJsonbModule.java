@@ -14,6 +14,9 @@ import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.*;
 import io.jooby.internal.avaje.jsonb.*;
+import io.jooby.json.JsonCodec;
+import io.jooby.json.JsonDecoder;
+import io.jooby.json.JsonEncoder;
 import io.jooby.output.Output;
 
 /**
@@ -85,6 +88,11 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
 
     var services = application.getServices();
     services.put(Jsonb.class, jsonb);
+    // JsonCodec
+    var jsonCodec = new AvajeJsonCodec(jsonb);
+    services.putIfAbsent(JsonCodec.class, jsonCodec);
+    services.putIfAbsent(JsonEncoder.class, jsonCodec);
+    services.putIfAbsent(JsonDecoder.class, jsonCodec);
   }
 
   @Override

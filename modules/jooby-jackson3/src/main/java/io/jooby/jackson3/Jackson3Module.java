@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import io.jooby.*;
 import io.jooby.internal.jackson3.*;
+import io.jooby.json.JsonCodec;
+import io.jooby.json.JsonDecoder;
+import io.jooby.json.JsonEncoder;
 import io.jooby.output.Output;
 import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.databind.*;
@@ -132,6 +135,11 @@ public class Jackson3Module implements Extension, MessageDecoder, MessageEncoder
 
     var services = application.getServices();
     bindMapper(services, mapper);
+    // Json Codec
+    var jsonCodec = new JacksonJsonCodec(mapper);
+    services.putIfAbsent(JsonCodec.class, jsonCodec);
+    services.putIfAbsent(JsonEncoder.class, jsonCodec);
+    services.putIfAbsent(JsonDecoder.class, jsonCodec);
 
     // Parsing exception as 400
     application.errorCode(StreamReadException.class, StatusCode.BAD_REQUEST);

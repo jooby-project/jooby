@@ -20,6 +20,9 @@ import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
 import io.jooby.ServiceRegistry;
+import io.jooby.json.JsonCodec;
+import io.jooby.json.JsonDecoder;
+import io.jooby.json.JsonEncoder;
 import io.jooby.output.Output;
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -89,6 +92,11 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
 
     ServiceRegistry services = application.getServices();
     services.put(Jsonb.class, jsonb);
+    // JsonCodec
+    var jsonCodec = new YassonJsonCodec(jsonb);
+    services.putIfAbsent(JsonCodec.class, jsonCodec);
+    services.putIfAbsent(JsonEncoder.class, jsonCodec);
+    services.putIfAbsent(JsonDecoder.class, jsonCodec);
   }
 
   @Override
