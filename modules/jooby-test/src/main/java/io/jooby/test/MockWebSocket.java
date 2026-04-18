@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocket;
@@ -56,12 +55,12 @@ public class MockWebSocket implements WebSocket {
     this.configurer = configurer;
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return ctx;
   }
 
-  @NonNull @Override
+  @Override
   public List<WebSocket> getSessions() {
     return Collections.emptyList();
   }
@@ -77,67 +76,67 @@ public class MockWebSocket implements WebSocket {
   }
 
   @Override
-  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+  public WebSocket sendPing(String message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
   @Override
-  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  public WebSocket sendPing(ByteBuffer message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
   @Override
-  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+  public WebSocket send(String message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(byte[] message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(ByteBuffer message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(Output message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(String message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(byte[] message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(ByteBuffer message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(Output message, WriteCallback callback) {
     return sendObject(message, callback);
   }
 
-  @NonNull @Override
-  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket render(Object value, WriteCallback callback) {
     return sendObject(value, callback);
   }
 
-  @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket renderBinary(Object value, WriteCallback callback) {
     return sendObject(value, callback);
   }
 
-  @NonNull @Override
-  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @Override
+  public WebSocket close(WebSocketCloseStatus closeStatus) {
     try {
       open = false;
       configurer.fireClose(closeStatus);

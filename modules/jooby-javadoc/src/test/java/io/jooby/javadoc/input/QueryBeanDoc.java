@@ -5,7 +5,6 @@
  */
 package io.jooby.javadoc.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -30,7 +29,7 @@ public class QueryBeanDoc {
    *
    * @return Filter query. Works like internal filter.
    */
-  @NonNull public String getFq() {
+  public String getFq() {
     return fq;
   }
 

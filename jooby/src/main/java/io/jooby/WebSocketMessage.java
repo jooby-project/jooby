@@ -9,7 +9,6 @@ import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.WebSocketMessageImpl;
 import io.jooby.value.Value;
 
@@ -28,7 +27,7 @@ public interface WebSocketMessage extends Value {
    * @param <T> Element type.
    * @return Instance of the type.
    */
-  <T> T to(@NonNull Type type);
+  <T> T to(Type type);
 
   /**
    * Direct access to bytes.
@@ -51,7 +50,7 @@ public interface WebSocketMessage extends Value {
    * @param bytes Text message as byte array.
    * @return A websocket message.
    */
-  static WebSocketMessage create(@NonNull Context ctx, @NonNull byte[] bytes) {
+  static WebSocketMessage create(Context ctx, byte[] bytes) {
     return new WebSocketMessageImpl(ctx, bytes);
   }
 
@@ -62,7 +61,7 @@ public interface WebSocketMessage extends Value {
    * @param message Text message.
    * @return A websocket message.
    */
-  static WebSocketMessage create(@NonNull Context ctx, @NonNull String message) {
+  static WebSocketMessage create(Context ctx, String message) {
     return new WebSocketMessageImpl(ctx, message.getBytes(StandardCharsets.UTF_8));
   }
 }

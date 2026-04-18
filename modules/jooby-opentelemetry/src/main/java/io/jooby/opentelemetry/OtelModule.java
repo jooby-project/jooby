@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -158,7 +157,7 @@ public class OtelModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     var otel = getOrCreate(application);
     if (!isRunningInJoobyRun() && otel instanceof AutoCloseable closeableOtel) {
       // Close the OpenTelemetry instance when the application is stopped, and we are not running
@@ -189,7 +188,7 @@ public class OtelModule implements Extension {
         .equals("org.jboss.modules.ModuleClassLoader");
   }
 
-  private OpenTelemetry getOrCreate(@NonNull Jooby application) {
+  private OpenTelemetry getOrCreate(Jooby application) {
     if (this.openTelemetry == null) {
       var appConfig = application.getConfig();
       Map<String, String> otelProperties = new HashMap<>();

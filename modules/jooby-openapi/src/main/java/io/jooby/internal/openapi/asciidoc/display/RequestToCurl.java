@@ -10,7 +10,6 @@ import java.util.*;
 import com.google.common.base.Splitter;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Router;
 import io.jooby.internal.openapi.asciidoc.*;
 
@@ -114,7 +113,7 @@ public class RequestToCurl implements ToSnippet {
     return result;
   }
 
-  @NonNull private static String removeOption(
+  private static String removeOption(
       Multimap<String, String> options, String name, String defaultValue) {
     return Optional.of(options.removeAll(name))
         .map(Collection::iterator)
@@ -167,13 +166,13 @@ public class RequestToCurl implements ToSnippet {
       return value.charAt(index);
     }
 
-    @NonNull @Override
+    @Override
     public CharSequence subSequence(int start, int end) {
       return value.subSequence(start, end);
     }
 
     @Override
-    @NonNull public String toString() {
+    public String toString() {
       return value;
     }
   }

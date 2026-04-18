@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.ValueResolver;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ModelAndView;
 import io.jooby.TemplateEngine;
@@ -29,7 +28,7 @@ public class HandlebarsTemplateEngine implements TemplateEngine {
     this.extensions = Collections.unmodifiableList(extensions);
   }
 
-  @NonNull @Override
+  @Override
   public List<String> extensions() {
     return extensions;
   }

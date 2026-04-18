@@ -5,8 +5,8 @@
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.internal.unbescape.html.HtmlEscapeLevel;
 import io.jooby.internal.unbescape.html.HtmlEscapeType;
 import io.jooby.internal.unbescape.html.HtmlEscapeUtil;
@@ -45,7 +45,7 @@ public final class XSS {
    *     modifications were required (and no additional <code>String</code> objects will be created
    *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
-  public static @NonNull String uri(@Nullable String value) {
+  public static String uri(@Nullable String value) {
     if (value == null || value.isEmpty()) {
       return "";
     }
@@ -77,7 +77,7 @@ public final class XSS {
    *     modifications were required (and no additional <code>String</code> objects will be created
    *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
-  public static @NonNull String html(@Nullable String value) {
+  public static String html(@Nullable String value) {
     if (value == null || value.isEmpty()) {
       return "";
     }
@@ -124,7 +124,7 @@ public final class XSS {
    *     modifications were required (and no additional <code>String</code> objects will be created
    *     during processing). Will return <code>null</code> if input is <code>null</code>.
    */
-  public static @NonNull String json(@Nullable String value) {
+  public static String json(@Nullable String value) {
     if (value == null || value.isEmpty()) {
       return "\"\"";
     }

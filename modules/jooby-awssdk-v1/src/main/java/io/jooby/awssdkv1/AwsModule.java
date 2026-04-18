@@ -19,7 +19,6 @@ import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -62,7 +61,7 @@ public class AwsModule implements Extension {
   private final List<Function<AWSCredentialsProvider, Object>> factoryList = new ArrayList<>();
   private final AWSCredentialsProvider credentialsProvider;
 
-  public AwsModule(@NonNull AWSCredentialsProvider credentialsProvider) {
+  public AwsModule(AWSCredentialsProvider credentialsProvider) {
     this.credentialsProvider = credentialsProvider;
   }
 
@@ -81,13 +80,13 @@ public class AwsModule implements Extension {
    * @param provider Service provider/factory.
    * @return AWS service.
    */
-  public @NonNull AwsModule setup(@NonNull Function<AWSCredentialsProvider, Object> provider) {
+  public AwsModule setup(Function<AWSCredentialsProvider, Object> provider) {
     factoryList.add(provider);
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var credentialsProvider =
         Optional.ofNullable(this.credentialsProvider)
             .orElseGet(() -> newCredentialsProvider(application.getConfig()));
@@ -129,7 +128,7 @@ public class AwsModule implements Extension {
    * @param config Application properties.
    * @return Credentials provider.
    */
-  public static @NonNull AWSCredentialsProvider newCredentialsProvider(@NonNull Config config) {
+  public static AWSCredentialsProvider newCredentialsProvider(Config config) {
     return new AWSCredentialsProviderChain(
         new EnvironmentVariableCredentialsProvider(),
         new SystemPropertiesCredentialsProvider(),

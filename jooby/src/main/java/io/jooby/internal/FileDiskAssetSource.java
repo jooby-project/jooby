@@ -7,20 +7,20 @@ package io.jooby.internal;
 
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.handler.Asset;
 import io.jooby.handler.AssetSource;
 
 public class FileDiskAssetSource implements AssetSource {
   private Path filepath;
 
-  public FileDiskAssetSource(@NonNull Path filepath) {
+  public FileDiskAssetSource(Path filepath) {
     this.filepath = filepath;
   }
 
   @Nullable @Override
-  public Asset resolve(@NonNull String path) {
+  public Asset resolve(String path) {
     return Asset.create(filepath);
   }
 

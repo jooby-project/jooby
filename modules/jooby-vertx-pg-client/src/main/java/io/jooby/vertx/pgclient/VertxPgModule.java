@@ -7,7 +7,6 @@ package io.jooby.vertx.pgclient;
 
 import java.util.function.Supplier;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.vertx.sqlclient.VertxSqlClientModule;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgBuilder;
@@ -46,13 +45,12 @@ public class VertxPgModule extends VertxSqlClientModule {
 
   private final Supplier<ClientBuilder<? extends SqlClient>> builder;
 
-  public VertxPgModule(
-      @NonNull String name, @NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
+  public VertxPgModule(String name, Supplier<ClientBuilder<? extends SqlClient>> builder) {
     super(name);
     this.builder = builder;
   }
 
-  public VertxPgModule(@NonNull Supplier<ClientBuilder<? extends SqlClient>> builder) {
+  public VertxPgModule(Supplier<ClientBuilder<? extends SqlClient>> builder) {
     this("db", builder);
   }
 

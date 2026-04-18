@@ -8,7 +8,6 @@ package io.jooby.internal.undertow;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Sender;
 import io.jooby.output.Output;
 import io.undertow.io.IoCallback;
@@ -24,13 +23,13 @@ public class UndertowSender implements Sender {
   }
 
   @Override
-  public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
+  public Sender write(byte[] data, Callback callback) {
     exchange.getResponseSender().send(ByteBuffer.wrap(data), newIoCallback(ctx, callback));
     return this;
   }
 
-  @NonNull @Override
-  public Sender write(@NonNull Output output, @NonNull Callback callback) {
+  @Override
+  public Sender write(Output output, Callback callback) {
     new UndertowOutputCallback(output, newIoCallback(ctx, callback)).send(exchange);
     return this;
   }

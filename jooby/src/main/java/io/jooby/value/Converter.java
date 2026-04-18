@@ -7,8 +7,6 @@ package io.jooby.value;
 
 import java.lang.reflect.Type;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Value converter for values that come from config, query, path, form, path parameters into more
  * specific type.
@@ -25,5 +23,5 @@ public interface Converter {
    * @param hint Requested hint.
    * @return Converted value.
    */
-  Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint);
+  Object convert(Type type, Value value, ConversionHint hint);
 }

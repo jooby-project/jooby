@@ -8,13 +8,12 @@ package io.jooby.metrics;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
 public class MetricsFilter implements Route.Filter {
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       MetricRegistry registry = ctx.require(MetricRegistry.class);
       Counter counter = registry.counter("request.actives");

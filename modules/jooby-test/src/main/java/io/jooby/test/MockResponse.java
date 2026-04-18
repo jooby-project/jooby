@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.CountDownLatch;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.MediaType;
 import io.jooby.StatusCode;
 
@@ -76,7 +76,7 @@ public class MockResponse implements MockValue {
    * @param headers Response headers.
    * @return This response.
    */
-  public MockResponse setHeaders(@NonNull Map<String, Object> headers) {
+  public MockResponse setHeaders(Map<String, Object> headers) {
     headers.forEach(this::setHeader);
     return this;
   }
@@ -88,7 +88,7 @@ public class MockResponse implements MockValue {
    * @param value Header value.
    * @return This response.
    */
-  public @NonNull MockResponse setHeader(@NonNull String name, @NonNull String value) {
+  public MockResponse setHeader(String name, String value) {
     if ("content-type".equalsIgnoreCase(name)) {
       setContentType(MediaType.valueOf(value));
     } else if ("content-length".equalsIgnoreCase(name)) {
@@ -106,7 +106,7 @@ public class MockResponse implements MockValue {
    * @param value Header value.
    * @return This response.
    */
-  public @NonNull MockResponse setHeader(@NonNull String name, @NonNull Object value) {
+  public MockResponse setHeader(String name, Object value) {
     return setHeader(name, value.toString());
   }
 
@@ -125,7 +125,7 @@ public class MockResponse implements MockValue {
    * @param contentType Response content type.
    * @return This response.
    */
-  public @NonNull MockResponse setContentType(@NonNull MediaType contentType) {
+  public MockResponse setContentType(MediaType contentType) {
     this.contentType = contentType;
     headers.put("content-type", contentType.toContentTypeHeader());
     return this;
@@ -146,7 +146,7 @@ public class MockResponse implements MockValue {
    * @param length Response content length.
    * @return This response.
    */
-  public @NonNull MockResponse setContentLength(long length) {
+  public MockResponse setContentLength(long length) {
     this.length = length;
     headers.put("content-length", Long.toString(length));
     return this;
@@ -157,7 +157,7 @@ public class MockResponse implements MockValue {
    *
    * @return Response status code.
    */
-  public @NonNull StatusCode getStatusCode() {
+  public StatusCode getStatusCode() {
     return statusCode;
   }
 
@@ -167,7 +167,7 @@ public class MockResponse implements MockValue {
    * @param statusCode Response status code.
    * @return This response.
    */
-  public @NonNull MockResponse setStatusCode(@NonNull StatusCode statusCode) {
+  public MockResponse setStatusCode(StatusCode statusCode) {
     this.statusCode = statusCode;
     return this;
   }
@@ -183,7 +183,7 @@ public class MockResponse implements MockValue {
    * @param result Route response value.
    * @return This response.
    */
-  public @NonNull MockResponse setResult(@Nullable Object result) {
+  public MockResponse setResult(@Nullable Object result) {
     this.result = result;
     latch.countDown();
     return this;

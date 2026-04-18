@@ -8,7 +8,6 @@ package io.jooby.internal.vertx.sqlclient;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.impl.VertxThread;
@@ -73,7 +72,7 @@ public record VertxThreadLocalSqlConnection(String name)
   }
 
   @Override
-  @NonNull public String toString() {
+  public String toString() {
     return Thread.currentThread().getName() + ":" + name;
   }
 

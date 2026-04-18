@@ -7,7 +7,7 @@ package io.jooby;
 
 import java.util.Optional;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Collection of websocket close status.

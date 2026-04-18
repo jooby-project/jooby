@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 
@@ -46,7 +45,7 @@ public class ByteBufferedOutput implements BufferedOutput {
   }
 
   @Override
-  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
+  public void transferTo(SneakyThrows.Consumer<ByteBuffer> consumer) {
     consumer.accept(asByteBuffer());
   }
 
@@ -87,7 +86,7 @@ public class ByteBufferedOutput implements BufferedOutput {
   }
 
   @Override
-  public BufferedOutput write(@NonNull ByteBuffer source) {
+  public BufferedOutput write(ByteBuffer source) {
     ensureWritable(source.remaining());
     var length = source.remaining();
     var tmp = this.buffer.duplicate();

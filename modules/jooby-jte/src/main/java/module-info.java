@@ -8,7 +8,7 @@ module io.jooby.jte {
   exports io.jooby.jte;
 
   requires transitive io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires gg.jte;
   requires gg.jte.runtime;
   requires static gg.jte.models;

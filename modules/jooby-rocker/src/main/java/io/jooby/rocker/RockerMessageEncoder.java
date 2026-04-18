@@ -7,7 +7,6 @@ package io.jooby.rocker;
 
 import com.fizzed.rocker.RockerModel;
 import com.fizzed.rocker.RockerOutputFactory;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
@@ -17,7 +16,7 @@ record RockerMessageEncoder(RockerOutputFactory<BufferedRockerOutput> factory)
     implements MessageEncoder {
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+  public Output encode(Context ctx, Object value) {
     if (value instanceof RockerModel template) {
       var output = template.render(factory);
       ctx.setResponseLength(output.getByteLength());

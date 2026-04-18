@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.json.JsonWriter;
 import io.avaje.jsonb.JsonView;
 import io.avaje.jsonb.Jsonb;
@@ -70,7 +69,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
    *
    * @param jsonb JsonB to use.
    */
-  public AvajeJsonbModule(@NonNull Jsonb jsonb) {
+  public AvajeJsonbModule(Jsonb jsonb) {
     this.jsonb = jsonb;
   }
 
@@ -80,7 +79,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -89,7 +88,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   @Override
-  public Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception {
+  public Object decode(Context ctx, Type type) throws Exception {
     Body body = ctx.body();
     if (body.isInMemory()) {
       return jsonb.type(type).fromJson(body.bytes());
@@ -101,7 +100,7 @@ public class AvajeJsonbModule implements Extension, MessageDecoder, MessageEncod
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) {
+  public Output encode(Context ctx, Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
     var buffer = factory.allocate();

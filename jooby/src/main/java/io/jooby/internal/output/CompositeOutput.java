@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.BufferedOutput;
@@ -70,7 +69,7 @@ public class CompositeOutput implements BufferedOutput {
   }
 
   @Override
-  public void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
+  public void transferTo(SneakyThrows.Consumer<ByteBuffer> consumer) {
     chunks.forEach(consumer);
   }
 

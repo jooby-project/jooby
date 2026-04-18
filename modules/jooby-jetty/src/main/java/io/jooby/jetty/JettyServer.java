@@ -29,7 +29,6 @@ import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.websocket.server.ServerWebSocketContainer;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.jetty.*;
@@ -69,7 +68,7 @@ public class JettyServer extends io.jooby.Server.Base {
    * @param options Options.
    * @param threadPool Custom thread pool.
    */
-  public JettyServer(@NonNull ServerOptions options, @NonNull QueuedThreadPool threadPool) {
+  public JettyServer(ServerOptions options, QueuedThreadPool threadPool) {
     setOptions(options);
     this.threadPool = threadPool;
   }
@@ -79,7 +78,7 @@ public class JettyServer extends io.jooby.Server.Base {
    *
    * @param threadPool Custom thread pool.
    */
-  public JettyServer(@NonNull QueuedThreadPool threadPool) {
+  public JettyServer(QueuedThreadPool threadPool) {
     this.threadPool = threadPool;
   }
 
@@ -88,7 +87,7 @@ public class JettyServer extends io.jooby.Server.Base {
    *
    * @param options Options.
    */
-  public JettyServer(@NonNull ServerOptions options) {
+  public JettyServer(ServerOptions options) {
     setOptions(options);
   }
 
@@ -120,7 +119,7 @@ public class JettyServer extends io.jooby.Server.Base {
   }
 
   @Override
-  public io.jooby.Server start(@NonNull Jooby... application) {
+  public io.jooby.Server start(Jooby... application) {
     // force options to be non-null
     var options = getOptions();
     var portInUse = options.getPort();
@@ -346,7 +345,7 @@ public class JettyServer extends io.jooby.Server.Base {
     }
   }
 
-  @NonNull @Override
+  @Override
   public synchronized io.jooby.Server stop() {
     if (server != null) {
       fireStop(applications);

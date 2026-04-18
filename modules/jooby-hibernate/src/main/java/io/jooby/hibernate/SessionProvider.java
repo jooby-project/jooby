@@ -8,8 +8,6 @@ package io.jooby.hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionBuilder;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Allow to customize a Session before opening it.
  *
@@ -23,5 +21,5 @@ public interface SessionProvider {
    * @param builder Session builder.
    * @return A new session.
    */
-  @NonNull Session newSession(@NonNull SessionBuilder builder);
+  Session newSession(SessionBuilder builder);
 }

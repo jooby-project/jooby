@@ -31,10 +31,9 @@ import java.util.concurrent.Executor;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.ByteRange;
 import io.jooby.output.Output;
@@ -88,18 +87,18 @@ public class UndertowContext implements DefaultContext, IoCallback {
         && this.method.charAt(2) == 'T';
   }
 
-  @NonNull @Override
+  @Override
   public Router getRouter() {
     return router;
   }
 
-  @NonNull @Override
+  @Override
   public Body body() {
     return body == null ? Body.empty(this) : body;
   }
 
   @Override
-  public @NonNull Map<String, String> cookieMap() {
+  public Map<String, String> cookieMap() {
     if (this.cookies == null) {
       this.cookies = new LinkedHashMap<>();
       for (var it : exchange.requestCookies()) {
@@ -109,7 +108,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return cookies;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, Object> getAttributes() {
     if (attributes == null) {
       attributes = new HashMap<>();
@@ -117,23 +116,23 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return attributes;
   }
 
-  @NonNull @Override
+  @Override
   public String getMethod() {
     return method;
   }
 
-  @NonNull @Override
-  public Context setMethod(@NonNull String method) {
+  @Override
+  public Context setMethod(String method) {
     this.method = method.toUpperCase();
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Route getRoute() {
     return route;
   }
 
-  @NonNull @Override
+  @Override
   public Context setRoute(Route route) {
     this.route = route;
     if (this.route.isNonBlocking()) {
@@ -142,23 +141,23 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getRequestPath() {
     return requestPath;
   }
 
-  @NonNull @Override
-  public Context setRequestPath(@NonNull String path) {
+  @Override
+  public Context setRequestPath(String path) {
     this.requestPath = path;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, String> pathMap() {
     return pathMap;
   }
 
-  @NonNull @Override
+  @Override
   public Context setPathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
@@ -169,18 +168,18 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return exchange.isInIoThread();
   }
 
-  @NonNull @Override
+  @Override
   public String getHost() {
     return host == null ? DefaultContext.super.getHost() : host;
   }
 
-  @NonNull @Override
-  public Context setHost(@NonNull String host) {
+  @Override
+  public Context setHost(String host) {
     this.host = host;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getRemoteAddress() {
     if (remoteAddress == null) {
       String remoteAddr =
@@ -193,18 +192,18 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return remoteAddress;
   }
 
-  @NonNull @Override
-  public Context setRemoteAddress(@NonNull String remoteAddress) {
+  @Override
+  public Context setRemoteAddress(String remoteAddress) {
     this.remoteAddress = remoteAddress;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public String getProtocol() {
     return exchange.getProtocol().toString();
   }
 
-  @NonNull @Override
+  @Override
   public List<Certificate> getClientCertificates() {
     SSLSessionInfo ssl = exchange.getConnection().getSslSessionInfo();
     if (ssl != null) {
@@ -217,14 +216,14 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return Collections.emptyList();
   }
 
-  @NonNull @Override
+  @Override
   public String getScheme() {
     String scheme = exchange.getRequestScheme();
     return scheme == null ? "http" : scheme.toLowerCase();
   }
 
-  @NonNull @Override
-  public Context setScheme(@NonNull String scheme) {
+  @Override
+  public Context setScheme(String scheme) {
     exchange.setRequestScheme(scheme);
     return this;
   }
@@ -234,18 +233,18 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return port > 0 ? port : DefaultContext.super.getPort();
   }
 
-  @NonNull @Override
+  @Override
   public Context setPort(int port) {
     this.port = port;
     return this;
   }
 
-  @NonNull @Override
-  public Value header(@NonNull String name) {
+  @Override
+  public Value header(String name) {
     return Value.create(getValueFactory(), name, exchange.getRequestHeaders().get(name));
   }
 
-  @NonNull @Override
+  @Override
   public Value header() {
     HeaderMap map = exchange.getRequestHeaders();
     if (headers == null) {
@@ -260,7 +259,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return headers;
   }
 
-  @NonNull @Override
+  @Override
   public QueryString query() {
     if (query == null) {
       query = QueryString.create(getValueFactory(), exchange.getQueryString());
@@ -268,7 +267,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return query;
   }
 
-  @NonNull @Override
+  @Override
   public Formdata form() {
     if (formdata == null) {
       formdata = Formdata.create(getValueFactory());
@@ -277,19 +276,19 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return formdata;
   }
 
-  @NonNull @Override
-  public Context dispatch(@NonNull Runnable action) {
+  @Override
+  public Context dispatch(Runnable action) {
     return dispatch(router.getWorker(), action);
   }
 
-  @NonNull @Override
-  public Context dispatch(@NonNull Executor executor, @NonNull Runnable action) {
+  @Override
+  public Context dispatch(Executor executor, Runnable action) {
     exchange.dispatch(executor, action);
     return this;
   }
 
-  @NonNull @Override
-  public Context upgrade(@NonNull WebSocket.Initializer handler) {
+  @Override
+  public Context upgrade(WebSocket.Initializer handler) {
     try {
       Handlers.websocket(
               (exchange, channel) -> {
@@ -304,8 +303,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
     }
   }
 
-  @NonNull @Override
-  public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
+  @Override
+  public Context upgrade(ServerSentEmitter.Handler handler) {
     try {
       handler.handle(new UndertowSeverSentEmitter(this));
     } catch (Throwable x) {
@@ -314,66 +313,66 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public StatusCode getResponseCode() {
     return StatusCode.valueOf(exchange.getStatusCode());
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseCode(int statusCode) {
     exchange.setStatusCode(statusCode);
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull String value) {
+  @Override
+  public Context setResponseHeader(String name, String value) {
     exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
     return this;
   }
 
-  @NonNull @Override
-  public Context removeResponseHeader(@NonNull String name) {
+  @Override
+  public Context removeResponseHeader(String name) {
     exchange.getResponseHeaders().remove(name);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context removeResponseHeaders() {
     exchange.getResponseHeaders().clear();
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public MediaType getResponseType() {
     return responseType == null ? MediaType.text : responseType;
   }
 
-  @NonNull @Override
-  public Context setDefaultResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setDefaultResponseType(MediaType contentType) {
     if (responseType == null) {
       setResponseType(contentType);
     }
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setResponseType(MediaType contentType) {
     this.responseType = contentType;
     exchange.getResponseHeaders().put(CONTENT_TYPE, contentType.toContentTypeHeader());
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull String contentType) {
+  @Override
+  public Context setResponseType(String contentType) {
     return setResponseType(MediaType.valueOf(contentType));
   }
 
   @Nullable @Override
-  public String getResponseHeader(@NonNull String name) {
+  public String getResponseHeader(String name) {
     return exchange.getResponseHeaders().getFirst(name);
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseLength(long length) {
     responseLength = length;
     exchange.getResponseHeaders().put(CONTENT_LENGTH, Long.toString(length));
@@ -388,7 +387,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return responseLength;
   }
 
-  @NonNull public Context setResponseCookie(@NonNull Cookie cookie) {
+  public Context setResponseCookie(Cookie cookie) {
     if (responseCookies == null) {
       responseCookies = new HashMap<>();
     }
@@ -402,7 +401,7 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public OutputStream responseStream() {
     ifStartBlocking();
 
@@ -411,12 +410,12 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return exchange.getOutputStream();
   }
 
-  @NonNull @Override
+  @Override
   public io.jooby.Sender responseSender() {
     return new UndertowSender(this, exchange);
   }
 
-  @NonNull @Override
+  @Override
   public PrintWriter responseWriter(MediaType type) {
     ifStartBlocking();
 
@@ -428,13 +427,13 @@ public class UndertowContext implements DefaultContext, IoCallback {
             exchange.getOutputStream(), ofNullable(type.getCharset()).orElse(UTF_8)));
   }
 
-  @NonNull @Override
-  public Context send(@NonNull byte[] data) {
+  @Override
+  public Context send(byte[] data) {
     return send(ByteBuffer.wrap(data));
   }
 
   @Override
-  public @NonNull Context send(@NonNull FileDownload file) {
+  public Context send(FileDownload file) {
     if (file.deleteOnComplete()) {
       if (files == null) {
         files = new ArrayList<>();
@@ -444,20 +443,20 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return DefaultContext.super.send(file);
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ReadableByteChannel channel) {
+  @Override
+  public Context send(ReadableByteChannel channel) {
     ifSetChunked();
     new UndertowChunkedStream(exchange.getRequestContentLength()).send(channel, exchange, this);
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull String data, @NonNull Charset charset) {
+  @Override
+  public Context send(String data, Charset charset) {
     return send(ByteBuffer.wrap(data.getBytes(charset)));
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ByteBuffer[] data) {
+  @Override
+  public Context send(ByteBuffer[] data) {
     HeaderMap headers = exchange.getResponseHeaders();
     if (!headers.contains(CONTENT_LENGTH)) {
       long len = 0;
@@ -471,8 +470,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull ByteBuffer data) {
+  @Override
+  public Context send(ByteBuffer data) {
     ifUnDispatch(data);
     exchange.setResponseContentLength(data.remaining());
     exchange.getResponseHeaders().put(Headers.CONTENT_LENGTH, Long.toString(data.remaining()));
@@ -480,21 +479,21 @@ public class UndertowContext implements DefaultContext, IoCallback {
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull Output output) {
+  @Override
+  public Context send(Output output) {
     output.send(this);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context send(StatusCode statusCode) {
     exchange.setStatusCode(statusCode.value());
     exchange.getResponseSender().send(EMPTY, this);
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull InputStream in) {
+  @Override
+  public Context send(InputStream in) {
     if (in instanceof FileInputStream) {
       // use channel
       return send(((FileInputStream) in).getChannel());
@@ -511,8 +510,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
     }
   }
 
-  @NonNull @Override
-  public Context send(@NonNull FileChannel file) {
+  @Override
+  public Context send(FileChannel file) {
     try {
       long len = file.size();
       exchange.setResponseContentLength(len);
@@ -568,8 +567,8 @@ public class UndertowContext implements DefaultContext, IoCallback {
     }
   }
 
-  @NonNull @Override
-  public Context onComplete(@NonNull Route.Complete task) {
+  @Override
+  public Context onComplete(Route.Complete task) {
     if (completionListener == null) {
       completionListener = new UndertowCompletionListener(this);
       exchange.addExchangeCompleteListener(completionListener);

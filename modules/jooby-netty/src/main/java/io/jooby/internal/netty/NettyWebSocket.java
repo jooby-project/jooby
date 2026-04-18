@@ -19,7 +19,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Router;
 import io.jooby.Server;
@@ -109,53 +108,53 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     channel.closeFuture().addListener(future -> handleClose(WebSocketCloseStatus.GOING_AWAY));
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(String message, WriteCallback callback) {
     return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(byte[] bytes, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(byte[] bytes, WriteCallback callback) {
     return sendMessage(Unpooled.wrappedBuffer(bytes), false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(ByteBuffer message, WriteCallback callback) {
     return sendMessage(Unpooled.wrappedBuffer(message), false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(ByteBuffer message, WriteCallback callback) {
     return sendMessage(Unpooled.wrappedBuffer(message), true, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(String message, WriteCallback callback) {
     return sendMessage(Unpooled.copiedBuffer(message, StandardCharsets.UTF_8), true, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(byte[] message, WriteCallback callback) {
     return sendMessage(Unpooled.wrappedBuffer(message), true, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(Output message, WriteCallback callback) {
     return sendMessage(byteBuf(message), false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(Output message, WriteCallback callback) {
     return sendMessage(byteBuf(message), true, callback);
   }
 
   @Override
-  public WebSocket render(Object value, @NonNull WriteCallback callback) {
+  public WebSocket render(Object value, WriteCallback callback) {
     return renderMessage(value, false, callback);
   }
 
   @Override
-  public WebSocket renderBinary(Object value, @NonNull WriteCallback callback) {
+  public WebSocket renderBinary(Object value, WriteCallback callback) {
     return renderMessage(value, true, callback);
   }
 
@@ -191,7 +190,7 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     return Context.readOnly(netty);
   }
 
-  @NonNull @Override
+  @Override
   public List<WebSocket> getSessions() {
     List<NettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
@@ -220,15 +219,15 @@ public class NettyWebSocket implements WebSocketConfigurer, WebSocket {
     }
   }
 
-  @NonNull @Override
-  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendPing(String message, WriteCallback callback) {
     return sendMessage(
         new PingWebSocketFrame(Unpooled.wrappedBuffer(message.getBytes(StandardCharsets.UTF_8))),
         callback);
   }
 
   @Override
-  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  public WebSocket sendPing(ByteBuffer message, WriteCallback callback) {
     return sendMessage(new PingWebSocketFrame(Unpooled.wrappedBuffer(message)), callback);
   }
 

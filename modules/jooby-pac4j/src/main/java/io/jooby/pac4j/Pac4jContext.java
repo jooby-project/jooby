@@ -8,7 +8,6 @@ package io.jooby.pac4j;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.internal.pac4j.WebContextImpl;
 
@@ -39,7 +38,7 @@ public interface Pac4jContext extends WebContext {
    * @param ctx Web context.
    * @return Pac4j web context.
    */
-  static Pac4jContext create(@NonNull Context ctx) {
+  static Pac4jContext create(Context ctx) {
     String key = Pac4jContext.class.getName();
     WebContextImpl impl = ctx.getAttribute(key);
     if (impl == null) {

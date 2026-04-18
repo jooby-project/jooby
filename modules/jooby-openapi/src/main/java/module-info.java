@@ -4,7 +4,7 @@ module io.jooby.openapi {
 
   requires io.jooby;
   requires io.jooby.javadoc;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
   requires com.fasterxml.jackson.databind;

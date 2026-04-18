@@ -12,7 +12,8 @@ import static io.jooby.ParamSource.PATH;
 import static io.jooby.ParamSource.QUERY;
 import static io.jooby.ParamSource.SESSION;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Context;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Param;

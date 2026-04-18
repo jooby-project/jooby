@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.Date;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Cookie;
 import io.jooby.DefaultContext;
@@ -27,18 +26,15 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
   private final WebSocket.WriteCallback callback;
 
   public WebSocketSender(
-      @NonNull Context context,
-      @NonNull WebSocket ws,
-      boolean binary,
-      WebSocket.WriteCallback callback) {
+      Context context, WebSocket ws, boolean binary, WebSocket.WriteCallback callback) {
     super(context);
     this.ws = ws;
     this.binary = binary;
     this.callback = callback;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull String data, @NonNull Charset charset) {
+  @Override
+  public Context send(String data, Charset charset) {
     if (binary) {
       ws.sendBinary(data.getBytes(charset), callback);
     } else {
@@ -47,18 +43,8 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
     return this;
   }
 
-  @NonNull @Override
-  public Context send(@NonNull byte[] data) {
-    if (binary) {
-      ws.sendBinary(data, callback);
-    } else {
-      ws.send(data, callback);
-    }
-    return this;
-  }
-
-  @NonNull @Override
-  public Context send(@NonNull ByteBuffer data) {
+  @Override
+  public Context send(byte[] data) {
     if (binary) {
       ws.sendBinary(data, callback);
     } else {
@@ -68,7 +54,17 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
   }
 
   @Override
-  public Context send(@NonNull Output output) {
+  public Context send(ByteBuffer data) {
+    if (binary) {
+      ws.sendBinary(data, callback);
+    } else {
+      ws.send(data, callback);
+    }
+    return this;
+  }
+
+  @Override
+  public Context send(Output output) {
     if (binary) {
       ws.sendBinary(output, callback);
     } else {
@@ -77,8 +73,8 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
     return this;
   }
 
-  @NonNull @Override
-  public Context render(@NonNull Object value) {
+  @Override
+  public Context render(Object value) {
     DefaultContext.super.render(value);
     return this;
   }
@@ -89,68 +85,68 @@ public class WebSocketSender extends ForwardingContext implements DefaultContext
     return this;
   }
 
-  @NonNull @Override
-  public Context setDefaultResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setDefaultResponseType(MediaType contentType) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseCode(int statusCode) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseCode(@NonNull StatusCode statusCode) {
+  @Override
+  public Context setResponseCode(StatusCode statusCode) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseCookie(@NonNull Cookie cookie) {
+  @Override
+  public Context setResponseCookie(Cookie cookie) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull String value) {
+  @Override
+  public Context setResponseHeader(String name, String value) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull Date value) {
+  @Override
+  public Context setResponseHeader(String name, Date value) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull Object value) {
+  @Override
+  public Context setResponseHeader(String name, Object value) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
+  @Override
+  public Context setResponseHeader(String name, Instant value) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context setResponseLength(long length) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull String contentType) {
+  @Override
+  public Context setResponseType(String contentType) {
     // NOOP
     return this;
   }
 
-  @NonNull @Override
-  public Context setResponseType(@NonNull MediaType contentType) {
+  @Override
+  public Context setResponseType(MediaType contentType) {
     // NOOP
     return this;
   }

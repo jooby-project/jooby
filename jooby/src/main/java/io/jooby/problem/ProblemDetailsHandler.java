@@ -16,7 +16,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.NotAcceptableException;
 
@@ -57,7 +56,7 @@ public class ProblemDetailsHandler extends DefaultErrorHandler {
   }
 
   @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  public void apply(Context ctx, Throwable cause, StatusCode code) {
     Logger log = ctx.getRouter().getLog();
     if (cause instanceof NotAcceptableException ex) {
       // no matching produce type, respond in html

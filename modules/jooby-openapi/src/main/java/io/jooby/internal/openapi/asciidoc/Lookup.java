@@ -8,7 +8,6 @@ package io.jooby.internal.openapi.asciidoc;
 import java.util.*;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.pebbletemplates.pebble.extension.Function;
 import io.pebbletemplates.pebble.template.EvaluationContext;
@@ -196,7 +195,7 @@ public enum Lookup implements Function {
       return new StatusCodeList(toMap(code).toList());
     }
 
-    @NonNull private Stream<Map<String, Object>> toMap(Object candidate) {
+    private Stream<Map<String, Object>> toMap(Object candidate) {
       if (candidate instanceof Number code) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("code", code.intValue());

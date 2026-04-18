@@ -8,7 +8,6 @@ package io.jooby.internal;
 import java.util.Collections;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -25,13 +24,13 @@ public class StaticRouterMatch implements Router.Match {
     return true;
   }
 
-  @NonNull @Override
+  @Override
   public Route route() {
     return route;
   }
 
   @Override
-  public Object execute(@NonNull Context context, @NonNull Route.Handler pipeline) {
+  public Object execute(Context context, Route.Handler pipeline) {
     context.setRoute(route);
     try {
       return pipeline.apply(context);
@@ -42,11 +41,11 @@ public class StaticRouterMatch implements Router.Match {
   }
 
   @Override
-  public Object execute(@NonNull Context context) {
+  public Object execute(Context context) {
     return execute(context, route.getPipeline());
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, String> pathMap() {
     return Collections.emptyMap();
   }

@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 
 import com.fizzed.rocker.RockerOutputFactory;
 import com.fizzed.rocker.runtime.RockerRuntime;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ExecutionMode;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -30,7 +29,7 @@ public class RockerModule implements Extension {
   private final Charset charset;
   private Boolean reuseBuffer;
 
-  public RockerModule(@NonNull Charset charset) {
+  public RockerModule(Charset charset) {
     this.charset = charset;
   }
 
@@ -63,7 +62,7 @@ public class RockerModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     var env = application.getEnvironment();
     var runtime = RockerRuntime.getInstance();
     boolean reloading =

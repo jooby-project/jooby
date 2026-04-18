@@ -8,7 +8,6 @@ package io.jooby.jstachio;
 import java.io.IOException;
 import java.util.function.BiFunction;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.output.Output;
@@ -25,7 +24,7 @@ class JStachioMessageEncoder extends JStachioRenderer<Output> implements Message
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(Context ctx, Object value) throws Exception {
     if (supportsType(value.getClass())) {
       return render(ctx, value);
     }

@@ -8,7 +8,7 @@ module io.jooby.metrics {
   exports io.jooby.metrics;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
   requires com.codahale.metrics;

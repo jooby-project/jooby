@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueType;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.validation.ConstraintViolationException;
 import io.avaje.validation.Validator;
 import io.jooby.Context;
@@ -68,7 +67,7 @@ public class AvajeValidatorModule implements Extension {
    * @param configurer Configurer callback.
    * @return This module.
    */
-  public AvajeValidatorModule doWith(@NonNull final Consumer<Validator.Builder> configurer) {
+  public AvajeValidatorModule doWith(final Consumer<Validator.Builder> configurer) {
     this.configurer = configurer;
     return this;
   }
@@ -80,7 +79,7 @@ public class AvajeValidatorModule implements Extension {
    * @param statusCode new status code
    * @return This module.
    */
-  public AvajeValidatorModule statusCode(@NonNull StatusCode statusCode) {
+  public AvajeValidatorModule statusCode(StatusCode statusCode) {
     this.statusCode = statusCode;
     return this;
   }
@@ -92,7 +91,7 @@ public class AvajeValidatorModule implements Extension {
    * @param title new title
    * @return This module.
    */
-  public AvajeValidatorModule validationTitle(@NonNull String title) {
+  public AvajeValidatorModule validationTitle(String title) {
     this.title = title;
     return this;
   }
@@ -121,7 +120,7 @@ public class AvajeValidatorModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby app) {
+  public void install(Jooby app) {
     var conf = app.getConfig();
 
     final var builder = Validator.builder();

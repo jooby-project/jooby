@@ -10,7 +10,6 @@ import java.io.Writer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.BufferedOutput;
 
 public class OutputWriter extends Writer {
@@ -18,7 +17,7 @@ public class OutputWriter extends Writer {
   private final Charset charset;
   private boolean closed;
 
-  public OutputWriter(@NonNull BufferedOutput output, @NonNull Charset charset) {
+  public OutputWriter(BufferedOutput output, Charset charset) {
     this.output = output;
     this.charset = charset;
   }
@@ -30,24 +29,24 @@ public class OutputWriter extends Writer {
   }
 
   @Override
-  public void write(@NonNull char[] source) throws IOException {
+  public void write(char[] source) throws IOException {
     write(source, 0, source.length);
   }
 
   @Override
-  public void write(@NonNull char[] source, int off, int len) throws IOException {
+  public void write(char[] source, int off, int len) throws IOException {
     checkClosed();
     output.write(CharBuffer.wrap(source, off, len), charset);
   }
 
   @Override
-  public void write(@NonNull String source) throws IOException {
+  public void write(String source) throws IOException {
     checkClosed();
     output.write(source, charset);
   }
 
   @Override
-  public void write(@NonNull String source, int off, int len) throws IOException {
+  public void write(String source, int off, int len) throws IOException {
     checkClosed();
     output.write(CharBuffer.wrap(source, off, off + len), charset);
   }

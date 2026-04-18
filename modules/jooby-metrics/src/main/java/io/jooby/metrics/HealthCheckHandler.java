@@ -10,15 +10,14 @@ import java.util.TreeMap;
 
 import com.codahale.metrics.health.HealthCheck.Result;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
 public class HealthCheckHandler implements Route.Handler {
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
+  @Override
+  public Object apply(Context ctx) {
     HealthCheckRegistry registry = ctx.require(HealthCheckRegistry.class);
 
     SortedMap<String, Result> checks =

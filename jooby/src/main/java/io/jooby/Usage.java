@@ -9,7 +9,6 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.exception.ProvisioningException;
 
 /**
@@ -25,7 +24,7 @@ public class Usage extends RuntimeException {
    * @param message Message.
    * @param id Link to a detailed section.
    */
-  public Usage(@NonNull String message, @NonNull String id) {
+  public Usage(String message, String id) {
     this(
         (message
             + "\nFor more details, please visit: "
@@ -34,7 +33,7 @@ public class Usage extends RuntimeException {
             + id));
   }
 
-  protected Usage(@NonNull String message) {
+  protected Usage(String message) {
     super(message);
   }
 
@@ -54,7 +53,7 @@ public class Usage extends RuntimeException {
    * @param parameter Parameter.
    * @return Usage exception.
    */
-  public static Usage parameterNameNotPresent(@NonNull Parameter parameter) {
+  public static Usage parameterNameNotPresent(Parameter parameter) {
     Executable executable = parameter.getDeclaringExecutable();
     int p = Stream.of(executable.getParameters()).toList().indexOf(parameter);
     String message =

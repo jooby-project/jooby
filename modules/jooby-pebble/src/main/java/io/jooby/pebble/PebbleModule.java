@@ -16,7 +16,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -104,7 +103,7 @@ public class PebbleModule implements Extension {
      * @param cache Template cache.
      * @return This builder.
      */
-    public @NonNull Builder setTemplateCache(@NonNull PebbleCache<Object, PebbleTemplate> cache) {
+    public Builder setTemplateCache(PebbleCache<Object, PebbleTemplate> cache) {
       this.templateCache = cache;
       return this;
     }
@@ -115,7 +114,7 @@ public class PebbleModule implements Extension {
      * @param tagCache Tag cache.
      * @return This builder.
      */
-    public @NonNull Builder setTagCache(@NonNull PebbleCache<CacheKey, Object> tagCache) {
+    public Builder setTagCache(PebbleCache<CacheKey, Object> tagCache) {
       this.tagCache = tagCache;
       return this;
     }
@@ -126,7 +125,7 @@ public class PebbleModule implements Extension {
      * @param templatesPath Set template path.
      * @return This builder.
      */
-    public @NonNull Builder setTemplatesPath(@NonNull String templatesPath) {
+    public Builder setTemplatesPath(String templatesPath) {
       this.templatesPath = templatesPath;
       return this;
     }
@@ -137,7 +136,7 @@ public class PebbleModule implements Extension {
      * @param executorService Set ExecutorService.
      * @return This builder.
      */
-    public @NonNull Builder setExecutorService(@NonNull ExecutorService executorService) {
+    public Builder setExecutorService(ExecutorService executorService) {
       this.executorService = executorService;
       return this;
     }
@@ -148,7 +147,7 @@ public class PebbleModule implements Extension {
      * @param defaultLocale Locale.
      * @return This builder.
      */
-    public @NonNull Builder setDefaultLocale(@NonNull Locale defaultLocale) {
+    public Builder setDefaultLocale(Locale defaultLocale) {
       this.defaultLocale = defaultLocale;
       return this;
     }
@@ -159,7 +158,7 @@ public class PebbleModule implements Extension {
      * @param loader Template loader to use.
      * @return This builder.
      */
-    public @NonNull Builder setTemplateLoader(@NonNull Loader<?> loader) {
+    public Builder setTemplateLoader(Loader<?> loader) {
       this.loader = loader;
       return this;
     }
@@ -170,7 +169,7 @@ public class PebbleModule implements Extension {
      * @param env Application environment.
      * @return A new PebbleEngine instance.
      */
-    public @NonNull PebbleEngine.Builder build(@NonNull Environment env) {
+    public PebbleEngine.Builder build(Environment env) {
 
       PebbleEngine.Builder builder = new PebbleEngine.Builder();
 
@@ -266,7 +265,7 @@ public class PebbleModule implements Extension {
    *
    * @param builder PebbleEngine.Builder instance to use.
    */
-  public PebbleModule(@NonNull PebbleEngine.Builder builder) {
+  public PebbleModule(PebbleEngine.Builder builder) {
     this.builder = builder;
   }
 
@@ -276,7 +275,7 @@ public class PebbleModule implements Extension {
    * @param templatesPath Template location to use. First try to file-system or fallback to
    *     classpath.
    */
-  public PebbleModule(@NonNull String templatesPath) {
+  public PebbleModule(String templatesPath) {
     this.templatesPath = templatesPath;
   }
 
@@ -286,7 +285,7 @@ public class PebbleModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     if (builder == null) {
       builder = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
@@ -301,7 +300,7 @@ public class PebbleModule implements Extension {
    *
    * @return A builder.
    */
-  public static @NonNull PebbleModule.Builder create() {
+  public static PebbleModule.Builder create() {
     return new PebbleModule.Builder();
   }
 }

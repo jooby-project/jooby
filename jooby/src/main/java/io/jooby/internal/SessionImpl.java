@@ -9,8 +9,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Context;
 import io.jooby.Session;
 import io.jooby.SessionStore;
@@ -47,7 +47,7 @@ public class SessionImpl implements Session {
     return isNew;
   }
 
-  @NonNull @Override
+  @Override
   public Session setNew(boolean aNew) {
     this.isNew = aNew;
     return this;
@@ -58,7 +58,7 @@ public class SessionImpl implements Session {
     return modify;
   }
 
-  @NonNull @Override
+  @Override
   public Session setModify(boolean modify) {
     this.modify = modify;
     return this;
@@ -69,31 +69,31 @@ public class SessionImpl implements Session {
     return id;
   }
 
-  @NonNull @Override
+  @Override
   public Session setId(@Nullable String id) {
     this.id = id;
     return this;
   }
 
   @Override
-  public @NonNull Value get(@NonNull String name) {
+  public Value get(String name) {
     return Value.create(ctx.getValueFactory(), name, attributes.get(name));
   }
 
   @Override
-  public @NonNull Session put(@NonNull String name, @NonNull String value) {
+  public Session put(String name, String value) {
     attributes.put(name, value);
     updateState();
     return this;
   }
 
-  public @NonNull Session put(@NonNull String name, Object value) {
+  public Session put(String name, Object value) {
     attributes.put(name, value.toString());
     return this;
   }
 
   @Override
-  public @NonNull Value remove(@NonNull String name) {
+  public Value remove(String name) {
     var value = get(name);
     attributes.remove(name);
     updateState();
@@ -101,33 +101,33 @@ public class SessionImpl implements Session {
   }
 
   @Override
-  public @NonNull Map<String, String> toMap() {
+  public Map<String, String> toMap() {
     return attributes;
   }
 
   @Override
-  public @NonNull Instant getCreationTime() {
+  public Instant getCreationTime() {
     return creationTime;
   }
 
-  @NonNull @Override
-  public Session setCreationTime(@NonNull Instant creationTime) {
+  @Override
+  public Session setCreationTime(Instant creationTime) {
     this.creationTime = creationTime;
     return this;
   }
 
   @Override
-  public @NonNull Instant getLastAccessedTime() {
+  public Instant getLastAccessedTime() {
     return lastAccessedTime;
   }
 
   @Override
-  public @NonNull Session setLastAccessedTime(@NonNull Instant lastAccessedTime) {
+  public Session setLastAccessedTime(Instant lastAccessedTime) {
     this.lastAccessedTime = lastAccessedTime;
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Session clear() {
     attributes.clear();
     updateState();
@@ -141,7 +141,7 @@ public class SessionImpl implements Session {
     store(ctx).deleteSession(ctx, this);
   }
 
-  @NonNull @Override
+  @Override
   public Session renewId() {
     store(ctx).renewSessionId(ctx, this);
     updateState();

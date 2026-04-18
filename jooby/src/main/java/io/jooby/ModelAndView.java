@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Used by template engines to renderer views.
@@ -52,7 +51,7 @@ public class ModelAndView<T> {
    * @param view View name must include file extension.
    * @param model View model.
    */
-  public ModelAndView(@NonNull String view, @NonNull T model) {
+  public ModelAndView(String view, T model) {
     this.view = view;
     this.model = model;
   }
@@ -63,7 +62,7 @@ public class ModelAndView<T> {
    * @param view View name.
    * @return A map model and view.
    */
-  public static MapModelAndView map(@NonNull String view) {
+  public static MapModelAndView map(String view) {
     return new MapModelAndView(view);
   }
 
@@ -74,7 +73,7 @@ public class ModelAndView<T> {
    * @param model Map instance.
    * @return A map model and view.
    */
-  public static MapModelAndView map(@NonNull String view, @NonNull Map<String, Object> model) {
+  public static MapModelAndView map(String view, Map<String, Object> model) {
     return new MapModelAndView(view, model);
   }
 

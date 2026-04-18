@@ -24,15 +24,14 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Sampling;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.StatusCode;
 
 public class MetricHandler implements Route.Handler {
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
+  @Override
+  public Object apply(Context ctx) {
     MetricRegistry registry = ctx.require(MetricRegistry.class);
     Map<String, Metric> allMetrics = registry.getMetrics();
 

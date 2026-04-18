@@ -9,8 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /** A {@link ModelAndView} which uses a map as model. */
 public class MapModelAndView extends ModelAndView<Map<String, Object>> {
@@ -20,7 +19,7 @@ public class MapModelAndView extends ModelAndView<Map<String, Object>> {
    * @param view View name must include file extension.
    * @param model View model.
    */
-  public MapModelAndView(@NonNull String view, @NonNull Map<String, Object> model) {
+  public MapModelAndView(String view, Map<String, Object> model) {
     super(view, model);
   }
 
@@ -29,7 +28,7 @@ public class MapModelAndView extends ModelAndView<Map<String, Object>> {
    *
    * @param view View name must include file extension.
    */
-  public MapModelAndView(@NonNull String view) {
+  public MapModelAndView(String view) {
     super(view, new LinkedHashMap<>());
   }
 
@@ -40,7 +39,7 @@ public class MapModelAndView extends ModelAndView<Map<String, Object>> {
    * @param value Value.
    * @return This model and view.
    */
-  public MapModelAndView put(@NonNull String name, Object value) {
+  public MapModelAndView put(String name, Object value) {
     model.put(name, value);
     return this;
   }
@@ -51,7 +50,7 @@ public class MapModelAndView extends ModelAndView<Map<String, Object>> {
    * @param attributes Attributes.
    * @return This model and view.
    */
-  public MapModelAndView put(@NonNull Map<String, Object> attributes) {
+  public MapModelAndView put(Map<String, Object> attributes) {
     this.model.putAll(attributes);
     return this;
   }

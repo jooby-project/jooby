@@ -10,7 +10,6 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;
 import com.google.inject.name.Names;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Registry;
 import io.jooby.Reified;
 import io.jooby.ServiceKey;
@@ -23,30 +22,30 @@ class GuiceRegistry implements Registry {
     this.injector = injector;
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Class<T> type) {
+  @Override
+  public <T> T require(Class<T> type) {
     return require(Key.get(type));
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Class<T> type, @NonNull String name) {
+  @Override
+  public <T> T require(Class<T> type, String name) {
     return require(Key.get(type, Names.named(name)));
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Reified<T> type) throws RegistryException {
+  @Override
+  public <T> T require(Reified<T> type) throws RegistryException {
     //noinspection unchecked
     return (T) require(Key.get(type.getType()));
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+  @Override
+  public <T> T require(Reified<T> type, String name) throws RegistryException {
     //noinspection unchecked
     return (T) require(Key.get(type.getType(), Names.named(name)));
   }
 
-  @NonNull @Override
-  public <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  @Override
+  public <T> T require(ServiceKey<T> key) throws RegistryException {
     String name = key.getName();
     //noinspection unchecked
     return name == null
@@ -54,7 +53,7 @@ class GuiceRegistry implements Registry {
         : (T) require(Key.get(key.getType(), Names.named(name)));
   }
 
-  @NonNull private <T> T require(@NonNull Key<T> key) {
+  private <T> T require(Key<T> key) {
     try {
       return injector.getInstance(key);
     } catch (ProvisionException | ConfigurationException x) {

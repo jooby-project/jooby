@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Cross-origin resource sharing.
@@ -340,7 +339,7 @@ public class Cors {
    * @param conf Configuration.
    * @return Cors options.
    */
-  public static Cors from(@NonNull Config conf) {
+  public static Cors from(Config conf) {
     Config cors = conf.hasPath("cors") ? conf.getConfig("cors") : conf;
     Cors options = new Cors();
     if (cors.hasPath("origin")) {

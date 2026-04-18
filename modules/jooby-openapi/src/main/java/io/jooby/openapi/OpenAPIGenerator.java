@@ -14,12 +14,11 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.Router;
 import io.jooby.SneakyThrows;
 import io.jooby.internal.openapi.*;
@@ -48,10 +47,8 @@ public class OpenAPIGenerator {
     /** JSON. */
     JSON {
       @Override
-      @NonNull protected String toString(
-          @NonNull OpenAPIGenerator tool,
-          @NonNull OpenAPI result,
-          @NonNull Map<String, Object> options) {
+      protected String toString(
+          OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options) {
         return tool.toJson(result);
       }
     },
@@ -59,29 +56,22 @@ public class OpenAPIGenerator {
     /** YAML. */
     YAML {
       @Override
-      @NonNull protected String toString(
-          @NonNull OpenAPIGenerator tool,
-          @NonNull OpenAPI result,
-          @NonNull Map<String, Object> options) {
+      protected String toString(
+          OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options) {
         return tool.toYaml(result);
       }
     },
 
     ADOC {
       @Override
-      @NonNull protected String toString(
-          @NonNull OpenAPIGenerator tool,
-          @NonNull OpenAPI result,
-          @NonNull Map<String, Object> options) {
+      protected String toString(
+          OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options) {
         return tool.toAdoc(result, options);
       }
 
       @SuppressWarnings("unchecked")
-      @NonNull @Override
-      public List<Path> write(
-          @NonNull OpenAPIGenerator tool,
-          @NonNull OpenAPI result,
-          @NonNull Map<String, Object> options)
+      @Override
+      public List<Path> write(OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options)
           throws IOException {
         var files = (List<Path>) options.get("adoc");
         if (files == null || files.isEmpty()) {
@@ -109,7 +99,7 @@ public class OpenAPIGenerator {
      *
      * @return File extension.
      */
-    public @NonNull String extension() {
+    public String extension() {
       return name().toLowerCase();
     }
 
@@ -120,10 +110,8 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    protected abstract @NonNull String toString(
-        @NonNull OpenAPIGenerator tool,
-        @NonNull OpenAPI result,
-        @NonNull Map<String, Object> options);
+    protected abstract String toString(
+        OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options);
 
     /**
      * Convert an {@link OpenAPI} model to the current format.
@@ -132,10 +120,7 @@ public class OpenAPIGenerator {
      * @param result Model.
      * @return String (json or yaml content).
      */
-    public @NonNull List<Path> write(
-        @NonNull OpenAPIGenerator tool,
-        @NonNull OpenAPI result,
-        @NonNull Map<String, Object> options)
+    public List<Path> write(OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options)
         throws IOException {
       var output = (Path) options.get("output");
       var content = toString(tool, result, options);
@@ -177,8 +162,7 @@ public class OpenAPIGenerator {
    * @return Output file.
    * @throws IOException If fails to process input.
    */
-  public @NonNull List<Path> export(
-      @NonNull OpenAPI openAPI, @NonNull Format format, @NonNull Map<String, Object> options)
+  public List<Path> export(OpenAPI openAPI, Format format, Map<String, Object> options)
       throws IOException {
     Path output;
     if (openAPI instanceof OpenAPIExt) {
@@ -215,7 +199,7 @@ public class OpenAPIGenerator {
    * @param classname Application class name.
    * @return Model.
    */
-  public @NonNull OpenAPI generate(@NonNull String classname) {
+  public OpenAPI generate(String classname) {
     var classLoader = Optional.ofNullable(this.classLoader).orElseGet(getClass()::getClassLoader);
 
     var source = new ClassSource(classLoader);
@@ -379,7 +363,7 @@ public class OpenAPIGenerator {
    * @param openAPI Model.
    * @return YAML content.
    */
-  public @NonNull String toYaml(@NonNull OpenAPI openAPI) {
+  public String toYaml(OpenAPI openAPI) {
     try {
       return yamlMapper().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -393,7 +377,7 @@ public class OpenAPIGenerator {
    * @param openAPI Model.
    * @return YAML content.
    */
-  public @NonNull String toAdoc(@NonNull OpenAPI openAPI, @NonNull Map<String, Object> options) {
+  public String toAdoc(OpenAPI openAPI, Map<String, Object> options) {
     try {
       var file = (Path) options.get("adoc");
       if (file == null) {
@@ -411,7 +395,7 @@ public class OpenAPIGenerator {
    * @param openAPI Model.
    * @return JSON content.
    */
-  public @NonNull String toJson(@NonNull OpenAPI openAPI) {
+  public String toJson(OpenAPI openAPI) {
     try {
       return jsonMapper().writer().withDefaultPrettyPrinter().writeValueAsString(openAPI);
     } catch (IOException x) {
@@ -424,7 +408,7 @@ public class OpenAPIGenerator {
    *
    * @param classLoader Class loader.
    */
-  public void setClassLoader(@NonNull ClassLoader classLoader) {
+  public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
 
@@ -451,7 +435,7 @@ public class OpenAPIGenerator {
    *
    * @param templateName OpenAPI template file name, defaults is: <code>openapi.yaml</code>.
    */
-  public void setTemplateName(@NonNull String templateName) {
+  public void setTemplateName(String templateName) {
     this.templateName = templateName;
   }
 
@@ -461,7 +445,7 @@ public class OpenAPIGenerator {
    *
    * @param basedir Base directory.
    */
-  public void setBasedir(@NonNull Path basedir) {
+  public void setBasedir(Path basedir) {
     this.basedir = basedir;
   }
 
@@ -470,7 +454,7 @@ public class OpenAPIGenerator {
    *
    * @param sources Source code location.
    */
-  public void setSources(@NonNull List<Path> sources) {
+  public void setSources(List<Path> sources) {
     this.sources = sources;
   }
 
@@ -537,7 +521,7 @@ public class OpenAPIGenerator {
    *
    * @param outputDir Output directory.
    */
-  public void setOutputDir(@NonNull Path outputDir) {
+  public void setOutputDir(Path outputDir) {
     this.outputDir = outputDir;
   }
 

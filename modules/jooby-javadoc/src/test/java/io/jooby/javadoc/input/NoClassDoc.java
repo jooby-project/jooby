@@ -5,7 +5,6 @@
  */
 package io.jooby.javadoc.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
@@ -19,7 +18,7 @@ public class NoClassDoc {
    * @param name Name.
    * @return Person name.
    */
-  @NonNull @GET
+  @GET
   public String hello(@QueryParam String name) {
     return "hello";
   }

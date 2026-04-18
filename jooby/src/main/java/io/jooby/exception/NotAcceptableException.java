@@ -5,8 +5,8 @@
  */
 package io.jooby.exception;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 
@@ -36,7 +36,7 @@ public class NotAcceptableException extends StatusCodeException {
   }
 
   @Override
-  public @NonNull HttpProblem toHttpProblem() {
+  public HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(
         statusCode,
         statusCode.reason(),

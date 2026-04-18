@@ -27,7 +27,6 @@ import com.github.kagkarlsson.scheduler.serializer.Serializer;
 import com.github.kagkarlsson.scheduler.stats.StatsRegistry;
 import com.github.kagkarlsson.scheduler.task.OnStartup;
 import com.github.kagkarlsson.scheduler.task.Task;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.dbscheduler.ClassLoaderJavaSerializer;
@@ -81,7 +80,7 @@ public class DbSchedulerModule implements Extension {
    *
    * @param tasks Task to schedule.
    */
-  public DbSchedulerModule(@NonNull List<Task<?>> tasks) {
+  public DbSchedulerModule(List<Task<?>> tasks) {
     this.tasks.addAll(tasks);
   }
 
@@ -91,7 +90,7 @@ public class DbSchedulerModule implements Extension {
    * @param task Task to schedule.
    * @param tail Tasks to schedule.
    */
-  public DbSchedulerModule(@NonNull Task<?> task, Task<?>... tail) {
+  public DbSchedulerModule(Task<?> task, Task<?>... tail) {
     this(Stream.concat(Stream.of(task), Stream.of(tail)).toList());
   }
 
@@ -101,7 +100,7 @@ public class DbSchedulerModule implements Extension {
    * @param tasks Tasks to schedule.
    * @return This module.
    */
-  public DbSchedulerModule withTasks(@NonNull List<Task<?>> tasks) {
+  public DbSchedulerModule withTasks(List<Task<?>> tasks) {
     this.tasks.addAll(tasks);
     return this;
   }
@@ -112,7 +111,7 @@ public class DbSchedulerModule implements Extension {
    * @param statsRegistry Stats registry.
    * @return This module.
    */
-  public DbSchedulerModule withStatsRegistry(@NonNull StatsRegistry statsRegistry) {
+  public DbSchedulerModule withStatsRegistry(StatsRegistry statsRegistry) {
     this.statsRegistry = statsRegistry;
     return this;
   }
@@ -123,7 +122,7 @@ public class DbSchedulerModule implements Extension {
    * @param schedulerName Scheduler name.
    * @return This module.
    */
-  public DbSchedulerModule withSchedulerName(@NonNull SchedulerName schedulerName) {
+  public DbSchedulerModule withSchedulerName(SchedulerName schedulerName) {
     this.schedulerName = schedulerName;
     return this;
   }
@@ -135,7 +134,7 @@ public class DbSchedulerModule implements Extension {
    * @param interceptor An {@link ExecutionInterceptor} that intercepts task execution.
    * @return This {@link DbSchedulerModule} to allow method chaining.
    */
-  public DbSchedulerModule withExecutionInterceptor(@NonNull ExecutionInterceptor interceptor) {
+  public DbSchedulerModule withExecutionInterceptor(ExecutionInterceptor interceptor) {
     this.executionInterceptors.add(interceptor);
     return this;
   }
@@ -146,7 +145,7 @@ public class DbSchedulerModule implements Extension {
    * @param serializer Task serializer.
    * @return This module.
    */
-  public DbSchedulerModule withSerializer(@NonNull Serializer serializer) {
+  public DbSchedulerModule withSerializer(Serializer serializer) {
     this.serializer = serializer;
     return this;
   }
@@ -157,7 +156,7 @@ public class DbSchedulerModule implements Extension {
    * @param executorService Task executor service.
    * @return This module.
    */
-  public DbSchedulerModule withExecutorService(@NonNull ExecutorService executorService) {
+  public DbSchedulerModule withExecutorService(ExecutorService executorService) {
     this.executorService = executorService;
     return this;
   }
@@ -168,7 +167,7 @@ public class DbSchedulerModule implements Extension {
    * @param dueExecutor Executor service.
    * @return This module.
    */
-  public DbSchedulerModule withDueExecutor(@NonNull ExecutorService dueExecutor) {
+  public DbSchedulerModule withDueExecutor(ExecutorService dueExecutor) {
     this.dueExecutor = dueExecutor;
     return this;
   }
@@ -179,8 +178,7 @@ public class DbSchedulerModule implements Extension {
    * @param housekeeperExecutor Executor service.
    * @return This module.
    */
-  public DbSchedulerModule withHousekeeperExecutor(
-      @NonNull ScheduledExecutorService housekeeperExecutor) {
+  public DbSchedulerModule withHousekeeperExecutor(ScheduledExecutorService housekeeperExecutor) {
     this.housekeeperExecutor = housekeeperExecutor;
     return this;
   }
@@ -191,13 +189,13 @@ public class DbSchedulerModule implements Extension {
    * @param jdbcCustomization Customize/configure jdbc calls.
    * @return This module.
    */
-  public DbSchedulerModule withJdbcCustomization(@NonNull JdbcCustomization jdbcCustomization) {
+  public DbSchedulerModule withJdbcCustomization(JdbcCustomization jdbcCustomization) {
     this.jdbcCustomization = jdbcCustomization;
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby app) throws SQLException {
+  public void install(Jooby app) throws SQLException {
     var properties =
         DbSchedulerProperties.from(app.getConfig(), "db-scheduler")
             .orElseGet(DbSchedulerProperties::new);

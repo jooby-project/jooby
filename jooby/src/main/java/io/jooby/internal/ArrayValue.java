@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.value.ConversionHint;
@@ -56,7 +56,7 @@ public class ArrayValue implements Value {
   }
 
   @Override
-  public @NonNull Value get(int index) {
+  public Value get(int index) {
     try {
       return list.get(index);
     } catch (IndexOutOfBoundsException x) {
@@ -65,12 +65,12 @@ public class ArrayValue implements Value {
   }
 
   @Override
-  public @NonNull Value get(@NonNull String name) {
+  public Value get(String name) {
     return new MissingValue(factory, this.name + "." + name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(factory, this.name + "." + name, defaultValue);
   }
 
@@ -80,7 +80,7 @@ public class ArrayValue implements Value {
   }
 
   @Override
-  public @NonNull String value() {
+  public String value() {
     String name = name();
     throw new TypeMismatchException(name == null ? getClass().getSimpleName() : name, String.class);
   }
@@ -91,27 +91,27 @@ public class ArrayValue implements Value {
   }
 
   @Override
-  public @NonNull Iterator<Value> iterator() {
+  public Iterator<Value> iterator() {
     return list.iterator();
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Class<T> type) {
+  @Override
+  public <T> T to(Class<T> type) {
     return factory.convert(type, list.get(0), ConversionHint.Strict);
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Class<T> type) {
+  public <T> T toNullable(Class<T> type) {
     return list.isEmpty() ? null : factory.convert(type, list.get(0), ConversionHint.Nullable);
   }
 
-  @NonNull @Override
-  public <T> List<T> toList(@NonNull Class<T> type) {
+  @Override
+  public <T> List<T> toList(Class<T> type) {
     return collect(new ArrayList<>(this.list.size()), type);
   }
 
-  @NonNull @Override
-  public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  @Override
+  public <T> Optional<T> toOptional(Class<T> type) {
     try {
       return Optional.ofNullable(toNullable(type));
     } catch (MissingValueException x) {
@@ -119,20 +119,20 @@ public class ArrayValue implements Value {
     }
   }
 
-  @NonNull @Override
-  public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @Override
+  public <T> Set<T> toSet(Class<T> type) {
     return collect(new LinkedHashSet<>(this.list.size()), type);
   }
 
   @Override
-  public @NonNull Map<String, List<String>> toMultimap() {
+  public Map<String, List<String>> toMultimap() {
     var values = new ArrayList<String>();
     list.forEach(it -> it.toMultimap().values().forEach(values::addAll));
     return Map.of(name, values);
   }
 
   @Override
-  public @NonNull List<String> toList() {
+  public List<String> toList() {
     return switch (list.size()) {
       case 0 -> List.of();
       case 1 -> List.of(list.get(0).value());
@@ -143,7 +143,7 @@ public class ArrayValue implements Value {
   }
 
   @Override
-  public @NonNull Set<String> toSet() {
+  public Set<String> toSet() {
     return switch (list.size()) {
       case 0 -> Set.of();
       case 1 -> Set.of(list.get(0).value());

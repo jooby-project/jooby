@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.*;
 import io.jooby.annotation.trpc.Trpc;
 import io.jooby.exception.NotFoundException;
@@ -56,7 +55,7 @@ public class MovieServiceTs {
   /** Procedure: movies.getById Single primitive argument */
   @Trpc
   @GET("/{id}")
-  public @NonNull Movie getById(@PathParam int id) {
+  public Movie getById(@PathParam int id) {
     return database.stream()
         .filter(m -> m.id() == id)
         .findFirst()

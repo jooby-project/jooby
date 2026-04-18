@@ -41,5 +41,5 @@
  * @author edgar
  * @since 2.0.0
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.jackson;

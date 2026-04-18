@@ -27,7 +27,6 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 import io.jooby.StatusCode;
 
@@ -41,7 +40,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return value.valueOrNull();
     }
   },
@@ -54,7 +53,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == int.class) {
         return value.intValue();
       }
@@ -70,7 +69,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == long.class) {
         return value.longValue();
       }
@@ -86,7 +85,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == float.class) {
         return value.floatValue();
       }
@@ -102,7 +101,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == double.class) {
         return value.doubleValue();
       }
@@ -118,7 +117,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == boolean.class) {
         return value.booleanValue();
       }
@@ -134,7 +133,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       if (type == byte.class) {
         return value.byteValue();
       }
@@ -149,7 +148,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return new BigDecimal(value.value());
     }
   },
@@ -161,7 +160,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return new BigInteger(value.value());
     }
   },
@@ -173,7 +172,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       var charset = value.value();
       return switch (charset.toLowerCase()) {
         case "utf-8" -> StandardCharsets.UTF_8;
@@ -194,7 +193,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         // must be millis
         return new Date(parseLong(value.value()));
@@ -213,7 +212,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
@@ -280,7 +279,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         return java.time.Period.from((Duration) Duration.convert(type, value, hint));
       } catch (DateTimeException x) {
@@ -348,7 +347,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         return java.time.Instant.ofEpochMilli(parseLong(value.value()));
       } catch (NumberFormatException x) {
@@ -364,7 +363,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(parseLong(value.value()));
@@ -383,7 +382,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         // must be millis
         var instant = java.time.Instant.ofEpochMilli(parseLong(value.value()));
@@ -402,7 +401,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return io.jooby.StatusCode.valueOf(value.intValue());
     }
   },
@@ -414,7 +413,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return java.util.TimeZone.getTimeZone(value.value());
     }
   },
@@ -426,7 +425,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       try {
         var uri = java.net.URI.create(value.value());
         if (type == URL.class) {
@@ -446,7 +445,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       return java.util.UUID.fromString(value.value());
     }
   },
@@ -458,7 +457,7 @@ public enum StandardConverter implements Converter {
     }
 
     @Override
-    public Object convert(@NonNull Type type, @NonNull Value value, @NonNull ConversionHint hint) {
+    public Object convert(Type type, Value value, ConversionHint hint) {
       var zoneId = value.value();
       return java.time.ZoneId.of(java.time.ZoneId.SHORT_IDS.getOrDefault(zoneId, zoneId));
     }

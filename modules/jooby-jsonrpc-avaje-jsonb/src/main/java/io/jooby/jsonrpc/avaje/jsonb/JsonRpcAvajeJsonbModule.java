@@ -5,7 +5,6 @@
  */
 package io.jooby.jsonrpc.avaje.jsonb;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.jsonb.Jsonb;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -14,7 +13,7 @@ import io.jooby.jsonrpc.JsonRpcParser;
 
 public class JsonRpcAvajeJsonbModule implements Extension {
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     // JSON-RPC
     application
         .getServices()

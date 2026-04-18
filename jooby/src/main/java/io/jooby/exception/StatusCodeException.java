@@ -5,8 +5,8 @@
  */
 package io.jooby.exception;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 import io.jooby.problem.HttpProblemMappable;
@@ -26,7 +26,7 @@ public class StatusCodeException extends RuntimeException implements HttpProblem
    *
    * @param statusCode Status code.
    */
-  public StatusCodeException(@NonNull StatusCode statusCode) {
+  public StatusCodeException(StatusCode statusCode) {
     this(statusCode, statusCode.toString());
   }
 
@@ -36,7 +36,7 @@ public class StatusCodeException extends RuntimeException implements HttpProblem
    * @param statusCode Status code.
    * @param message Error message.
    */
-  public StatusCodeException(@NonNull StatusCode statusCode, @NonNull String message) {
+  public StatusCodeException(StatusCode statusCode, String message) {
     this(statusCode, message, null);
   }
 
@@ -47,8 +47,7 @@ public class StatusCodeException extends RuntimeException implements HttpProblem
    * @param message Error message.
    * @param cause Cause.
    */
-  public StatusCodeException(
-      @NonNull StatusCode statusCode, @NonNull String message, @Nullable Throwable cause) {
+  public StatusCodeException(StatusCode statusCode, String message, @Nullable Throwable cause) {
     super(message, cause);
     this.statusCode = statusCode;
   }
@@ -58,12 +57,12 @@ public class StatusCodeException extends RuntimeException implements HttpProblem
    *
    * @return Status code.
    */
-  public @NonNull StatusCode getStatusCode() {
+  public StatusCode getStatusCode() {
     return statusCode;
   }
 
   @Override
-  public @NonNull HttpProblem toHttpProblem() {
+  public HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(statusCode, getMessage());
   }
 }

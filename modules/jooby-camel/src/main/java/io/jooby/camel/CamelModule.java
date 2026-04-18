@@ -18,7 +18,6 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.SimpleMain;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
@@ -69,7 +68,7 @@ public class CamelModule implements Extension {
    *
    * @param camel Camel context.
    */
-  public CamelModule(@NonNull CamelContext camel) {
+  public CamelModule(CamelContext camel) {
     this.camel = camel;
   }
 
@@ -79,7 +78,7 @@ public class CamelModule implements Extension {
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
-  public CamelModule(@NonNull RouteBuilder route, RouteBuilder... routes) {
+  public CamelModule(RouteBuilder route, RouteBuilder... routes) {
     this(null, route, routes);
   }
 
@@ -90,8 +89,7 @@ public class CamelModule implements Extension {
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
-  public CamelModule(
-      @NonNull CamelContext camel, @NonNull RouteBuilder route, RouteBuilder... routes) {
+  public CamelModule(CamelContext camel, RouteBuilder route, RouteBuilder... routes) {
     this.camel = camel;
     this.routes = registry -> concat(route, routes).collect(Collectors.toList());
   }
@@ -104,9 +102,7 @@ public class CamelModule implements Extension {
    * @param route Route configuration.
    * @param routes Optional route configuration.
    */
-  public CamelModule(
-      @NonNull Class<? extends RouteBuilder> route,
-      @NonNull Class<? extends RouteBuilder>... routes) {
+  public CamelModule(Class<? extends RouteBuilder> route, Class<? extends RouteBuilder>... routes) {
     this(null, route, routes);
   }
 
@@ -120,8 +116,8 @@ public class CamelModule implements Extension {
    * @param routes Optional route configuration.
    */
   public CamelModule(
-      @NonNull CamelContext camel,
-      @NonNull Class<? extends RouteBuilder> route,
+      CamelContext camel,
+      Class<? extends RouteBuilder> route,
       Class<? extends RouteBuilder>... routes) {
     this.camel = camel;
     this.routes =
@@ -132,7 +128,7 @@ public class CamelModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     // create a CamelContext
     if (this.camel == null) {
       this.camel = newCamelContext(application);

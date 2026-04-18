@@ -35,7 +35,6 @@ import org.quartz.utils.DBConnectionManager;
 import org.slf4j.Logger;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -133,7 +132,7 @@ public class QuartzModule implements Extension {
    * @param scheduler Provided scheduler.
    * @param jobs Job classes.
    */
-  public QuartzModule(@NonNull Scheduler scheduler, final Class<?>... jobs) {
+  public QuartzModule(Scheduler scheduler, final Class<?>... jobs) {
     this.scheduler = scheduler;
     this.jobs = Arrays.asList(jobs);
   }
@@ -145,7 +144,7 @@ public class QuartzModule implements Extension {
    * @param scheduler Provided scheduler.
    * @param jobs Job classes.
    */
-  public QuartzModule(@NonNull Scheduler scheduler, final List<Class<?>> jobs) {
+  public QuartzModule(Scheduler scheduler, final List<Class<?>> jobs) {
     this.scheduler = scheduler;
     this.jobs = jobs;
   }
@@ -174,7 +173,7 @@ public class QuartzModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     Config config = application.getConfig();
     Map<JobDetail, Trigger> jobMap = JobGenerator.build(application, jobs);
 
@@ -282,7 +281,7 @@ public class QuartzModule implements Extension {
    * @param application Application.
    * @return New scheduler.
    */
-  public static @NonNull Scheduler newScheduler(@NonNull Jooby application) {
+  public static Scheduler newScheduler(Jooby application) {
     try {
       Scheduler scheduler = newScheduleFactory(application).getScheduler();
       scheduler.setJobFactory(new JobFactoryImpl(application, new PropertySettingJobFactory()));
@@ -298,7 +297,7 @@ public class QuartzModule implements Extension {
    * @param application Application.
    * @return New scheduler factory.
    */
-  public static @NonNull StdSchedulerFactory newScheduleFactory(@NonNull Jooby application) {
+  public static StdSchedulerFactory newScheduleFactory(Jooby application) {
     try {
       Properties properties = properties(application.getConfig());
       if (JobStoreTX.class.getName().equals(properties.getProperty("org.quartz.jobStore.class"))) {

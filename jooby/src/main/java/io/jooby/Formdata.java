@@ -8,7 +8,6 @@ package io.jooby;
 import java.util.Collection;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.MultipartNode;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
@@ -30,8 +29,7 @@ public interface Formdata extends Value {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @NonNull
-  void put(@NonNull String path, @NonNull Value value);
+  void put(String path, Value value);
 
   /**
    * Add a form field.
@@ -39,8 +37,7 @@ public interface Formdata extends Value {
    * @param path Form name/path.
    * @param value Form value.
    */
-  @NonNull
-  void put(@NonNull String path, @NonNull String value);
+  void put(String path, String value);
 
   /**
    * Add a form field.
@@ -48,8 +45,7 @@ public interface Formdata extends Value {
    * @param path Form name/path.
    * @param values Form values.
    */
-  @NonNull
-  void put(@NonNull String path, @NonNull Collection<String> values);
+  void put(String path, Collection<String> values);
 
   /**
    * Put/Add a file into this multipart request.
@@ -57,14 +53,14 @@ public interface Formdata extends Value {
    * @param name HTTP name.
    * @param file File upload.
    */
-  void put(@NonNull String name, @NonNull FileUpload file);
+  void put(String name, FileUpload file);
 
   /**
    * All file uploads. Only for <code>multipart/form-data</code> request.
    *
    * @return All file uploads.
    */
-  @NonNull List<FileUpload> files();
+  List<FileUpload> files();
 
   /**
    * All file uploads that matches the given field name.
@@ -74,7 +70,7 @@ public interface Formdata extends Value {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return All file uploads.
    */
-  @NonNull List<FileUpload> files(@NonNull String name);
+  List<FileUpload> files(String name);
 
   /**
    * A file upload that matches the given field name.
@@ -84,7 +80,7 @@ public interface Formdata extends Value {
    * @param name Field name. Please note this is the form field name, not the actual file name.
    * @return A file upload.
    */
-  @NonNull FileUpload file(@NonNull String name);
+  FileUpload file(String name);
 
   /**
    * Creates a new multipart object.
@@ -92,7 +88,7 @@ public interface Formdata extends Value {
    * @param valueFactory Current context.
    * @return Multipart instance.
    */
-  static @NonNull Formdata create(@NonNull ValueFactory valueFactory) {
+  static Formdata create(ValueFactory valueFactory) {
     return new MultipartNode(valueFactory);
   }
 }

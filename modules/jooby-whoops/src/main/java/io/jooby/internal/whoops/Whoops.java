@@ -23,7 +23,6 @@ import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.MediaType;
@@ -86,8 +85,8 @@ public class Whoops implements ErrorHandler {
     this.log = log;
   }
 
-  @NonNull @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  @Override
+  public void apply(Context ctx, Throwable cause, StatusCode code) {
     if (ctx.accept(MediaType.html)) {
       render(ctx, cause, code)
           .handle(

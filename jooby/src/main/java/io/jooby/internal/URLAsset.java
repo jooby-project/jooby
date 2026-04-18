@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.handler.Asset;
@@ -44,7 +43,7 @@ public class URLAsset implements Asset {
    * @param resource Asset resource url.
    * @param path Asset path.
    */
-  public URLAsset(@NonNull URL resource, @NonNull String path) {
+  public URLAsset(URL resource, String path) {
     this.resource = resource;
     this.path = path;
   }
@@ -61,7 +60,7 @@ public class URLAsset implements Asset {
     return lastModified;
   }
 
-  @NonNull @Override
+  @Override
   public MediaType getContentType() {
     return MediaType.byFile(path);
   }

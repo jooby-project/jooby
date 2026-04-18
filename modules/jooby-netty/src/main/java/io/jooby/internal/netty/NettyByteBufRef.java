@@ -7,7 +7,6 @@ package io.jooby.internal.netty;
 
 import java.nio.ByteBuffer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.output.Output;
@@ -15,15 +14,15 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 public interface NettyByteBufRef extends Output {
-  @NonNull ByteBuf byteBuf();
+  ByteBuf byteBuf();
 
   @Override
-  default void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer) {
+  default void transferTo(SneakyThrows.Consumer<ByteBuffer> consumer) {
     consumer.accept(asByteBuffer());
   }
 
   @Override
-  @NonNull default ByteBuffer asByteBuffer() {
+  default ByteBuffer asByteBuffer() {
     return byteBuf().slice().nioBuffer();
   }
 

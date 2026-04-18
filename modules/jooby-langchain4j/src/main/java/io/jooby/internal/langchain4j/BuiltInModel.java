@@ -18,7 +18,6 @@ import dev.langchain4j.model.ollama.OllamaChatModel;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.langchain4j.ChatModelFactory;
 
 /**
@@ -28,7 +27,7 @@ import io.jooby.langchain4j.ChatModelFactory;
 public enum BuiltInModel implements ChatModelFactory {
   OPENAI {
     @Override
-    public ChatModel createChatModel(@NonNull Config config) {
+    public ChatModel createChatModel(Config config) {
       check("dev.langchain4j.model.openai.OpenAiChatModel", "langchain4j-open-ai");
       return OpenAiChatModel.builder()
           .apiKey(config.getString("api-key"))
@@ -39,7 +38,7 @@ public enum BuiltInModel implements ChatModelFactory {
     }
 
     @Override
-    public StreamingChatModel createStreamingModel(@NonNull Config config) {
+    public StreamingChatModel createStreamingModel(Config config) {
       return OpenAiStreamingChatModel.builder()
           .apiKey(config.getString("api-key"))
           .modelName(config.hasPath("model-name") ? config.getString("model-name") : "gpt-4o-mini")
@@ -51,7 +50,7 @@ public enum BuiltInModel implements ChatModelFactory {
 
   ANTHROPIC {
     @Override
-    public ChatModel createChatModel(@NonNull Config config) {
+    public ChatModel createChatModel(Config config) {
       check("dev.langchain4j.model.anthropic.AnthropicChatModel", "langchain4j-anthropic");
       return AnthropicChatModel.builder()
           .apiKey(config.getString("api-key"))
@@ -65,7 +64,7 @@ public enum BuiltInModel implements ChatModelFactory {
     }
 
     @Override
-    public StreamingChatModel createStreamingModel(@NonNull Config config) {
+    public StreamingChatModel createStreamingModel(Config config) {
       return AnthropicStreamingChatModel.builder()
           .apiKey(config.getString("api-key"))
           .modelName(
@@ -80,7 +79,7 @@ public enum BuiltInModel implements ChatModelFactory {
 
   OLLAMA {
     @Override
-    public ChatModel createChatModel(@NonNull Config config) {
+    public ChatModel createChatModel(Config config) {
       check("dev.langchain4j.model.ollama.OllamaChatModel", "langchain4j-ollama");
       return OllamaChatModel.builder()
           .baseUrl(config.getString("base-url"))
@@ -90,7 +89,7 @@ public enum BuiltInModel implements ChatModelFactory {
     }
 
     @Override
-    public StreamingChatModel createStreamingModel(@NonNull Config config) {
+    public StreamingChatModel createStreamingModel(Config config) {
       return OllamaStreamingChatModel.builder()
           .baseUrl(config.getString("base-url"))
           .modelName(config.getString("model-name"))
@@ -101,7 +100,7 @@ public enum BuiltInModel implements ChatModelFactory {
 
   JLAMA {
     @Override
-    public ChatModel createChatModel(@NonNull Config config) {
+    public ChatModel createChatModel(Config config) {
       check("dev.langchain4j.model.jlama.JlamaChatModel", "langchain4j-jlama");
       return JlamaChatModel.builder()
           .modelName(config.getString("model-name"))
@@ -110,7 +109,7 @@ public enum BuiltInModel implements ChatModelFactory {
     }
 
     @Override
-    public StreamingChatModel createStreamingModel(@NonNull Config config) {
+    public StreamingChatModel createStreamingModel(Config config) {
       return JlamaStreamingChatModel.builder()
           .modelName(config.getString("model-name"))
           .workingDirectory(getOrCreateWorkingDir(config))

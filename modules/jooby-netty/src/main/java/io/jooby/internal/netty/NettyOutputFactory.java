@@ -8,7 +8,6 @@ package io.jooby.internal.netty;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
@@ -35,22 +34,22 @@ public class NettyOutputFactory implements OutputFactory {
     }
 
     @Override
-    @NonNull public Output wrap(@NonNull String value, @NonNull Charset charset) {
+    public Output wrap(String value, Charset charset) {
       return new NettyWrappedOutput(Unpooled.wrappedBuffer(value.getBytes(charset)));
     }
 
     @Override
-    @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
+    public Output wrap(ByteBuffer buffer) {
       return new NettyWrappedOutput(Unpooled.wrappedBuffer(buffer));
     }
 
     @Override
-    @NonNull public Output wrap(@NonNull byte[] bytes) {
+    public Output wrap(byte[] bytes) {
       return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes));
     }
 
     @Override
-    @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+    public Output wrap(byte[] bytes, int offset, int length) {
       return new NettyWrappedOutput(Unpooled.wrappedBuffer(bytes, offset, length));
     }
   }
@@ -68,38 +67,38 @@ public class NettyOutputFactory implements OutputFactory {
   }
 
   @Override
-  @NonNull public OutputOptions getOptions() {
+  public OutputOptions getOptions() {
     return options;
   }
 
   @Override
-  public @NonNull BufferedOutput allocate(boolean direct, int size) {
+  public BufferedOutput allocate(boolean direct, int size) {
     return new NettyByteBufOutput(
         direct ? this.allocator.directBuffer(size) : this.allocator.heapBuffer(size));
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull ByteBuffer buffer) {
+  public Output wrap(ByteBuffer buffer) {
     return new NettyOutputStatic(buffer);
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull byte[] bytes) {
+  public Output wrap(byte[] bytes) {
     return wrap(bytes, 0, bytes.length);
   }
 
   @Override
-  @NonNull public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+  public Output wrap(byte[] bytes, int offset, int length) {
     return new NettyOutputUnsafeHeapByteBuf(bytes, offset, length);
   }
 
   @Override
-  @NonNull public BufferedOutput newComposite() {
+  public BufferedOutput newComposite() {
     return new NettyByteBufOutput(allocator.compositeBuffer(48));
   }
 
   @Override
-  @NonNull public OutputFactory getContextFactory() {
+  public OutputFactory getContextFactory() {
     return new NettyContextOutputFactory(allocator, options);
   }
 }

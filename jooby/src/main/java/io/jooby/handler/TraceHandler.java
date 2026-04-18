@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.Router;
 
@@ -26,7 +25,7 @@ public class TraceHandler implements Route.Filter {
   public TraceHandler() {}
 
   @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (ctx.getMethod().equals(Router.TRACE)) {
         // Handle trace
@@ -55,8 +54,8 @@ public class TraceHandler implements Route.Filter {
     };
   }
 
-  @NonNull @Override
-  public void setRoute(@NonNull Route route) {
+  @Override
+  public void setRoute(Route route) {
     route.setHttpTrace(true);
   }
 }

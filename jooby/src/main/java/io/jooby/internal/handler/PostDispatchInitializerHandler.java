@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.internal.ContextInitializer;
 
@@ -17,8 +16,8 @@ public class PostDispatchInitializerHandler implements Route.Filter {
     this.initializer = initializer;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       try {
         initializer.apply(ctx);

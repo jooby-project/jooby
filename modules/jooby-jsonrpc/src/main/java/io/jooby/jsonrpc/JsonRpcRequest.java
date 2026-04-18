@@ -10,8 +10,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Represents a JSON-RPC 2.0 Request object, and simultaneously acts as an iterable container for
  * batch requests.
@@ -139,7 +137,7 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
   }
 
   @Override
-  public @NonNull Iterator<JsonRpcRequest> iterator() {
+  public Iterator<JsonRpcRequest> iterator() {
     if (batch) {
       return getRequests().iterator();
     }

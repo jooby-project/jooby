@@ -8,7 +8,6 @@ package io.jooby.jsonrpc.jackson2;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.jsonrpc.jackson2.JacksonJsonRpcParser;
@@ -34,7 +33,7 @@ import io.jooby.jsonrpc.JsonRpcParser;
  */
 public class JsonRpcJackson2Module implements Extension {
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     // JSON-RPC
     var services = application.getServices();
     services.put(

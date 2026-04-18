@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import org.asciidoctor.extension.Postprocessor;
 import org.jcodings.util.Hash;
 import org.jsoup.Jsoup;
@@ -145,7 +144,6 @@ public class DocPostprocessor extends Postprocessor {
         });
   }
 
-  @NonNull
   private static String cleanId(String id) {
     return id.replaceAll("-\\d+$", "");
   }

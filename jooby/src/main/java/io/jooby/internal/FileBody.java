@@ -16,8 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -43,12 +43,12 @@ public class FileBody implements Body {
   }
 
   @Override
-  public Value get(@NonNull String name) {
+  public Value get(String name) {
     return new MissingValue(ctx.getValueFactory(), name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
@@ -58,7 +58,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public @NonNull ReadableByteChannel channel() {
+  public ReadableByteChannel channel() {
     try {
       return Files.newByteChannel(file);
     } catch (IOException x) {
@@ -67,7 +67,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public @NonNull InputStream stream() {
+  public InputStream stream() {
     try {
       return Files.newInputStream(file);
     } catch (IOException x) {
@@ -76,7 +76,7 @@ public class FileBody implements Body {
   }
 
   @Override
-  public @NonNull byte[] bytes() {
+  public byte[] bytes() {
     try {
       return Files.readAllBytes(file);
     } catch (IOException x) {
@@ -84,12 +84,12 @@ public class FileBody implements Body {
     }
   }
 
-  @NonNull @Override
+  @Override
   public String value() {
     return value(StandardCharsets.UTF_8);
   }
 
-  @NonNull @Override
+  @Override
   public List<String> toList() {
     return Collections.singletonList(value());
   }
@@ -99,18 +99,18 @@ public class FileBody implements Body {
     return "body";
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Type type) {
+  @Override
+  public <T> T to(Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Type type) {
+  public <T> T toNullable(Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override
-  public @NonNull Map<String, List<String>> toMultimap() {
+  public Map<String, List<String>> toMultimap() {
     return Map.of();
   }
 }

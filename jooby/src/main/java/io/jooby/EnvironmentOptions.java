@@ -9,8 +9,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Available environment options.
@@ -50,7 +49,7 @@ public class EnvironmentOptions {
    * @param activeNames Active environment names.
    * @return This options.
    */
-  public @NonNull EnvironmentOptions setActiveNames(@NonNull String... activeNames) {
+  public EnvironmentOptions setActiveNames(String... activeNames) {
     this.activeNames = activeNames;
     return this;
   }
@@ -61,12 +60,12 @@ public class EnvironmentOptions {
    * @param activeNames Active environment names.
    * @return This options.
    */
-  public @NonNull EnvironmentOptions setActiveNames(@NonNull List<String> activeNames) {
+  public EnvironmentOptions setActiveNames(List<String> activeNames) {
     this.activeNames = activeNames.toArray(new String[0]);
     return this;
   }
 
-  static @NonNull List<String> defaultEnvironmentNames() {
+  static List<String> defaultEnvironmentNames() {
     return Arrays.asList(
         System.getProperty(
                 AvailableSettings.ENV, System.getenv().getOrDefault(AvailableSettings.ENV, "dev"))
@@ -78,7 +77,7 @@ public class EnvironmentOptions {
    *
    * @return Class loader.
    */
-  public @NonNull ClassLoader getClassLoader() {
+  public ClassLoader getClassLoader() {
     return classLoader == null ? getClass().getClassLoader() : classLoader;
   }
 
@@ -88,7 +87,7 @@ public class EnvironmentOptions {
    * @param defaultClassLoader Default classloader is none was set.
    * @return Class loader.
    */
-  public @NonNull ClassLoader getClassLoader(@NonNull ClassLoader defaultClassLoader) {
+  public ClassLoader getClassLoader(ClassLoader defaultClassLoader) {
     return classLoader == null ? defaultClassLoader : classLoader;
   }
 
@@ -98,7 +97,7 @@ public class EnvironmentOptions {
    * @param classLoader Class loader.
    * @return This options.
    */
-  public @NonNull EnvironmentOptions setClassLoader(@NonNull ClassLoader classLoader) {
+  public EnvironmentOptions setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
     return this;
   }
@@ -117,7 +116,7 @@ public class EnvironmentOptions {
    *
    * @return Configuration file name.
    */
-  public @NonNull String getFilename() {
+  public String getFilename() {
     return filename;
   }
 
@@ -127,7 +126,7 @@ public class EnvironmentOptions {
    * @param basedir Base dir. Classpath folder or file system directory.
    * @return This options.
    */
-  public @NonNull EnvironmentOptions setBasedir(@Nullable String basedir) {
+  public EnvironmentOptions setBasedir(@Nullable String basedir) {
     this.basedir = basedir;
     return this;
   }
@@ -138,7 +137,7 @@ public class EnvironmentOptions {
    * @param basedir Base dir.
    * @return This options.
    */
-  public @NonNull EnvironmentOptions setBasedir(@Nullable Path basedir) {
+  public EnvironmentOptions setBasedir(@Nullable Path basedir) {
     this.basedir = basedir.toAbsolutePath().toString();
     return this;
   }
@@ -150,7 +149,7 @@ public class EnvironmentOptions {
    *     <code>.conf</code> and <code>.json</code>.
    * @return This environment.
    */
-  public @NonNull EnvironmentOptions setFilename(@NonNull String filename) {
+  public EnvironmentOptions setFilename(String filename) {
     this.filename = filename;
     return this;
   }

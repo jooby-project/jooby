@@ -5,7 +5,6 @@
  */
 package tests.i3460;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.jooby.annotation.QueryParam;
@@ -13,7 +12,7 @@ import io.jooby.annotation.QueryParam;
 @Path("/path")
 public class C3460 {
   @GET("/required-string-param")
-  public String requiredStringParam(@QueryParam(name = "value") @NonNull String value) {
+  public String requiredStringParam(@QueryParam(name = "value") String value) {
     return value;
   }
 }

@@ -8,8 +8,8 @@ package io.jooby;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.output.Output;
 
 /**
@@ -59,7 +59,7 @@ public interface Sender {
      * @param ctx Web context.
      * @param cause Cause in case of error or <code>null</code> for success.
      */
-    void onComplete(@NonNull Context ctx, @Nullable Throwable cause);
+    void onComplete(Context ctx, @Nullable Throwable cause);
   }
 
   /**
@@ -69,7 +69,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  default Sender write(@NonNull String data, @NonNull Callback callback) {
+  default Sender write(String data, Callback callback) {
     return write(data, StandardCharsets.UTF_8, callback);
   }
 
@@ -81,7 +81,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  default Sender write(@NonNull String data, @NonNull Charset charset, @NonNull Callback callback) {
+  default Sender write(String data, Charset charset, Callback callback) {
     return write(data.getBytes(charset), callback);
   }
 
@@ -92,7 +92,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  Sender write(@NonNull byte[] data, @NonNull Callback callback);
+  Sender write(byte[] data, Callback callback);
 
   /**
    * Write an output.
@@ -101,7 +101,7 @@ public interface Sender {
    * @param callback Callback.
    * @return This sender.
    */
-  Sender write(@NonNull Output output, @NonNull Callback callback);
+  Sender write(Output output, Callback callback);
 
   /** Close the sender. */
   void close();

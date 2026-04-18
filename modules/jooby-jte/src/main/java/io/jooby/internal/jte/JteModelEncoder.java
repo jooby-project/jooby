@@ -7,15 +7,15 @@ package io.jooby.internal.jte;
 
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import gg.jte.models.runtime.JteModel;
 import io.jooby.Context;
 import io.jooby.output.Output;
 
 public class JteModelEncoder implements io.jooby.MessageEncoder {
   @Nullable @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(Context ctx, Object value) throws Exception {
     if (value instanceof JteModel jte) {
       var buffer = ctx.getOutputFactory().allocate();
       jte.render(new BufferedTemplateOutput(buffer, StandardCharsets.UTF_8));

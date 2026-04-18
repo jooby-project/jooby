@@ -11,7 +11,6 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Jooby;
 import io.jooby.LoggingService;
 import io.jooby.Server;
@@ -31,7 +30,7 @@ public class MutedServer implements Server {
     this.mute = mute;
   }
 
-  @NonNull @Override
+  @Override
   public OutputFactory getOutputFactory() {
     return delegate.getOutputFactory();
   }
@@ -58,28 +57,28 @@ public class MutedServer implements Server {
         .orElse(server);
   }
 
-  @NonNull public Server setOptions(@NonNull ServerOptions options) {
+  public Server setOptions(ServerOptions options) {
     return delegate.setOptions(options);
   }
 
-  @NonNull public String getName() {
+  public String getName() {
     return delegate.getName();
   }
 
-  @NonNull public ServerOptions getOptions() {
+  public ServerOptions getOptions() {
     return delegate.getOptions();
   }
 
-  @NonNull public Server start(@NonNull Jooby... application) {
+  public Server start(Jooby... application) {
     loggingService.logOff(mute, () -> delegate.start(application));
     return delegate;
   }
 
-  @NonNull public List<String> getLoggerOff() {
+  public List<String> getLoggerOff() {
     return delegate.getLoggerOff();
   }
 
-  @NonNull public Server stop() {
+  public Server stop() {
     loggingService.logOff(mute, delegate::stop);
     return delegate;
   }

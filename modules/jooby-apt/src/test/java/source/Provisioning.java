@@ -20,7 +20,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.Context;
 import io.jooby.FileUpload;
 import io.jooby.FlashMap;

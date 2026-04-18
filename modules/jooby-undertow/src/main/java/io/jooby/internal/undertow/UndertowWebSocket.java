@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.xnio.IoUtils;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.SneakyThrows;
@@ -170,12 +169,12 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return maxSize;
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @NonNull @Override
+  @Override
   public List<WebSocket> getSessions() {
     List<UndertowWebSocket> sessions = all.get(key);
     if (sessions == null) {
@@ -204,46 +203,46 @@ public class UndertowWebSocket extends AbstractReceiveListener
     }
   }
 
-  @NonNull @Override
-  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendPing(String message, WriteCallback callback) {
     return sendMessage(
         ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.PING, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendPing(ByteBuffer message, WriteCallback callback) {
     return sendMessage(message, FrameType.PING, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(String message, WriteCallback callback) {
     return sendMessage(
         ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.TEXT, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(ByteBuffer message, WriteCallback callback) {
     return sendMessage(message, FrameType.TEXT, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(String message, WriteCallback callback) {
     return sendMessage(
         ByteBuffer.wrap(message.getBytes(StandardCharsets.UTF_8)), FrameType.BINARY, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(Output message, WriteCallback callback) {
     return sendMessage(message, FrameType.BINARY, callback);
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(Output message, WriteCallback callback) {
     return sendMessage(message, FrameType.TEXT, callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(ByteBuffer message, WriteCallback callback) {
     return sendMessage(message, FrameType.BINARY, callback);
   }
 
@@ -292,13 +291,13 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return ws;
   }
 
-  @NonNull @Override
-  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket render(Object value, WriteCallback callback) {
     return renderMessage(value, false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket renderBinary(Object value, WriteCallback callback) {
     return renderMessage(value, true, callback);
   }
 
@@ -311,32 +310,32 @@ public class UndertowWebSocket extends AbstractReceiveListener
     return this;
   }
 
-  @NonNull @Override
-  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @Override
+  public WebSocket close(WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onConnect(@NonNull OnConnect callback) {
+  @Override
+  public WebSocketConfigurer onConnect(OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onMessage(@NonNull OnMessage callback) {
+  @Override
+  public WebSocketConfigurer onMessage(OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onError(@NonNull OnError callback) {
+  @Override
+  public WebSocketConfigurer onError(OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onClose(@NonNull OnClose callback) {
+  @Override
+  public WebSocketConfigurer onClose(OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }

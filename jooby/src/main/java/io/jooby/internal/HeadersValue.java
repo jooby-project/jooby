@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
 
@@ -28,14 +27,14 @@ public class HeadersValue extends HashValue implements Value {
     return hash;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, String> toMap() {
     Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
     return map;
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, List<String>> toMultimap() {
     Map<String, List<String>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     Set<Map.Entry<String, Value>> entries = hash.entrySet();

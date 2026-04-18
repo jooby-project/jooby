@@ -26,7 +26,7 @@ module io.jooby {
    */
   requires jakarta.inject;
   requires org.slf4j;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
 
   /*

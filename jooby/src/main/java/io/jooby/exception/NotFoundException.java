@@ -5,7 +5,6 @@
  */
 package io.jooby.exception;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.problem.HttpProblem;
 
@@ -22,7 +21,7 @@ public class NotFoundException extends StatusCodeException {
    *
    * @param path Requested path.
    */
-  public NotFoundException(@NonNull String path) {
+  public NotFoundException(String path) {
     super(StatusCode.NOT_FOUND, path);
   }
 
@@ -31,12 +30,12 @@ public class NotFoundException extends StatusCodeException {
    *
    * @return Requested path.
    */
-  public @NonNull String getRequestPath() {
+  public String getRequestPath() {
     return getMessage();
   }
 
   @Override
-  public @NonNull HttpProblem toHttpProblem() {
+  public HttpProblem toHttpProblem() {
     return HttpProblem.valueOf(
         statusCode,
         statusCode.reason(),

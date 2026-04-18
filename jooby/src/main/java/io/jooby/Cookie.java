@@ -26,9 +26,9 @@ import java.util.function.Consumer;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.jspecify.annotations.Nullable;
+
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Response cookie implementation. Response are send it back to client using {@link
@@ -84,7 +84,7 @@ public class Cookie {
    * @param name Cookie's name.
    * @param value Cookie's value or <code>null</code>.
    */
-  public Cookie(@NonNull String name, @Nullable String value) {
+  public Cookie(String name, @Nullable String value) {
     this.name = name;
     this.value = value;
   }
@@ -94,11 +94,11 @@ public class Cookie {
    *
    * @param name Cookie's name.
    */
-  public Cookie(@NonNull String name) {
+  public Cookie(String name) {
     this(name, null);
   }
 
-  private Cookie(@NonNull Cookie cookie) {
+  private Cookie(Cookie cookie) {
     this.domain = cookie.domain;
     this.value = cookie.value;
     this.name = cookie.name;
@@ -114,7 +114,7 @@ public class Cookie {
    *
    * @return New cookie.
    */
-  public @NonNull Cookie clone() {
+  public Cookie clone() {
     return new Cookie(this);
   }
 
@@ -123,7 +123,7 @@ public class Cookie {
    *
    * @return Cookie's name.
    */
-  public @NonNull String getName() {
+  public String getName() {
     return name;
   }
 
@@ -133,7 +133,7 @@ public class Cookie {
    * @param name Cookie's name.
    * @return This cookie.
    */
-  public @NonNull Cookie setName(@NonNull String name) {
+  public Cookie setName(String name) {
     this.name = name;
     return this;
   }
@@ -153,7 +153,7 @@ public class Cookie {
    * @param value Cookie's value.
    * @return This cookie.
    */
-  public @NonNull Cookie setValue(@NonNull String value) {
+  public Cookie setValue(String value) {
     this.value = value;
     return this;
   }
@@ -173,7 +173,7 @@ public class Cookie {
    * @param domain Defaults cookie's domain.
    * @return Cookie's domain..
    */
-  public @NonNull String getDomain(@NonNull String domain) {
+  public String getDomain(String domain) {
     return this.domain == null ? domain : this.domain;
   }
 
@@ -183,7 +183,7 @@ public class Cookie {
    * @param domain Cookie's domain.
    * @return This cookie.
    */
-  public @NonNull Cookie setDomain(@NonNull String domain) {
+  public Cookie setDomain(String domain) {
     this.domain = domain;
     return this;
   }
@@ -203,7 +203,7 @@ public class Cookie {
    * @param path Defaults path.
    * @return Cookie's path.
    */
-  public @NonNull String getPath(@NonNull String path) {
+  public String getPath(String path) {
     return this.path == null ? path : this.path;
   }
 
@@ -213,7 +213,7 @@ public class Cookie {
    * @param path Cookie's path.
    * @return This cookie.
    */
-  public @NonNull Cookie setPath(@NonNull String path) {
+  public Cookie setPath(String path) {
     this.path = path;
     return this;
   }
@@ -255,7 +255,7 @@ public class Cookie {
    * @throws IllegalArgumentException if {@code false} is specified and the 'SameSite' attribute
    *     value requires a secure cookie.
    */
-  public @NonNull Cookie setSecure(boolean secure) {
+  public Cookie setSecure(boolean secure) {
     if (sameSite != null && sameSite.requiresSecure() && !secure) {
       throw new IllegalArgumentException(
           "Cookies with SameSite="
@@ -292,7 +292,7 @@ public class Cookie {
    * @param maxAge Cookie max age.
    * @return This options.
    */
-  public @NonNull Cookie setMaxAge(@NonNull Duration maxAge) {
+  public Cookie setMaxAge(Duration maxAge) {
     return setMaxAge(maxAge.getSeconds());
   }
 
@@ -307,7 +307,7 @@ public class Cookie {
    * @param maxAge Cookie max age, in seconds.
    * @return This options.
    */
-  public @NonNull Cookie setMaxAge(long maxAge) {
+  public Cookie setMaxAge(long maxAge) {
     if (maxAge >= 0) {
       this.maxAge = maxAge;
     } else {
@@ -389,7 +389,7 @@ public class Cookie {
    *
    * @return Cookie string.
    */
-  public @NonNull String toCookieString() {
+  public String toCookieString() {
     StringBuilder sb = new StringBuilder();
 
     // name = value
@@ -456,7 +456,7 @@ public class Cookie {
    * @param secret A secret key.
    * @return A signed value.
    */
-  public static @NonNull String sign(final @NonNull String value, final @NonNull String secret) {
+  public static String sign(final String value, final String secret) {
     try {
       Mac mac = Mac.getInstance(HMAC_SHA256);
       mac.init(new SecretKeySpec(secret.getBytes(), HMAC_SHA256));
@@ -475,7 +475,7 @@ public class Cookie {
    * @param secret A secret key.
    * @return A new signed value or null.
    */
-  public static @Nullable String unsign(final @NonNull String value, final @NonNull String secret) {
+  public static @Nullable String unsign(final String value, final String secret) {
     int sep = value.indexOf("|");
     if (sep <= 0) {
       return null;
@@ -491,7 +491,7 @@ public class Cookie {
    * @param attributes Map to encode.
    * @return URL encoded from map attributes.
    */
-  public static @NonNull String encode(@Nullable Map<String, String> attributes) {
+  public static String encode(@Nullable Map<String, String> attributes) {
     if (attributes == null || attributes.size() == 0) {
       return "";
     }
@@ -522,7 +522,7 @@ public class Cookie {
    * @param value URL encoded value.
    * @return Decoded as map.
    */
-  public static @NonNull Map<String, String> decode(@Nullable String value) {
+  public static Map<String, String> decode(@Nullable String value) {
     if (value == null || value.length() == 0) {
       return Collections.emptyMap();
     }
@@ -565,7 +565,7 @@ public class Cookie {
    * @param conf Configuration object.
    * @return Parsed cookie or empty.
    */
-  public static @NonNull Optional<Cookie> create(@NonNull String namespace, @NonNull Config conf) {
+  public static Optional<Cookie> create(String namespace, Config conf) {
     if (conf.hasPath(namespace)) {
       Cookie cookie = new Cookie(conf.getString(namespace + ".name"));
       value(conf, namespace + ".value", Config::getString, cookie::setValue);
@@ -595,7 +595,7 @@ public class Cookie {
    * @param sid Session ID.
    * @return Session's cookie.
    */
-  public static Cookie session(@NonNull String sid) {
+  public static Cookie session(String sid) {
     return new Cookie(sid).setMaxAge(-1).setHttpOnly(true).setPath("/");
   }
 

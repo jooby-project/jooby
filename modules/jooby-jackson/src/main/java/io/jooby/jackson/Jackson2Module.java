@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.jackson.*;
 import io.jooby.output.Output;
@@ -100,7 +99,7 @@ public class Jackson2Module implements Extension, MessageDecoder, MessageEncoder
    * @param mapper Object mapper to use.
    * @param contentType Content type.
    */
-  public Jackson2Module(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
+  public Jackson2Module(ObjectMapper mapper, MediaType contentType) {
     this.mapper = mapper;
     this.typeFactory = mapper.getTypeFactory();
     this.mediaType = contentType;
@@ -111,7 +110,7 @@ public class Jackson2Module implements Extension, MessageDecoder, MessageEncoder
    *
    * @param mapper Object mapper to use.
    */
-  public Jackson2Module(@NonNull ObjectMapper mapper) {
+  public Jackson2Module(ObjectMapper mapper) {
     this(mapper, defaultTypes.getOrDefault(mapper.getClass().getSimpleName(), MediaType.json));
   }
 
@@ -133,7 +132,7 @@ public class Jackson2Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     application.decoder(mediaType, this);
     application.encoder(mediaType, this);
 
@@ -171,7 +170,7 @@ public class Jackson2Module implements Extension, MessageDecoder, MessageEncoder
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(Context ctx, Object value) throws Exception {
     var factory = ctx.getOutputFactory();
     ctx.setDefaultResponseType(mediaType);
     if (value instanceof Projected<?> projected) {

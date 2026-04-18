@@ -63,7 +63,7 @@ module io.jooby.grpc {
   exports io.jooby.grpc;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
   requires jul.to.slf4j;

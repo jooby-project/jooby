@@ -17,7 +17,6 @@ import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.AvailableSettings;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Environment;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -144,7 +143,7 @@ public class HibernateModule implements Extension {
    * @param name The name/key of the data source to attach.
    * @param classes Persistent classes.
    */
-  public HibernateModule(@NonNull String name, Class<?>... classes) {
+  public HibernateModule(String name, Class<?>... classes) {
     this.name = name;
     this.classes = List.of(classes);
   }
@@ -165,7 +164,7 @@ public class HibernateModule implements Extension {
    * @param name The name/key of the data source to attach.
    * @param classes Persistent classes.
    */
-  public HibernateModule(@NonNull String name, List<Class<?>> classes) {
+  public HibernateModule(String name, List<Class<?>> classes) {
     this.name = name;
     this.classes = classes;
   }
@@ -176,7 +175,7 @@ public class HibernateModule implements Extension {
    * @param packages Package names.
    * @return This module.
    */
-  public @NonNull HibernateModule scan(@NonNull String... packages) {
+  public HibernateModule scan(String... packages) {
     this.packages = List.of(packages);
     return this;
   }
@@ -187,7 +186,7 @@ public class HibernateModule implements Extension {
    * @param packages Package names.
    * @return This module.
    */
-  public @NonNull HibernateModule scan(@NonNull List<String> packages) {
+  public HibernateModule scan(List<String> packages) {
     this.packages = packages;
     return this;
   }
@@ -198,7 +197,7 @@ public class HibernateModule implements Extension {
    * @param sessionProvider Session customizer.
    * @return This module.
    */
-  public @NonNull HibernateModule with(@NonNull SessionProvider sessionProvider) {
+  public HibernateModule with(SessionProvider sessionProvider) {
     this.sessionBuilder = sessionProvider;
     return this;
   }
@@ -209,7 +208,7 @@ public class HibernateModule implements Extension {
    * @param sessionProvider Session customizer.
    * @return This module.
    */
-  public @NonNull HibernateModule with(@NonNull StatelessSessionProvider sessionProvider) {
+  public HibernateModule with(StatelessSessionProvider sessionProvider) {
     this.statelessSessionProvider = sessionProvider;
     return this;
   }
@@ -220,13 +219,13 @@ public class HibernateModule implements Extension {
    * @param configurer Configurer.
    * @return This module.
    */
-  public @NonNull HibernateModule with(@NonNull HibernateConfigurer configurer) {
+  public HibernateModule with(HibernateConfigurer configurer) {
     this.configurer = configurer;
     return this;
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     var env = application.getEnvironment();
     var config = application.getConfig();
     var registry = application.getServices();

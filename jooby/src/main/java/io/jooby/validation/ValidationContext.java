@@ -12,8 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.*;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Value;
@@ -34,29 +34,29 @@ public class ValidationContext extends ForwardingContext {
       this.ctx = ctx;
     }
 
-    @NonNull @Override
-    public <T> T to(@NonNull Class<T> type) {
+    @Override
+    public <T> T to(Class<T> type) {
       return validate(type);
     }
 
-    protected <T> T validate(@NonNull Class<T> type) {
+    protected <T> T validate(Class<T> type) {
       // Call empty version to let bean validator to run
       return BeanValidator.apply(
           ctx, ctx.getValueFactory().convert(type, this, ConversionHint.Empty));
     }
 
     @Nullable @Override
-    public <T> T toNullable(@NonNull Class<T> type) {
+    public <T> T toNullable(Class<T> type) {
       return validate(type);
     }
 
-    @NonNull @Override
-    public <T> List<T> toList(@NonNull Class<T> type) {
+    @Override
+    public <T> List<T> toList(Class<T> type) {
       return BeanValidator.apply(ctx, super.toList(type));
     }
 
-    @NonNull @Override
-    public <T> Set<T> toSet(@NonNull Class<T> type) {
+    @Override
+    public <T> Set<T> toSet(Class<T> type) {
       return BeanValidator.apply(ctx, super.toSet(type));
     }
   }
@@ -66,7 +66,7 @@ public class ValidationContext extends ForwardingContext {
       super(ctx, body);
     }
 
-    @NonNull @Override
+    @Override
     public byte[] bytes() {
       return ((Body) delegate).bytes();
     }
@@ -81,30 +81,30 @@ public class ValidationContext extends ForwardingContext {
       return ((Body) delegate).getSize();
     }
 
-    @NonNull @Override
+    @Override
     public ReadableByteChannel channel() {
       return ((Body) delegate).channel();
     }
 
-    @NonNull @Override
+    @Override
     public InputStream stream() {
       return ((Body) delegate).stream();
     }
 
-    @NonNull @Override
-    public <T> T to(@NonNull Type type) {
+    @Override
+    public <T> T to(Type type) {
       // Call nullable version to let bean validator to run
       return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
     }
 
-    @NonNull @Override
-    public <T> T to(@NonNull Class<T> type) {
+    @Override
+    public <T> T to(Class<T> type) {
       // Call nullable version to let bean validator to run
       return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
     }
 
     @Nullable @Override
-    public <T> T toNullable(@NonNull Type type) {
+    public <T> T toNullable(Type type) {
       return BeanValidator.apply(ctx, ((Body) delegate).toNullable(type));
     }
   }
@@ -115,11 +115,11 @@ public class ValidationContext extends ForwardingContext {
     }
 
     @Override
-    public @NonNull <T> T toEmpty(@NonNull Class<T> type) {
+    public <T> T toEmpty(Class<T> type) {
       return validate(type);
     }
 
-    @NonNull @Override
+    @Override
     public String queryString() {
       return ((QueryString) delegate).queryString();
     }
@@ -131,37 +131,37 @@ public class ValidationContext extends ForwardingContext {
     }
 
     @Override
-    public void put(@NonNull String path, @NonNull Value value) {
+    public void put(String path, Value value) {
       ((Formdata) delegate).put(path, value);
     }
 
     @Override
-    public void put(@NonNull String path, @NonNull String value) {
+    public void put(String path, String value) {
       ((Formdata) delegate).put(path, value);
     }
 
     @Override
-    public void put(@NonNull String path, @NonNull Collection<String> values) {
+    public void put(String path, Collection<String> values) {
       ((Formdata) delegate).put(path, values);
     }
 
     @Override
-    public void put(@NonNull String name, @NonNull FileUpload file) {
+    public void put(String name, FileUpload file) {
       ((Formdata) delegate).put(name, file);
     }
 
-    @NonNull @Override
+    @Override
     public List<FileUpload> files() {
       return ((Formdata) delegate).files();
     }
 
-    @NonNull @Override
-    public List<FileUpload> files(@NonNull String name) {
+    @Override
+    public List<FileUpload> files(String name) {
       return ((Formdata) delegate).files(name);
     }
 
-    @NonNull @Override
-    public FileUpload file(@NonNull String name) {
+    @Override
+    public FileUpload file(String name) {
       return ((Formdata) delegate).file(name);
     }
   }
@@ -171,51 +171,51 @@ public class ValidationContext extends ForwardingContext {
    *
    * @param context Source context.
    */
-  public ValidationContext(@NonNull Context context) {
+  public ValidationContext(Context context) {
     super(context);
   }
 
-  @NonNull @Override
-  public <T> T body(@NonNull Type type) {
+  @Override
+  public <T> T body(Type type) {
     return body().to(type);
   }
 
-  @NonNull @Override
-  public <T> T body(@NonNull Class<T> type) {
+  @Override
+  public <T> T body(Class<T> type) {
     return body().to(type);
   }
 
-  @NonNull @Override
+  @Override
   public Value path() {
     return new ValidatedValue(ctx, super.path());
   }
 
-  @NonNull @Override
+  @Override
   public Body body() {
     return new ValidatedBody(ctx, super.body());
   }
 
-  @NonNull @Override
-  public <T> T query(@NonNull Class<T> type) {
+  @Override
+  public <T> T query(Class<T> type) {
     return query().toEmpty(type);
   }
 
-  @NonNull @Override
+  @Override
   public QueryString query() {
     return new ValidatedQueryString(ctx, super.query());
   }
 
-  @NonNull @Override
-  public <T> T form(@NonNull Class<T> type) {
+  @Override
+  public <T> T form(Class<T> type) {
     return form().to(type);
   }
 
-  @NonNull @Override
+  @Override
   public Formdata form() {
     return new ValidatedFormdata(ctx, super.form());
   }
 
-  @NonNull @Override
+  @Override
   public Value header() {
     return new ValidatedValue(ctx, super.header());
   }

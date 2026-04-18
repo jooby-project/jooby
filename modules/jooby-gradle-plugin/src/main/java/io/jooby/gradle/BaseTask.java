@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
@@ -55,7 +54,7 @@ public class BaseTask extends DefaultTask {
    * @return Available projects.
    */
   @Internal
-  public @NonNull List<Project> getProjects() {
+  public List<Project> getProjects() {
     return Collections.singletonList(getProject());
   }
 
@@ -65,7 +64,7 @@ public class BaseTask extends DefaultTask {
    * @param projects Projects.
    * @return Main class.
    */
-  protected @NonNull String computeMainClassName(@NonNull List<Project> projects) {
+  protected String computeMainClassName(List<Project> projects) {
     return projects.stream()
         .map(it -> {
           // Old way:
@@ -91,8 +90,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Directories.
    */
-  protected @NonNull Set<Path> binDirectories(@NonNull Project project,
-      @NonNull List<SourceSet> sourceSet) {
+  protected Set<Path> binDirectories(Project project,
+      List<SourceSet> sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && Files.isDirectory(it));
   }
 
@@ -103,8 +102,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Jar files.
    */
-  protected @NonNull Set<Path> jars(@NonNull Project project,
-      @NonNull List<SourceSet> sourceSet) {
+  protected Set<Path> jars(Project project,
+      List<SourceSet> sourceSet) {
     return classpath(project, sourceSet, it -> Files.exists(it) && it.toString().endsWith(".jar"));
   }
 
@@ -115,7 +114,7 @@ public class BaseTask extends DefaultTask {
    * @param useTestScope Whenever expand classpath to use test resources.
    * @return Classes directory.
    */
-  protected @NonNull Path classes(@NonNull Project project, boolean useTestScope) {
+  protected Path classes(Project project, boolean useTestScope) {
     List<SourceSet> sourceSet = sourceSet(project, useTestScope);
     return sourceSet.stream()
         .flatMap(it -> it.getRuntimeClasspath().getFiles().stream())
@@ -133,8 +132,8 @@ public class BaseTask extends DefaultTask {
    * @param predicate Path filter.
    * @return Classpath.
    */
-  protected @NonNull Set<Path> classpath(@NonNull Project project, @NonNull List<SourceSet> sourceSet,
-      @NonNull Predicate<Path> predicate) {
+  protected Set<Path> classpath(Project project, List<SourceSet> sourceSet,
+      Predicate<Path> predicate) {
     Set<Path> result = new LinkedHashSet<>();
     // classes/main, resources/main + jars
     sourceSet.stream()
@@ -159,8 +158,8 @@ public class BaseTask extends DefaultTask {
    * @param sourceSet Source set.
    * @return Source directories.
    */
-  protected @NonNull Set<Path> sourceDirectories(@NonNull Project project,
-      @NonNull List<SourceSet> sourceSet) {
+  protected Set<Path> sourceDirectories(Project project,
+      List<SourceSet> sourceSet) {
     Path eclipse = project.getProjectDir().toPath().resolve(".classpath");
     if (Files.exists(eclipse)) {
       // let eclipse to do the incremental compilation
@@ -180,7 +179,7 @@ public class BaseTask extends DefaultTask {
    * @param useTestScope Whenever expand classpath to use test resources.
    * @return SourceSet.
    */
-  protected @NonNull List<SourceSet> sourceSet(@NonNull Project project, boolean useTestScope) {
+  protected List<SourceSet> sourceSet(Project project, boolean useTestScope) {
     SourceSetContainer sourceSets = getJavaExtension(project).getSourceSets();
     List<SourceSet> result = new ArrayList<>();
     if (useTestScope) {
@@ -196,7 +195,7 @@ public class BaseTask extends DefaultTask {
    * @param project Project.
    * @return Java plugin convention.
    */
-  protected @NonNull JavaPluginExtension getJavaExtension(final @NonNull Project project) {
+  protected JavaPluginExtension getJavaExtension(final Project project) {
     return project.getExtensions().getByType(JavaPluginExtension.class);
   }
 

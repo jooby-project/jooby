@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.reflect;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -85,7 +84,7 @@ public final class $Types {
    * Returns a type that is functionally equal but not necessarily equal according to {@link
    * Object#equals(Object) Object.equals()}. The returned type is {@link java.io.Serializable}.
    */
-  public static Type canonicalize(@NonNull Type type) {
+  public static Type canonicalize(Type type) {
     return switch (type) {
       case Class<?> c ->
           c.isArray() ? new GenericArrayTypeImpl(canonicalize(c.getComponentType())) : c;

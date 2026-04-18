@@ -5,7 +5,6 @@
  */
 package io.jooby.graphiql;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.MediaType;
@@ -29,7 +28,7 @@ import io.jooby.MediaType;
 public class GraphiQLModule implements Extension {
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var contextPath = application.getContextPath();
     if (contextPath.equals("/")) {
       contextPath = "";

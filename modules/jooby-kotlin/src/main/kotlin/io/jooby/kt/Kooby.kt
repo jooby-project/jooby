@@ -49,11 +49,11 @@ annotation class RouterDsl
 annotation class OptionsDsl
 
 /** Registry: */
-inline fun <reified T> Registry.require(): T {
+inline fun <reified T : Any> Registry.require(): T {
   return this.require(T::class.java)
 }
 
-inline fun <reified T> Registry.require(name: String): T {
+inline fun <reified T : Any> Registry.require(name: String): T {
   return this.require(T::class.java, name)
 }
 

@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.pac4j;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
@@ -20,8 +19,8 @@ public class CallbackFilterImpl implements Route.Handler {
     this.config = config;
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public Object apply(Context ctx) throws Exception {
     try {
       var result =
           config

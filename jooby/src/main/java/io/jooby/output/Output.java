@@ -9,7 +9,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.SneakyThrows;
 
 /**
@@ -34,7 +33,7 @@ public interface Output {
    *
    * @param consumer Consumer.
    */
-  void transferTo(@NonNull SneakyThrows.Consumer<ByteBuffer> consumer);
+  void transferTo(SneakyThrows.Consumer<ByteBuffer> consumer);
 
   /**
    * An iterator over read-only byte buffers.

@@ -5,7 +5,6 @@
  */
 package io.jooby.cli;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import picocli.CommandLine;
 
 /**
@@ -17,7 +16,7 @@ import picocli.CommandLine;
 public class ExitCmd extends Cmd {
 
   @Override
-  public void run(@NonNull CliContext ctx) {
+  public void run(CliContext ctx) {
     ctx.exit(0);
   }
 }

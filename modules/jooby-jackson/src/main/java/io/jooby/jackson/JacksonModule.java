@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 
 /**
@@ -60,7 +59,7 @@ import io.jooby.MediaType;
 @Deprecated(since = "4.3.0", forRemoval = true)
 public class JacksonModule extends Jackson2Module {
 
-  public JacksonModule(@NonNull ObjectMapper mapper, @NonNull MediaType contentType) {
+  public JacksonModule(ObjectMapper mapper, MediaType contentType) {
     super(mapper, contentType);
   }
 
@@ -69,7 +68,7 @@ public class JacksonModule extends Jackson2Module {
    *
    * @param mapper Object mapper to use.
    */
-  public JacksonModule(@NonNull ObjectMapper mapper) {
+  public JacksonModule(ObjectMapper mapper) {
     super(mapper);
   }
 

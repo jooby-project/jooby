@@ -5,8 +5,7 @@
  */
 package io.jooby.trpc;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A standardized envelope for successful tRPC responses.
@@ -33,7 +32,7 @@ public record TrpcResponse<T>(@Nullable T data) {
    * @param <T> The type of the data.
    * @return A tRPC response envelope containing the provided data.
    */
-  public static @NonNull <T> TrpcResponse<T> of(@NonNull T data) {
+  public static <T> TrpcResponse<T> of(T data) {
     return new TrpcResponse<>(data);
   }
 
@@ -46,7 +45,7 @@ public record TrpcResponse<T>(@Nullable T data) {
    * @param <T> The inferred type (usually {@code Void} or {@code Object}).
    * @return A tRPC response envelope where the data property is explicitly null.
    */
-  public static @NonNull <T> TrpcResponse<T> empty() {
+  public static <T> TrpcResponse<T> empty() {
     return new TrpcResponse<>(null);
   }
 }

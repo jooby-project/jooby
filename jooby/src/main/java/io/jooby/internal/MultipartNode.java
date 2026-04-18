@@ -7,7 +7,6 @@ package io.jooby.internal;
 
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.Formdata;
 import io.jooby.SneakyThrows;
@@ -21,22 +20,22 @@ public class MultipartNode extends HashValue implements Formdata {
   }
 
   @Override
-  public void put(@NonNull String name, @NonNull FileUpload file) {
+  public void put(String name, FileUpload file) {
     files.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
   }
 
-  @NonNull @Override
+  @Override
   public List<FileUpload> files() {
     return files.values().stream().flatMap(Collection::stream).toList();
   }
 
-  @NonNull @Override
-  public List<FileUpload> files(@NonNull String name) {
+  @Override
+  public List<FileUpload> files(String name) {
     return this.files.getOrDefault(name, List.of());
   }
 
-  @NonNull @Override
-  public FileUpload file(@NonNull String name) {
+  @Override
+  public FileUpload file(String name) {
     List<FileUpload> files = files(name);
     if (files.isEmpty()) {
       final String error = "Field '" + name + "' is missing";

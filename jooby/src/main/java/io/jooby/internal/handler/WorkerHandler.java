@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 
 public class WorkerHandler implements Route.Filter {
@@ -13,8 +12,8 @@ public class WorkerHandler implements Route.Filter {
 
   private WorkerHandler() {}
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx ->
         ctx.dispatch(
             () -> {

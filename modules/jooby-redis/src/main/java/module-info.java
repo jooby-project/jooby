@@ -9,7 +9,7 @@ module io.jooby.redis {
   exports io.jooby.redis;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
   requires org.apache.commons.pool2;

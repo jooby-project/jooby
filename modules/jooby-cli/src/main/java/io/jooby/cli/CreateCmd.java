@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.cli.Dependency;
 import picocli.CommandLine;
 
@@ -93,7 +92,7 @@ public class CreateCmd extends Cmd {
   private boolean openapi;
 
   @Override
-  public void run(@NonNull CliContext ctx) throws Exception {
+  public void run(CliContext ctx) throws Exception {
     Path projectDir = ctx.getWorkspace().resolve(name);
     if (Files.exists(projectDir)) {
       throw new IOException("Project directory already exists: " + projectDir);

@@ -16,8 +16,8 @@ import java.util.concurrent.*;
 
 import javax.net.ssl.SSLContext;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.netty.*;
@@ -70,7 +70,7 @@ public class NettyServer extends Server.Base {
    * @param options Options.
    * @param worker Thread-pool to use.
    */
-  public NettyServer(@NonNull ServerOptions options, @NonNull ExecutorService worker) {
+  public NettyServer(ServerOptions options, ExecutorService worker) {
     super.setOptions(options);
     this.worker = worker;
   }
@@ -80,7 +80,7 @@ public class NettyServer extends Server.Base {
    *
    * @param worker Thread-pool to use.
    */
-  public NettyServer(@NonNull ExecutorService worker) {
+  public NettyServer(ExecutorService worker) {
     this.worker = worker;
   }
 
@@ -89,7 +89,7 @@ public class NettyServer extends Server.Base {
    *
    * @param options Configuration options.
    */
-  public NettyServer(@NonNull ServerOptions options) {
+  public NettyServer(ServerOptions options) {
     setOptions(options);
   }
 
@@ -122,7 +122,7 @@ public class NettyServer extends Server.Base {
   }
 
   @Override
-  public Server start(@NonNull Jooby... application) {
+  public Server start(Jooby... application) {
     // force options to be non-null
     var options = getOptions();
     var portInUse = options.getPort();

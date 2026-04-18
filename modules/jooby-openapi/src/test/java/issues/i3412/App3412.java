@@ -5,7 +5,8 @@
  */
 package issues.i3412;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.Jooby;
 import io.jooby.OpenAPIModule;
 import io.jooby.annotation.GET;

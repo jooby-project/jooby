@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.ServerOptions;
 import io.jooby.SneakyThrows;
@@ -51,7 +50,7 @@ public class UndertowFileUpload implements FileUpload {
     }
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return name;
   }

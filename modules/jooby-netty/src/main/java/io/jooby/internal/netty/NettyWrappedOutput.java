@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.netty.buffer.ByteBuf;
 
 public record NettyWrappedOutput(ByteBuf buffer) implements NettyByteBufRef {
@@ -15,7 +14,7 @@ public record NettyWrappedOutput(ByteBuf buffer) implements NettyByteBufRef {
     return buffer.readableBytes();
   }
 
-  @NonNull public ByteBuf byteBuf() {
+  public ByteBuf byteBuf() {
     return buffer;
   }
 }

@@ -15,11 +15,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.*;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
@@ -52,8 +51,7 @@ public class RedisSessionStore implements SessionStore {
    * @param pool Redis connection pool.
    */
   public RedisSessionStore(
-      @NonNull SessionToken token,
-      @NonNull GenericObjectPool<StatefulRedisConnection<String, String>> pool) {
+      SessionToken token, GenericObjectPool<StatefulRedisConnection<String, String>> pool) {
     this.token = token;
     this.pool = pool;
   }
@@ -64,7 +62,7 @@ public class RedisSessionStore implements SessionStore {
    * @param token Session token.
    * @param redis Redis connection.
    */
-  public RedisSessionStore(@NonNull SessionToken token, @NonNull RedisClient redis) {
+  public RedisSessionStore(SessionToken token, RedisClient redis) {
     this(
         token,
         ConnectionPoolSupport.createGenericObjectPool(
@@ -76,7 +74,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Redis namespace (key prefix). Default is: <code>sessions</code>.
    */
-  public @NonNull String getNamespace() {
+  public String getNamespace() {
     return namespace;
   }
 
@@ -86,7 +84,7 @@ public class RedisSessionStore implements SessionStore {
    * @param namespace Redis namespace or key prefix.
    * @return This store.
    */
-  public @NonNull RedisSessionStore setNamespace(@NonNull String namespace) {
+  public RedisSessionStore setNamespace(String namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -106,7 +104,7 @@ public class RedisSessionStore implements SessionStore {
    * @param timeout Timeout must be positive value. Otherwise, timeout is disabled.
    * @return This store.
    */
-  public @NonNull RedisSessionStore setTimeout(@NonNull Duration timeout) {
+  public RedisSessionStore setTimeout(Duration timeout) {
     this.timeout = timeout;
     return this;
   }
@@ -116,7 +114,7 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return This store.
    */
-  public @NonNull RedisSessionStore noTimeout() {
+  public RedisSessionStore noTimeout() {
     this.timeout = null;
     return this;
   }
@@ -126,12 +124,12 @@ public class RedisSessionStore implements SessionStore {
    *
    * @return Session token.
    */
-  public @NonNull SessionToken getToken() {
+  public SessionToken getToken() {
     return token;
   }
 
-  @NonNull @Override
-  public Session newSession(@NonNull Context ctx) {
+  @Override
+  public Session newSession(Context ctx) {
     String sessionId = token.newToken();
 
     Instant now = Instant.now();
@@ -151,7 +149,7 @@ public class RedisSessionStore implements SessionStore {
   }
 
   @Nullable @Override
-  public Session findSession(@NonNull Context ctx) {
+  public Session findSession(Context ctx) {
     String sessionId = token.findToken(ctx);
     if (sessionId == null) {
       return null;
@@ -179,7 +177,7 @@ public class RedisSessionStore implements SessionStore {
   }
 
   @Override
-  public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+  public void deleteSession(Context ctx, Session session) {
     String sessionId = session.getId();
 
     withConnection(connection -> connection.async().del(key(sessionId)));
@@ -188,19 +186,19 @@ public class RedisSessionStore implements SessionStore {
   }
 
   @Override
-  public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+  public void touchSession(Context ctx, Session session) {
     saveSession(ctx, session);
 
     token.saveToken(ctx, session.getId());
   }
 
   @Override
-  public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+  public void saveSession(Context ctx, Session session) {
     saveSession(session.getId(), new HashMap<>(session.toMap()));
   }
 
   @Override
-  public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {}
+  public void renewSessionId(Context ctx, Session session) {}
 
   private void saveSession(String sessionId, Map<String, String> data) {
     withConnection(

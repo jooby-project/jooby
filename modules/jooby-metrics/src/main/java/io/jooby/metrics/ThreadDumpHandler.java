@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.jvm.ThreadDump;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
@@ -33,8 +32,8 @@ public class ThreadDumpHandler implements Route.Handler {
     }
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
+  @Override
+  public Object apply(Context ctx) {
     Object data;
     if (threadDump == null) {
       data = "Sorry your runtime environment does not allow to dump threads.";

@@ -8,7 +8,6 @@ package io.jooby.trpc;
 import java.util.List;
 import java.util.stream.Stream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 
@@ -88,7 +87,7 @@ public class TrpcModule implements Extension {
    *     registry.
    */
   @Override
-  public void install(@NonNull Jooby app) throws Exception {
+  public void install(Jooby app) throws Exception {
     var registry = app.getServices();
 
     // Ensure a JSON module has provided the necessary parser

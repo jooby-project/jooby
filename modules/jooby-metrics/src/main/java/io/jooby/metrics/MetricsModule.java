@@ -26,7 +26,6 @@ import com.codahale.metrics.Reporter;
 import com.codahale.metrics.health.HealthCheck;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.Router;
@@ -223,7 +222,7 @@ public class MetricsModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     MetricHandler metricHandler = new MetricHandler();
     application.get(this.pattern + "/metrics", metricHandler);
     application.get(this.pattern + "/metrics/:type", metricHandler);

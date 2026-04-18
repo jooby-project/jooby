@@ -18,7 +18,7 @@ class Server3746 : Server.Base() {
     TODO("Not yet implemented")
   }
 
-  override fun start(vararg application: Jooby?): Server {
+  override fun start(vararg application: Jooby): Server {
     TODO("Not yet implemented")
   }
 

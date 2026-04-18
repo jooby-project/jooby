@@ -7,8 +7,8 @@ package io.jooby.internal;
 
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.exception.MissingValueException;
 import io.jooby.value.Value;
 import io.jooby.value.ValueFactory;
@@ -28,7 +28,7 @@ public class MissingValue implements Value {
   }
 
   @Override
-  public @NonNull Value get(@NonNull String name) {
+  public Value get(String name) {
     return this.name.equals(name) ? this : new MissingValue(factory, this.name + "." + name);
   }
 
@@ -38,27 +38,27 @@ public class MissingValue implements Value {
   }
 
   @Override
-  public @NonNull Iterator<Value> iterator() {
+  public Iterator<Value> iterator() {
     return Collections.emptyIterator();
   }
 
   @Override
-  public @NonNull Value get(int index) {
+  public Value get(int index) {
     return new MissingValue(factory, this.name + "[" + index + "]");
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(factory, name, defaultValue);
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Class<T> type) {
+  @Override
+  public <T> T to(Class<T> type) {
     throw new MissingValueException(name);
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Class<T> type) {
+  public <T> T toNullable(Class<T> type) {
     return null;
   }
 
@@ -67,7 +67,7 @@ public class MissingValue implements Value {
     throw new MissingValueException(name);
   }
 
-  @NonNull @Override
+  @Override
   public Map<String, String> toMap() {
     return Collections.emptyMap();
   }
@@ -77,28 +77,28 @@ public class MissingValue implements Value {
     return Collections.emptyMap();
   }
 
-  @NonNull @Override
+  @Override
   public List<String> toList() {
     return Collections.emptyList();
   }
 
-  @NonNull @Override
+  @Override
   public Optional<String> toOptional() {
     return Optional.empty();
   }
 
-  @NonNull @Override
-  public <T> List<T> toList(@NonNull Class<T> type) {
+  @Override
+  public <T> List<T> toList(Class<T> type) {
     return Collections.emptyList();
   }
 
-  @NonNull @Override
+  @Override
   public Set<String> toSet() {
     return Collections.emptySet();
   }
 
-  @NonNull @Override
-  public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @Override
+  public <T> Set<T> toSet(Class<T> type) {
     return Collections.emptySet();
   }
 

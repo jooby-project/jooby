@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import com.google.common.collect.ImmutableMap;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.MessageEncoder;
@@ -30,7 +29,7 @@ public class Issue2613 {
   public static class ThemeResultEncoder implements MessageEncoder {
 
     @Override
-    public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+    public Output encode(Context ctx, Object value) throws Exception {
       if (value instanceof ThemeResult) {
         ctx.setDefaultResponseType(MediaType.html);
         return ctx.getOutputFactory()

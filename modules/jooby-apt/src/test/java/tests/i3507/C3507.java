@@ -5,13 +5,15 @@
  */
 package tests.i3507;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.annotation.GET;
 import io.jooby.annotation.QueryParam;
 
 public class C3507 {
   @GET("/3507")
-  @Nullable public String get(@QueryParam String query) {
+  @Nullable public String get(@QueryParam @NonNull String query) {
     return null;
   }
 }

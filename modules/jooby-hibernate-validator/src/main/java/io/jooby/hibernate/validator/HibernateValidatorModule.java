@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.internal.hibernate.validator.CompositeConstraintValidatorFactory;
 import io.jooby.validation.BeanValidator;
@@ -63,7 +62,7 @@ public class HibernateValidatorModule implements Extension {
   private List<ConstraintValidatorFactory> factories;
   private final HibernateValidatorConfiguration configuration;
 
-  public HibernateValidatorModule(@NonNull HibernateValidatorConfiguration configuration) {
+  public HibernateValidatorModule(HibernateValidatorConfiguration configuration) {
     this.configuration = configuration;
   }
 
@@ -78,7 +77,7 @@ public class HibernateValidatorModule implements Extension {
    * @param statusCode new status code
    * @return This module.
    */
-  public HibernateValidatorModule statusCode(@NonNull StatusCode statusCode) {
+  public HibernateValidatorModule statusCode(StatusCode statusCode) {
     this.statusCode = statusCode;
     return this;
   }
@@ -100,7 +99,7 @@ public class HibernateValidatorModule implements Extension {
    * @param title new title
    * @return This module.
    */
-  public HibernateValidatorModule validationTitle(@NonNull String title) {
+  public HibernateValidatorModule validationTitle(String title) {
     this.title = title;
     return this;
   }
@@ -134,7 +133,7 @@ public class HibernateValidatorModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby app) throws Exception {
+  public void install(Jooby app) throws Exception {
     var config = app.getConfig();
     if (config.hasPath(CONFIG_ROOT_PATH)) {
       config

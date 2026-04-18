@@ -14,7 +14,6 @@ import com.github.kagkarlsson.scheduler.SchedulerBuilder;
 import com.github.kagkarlsson.scheduler.jdbc.JdbcTaskRepository;
 import com.github.kagkarlsson.scheduler.logging.LogLevel;
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 
 /**
  * Default schedule properties. It can be created from configuration files using {@link
@@ -272,7 +271,7 @@ public class DbSchedulerProperties {
    * @param heartbeatInterval How often to update the heartbeat timestamp for running executions.
    * @return This instance.
    */
-  public DbSchedulerProperties setHeartbeatInterval(@NonNull Duration heartbeatInterval) {
+  public DbSchedulerProperties setHeartbeatInterval(Duration heartbeatInterval) {
     this.heartbeatInterval = heartbeatInterval;
     return this;
   }
@@ -295,7 +294,7 @@ public class DbSchedulerProperties {
    * @param schedulerName Scheduler's name.
    * @return This instance.
    */
-  public DbSchedulerProperties setSchedulerName(@NonNull String schedulerName) {
+  public DbSchedulerProperties setSchedulerName(String schedulerName) {
     this.schedulerName = schedulerName;
     return this;
   }
@@ -317,7 +316,7 @@ public class DbSchedulerProperties {
    *     </code>.
    * @return This module.
    */
-  public DbSchedulerProperties setTableName(@NonNull String tableName) {
+  public DbSchedulerProperties setTableName(String tableName) {
     this.tableName = tableName;
     return this;
   }
@@ -385,7 +384,7 @@ public class DbSchedulerProperties {
    *     10s.
    * @return This instance.
    */
-  public DbSchedulerProperties setPollingInterval(@NonNull Duration pollingInterval) {
+  public DbSchedulerProperties setPollingInterval(Duration pollingInterval) {
     this.pollingInterval = pollingInterval;
     return this;
   }
@@ -409,7 +408,7 @@ public class DbSchedulerProperties {
    *     automatically deleted
    * @return This instance.
    */
-  public DbSchedulerProperties setDeleteUnresolvedAfter(@NonNull Duration deleteUnresolvedAfter) {
+  public DbSchedulerProperties setDeleteUnresolvedAfter(Duration deleteUnresolvedAfter) {
     this.deleteUnresolvedAfter = deleteUnresolvedAfter;
     return this;
   }
@@ -433,7 +432,7 @@ public class DbSchedulerProperties {
    *     threads.
    * @return This instance.
    */
-  public DbSchedulerProperties setShutdownMaxWait(@NonNull Duration shutdownMaxWait) {
+  public DbSchedulerProperties setShutdownMaxWait(Duration shutdownMaxWait) {
     this.shutdownMaxWait = shutdownMaxWait;
     return this;
   }
@@ -454,7 +453,7 @@ public class DbSchedulerProperties {
    * @param failureLoggerLevel Configures how to log task failures.
    * @return This instance.
    */
-  public DbSchedulerProperties setFailureLoggerLevel(@NonNull LogLevel failureLoggerLevel) {
+  public DbSchedulerProperties setFailureLoggerLevel(LogLevel failureLoggerLevel) {
     this.failureLoggerLevel = failureLoggerLevel;
     return this;
   }
@@ -496,8 +495,7 @@ public class DbSchedulerProperties {
    * @param pollingStrategy The polling strategy.
    * @return This instance.
    */
-  public DbSchedulerProperties setPollingStrategy(
-      @NonNull PollingStrategyConfig.Type pollingStrategy) {
+  public DbSchedulerProperties setPollingStrategy(PollingStrategyConfig.Type pollingStrategy) {
     this.pollingStrategy = pollingStrategy;
     return this;
   }

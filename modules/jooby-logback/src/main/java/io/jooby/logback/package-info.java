@@ -1,5 +1,3 @@
 /** Logback as logging service. */
-@ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.logback;
-
-import edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault;

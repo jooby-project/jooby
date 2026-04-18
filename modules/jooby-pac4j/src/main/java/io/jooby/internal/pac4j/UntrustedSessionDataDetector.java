@@ -5,13 +5,12 @@
  */
 package io.jooby.internal.pac4j;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Route;
 import io.jooby.Session;
 
 public class UntrustedSessionDataDetector implements Route.Filter {
   @Override
-  @NonNull public Route.Handler apply(@NonNull Route.Handler next) {
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       Session session = ctx.sessionOrNull();
       if (session instanceof Pac4jSession) {

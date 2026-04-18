@@ -157,7 +157,9 @@ public abstract class WebRoute<R extends WebRouter<?>> {
   }
 
   protected boolean isNullableKotlinReturn() {
-    return method.getAnnotationMirrors().stream()
+    // SpotBugs/FindBugs vs JSpecify:
+    return Stream.of(method.getAnnotationMirrors(), method.getReturnType().getAnnotationMirrors())
+        .flatMap(List::stream)
         .map(javax.lang.model.element.AnnotationMirror::getAnnotationType)
         .map(java.util.Objects::toString)
         .anyMatch(AnnotationSupport.NULLABLE);

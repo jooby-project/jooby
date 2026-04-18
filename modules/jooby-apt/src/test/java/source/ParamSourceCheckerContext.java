@@ -7,7 +7,6 @@ package source;
 
 import java.util.function.Consumer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ParamSource;
 import io.jooby.test.MockContext;
 import io.jooby.value.Value;
@@ -21,7 +20,7 @@ public class ParamSourceCheckerContext extends MockContext {
   }
 
   @Override
-  public Value lookup(@NonNull String name, ParamSource... sources) {
+  public Value lookup(String name, ParamSource... sources) {
     onLookup.accept(sources);
     return super.lookup(name, sources);
   }

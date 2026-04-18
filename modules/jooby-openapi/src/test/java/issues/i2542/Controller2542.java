@@ -5,7 +5,8 @@
  */
 package issues.i2542;
 
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.annotation.GET;
 import io.jooby.annotation.Path;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

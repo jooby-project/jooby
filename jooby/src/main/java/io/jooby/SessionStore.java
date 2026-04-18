@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.internal.MemorySessionStore;
 import io.jooby.internal.SignedSessionStore;
 
@@ -32,32 +32,32 @@ public interface SessionStore {
       new SessionStore() {
 
         @Override
-        public Session newSession(@NonNull Context ctx) {
+        public Session newSession(Context ctx) {
           throw Usage.noSession();
         }
 
         @Nullable @Override
-        public Session findSession(@NonNull Context ctx) {
+        public Session findSession(Context ctx) {
           throw Usage.noSession();
         }
 
         @Override
-        public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+        public void deleteSession(Context ctx, Session session) {
           throw Usage.noSession();
         }
 
         @Override
-        public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+        public void touchSession(Context ctx, Session session) {
           throw Usage.noSession();
         }
 
         @Override
-        public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+        public void saveSession(Context ctx, Session session) {
           throw Usage.noSession();
         }
 
         @Override
-        public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
+        public void renewSessionId(Context ctx, Session session) {
           throw Usage.noSession();
         }
       };
@@ -93,12 +93,12 @@ public interface SessionStore {
      *
      * @param token Token.
      */
-    protected InMemory(@NonNull SessionToken token) {
+    protected InMemory(SessionToken token) {
       this.token = token;
     }
 
     @Override
-    public @NonNull Session newSession(@NonNull Context ctx) {
+    public Session newSession(Context ctx) {
       var sessionId = token.newToken();
       var data =
           getOrCreate(
@@ -115,7 +115,7 @@ public interface SessionStore {
      *
      * @return Session token.
      */
-    public @NonNull SessionToken getToken() {
+    public SessionToken getToken() {
       return token;
     }
 
@@ -125,22 +125,21 @@ public interface SessionStore {
      * @param token Session token.
      * @return This store.
      */
-    public @NonNull SessionStore setToken(@NonNull SessionToken token) {
+    public SessionStore setToken(SessionToken token) {
       this.token = token;
       return this;
     }
 
-    protected abstract Data getOrCreate(
-        @NonNull String sessionId, @NonNull Function<String, Data> factory);
+    protected abstract Data getOrCreate(String sessionId, Function<String, Data> factory);
 
-    protected abstract @Nullable Data getOrNull(@NonNull String sessionId);
+    protected abstract @Nullable Data getOrNull(String sessionId);
 
-    protected abstract @Nullable Data remove(@NonNull String sessionId);
+    protected abstract @Nullable Data remove(String sessionId);
 
-    protected abstract void put(@NonNull String sessionId, @NonNull Data data);
+    protected abstract void put(String sessionId, Data data);
 
     @Override
-    public @Nullable Session findSession(@NonNull Context ctx) {
+    public @Nullable Session findSession(Context ctx) {
       String sessionId = token.findToken(ctx);
       if (sessionId == null) {
         return null;
@@ -155,26 +154,26 @@ public interface SessionStore {
     }
 
     @Override
-    public void deleteSession(@NonNull Context ctx, @NonNull Session session) {
+    public void deleteSession(Context ctx, Session session) {
       String sessionId = session.getId();
       remove(sessionId);
       token.deleteToken(ctx, sessionId);
     }
 
     @Override
-    public void touchSession(@NonNull Context ctx, @NonNull Session session) {
+    public void touchSession(Context ctx, Session session) {
       saveSession(ctx, session);
       token.saveToken(ctx, session.getId());
     }
 
     @Override
-    public void saveSession(@NonNull Context ctx, @NonNull Session session) {
+    public void saveSession(Context ctx, Session session) {
       String sessionId = session.getId();
       put(sessionId, new Data(session.getCreationTime(), Instant.now(), session.toMap()));
     }
 
     @Override
-    public void renewSessionId(@NonNull Context ctx, @NonNull Session session) {
+    public void renewSessionId(Context ctx, Session session) {
       String oldId = session.getId();
       Data data = remove(oldId);
       if (data != null) {
@@ -202,7 +201,7 @@ public interface SessionStore {
    * @param ctx Web context.
    * @return A new session.
    */
-  @NonNull Session newSession(@NonNull Context ctx);
+  Session newSession(Context ctx);
 
   /**
    * Find an existing session by ID. For existing session this method must:
@@ -213,7 +212,7 @@ public interface SessionStore {
    * @param ctx Web context.
    * @return An existing session or <code>null</code>.
    */
-  @Nullable Session findSession(@NonNull Context ctx);
+  @Nullable Session findSession(Context ctx);
 
   /**
    * Delete a session from store. This method must NOT call {@link Session#destroy()}.
@@ -221,7 +220,7 @@ public interface SessionStore {
    * @param ctx Web context.
    * @param session Current session.
    */
-  void deleteSession(@NonNull Context ctx, @NonNull Session session);
+  void deleteSession(Context ctx, Session session);
 
   /**
    * Session attributes/state has changed. Every time a session attribute is put or removed it, this
@@ -230,7 +229,7 @@ public interface SessionStore {
    * @param ctx Web context.
    * @param session Current session.
    */
-  void touchSession(@NonNull Context ctx, @NonNull Session session);
+  void touchSession(Context ctx, Session session);
 
   /**
    * Save a session. This method must save:
@@ -244,7 +243,7 @@ public interface SessionStore {
    * @param ctx Web context.
    * @param session Current session.
    */
-  void saveSession(@NonNull Context ctx, @NonNull Session session);
+  void saveSession(Context ctx, Session session);
 
   /**
    * Renew Session ID. This operation might or might not be implemented by a Session Store.
@@ -252,7 +251,7 @@ public interface SessionStore {
    * @param ctx Web Context.
    * @param session Session.
    */
-  void renewSessionId(@NonNull Context ctx, @NonNull Session session);
+  void renewSessionId(Context ctx, Session session);
 
   /**
    * Creates a cookie based session and store data in memory.
@@ -262,7 +261,7 @@ public interface SessionStore {
    * @param cookie Cookie to use.
    * @return Session store.
    */
-  static @NonNull SessionStore memory(@NonNull Cookie cookie) {
+  static SessionStore memory(Cookie cookie) {
     return memory(SessionToken.cookieId(cookie));
   }
 
@@ -274,7 +273,7 @@ public interface SessionStore {
    * @param timeout Expires session after amount of inactivity time.
    * @return Session store.
    */
-  static @NonNull SessionStore memory(@NonNull Cookie cookie, @NonNull Duration timeout) {
+  static SessionStore memory(Cookie cookie, Duration timeout) {
     return memory(SessionToken.cookieId(cookie), timeout);
   }
 
@@ -285,7 +284,7 @@ public interface SessionStore {
    * @param token Session token.
    * @return Session store.
    */
-  static @NonNull SessionStore memory(@NonNull SessionToken token) {
+  static SessionStore memory(SessionToken token) {
     return new MemorySessionStore(token, Duration.ofMinutes(DEFAULT_TIMEOUT));
   }
 
@@ -296,7 +295,7 @@ public interface SessionStore {
    * @param timeout Expires session after amount of inactivity time.
    * @return Session store.
    */
-  static @NonNull SessionStore memory(@NonNull SessionToken token, @NonNull Duration timeout) {
+  static SessionStore memory(SessionToken token, Duration timeout) {
     return new MemorySessionStore(token, timeout);
   }
 
@@ -310,7 +309,7 @@ public interface SessionStore {
    * @param secret Secret token to signed data.
    * @return A browser session store.
    */
-  static @NonNull SessionStore signed(@NonNull Cookie cookie, @NonNull String secret) {
+  static SessionStore signed(Cookie cookie, String secret) {
     return signed(SessionToken.signedCookie(cookie), secret);
   }
 
@@ -324,7 +323,7 @@ public interface SessionStore {
    * @param secret Secret token to signed data.
    * @return A browser session store.
    */
-  static @NonNull SessionStore signed(@NonNull SessionToken token, @NonNull String secret) {
+  static SessionStore signed(SessionToken token, String secret) {
     SneakyThrows.Function<String, Map<String, String>> decoder =
         value -> {
           String unsign = Cookie.unsign(value, secret);
@@ -349,10 +348,10 @@ public interface SessionStore {
    * @param encoder Encoder to use.
    * @return Cookie session store.
    */
-  static @NonNull SessionStore signed(
-      @NonNull SessionToken token,
-      @NonNull Function<String, Map<String, String>> decoder,
-      @NonNull Function<Map<String, String>, String> encoder) {
+  static SessionStore signed(
+      SessionToken token,
+      Function<String, Map<String, String>> decoder,
+      Function<Map<String, String>, String> encoder) {
     return new SignedSessionStore(token, decoder, encoder);
   }
 }

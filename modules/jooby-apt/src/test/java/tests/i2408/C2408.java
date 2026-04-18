@@ -5,14 +5,15 @@
  */
 package tests.i2408;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.annotation.GET;
 import io.jooby.annotation.QueryParam;
 
 public class C2408 {
   @GET("/2408/nonnull")
-  public String nonnull(@NonNull @QueryParam String name) {
+  public String nonnull(@QueryParam @NonNull String name) {
     return name;
   }
 

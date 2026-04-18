@@ -10,8 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.Extension;
@@ -78,12 +78,12 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
    *
    * @param jsonb Jsonb to use.
    */
-  public YassonModule(@NonNull final Jsonb jsonb) {
+  public YassonModule(final Jsonb jsonb) {
     this.jsonb = jsonb;
   }
 
   @Override
-  public void install(@NonNull final Jooby application) throws Exception {
+  public void install(final Jooby application) throws Exception {
     application.decoder(MediaType.json, this);
     application.encoder(MediaType.json, this);
 
@@ -91,8 +91,8 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
     services.put(Jsonb.class, jsonb);
   }
 
-  @NonNull @Override
-  public Object decode(@NonNull final Context ctx, @NonNull final Type type) throws IOException {
+  @Override
+  public Object decode(final Context ctx, final Type type) throws IOException {
 
     Body body = ctx.body();
     try (InputStream stream = body.stream()) {
@@ -101,7 +101,7 @@ public class YassonModule implements Extension, MessageDecoder, MessageEncoder {
   }
 
   @Nullable @Override
-  public Output encode(@NonNull final Context ctx, @NonNull final Object value) {
+  public Output encode(final Context ctx, final Object value) {
     ctx.setDefaultResponseType(MediaType.json);
     var factory = ctx.getOutputFactory();
     var output = factory.allocate();

@@ -8,14 +8,13 @@ package io.jooby.pac4j;
 import java.util.List;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.core.util.serializer.JavaSerializer;
 import org.pac4j.core.util.serializer.Serializer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.SameSite;
 
 /**
@@ -129,7 +128,7 @@ public class Pac4jOptions extends Config {
    * @param config Config object.
    * @return Pac4j options.
    */
-  public static Pac4jOptions from(@NonNull Config config) {
+  public static Pac4jOptions from(Config config) {
     return config instanceof Pac4jOptions options ? options : new Pac4jOptions(config);
   }
 
@@ -170,7 +169,7 @@ public class Pac4jOptions extends Config {
    * @param saveInSession True to save profile in HTTP session.
    * @return This session.
    */
-  public @NonNull Pac4jOptions setSaveInSession(@Nullable Boolean saveInSession) {
+  public Pac4jOptions setSaveInSession(@Nullable Boolean saveInSession) {
     this.saveInSession = saveInSession;
     return this;
   }
@@ -251,7 +250,7 @@ public class Pac4jOptions extends Config {
    * @param callbackPath Callback path.
    * @return This options.
    */
-  public Pac4jOptions setCallbackPath(@NonNull String callbackPath) {
+  public Pac4jOptions setCallbackPath(String callbackPath) {
     this.callbackPath = callbackPath;
     return this;
   }
@@ -272,7 +271,7 @@ public class Pac4jOptions extends Config {
    * @param logoutPath Logout path.
    * @return This options.
    */
-  public Pac4jOptions setLogoutPath(@NonNull String logoutPath) {
+  public Pac4jOptions setLogoutPath(String logoutPath) {
     this.logoutPath = logoutPath;
     return this;
   }
@@ -410,7 +409,7 @@ public class Pac4jOptions extends Config {
    *     optional parameter and only relative URLs are allowed by default.
    * @return This instance.
    */
-  public @NonNull Pac4jOptions setLogoutUrlPattern(String logoutUrlPattern) {
+  public Pac4jOptions setLogoutUrlPattern(String logoutUrlPattern) {
     this.logoutUrlPattern = logoutUrlPattern;
     return this;
   }
@@ -420,7 +419,7 @@ public class Pac4jOptions extends Config {
    *
    * @return Serializer, defaults to {@link JavaSerializer}.
    */
-  public @NonNull Serializer getSerializer() {
+  public Serializer getSerializer() {
     return serializer;
   }
 
@@ -430,7 +429,7 @@ public class Pac4jOptions extends Config {
    * @param serializer Serializer.
    * @return This instance.
    */
-  public @NonNull Pac4jOptions setSerializer(@NonNull Serializer serializer) {
+  public Pac4jOptions setSerializer(Serializer serializer) {
     this.serializer = serializer;
     return this;
   }

@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.Router;
@@ -58,7 +57,7 @@ public class CorsHandler implements Route.Filter {
    *
    * @param options Cors options, or empty for using default options.
    */
-  public CorsHandler(@NonNull final Cors options) {
+  public CorsHandler(final Cors options) {
     this.options = options;
   }
 
@@ -67,8 +66,8 @@ public class CorsHandler implements Route.Filter {
     this(new Cors());
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       String origin = ctx.header("Origin").valueOrNull();
       if (origin != null) {
@@ -147,8 +146,8 @@ public class CorsHandler implements Route.Filter {
     }
   }
 
-  @NonNull @Override
-  public void setRoute(@NonNull Route route) {
+  @Override
+  public void setRoute(Route route) {
     route.setHttpOptions(true);
   }
 

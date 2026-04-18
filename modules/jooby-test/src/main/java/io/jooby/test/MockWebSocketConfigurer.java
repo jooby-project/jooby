@@ -7,7 +7,6 @@ package io.jooby.test;
 
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.WebSocket;
 import io.jooby.WebSocketCloseStatus;
@@ -36,26 +35,26 @@ public class MockWebSocketConfigurer implements WebSocketConfigurer {
     this.ws = new MockWebSocket(ctx, this);
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
+  @Override
+  public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
     this.onConnect = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
+  @Override
+  public WebSocketConfigurer onMessage(WebSocket.OnMessage callback) {
     this.onMessage = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
+  @Override
+  public WebSocketConfigurer onError(WebSocket.OnError callback) {
     this.onError = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
+  @Override
+  public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
     this.onClose = callback;
     return this;
   }

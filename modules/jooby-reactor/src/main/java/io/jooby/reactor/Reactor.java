@@ -10,7 +10,6 @@ import static org.reactivestreams.FlowAdapters.toSubscriber;
 
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import reactor.core.publisher.Flux;
@@ -39,7 +38,7 @@ public class Reactor {
         }
 
         @Override
-        public Route.Handler apply(@NonNull Route.Handler next) {
+        public Route.Handler apply(Route.Handler next) {
           return ctx -> {
             Object result = next.apply(ctx);
             if (ctx.isResponseStarted()) {

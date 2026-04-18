@@ -19,7 +19,6 @@ import org.apache.maven.project.MavenProject;
 import cz.habarta.typescript.generator.DateMapping;
 import cz.habarta.typescript.generator.EnumMapping;
 import cz.habarta.typescript.generator.JsonLibrary;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.trpc.TrpcGenerator;
 
 /**
@@ -62,8 +61,7 @@ public class TrpcMojo extends BaseMojo {
   @Parameter private List<String> importDeclarations;
 
   @Override
-  protected void doExecute(@NonNull List<MavenProject> projects, @NonNull String mainClass)
-      throws Exception {
+  protected void doExecute(List<MavenProject> projects, String mainClass) throws Exception {
     var classLoader = createClassLoader(projects);
 
     var generator = new TrpcGenerator();

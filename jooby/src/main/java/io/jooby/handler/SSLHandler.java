@@ -5,7 +5,6 @@
  */
 package io.jooby.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.ServerOptions;
@@ -33,7 +32,7 @@ public class SSLHandler implements Route.Before {
    * @param host Host to redirect.
    * @param port HTTP port.
    */
-  public SSLHandler(@NonNull String host, int port) {
+  public SSLHandler(String host, int port) {
     this.host = host;
     this.port = port;
   }
@@ -46,7 +45,7 @@ public class SSLHandler implements Route.Before {
    *
    * @param host Host to redirect.
    */
-  public SSLHandler(@NonNull String host) {
+  public SSLHandler(String host) {
     this(host, SECURE_PORT);
   }
 
@@ -76,7 +75,7 @@ public class SSLHandler implements Route.Before {
   }
 
   @Override
-  public void apply(@NonNull Context ctx) {
+  public void apply(Context ctx) {
     if (!ctx.isSecure()) {
       String host;
       if (this.host == null) {

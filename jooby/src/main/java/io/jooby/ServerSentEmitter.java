@@ -8,11 +8,9 @@ package io.jooby;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * Server-Sent message emitter.
@@ -73,7 +71,7 @@ public interface ServerSentEmitter {
      * @param sse Server sent event.
      * @throws Exception If something goes wrong.
      */
-    void handle(@NonNull ServerSentEmitter sse) throws Exception;
+    void handle(ServerSentEmitter sse) throws Exception;
   }
 
   /**
@@ -91,14 +89,14 @@ public interface ServerSentEmitter {
    *
    * @return Read-only originating HTTP request.
    */
-  @NonNull Context getContext();
+  Context getContext();
 
   /**
    * Context attributes (a.k.a request attributes).
    *
    * @return Context attributes.
    */
-  default @NonNull Map<String, Object> getAttributes() {
+  default Map<String, Object> getAttributes() {
     return getContext().getAttributes();
   }
 
@@ -110,7 +108,7 @@ public interface ServerSentEmitter {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  default @NonNull <T> T attribute(@NonNull String key) {
+  default <T> T attribute(String key) {
     return getContext().getAttribute(key);
   }
 
@@ -121,7 +119,7 @@ public interface ServerSentEmitter {
    * @param value Attribute value.
    * @return This ServerSent.
    */
-  default @NonNull ServerSentEmitter attribute(@NonNull String key, Object value) {
+  default ServerSentEmitter attribute(String key, Object value) {
     getContext().setAttribute(key, value);
     return this;
   }
@@ -132,7 +130,7 @@ public interface ServerSentEmitter {
    * @param data Text Message.
    * @return This ServerSent.
    */
-  default @NonNull ServerSentEmitter send(@NonNull String data) {
+  default ServerSentEmitter send(String data) {
     return send(new ServerSentMessage(data));
   }
 
@@ -142,7 +140,7 @@ public interface ServerSentEmitter {
    * @param data Text Message.
    * @return This ServerSent.
    */
-  default @NonNull ServerSentEmitter send(@NonNull byte[] data) {
+  default ServerSentEmitter send(byte[] data) {
     return send(new ServerSentMessage(data));
   }
 
@@ -152,7 +150,7 @@ public interface ServerSentEmitter {
    * @param data Text Message.
    * @return This ServerSent.
    */
-  default @NonNull ServerSentEmitter send(@NonNull Object data) {
+  default ServerSentEmitter send(Object data) {
     if (data instanceof ServerSentMessage) {
       return send((ServerSentMessage) data);
     } else {
@@ -167,7 +165,7 @@ public interface ServerSentEmitter {
    * @param data Message.
    * @return This emitter.
    */
-  default @NonNull ServerSentEmitter send(@NonNull String event, @NonNull Object data) {
+  default ServerSentEmitter send(String event, Object data) {
     return send(new ServerSentMessage(data).setEvent(event));
   }
 
@@ -177,7 +175,7 @@ public interface ServerSentEmitter {
    * @param data Message.
    * @return This emitter.
    */
-  @NonNull ServerSentEmitter send(@NonNull ServerSentMessage data);
+  ServerSentEmitter send(ServerSentMessage data);
 
   /**
    * Send a comment message to the client. The comment line can be used to prevent connections from
@@ -187,7 +185,7 @@ public interface ServerSentEmitter {
    * @param unit Time unit.
    * @return This emitter.
    */
-  default @NonNull ServerSentEmitter keepAlive(final long time, final @NonNull TimeUnit unit) {
+  default ServerSentEmitter keepAlive(final long time, final TimeUnit unit) {
     return keepAlive(unit.toMillis(time));
   }
 
@@ -198,7 +196,7 @@ public interface ServerSentEmitter {
    * @param timeInMillis Period of time in millis.
    * @return This emitter.
    */
-  @NonNull ServerSentEmitter keepAlive(long timeInMillis);
+  ServerSentEmitter keepAlive(long timeInMillis);
 
   /**
    * Read the <code>Last-Event-ID</code> header and retrieve it. Might be null.
@@ -225,7 +223,7 @@ public interface ServerSentEmitter {
    *
    * @return Server-Sent ID. Defaults to UUID.
    */
-  @NonNull String getId();
+  String getId();
 
   /**
    * Set Server-Sent ID.
@@ -233,7 +231,7 @@ public interface ServerSentEmitter {
    * @param id Set Server-Sent ID.
    * @return This emitter.
    */
-  @NonNull ServerSentEmitter setId(@NonNull String id);
+  ServerSentEmitter setId(String id);
 
   /**
    * True if connection is open.

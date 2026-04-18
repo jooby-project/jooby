@@ -13,7 +13,6 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -72,7 +71,7 @@ public class RedisModule implements Extension {
    *
    * @param value Redis URI or property name.
    */
-  public RedisModule(@NonNull String value) {
+  public RedisModule(String value) {
     try {
       uri = RedisURI.create(value);
       name = "redis";
@@ -93,7 +92,7 @@ public class RedisModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     if (uri == null) {
       Config config = application.getConfig();
       uri =

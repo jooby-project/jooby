@@ -20,7 +20,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ExecutionMode;
 import io.jooby.jetty.JettyServer;
 import io.jooby.netty.NettyServer;
@@ -69,7 +68,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
   }
 
   @Override
-  public @NonNull Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
+  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
       ExtensionContext context) {
     ServerTest serverTest = context.getRequiredTestMethod().getAnnotation(ServerTest.class);
     Class[] servers = serverTest.server();

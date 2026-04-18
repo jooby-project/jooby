@@ -8,7 +8,6 @@ package io.jooby.jdbi;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.RequestScope;
 import io.jooby.Route;
 import io.jooby.Route.Filter;
@@ -80,7 +79,7 @@ public class TransactionalRequest implements Filter {
    *
    * @param name Jdbi service name.
    */
-  public TransactionalRequest(@NonNull String name) {
+  public TransactionalRequest(String name) {
     key = ServiceKey.key(Jdbi.class, name);
   }
 
@@ -104,8 +103,8 @@ public class TransactionalRequest implements Filter {
     return this;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> {
       if (ctx.getRoute().isTransactional(enabledByDefault)) {
         Jdbi jdbi = ctx.require(key);

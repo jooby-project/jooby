@@ -100,5 +100,5 @@
  * @author edgar
  * @since 4.1.0
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.langchain4j;

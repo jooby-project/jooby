@@ -20,8 +20,8 @@ import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.FileUpload;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.Value;
@@ -166,7 +166,7 @@ public class HashValue implements Value {
     return (HashValue) hash().computeIfAbsent(name, k -> new HashValue(factory, k));
   }
 
-  public @NonNull Value get(@NonNull String name) {
+  public Value get(String name) {
     var value = hash.get(name);
     if (value == null) {
       return new MissingValue(factory, scope(name));
@@ -175,7 +175,7 @@ public class HashValue implements Value {
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     var value = hash.get(name);
     if (value == null) {
       return Value.value(factory, name, defaultValue);
@@ -188,7 +188,7 @@ public class HashValue implements Value {
   }
 
   @Override
-  public @NonNull Value get(int index) {
+  public Value get(int index) {
     return get(Integer.toString(index));
   }
 
@@ -215,45 +215,45 @@ public class HashValue implements Value {
     return hash.values().iterator();
   }
 
-  @NonNull @Override
+  @Override
   public List<String> toList() {
     return toList(String.class);
   }
 
-  @NonNull @Override
+  @Override
   public Set<String> toSet() {
     return toSet(String.class);
   }
 
-  @NonNull @Override
-  public <T> List<T> toList(@NonNull Class<T> type) {
+  @Override
+  public <T> List<T> toList(Class<T> type) {
     return toCollection(type, new ArrayList<>());
   }
 
-  @NonNull @Override
-  public <T> Set<T> toSet(@NonNull Class<T> type) {
+  @Override
+  public <T> Set<T> toSet(Class<T> type) {
     return toCollection(type, new LinkedHashSet<>());
   }
 
-  @NonNull @Override
-  public <T> Optional<T> toOptional(@NonNull Class<T> type) {
+  @Override
+  public <T> Optional<T> toOptional(Class<T> type) {
     if (hash.isEmpty()) {
       return Optional.empty();
     }
     return ofNullable(toNullable(type));
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Class<T> type) {
+  @Override
+  public <T> T to(Class<T> type) {
     return factory.convert(type, this);
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Class<T> type) {
+  public <T> T toNullable(Class<T> type) {
     return toNullable(factory, type);
   }
 
-  private <T> T toNullable(@NonNull ValueFactory factory, @NonNull Class<T> type) {
+  private <T> T toNullable(ValueFactory factory, Class<T> type) {
     return factory.convert(type, this, ConversionHint.Nullable);
   }
 
@@ -284,7 +284,7 @@ public class HashValue implements Value {
     }
   }
 
-  private <T, C extends Collection<T>> C toCollection(@NonNull Class<T> type, C collection) {
+  private <T, C extends Collection<T>> C toCollection(Class<T> type, C collection) {
     if (!hash.isEmpty()) {
       if (arrayLike) {
         // indexes access, treat like a list

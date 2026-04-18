@@ -25,7 +25,6 @@ import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.exceptions.CloseException;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.SneakyThrows;
@@ -181,36 +180,36 @@ public class JettyWebSocket
     return false;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onConnect(@NonNull WebSocket.OnConnect callback) {
+  @Override
+  public WebSocketConfigurer onConnect(WebSocket.OnConnect callback) {
     onConnectCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onMessage(@NonNull WebSocket.OnMessage callback) {
+  @Override
+  public WebSocketConfigurer onMessage(WebSocket.OnMessage callback) {
     onMessageCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onError(@NonNull WebSocket.OnError callback) {
+  @Override
+  public WebSocketConfigurer onError(WebSocket.OnError callback) {
     onErrorCallback = callback;
     return this;
   }
 
-  @NonNull @Override
-  public WebSocketConfigurer onClose(@NonNull WebSocket.OnClose callback) {
+  @Override
+  public WebSocketConfigurer onClose(WebSocket.OnClose callback) {
     onCloseCallback.set(callback);
     return this;
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return Context.readOnly(ctx);
   }
 
-  @NonNull @Override
+  @Override
   public List<WebSocket> getSessions() {
     List<JettyWebSocket> sessions = all.get(key);
     if (sessions == null) {
@@ -237,65 +236,65 @@ public class JettyWebSocket
     }
   }
 
-  @NonNull @Override
-  public WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendPing(String message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
             remote.sendPing(ByteBuffer.wrap(message.getBytes(UTF_8)), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendPing(ByteBuffer message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) -> remote.sendPing(message, writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(String message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
             remote.sendBinary(ByteBuffer.wrap(message.getBytes(UTF_8)), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull String message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(String message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) -> remote.sendText(message, writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(ByteBuffer message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) -> remote.sendText(UTF_8.decode(message).toString(), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(byte[] message, WriteCallback callback) {
     return send(new String(message, UTF_8), callback);
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(ByteBuffer message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) -> remote.sendBinary(message, writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket send(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket send(Output message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
             remote.sendText(UTF_8.decode(message.asByteBuffer()).toString(), writeCallback),
         new WriteCallbackAdaptor(this, callback));
   }
 
-  @NonNull @Override
-  public WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket sendBinary(Output message, WriteCallback callback) {
     return sendMessage(
         (remote, writeCallback) ->
             new WebSocketOutputCallback(writeCallback, message, remote::sendBinary).send(),
@@ -315,13 +314,13 @@ public class JettyWebSocket
     return this;
   }
 
-  @NonNull @Override
-  public WebSocket render(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket render(Object value, WriteCallback callback) {
     return renderMessage(value, false, callback);
   }
 
-  @NonNull @Override
-  public WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback) {
+  @Override
+  public WebSocket renderBinary(Object value, WriteCallback callback) {
     return renderMessage(value, true, callback);
   }
 
@@ -334,8 +333,8 @@ public class JettyWebSocket
     return this;
   }
 
-  @NonNull @Override
-  public WebSocket close(@NonNull WebSocketCloseStatus closeStatus) {
+  @Override
+  public WebSocket close(WebSocketCloseStatus closeStatus) {
     handleClose(closeStatus);
     return this;
   }

@@ -14,7 +14,6 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -183,7 +182,7 @@ public class McpModule implements Extension {
    * @param transport The desired default transport protocol.
    * @return This module instance for method chaining.
    */
-  public McpModule transport(@NonNull Transport transport) {
+  public McpModule transport(Transport transport) {
     this.defaultTransport = transport;
     return this;
   }
@@ -201,7 +200,7 @@ public class McpModule implements Extension {
    * @param invoker The custom invoker to register.
    * @return This module instance for method chaining.
    */
-  public McpModule invoker(@NonNull McpInvoker invoker) {
+  public McpModule invoker(McpInvoker invoker) {
     if (this.invoker != null) {
       this.invoker = invoker.then(this.invoker);
     } else {
@@ -223,7 +222,7 @@ public class McpModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby app) {
+  public void install(Jooby app) {
     var services = app.getServices();
     var mcpJsonMapper = services.require(McpJsonMapper.class);
     var globalGenerateOutputSchema =

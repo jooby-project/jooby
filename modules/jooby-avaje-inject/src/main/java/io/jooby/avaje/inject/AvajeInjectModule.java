@@ -8,7 +8,6 @@ package io.jooby.avaje.inject;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.avaje.inject.BeanScope;
 import io.avaje.inject.BeanScopeBuilder;
 import io.jooby.Environment;
@@ -49,7 +48,7 @@ public class AvajeInjectModule implements Extension {
     return new AvajeInjectModule(beanScope);
   }
 
-  public AvajeInjectModule(@NonNull BeanScopeBuilder scopeBuilder) {
+  public AvajeInjectModule(BeanScopeBuilder scopeBuilder) {
     this.scopeBuilder = scopeBuilder;
   }
 

@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import picocli.CommandLine;
 
 /**
@@ -33,7 +32,7 @@ public class SetCmd extends Cmd {
   private boolean force;
 
   @Override
-  public void run(@NonNull CliContext ctx) throws Exception {
+  public void run(CliContext ctx) throws Exception {
     if (workspace != null) {
       Path path =
           Paths.get(

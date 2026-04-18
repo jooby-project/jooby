@@ -8,7 +8,7 @@ module io.jooby.graphql {
   exports io.jooby.graphql;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires com.graphqljava;
   requires com.google.gson;

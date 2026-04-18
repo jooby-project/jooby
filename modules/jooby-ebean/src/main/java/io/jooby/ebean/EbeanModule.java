@@ -13,7 +13,6 @@ import javax.sql.DataSource;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValueType;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
@@ -66,7 +65,7 @@ public class EbeanModule implements Extension {
    *
    * @param name Ebean name.
    */
-  public EbeanModule(@NonNull String name) {
+  public EbeanModule(String name) {
     this.name = name;
     this.databaseConfig = null;
   }
@@ -81,13 +80,13 @@ public class EbeanModule implements Extension {
    *
    * @param config Database configuration.
    */
-  public EbeanModule(@NonNull DatabaseConfig config) {
+  public EbeanModule(DatabaseConfig config) {
     this.databaseConfig = config;
     this.name = databaseConfig.getName();
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     DatabaseConfig config =
         Optional.ofNullable(this.databaseConfig).orElseGet(() -> create(application, name));
 
@@ -109,7 +108,7 @@ public class EbeanModule implements Extension {
    * @param name Ebean name.
    * @return Database configuration.
    */
-  public static @NonNull DatabaseConfig create(@NonNull Jooby application, @NonNull String name) {
+  public static DatabaseConfig create(Jooby application, String name) {
     var environment = application.getEnvironment();
     var registry = application.getServices();
     var databaseConfig = new DatabaseConfig();

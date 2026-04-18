@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.vertx.sqlclient;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.vertx.core.Future;
 import io.vertx.core.impl.VertxThread;
 import io.vertx.sqlclient.*;
@@ -50,7 +49,7 @@ public record VertxPreparedStatementProxy(String name) implements PreparedStatem
   }
 
   @Override
-  @NonNull public String toString() {
+  public String toString() {
     return Thread.currentThread().getName() + ":" + name;
   }
 }

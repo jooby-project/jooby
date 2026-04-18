@@ -7,7 +7,6 @@ package io.jooby.internal.netty;
 
 import java.nio.charset.StandardCharsets;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 import io.netty.util.AsciiString;
 
@@ -48,7 +47,7 @@ public class NettyString implements CharSequence {
   }
 
   @Override
-  @NonNull public CharSequence subSequence(int start, int end) {
+  public CharSequence subSequence(int start, int end) {
     return value.subSequence(start, end);
   }
 
@@ -66,7 +65,7 @@ public class NettyString implements CharSequence {
   }
 
   @Override
-  @NonNull public String toString() {
+  public String toString() {
     return value;
   }
 

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.StatusCode;
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.ParameterExt;
@@ -111,7 +110,7 @@ public record HttpResponse(
         .orElse(null);
   }
 
-  @NonNull @Override
+  @Override
   public String toString() {
     return operation.getMethod() + " " + operation.getPath();
   }

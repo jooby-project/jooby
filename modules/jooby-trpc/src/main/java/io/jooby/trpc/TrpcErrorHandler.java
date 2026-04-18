@@ -8,7 +8,6 @@ package io.jooby.trpc;
 import java.util.Map;
 import java.util.Optional;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.Reified;
@@ -42,7 +41,7 @@ public class TrpcErrorHandler implements ErrorHandler {
    * @param code The default HTTP status code resolved by Jooby.
    */
   @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  public void apply(Context ctx, Throwable cause, StatusCode code) {
     if (ctx.getRequestPath().startsWith("/trpc/")) {
       TrpcException trpcError;
       if (cause instanceof TrpcException) {

@@ -35,7 +35,7 @@ module io.jooby.jsonrpc {
   exports io.jooby.annotation.jsonrpc;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
 }

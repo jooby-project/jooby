@@ -14,8 +14,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.exception.MissingValueException;
 import io.jooby.internal.ByteArrayBody;
 import io.jooby.internal.FileBody;
@@ -39,7 +39,7 @@ public interface Body extends Value {
    * @param charset Charset.
    * @return Body as string.
    */
-  default String value(@NonNull Charset charset) {
+  default String value(Charset charset) {
     byte[] bytes = bytes();
     if (bytes.length == 0) {
       throw new MissingValueException("body");
@@ -99,7 +99,7 @@ public interface Body extends Value {
   InputStream stream();
 
   @Override
-  default <T> List<T> toList(@NonNull Class<T> type) {
+  default <T> List<T> toList(Class<T> type) {
     return to(Reified.list(type).getType());
   }
 
@@ -112,11 +112,11 @@ public interface Body extends Value {
   }
 
   @Override
-  default <T> T to(@NonNull Class<T> type) {
+  default <T> T to(Class<T> type) {
     return to((Type) type);
   }
 
-  default @Nullable @Override <T> T toNullable(@NonNull Class<T> type) {
+  default @Nullable @Override <T> T toNullable(Class<T> type) {
     return toNullable((Type) type);
   }
 
@@ -127,7 +127,7 @@ public interface Body extends Value {
    * @param <T> Generic type.
    * @return Converted value.
    */
-  <T> T to(@NonNull Type type);
+  <T> T to(Type type);
 
   /**
    * Convert this body into the given type.
@@ -136,7 +136,7 @@ public interface Body extends Value {
    * @param <T> Generic type.
    * @return Converted value or <code>null</code>.
    */
-  @Nullable <T> T toNullable(@NonNull Type type);
+  @Nullable <T> T toNullable(Type type);
 
   /* **********************************************************************************************
    * Factory methods:
@@ -149,7 +149,7 @@ public interface Body extends Value {
    * @param ctx Current context.
    * @return Empty body.
    */
-  static Body empty(@NonNull Context ctx) {
+  static Body empty(Context ctx) {
     return ByteArrayBody.empty(ctx);
   }
 
@@ -161,7 +161,7 @@ public interface Body extends Value {
    * @param size Size in bytes or <code>-1</code>.
    * @return A new body.
    */
-  static Body of(@NonNull Context ctx, @NonNull InputStream stream, long size) {
+  static Body of(Context ctx, InputStream stream, long size) {
     return new InputStreamBody(ctx, stream, size);
   }
 
@@ -172,7 +172,7 @@ public interface Body extends Value {
    * @param bytes byte array.
    * @return A new body.
    */
-  static Body of(@NonNull Context ctx, @NonNull byte[] bytes) {
+  static Body of(Context ctx, byte[] bytes) {
     return new ByteArrayBody(ctx, bytes);
   }
 
@@ -183,7 +183,7 @@ public interface Body extends Value {
    * @param file File.
    * @return A new body.
    */
-  static Body of(@NonNull Context ctx, @NonNull Path file) {
+  static Body of(Context ctx, Path file) {
     return new FileBody(ctx, file);
   }
 }

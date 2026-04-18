@@ -13,7 +13,7 @@ module io.jooby.jstachio {
   requires transitive io.jstach.jstachio;
   requires transitive io.jooby;
   requires jakarta.inject;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
 
   exports io.jooby.jstachio;
 

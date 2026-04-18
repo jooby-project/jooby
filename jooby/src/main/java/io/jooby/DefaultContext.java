@@ -21,10 +21,9 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.*;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import io.jooby.exception.RegistryException;
 import io.jooby.internal.*;
 import io.jooby.output.OutputFactory;
@@ -40,27 +39,27 @@ import io.jooby.value.ValueFactory;
 public interface DefaultContext extends Context {
 
   @Override
-  default <T> T require(@NonNull Class<T> type, @NonNull String name) throws RegistryException {
+  default <T> T require(Class<T> type, String name) throws RegistryException {
     return getRouter().require(type, name);
   }
 
   @Override
-  default <T> T require(@NonNull Class<T> type) throws RegistryException {
+  default <T> T require(Class<T> type) throws RegistryException {
     return getRouter().require(type);
   }
 
   @Override
-  default <T> T require(@NonNull Reified<T> type) throws RegistryException {
+  default <T> T require(Reified<T> type) throws RegistryException {
     return getRouter().require(type);
   }
 
   @Override
-  default <T> T require(@NonNull Reified<T> type, @NonNull String name) throws RegistryException {
+  default <T> T require(Reified<T> type, String name) throws RegistryException {
     return getRouter().require(type, name);
   }
 
   @Override
-  default <T> T require(@NonNull ServiceKey<T> key) throws RegistryException {
+  default <T> T require(ServiceKey<T> key) throws RegistryException {
     return getRouter().require(key);
   }
 
@@ -77,7 +76,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default boolean matches(@NonNull String pattern) {
+  default boolean matches(String pattern) {
     return getRouter().match(pattern, getRequestPath());
   }
 
@@ -90,7 +89,7 @@ public interface DefaultContext extends Context {
    * @return Attribute value.
    */
   @Override
-  @Nullable default <T> T getAttribute(@NonNull String key) {
+  @Nullable default <T> T getAttribute(String key) {
     T attribute = (T) getAttributes().get(key);
     if (attribute == null) {
       Map<String, Object> globals = getRouter().getAttributes();
@@ -100,7 +99,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context setAttribute(@NonNull String key, Object value) {
+  default Context setAttribute(String key, Object value) {
     getAttributes().put(key, value);
     return this;
   }
@@ -126,18 +125,18 @@ public interface DefaultContext extends Context {
    * @return Flash attribute.
    */
   @Override
-  default Value flash(@NonNull String name) {
+  default Value flash(String name) {
     return Value.create(getValueFactory(), name, flash().get(name));
   }
 
   @Override
-  default Value flash(@NonNull String name, @NonNull String defaultValue) {
+  default Value flash(String name, String defaultValue) {
     var value = flash(name);
     return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
   }
 
   @Override
-  default Value session(@NonNull String name) {
+  default Value session(String name) {
     Session session = sessionOrNull();
     if (session != null) {
       return session.get(name);
@@ -146,7 +145,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value session(@NonNull String name, @NonNull String defaultValue) {
+  default Value session(String name, String defaultValue) {
     var value = session(name);
     return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
   }
@@ -177,7 +176,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Object forward(@NonNull String path) {
+  default Object forward(String path) {
     try {
       setRequestPath(path);
       Router.Match match = getRouter().match(this);
@@ -188,13 +187,13 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value cookie(@NonNull String name) {
+  default Value cookie(String name) {
     var value = cookieMap().get(name);
     return Value.create(getValueFactory(), name, value);
   }
 
   @Override
-  default Value cookie(@NonNull String name, @NonNull String defaultValue) {
+  default Value cookie(String name, String defaultValue) {
     var value = cookie(name);
     return value.isMissing() ? Value.value(getValueFactory(), name, defaultValue) : value;
   }
@@ -230,7 +229,7 @@ public interface DefaultContext extends Context {
    *     none found.
    * @throws IllegalArgumentException If no {@link ParamSource}s are specified.
    */
-  default Value lookup(@NonNull String name, ParamSource... sources) {
+  default Value lookup(String name, ParamSource... sources) {
     if (sources.length == 0) {
       throw new IllegalArgumentException("No parameter sources were specified.");
     }
@@ -243,7 +242,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value path(@NonNull String name) {
+  default Value path(String name) {
     String value = pathMap().get(name);
     return value == null
         ? new MissingValue(getValueFactory(), name)
@@ -251,7 +250,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default <T> T path(@NonNull Class<T> type) {
+  default <T> T path(Class<T> type) {
     return path().to(type);
   }
 
@@ -265,12 +264,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value query(@NonNull String name) {
+  default Value query(String name) {
     return query().get(name);
   }
 
   @Override
-  default Value query(@NonNull String name, @NonNull String defaultValue) {
+  default Value query(String name, String defaultValue) {
     return query().getOrDefault(name, defaultValue);
   }
 
@@ -280,7 +279,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default <T> T query(@NonNull Class<T> type) {
+  default <T> T query(Class<T> type) {
     return query().toEmpty(type);
   }
 
@@ -290,12 +289,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value header(@NonNull String name) {
+  default Value header(String name) {
     return header().get(name);
   }
 
   @Override
-  default Value header(@NonNull String name, @NonNull String defaultValue) {
+  default Value header(String name, String defaultValue) {
     return header().getOrDefault(name, defaultValue);
   }
 
@@ -305,12 +304,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default boolean accept(@NonNull MediaType contentType) {
+  default boolean accept(MediaType contentType) {
     return Objects.equals(accept(singletonList(contentType)), contentType);
   }
 
   @Override
-  default @Nullable MediaType accept(@NonNull List<MediaType> produceTypes) {
+  default @Nullable MediaType accept(List<MediaType> produceTypes) {
     var accept = header(ACCEPT);
     if (accept.isMissing()) {
       // NO header? Pick first, which is the default.
@@ -349,7 +348,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default String getRequestURL(@NonNull String path) {
+  default String getRequestURL(String path) {
     var scheme = getScheme();
     var host = getHost();
     int port = getPort();
@@ -448,17 +447,17 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Value form(@NonNull String name) {
+  default Value form(String name) {
     return form().get(name);
   }
 
   @Override
-  default Value form(@NonNull String name, @NonNull String defaultValue) {
+  default Value form(String name, String defaultValue) {
     return form().getOrDefault(name, defaultValue);
   }
 
   @Override
-  default <T> T form(@NonNull Class<T> type) {
+  default <T> T form(Class<T> type) {
     return form().to(type);
   }
 
@@ -473,22 +472,22 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default List<FileUpload> files(@NonNull String name) {
+  default List<FileUpload> files(String name) {
     return form().files(name);
   }
 
   @Override
-  default FileUpload file(@NonNull String name) {
+  default FileUpload file(String name) {
     return form().file(name);
   }
 
   @Override
-  default <T> T body(@NonNull Class<T> type) {
+  default <T> T body(Class<T> type) {
     return body().to(type);
   }
 
   @Override
-  default <T> T body(@NonNull Type type) {
+  default <T> T body(Type type) {
     return body().to(type);
   }
 
@@ -497,7 +496,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
+  default <T> T decode(Type type, MediaType contentType) {
     try {
       if (MediaType.text.equals(contentType)) {
         return getValueFactory().convert(type, body());
@@ -510,22 +509,22 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default MessageDecoder decoder(@NonNull MediaType contentType) {
+  default MessageDecoder decoder(MediaType contentType) {
     return getRoute().decoder(contentType);
   }
 
   @Override
-  default Context setResponseHeader(@NonNull String name, @NonNull Date value) {
+  default Context setResponseHeader(String name, Date value) {
     return setResponseHeader(name, RFC1123.format(Instant.ofEpochMilli(value.getTime())));
   }
 
   @Override
-  default Context setResponseHeader(@NonNull String name, @NonNull Instant value) {
+  default Context setResponseHeader(String name, Instant value) {
     return setResponseHeader(name, RFC1123.format(value));
   }
 
   @Override
-  default Context setResponseHeader(@NonNull String name, @NonNull Object value) {
+  default Context setResponseHeader(String name, Object value) {
     if (value instanceof Date) {
       return setResponseHeader(name, (Date) value);
     }
@@ -536,12 +535,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context setResponseCode(@NonNull StatusCode statusCode) {
+  default Context setResponseCode(StatusCode statusCode) {
     return setResponseCode(statusCode.value());
   }
 
   @Override
-  default Context render(@NonNull Object value) {
+  default Context render(Object value) {
     try {
       var route = getRoute();
       var encoder = route.getEncoder();
@@ -560,22 +559,20 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default OutputStream responseStream(@NonNull MediaType contentType) {
+  default OutputStream responseStream(MediaType contentType) {
     setResponseType(contentType);
     return responseStream();
   }
 
   @Override
   default Context responseStream(
-      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<OutputStream> consumer)
-      throws Exception {
+      MediaType contentType, SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
     setResponseType(contentType);
     return responseStream(consumer);
   }
 
   @Override
-  default Context responseStream(@NonNull SneakyThrows.Consumer<OutputStream> consumer)
-      throws Exception {
+  default Context responseStream(SneakyThrows.Consumer<OutputStream> consumer) throws Exception {
     try (OutputStream out = responseStream()) {
       consumer.accept(out);
     }
@@ -588,14 +585,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context responseWriter(@NonNull SneakyThrows.Consumer<PrintWriter> consumer)
-      throws Exception {
+  default Context responseWriter(SneakyThrows.Consumer<PrintWriter> consumer) throws Exception {
     return responseWriter(MediaType.text, consumer);
   }
 
   @Override
-  default Context responseWriter(
-      @NonNull MediaType contentType, @NonNull SneakyThrows.Consumer<PrintWriter> consumer)
+  default Context responseWriter(MediaType contentType, SneakyThrows.Consumer<PrintWriter> consumer)
       throws Exception {
     try (PrintWriter writer = responseWriter(contentType)) {
       consumer.accept(writer);
@@ -604,18 +599,18 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context sendRedirect(@NonNull String location) {
+  default Context sendRedirect(String location) {
     return sendRedirect(StatusCode.FOUND, location);
   }
 
   @Override
-  default Context sendRedirect(@NonNull StatusCode redirect, @NonNull String location) {
+  default Context sendRedirect(StatusCode redirect, String location) {
     setResponseHeader("location", location);
     return send(redirect);
   }
 
   @Override
-  default Context send(@NonNull byte[]... data) {
+  default Context send(byte[]... data) {
     ByteBuffer[] buffer = new ByteBuffer[data.length];
     for (int i = 0; i < data.length; i++) {
       buffer[i] = ByteBuffer.wrap(data[i]);
@@ -624,12 +619,12 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context send(@NonNull String data) {
+  default Context send(String data) {
     return send(data, StandardCharsets.UTF_8);
   }
 
   @Override
-  default Context send(@NonNull FileDownload file) {
+  default Context send(FileDownload file) {
     setResponseHeader("Content-Disposition", file.getContentDisposition());
     InputStream content = file.stream();
     long length = file.getFileSize();
@@ -646,7 +641,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context send(@NonNull Path file) {
+  default Context send(Path file) {
     try {
       setDefaultResponseType(MediaType.byFile(file));
       return send(FileChannel.open(file));
@@ -656,7 +651,7 @@ public interface DefaultContext extends Context {
   }
 
   @Override
-  default Context sendError(@NonNull Throwable cause) {
+  default Context sendError(Throwable cause) {
     sendError(cause, getRouter().errorCode(cause));
     return this;
   }
@@ -669,7 +664,7 @@ public interface DefaultContext extends Context {
    * @return This context.
    */
   @Override
-  default Context sendError(@NonNull Throwable cause, @NonNull StatusCode code) {
+  default Context sendError(Throwable cause, StatusCode code) {
     Router router = getRouter();
     Logger log = router.getLog();
     if (isResponseStarted()) {

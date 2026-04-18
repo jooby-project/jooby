@@ -7,7 +7,6 @@ package io.jooby.internal.pac4j;
 
 import org.pac4j.core.config.Config;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 import io.jooby.SneakyThrows;
@@ -25,8 +24,8 @@ public class LogoutImpl implements Route.Handler {
     this.options = options;
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) throws Exception {
+  @Override
+  public Object apply(Context ctx) throws Exception {
     try {
       var redirectTo = (String) ctx.getAttributes().get("pac4j.logout.redirectTo");
       if (redirectTo == null || redirectTo.isEmpty()) {

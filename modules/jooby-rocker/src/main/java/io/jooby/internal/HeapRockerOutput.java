@@ -10,7 +10,6 @@ import java.util.Arrays;
 
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutputFactory;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
 import io.jooby.rocker.BufferedRockerOutput;
@@ -90,7 +89,7 @@ public class HeapRockerOutput implements BufferedRockerOutput {
    *
    * @return Byte buffer.
    */
-  public @NonNull Output toOutput() {
+  public Output toOutput() {
     return factory.wrap(buf, 0, count);
   }
 

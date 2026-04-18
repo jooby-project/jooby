@@ -8,7 +8,7 @@ module io.jooby.freemarker {
   exports io.jooby.freemarker;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires freemarker;
 }

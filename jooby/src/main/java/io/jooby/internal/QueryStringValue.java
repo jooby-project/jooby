@@ -5,7 +5,6 @@
  */
 package io.jooby.internal;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.QueryString;
 import io.jooby.value.ConversionHint;
 import io.jooby.value.ValueFactory;
@@ -19,11 +18,11 @@ public class QueryStringValue extends HashValue implements QueryString {
   }
 
   @Override
-  public @NonNull <T> T toEmpty(@NonNull Class<T> type) {
+  public <T> T toEmpty(Class<T> type) {
     return factory.convert(type, this, ConversionHint.Empty);
   }
 
-  @NonNull @Override
+  @Override
   public String queryString() {
     return queryString;
   }

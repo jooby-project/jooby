@@ -5,7 +5,6 @@
  */
 package io.jooby.javadoc.input;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Jooby;
 
@@ -21,7 +20,7 @@ public class MultilineComment extends Jooby {
    line.
    @param id Path ID.
   */
-  private @NonNull String multilineComment(Context ctx) {
+  private String multilineComment(Context ctx) {
     var id = ctx.path("id").value();
     return "Pets";
   }

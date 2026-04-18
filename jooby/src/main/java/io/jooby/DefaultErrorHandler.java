@@ -13,8 +13,6 @@ import java.util.*;
 
 import org.slf4j.Logger;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Default error handler with content negotiation support and optionally mute log statement base on
  * status code or exception types.
@@ -37,7 +35,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @param statusCodes Status codes to mute.
    * @return This error handler.
    */
-  public DefaultErrorHandler mute(@NonNull StatusCode... statusCodes) {
+  public DefaultErrorHandler mute(StatusCode... statusCodes) {
     muteCodes.addAll(List.of(statusCodes));
     return this;
   }
@@ -48,7 +46,7 @@ public class DefaultErrorHandler implements ErrorHandler {
    * @param exceptionTypes Exception types to mute.
    * @return This error handler.
    */
-  public DefaultErrorHandler mute(@NonNull Class<? extends Exception>... exceptionTypes) {
+  public DefaultErrorHandler mute(Class<? extends Exception>... exceptionTypes) {
     muteTypes.addAll(List.of(exceptionTypes));
     return this;
   }
@@ -63,7 +61,7 @@ public class DefaultErrorHandler implements ErrorHandler {
   }
 
   @Override
-  public void apply(@NonNull Context ctx, @NonNull Throwable cause, @NonNull StatusCode code) {
+  public void apply(Context ctx, Throwable cause, StatusCode code) {
     log(ctx, cause, code);
     MediaType type = ctx.accept(Arrays.asList(html, json, text));
     if (json.equals(type)) {

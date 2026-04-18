@@ -8,7 +8,7 @@ module io.jooby.pebble {
   exports io.jooby.pebble;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
   requires io.pebbletemplates;
 }

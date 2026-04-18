@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Represents an inline file response.
  *
@@ -26,7 +24,7 @@ public class InlineFile extends FileDownload {
    * @param fileName Filename.
    * @param fileSize File size or <code>-1</code> if unknown.
    */
-  public InlineFile(@NonNull InputStream content, @NonNull String fileName, long fileSize) {
+  public InlineFile(InputStream content, String fileName, long fileSize) {
     super(Mode.INLINE, content, fileName, fileSize);
   }
 
@@ -36,7 +34,7 @@ public class InlineFile extends FileDownload {
    * @param content File content.
    * @param fileName Filename.
    */
-  public InlineFile(@NonNull InputStream content, @NonNull String fileName) {
+  public InlineFile(InputStream content, String fileName) {
     super(Mode.INLINE, content, fileName);
   }
 
@@ -47,7 +45,7 @@ public class InlineFile extends FileDownload {
    * @param fileName Filename.
    * @throws IOException For IO exception while reading file.
    */
-  public InlineFile(@NonNull Path file, @NonNull String fileName) throws IOException {
+  public InlineFile(Path file, String fileName) throws IOException {
     super(Mode.INLINE, file, fileName);
   }
 
@@ -57,7 +55,7 @@ public class InlineFile extends FileDownload {
    * @param file File content.
    * @throws IOException For IO exception while reading file.
    */
-  public InlineFile(@NonNull Path file) throws IOException {
+  public InlineFile(Path file) throws IOException {
     super(Mode.INLINE, file);
   }
 }

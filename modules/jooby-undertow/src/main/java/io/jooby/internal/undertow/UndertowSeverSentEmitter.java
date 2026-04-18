@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.XnioIoThread;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Server;
 import io.jooby.ServerSentEmitter;
@@ -41,12 +40,12 @@ public class UndertowSeverSentEmitter
     this.connection = new UndertowServerSentConnection(context);
   }
 
-  @NonNull @Override
+  @Override
   public Context getContext() {
     return Context.readOnly(context);
   }
 
-  @NonNull @Override
+  @Override
   public ServerSentEmitter send(ServerSentMessage data) {
     if (checkOpen()) {
       connection.send(data, null);
@@ -86,7 +85,7 @@ public class UndertowSeverSentEmitter
     this.closeTask = task;
   }
 
-  @NonNull @Override
+  @Override
   public void close() {
     if (open.compareAndSet(true, false)) {
       if (closeTask != null) {

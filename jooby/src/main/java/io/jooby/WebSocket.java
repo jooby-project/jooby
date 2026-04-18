@@ -9,8 +9,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.output.Output;
 
 /**
@@ -52,7 +52,7 @@ public interface WebSocket {
      * @param ctx Readonly context.
      * @param configurer WebSocket configurer.
      */
-    void init(@NonNull Context ctx, @NonNull WebSocketConfigurer configurer);
+    void init(Context ctx, WebSocketConfigurer configurer);
   }
 
   /** Web socket route handler. */
@@ -72,7 +72,7 @@ public interface WebSocket {
      *
      * @param ws WebSocket.
      */
-    void onConnect(@NonNull WebSocket ws);
+    void onConnect(WebSocket ws);
   }
 
   /**
@@ -86,7 +86,7 @@ public interface WebSocket {
      * @param ws WebSocket.
      * @param message Client message.
      */
-    void onMessage(@NonNull WebSocket ws, @NonNull WebSocketMessage message);
+    void onMessage(WebSocket ws, WebSocketMessage message);
   }
 
   /**
@@ -101,7 +101,7 @@ public interface WebSocket {
      * @param ws WebSocket.
      * @param closeStatus Close status.
      */
-    void onClose(@NonNull WebSocket ws, @NonNull WebSocketCloseStatus closeStatus);
+    void onClose(WebSocket ws, WebSocketCloseStatus closeStatus);
   }
 
   /** On error callback. Generated when unexpected error occurs. */
@@ -112,7 +112,7 @@ public interface WebSocket {
      * @param ws Websocket.
      * @param cause Cause.
      */
-    void onError(@NonNull WebSocket ws, @NonNull Throwable cause);
+    void onError(WebSocket ws, Throwable cause);
   }
 
   /** Callback for sending messages. */
@@ -127,7 +127,7 @@ public interface WebSocket {
      * @param ws Websocket.
      * @param cause Error or <code>null</code> for success messages.
      */
-    void operationComplete(@NonNull WebSocket ws, @Nullable Throwable cause);
+    void operationComplete(WebSocket ws, @Nullable Throwable cause);
   }
 
   /** Max message size for websocket (128K). */
@@ -141,7 +141,7 @@ public interface WebSocket {
    *
    * @return Read-only originating HTTP request.
    */
-  @NonNull Context getContext();
+  Context getContext();
 
   /**
    * Context attributes (a.k.a request attributes).
@@ -160,7 +160,7 @@ public interface WebSocket {
    * @param <T> Attribute type.
    * @return Attribute value.
    */
-  default <T> T attribute(@NonNull String key) {
+  default <T> T attribute(String key) {
     return getContext().getAttribute(key);
   }
 
@@ -171,7 +171,7 @@ public interface WebSocket {
    * @param value Attribute value.
    * @return This router.
    */
-  default WebSocket attribute(@NonNull String key, Object value) {
+  default WebSocket attribute(String key, Object value) {
     getContext().setAttribute(key, value);
     return this;
   }
@@ -181,7 +181,7 @@ public interface WebSocket {
    *
    * @return Web sockets or empty list.
    */
-  @NonNull List<WebSocket> getSessions();
+  List<WebSocket> getSessions();
 
   /**
    * True if websocket is open.
@@ -212,7 +212,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default WebSocket sendPing(@NonNull String message) {
+  default WebSocket sendPing(String message) {
     return sendPing(message, WriteCallback.NOOP);
   }
 
@@ -223,7 +223,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  WebSocket sendPing(@NonNull String message, @NonNull WriteCallback callback);
+  WebSocket sendPing(String message, WriteCallback callback);
 
   /**
    * Send a ping message to client.
@@ -231,7 +231,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default WebSocket sendPing(@NonNull byte[] message) {
+  default WebSocket sendPing(byte[] message) {
     return sendPing(message, WriteCallback.NOOP);
   }
 
@@ -242,7 +242,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  default WebSocket sendPing(byte[] message, @NonNull WriteCallback callback) {
+  default WebSocket sendPing(byte[] message, WriteCallback callback) {
     return sendPing(ByteBuffer.wrap(message), callback);
   }
 
@@ -252,7 +252,7 @@ public interface WebSocket {
    * @param message Text message.
    * @return This instance.
    */
-  default WebSocket sendPing(@NonNull ByteBuffer message) {
+  default WebSocket sendPing(ByteBuffer message) {
     return sendPing(message, WriteCallback.NOOP);
   }
 
@@ -263,7 +263,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This instance.
    */
-  WebSocket sendPing(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
+  WebSocket sendPing(ByteBuffer message, WriteCallback callback);
 
   /**
    * Send a text message to client.
@@ -271,7 +271,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default WebSocket send(@NonNull String message) {
+  default WebSocket send(String message) {
     return send(message, WriteCallback.NOOP);
   }
 
@@ -282,7 +282,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  @NonNull WebSocket send(@NonNull String message, @NonNull WriteCallback callback);
+  WebSocket send(String message, WriteCallback callback);
 
   /**
    * Send a text message to client.
@@ -290,7 +290,7 @@ public interface WebSocket {
    * @param message Text Message.
    * @return This websocket.
    */
-  default WebSocket send(@NonNull byte[] message) {
+  default WebSocket send(byte[] message) {
     return send(message, WriteCallback.NOOP);
   }
 
@@ -301,7 +301,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  default WebSocket send(byte[] message, @NonNull WriteCallback callback) {
+  default WebSocket send(byte[] message, WriteCallback callback) {
     return send(ByteBuffer.wrap(message), callback);
   }
 
@@ -311,7 +311,7 @@ public interface WebSocket {
    * @param message Text message.
    * @return This instance.
    */
-  default WebSocket send(@NonNull ByteBuffer message) {
+  default WebSocket send(ByteBuffer message) {
     return send(message, WriteCallback.NOOP);
   }
 
@@ -322,7 +322,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This instance.
    */
-  WebSocket send(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
+  WebSocket send(ByteBuffer message, WriteCallback callback);
 
   /**
    * Send a text message to client.
@@ -330,7 +330,7 @@ public interface WebSocket {
    * @param message Text message.
    * @return This instance.
    */
-  default WebSocket send(@NonNull Output message) {
+  default WebSocket send(Output message) {
     return send(message, WriteCallback.NOOP);
   }
 
@@ -341,7 +341,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This instance.
    */
-  WebSocket send(@NonNull Output message, @NonNull WriteCallback callback);
+  WebSocket send(Output message, WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -349,7 +349,7 @@ public interface WebSocket {
    * @param message Binary Message.
    * @return This websocket.
    */
-  default WebSocket sendBinary(@NonNull String message) {
+  default WebSocket sendBinary(String message) {
     return sendBinary(message, WriteCallback.NOOP);
   }
 
@@ -360,7 +360,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  @NonNull WebSocket sendBinary(@NonNull String message, @NonNull WriteCallback callback);
+  WebSocket sendBinary(String message, WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -368,7 +368,7 @@ public interface WebSocket {
    * @param message Binary Message.
    * @return This websocket.
    */
-  default WebSocket sendBinary(@NonNull byte[] message) {
+  default WebSocket sendBinary(byte[] message) {
     return sendBinary(message, WriteCallback.NOOP);
   }
 
@@ -379,7 +379,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  default WebSocket sendBinary(@NonNull byte[] message, @NonNull WriteCallback callback) {
+  default WebSocket sendBinary(byte[] message, WriteCallback callback) {
     return sendBinary(ByteBuffer.wrap(message), callback);
   }
 
@@ -389,7 +389,7 @@ public interface WebSocket {
    * @param message Binary message.
    * @return This instance.
    */
-  default WebSocket sendBinary(@NonNull ByteBuffer message) {
+  default WebSocket sendBinary(ByteBuffer message) {
     return sendBinary(message, WriteCallback.NOOP);
   }
 
@@ -400,7 +400,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This instance.
    */
-  WebSocket sendBinary(@NonNull ByteBuffer message, @NonNull WriteCallback callback);
+  WebSocket sendBinary(ByteBuffer message, WriteCallback callback);
 
   /**
    * Send a binary message to client.
@@ -408,7 +408,7 @@ public interface WebSocket {
    * @param message Binary message.
    * @return This instance.
    */
-  default WebSocket sendBinary(@NonNull Output message) {
+  default WebSocket sendBinary(Output message) {
     return sendBinary(message, WriteCallback.NOOP);
   }
 
@@ -419,7 +419,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This instance.
    */
-  WebSocket sendBinary(@NonNull Output message, @NonNull WriteCallback callback);
+  WebSocket sendBinary(Output message, WriteCallback callback);
 
   /**
    * Encode a value and send a text message to client.
@@ -427,7 +427,7 @@ public interface WebSocket {
    * @param value Value to send.
    * @return This websocket.
    */
-  default WebSocket render(@NonNull Object value) {
+  default WebSocket render(Object value) {
     return render(value, WriteCallback.NOOP);
   }
 
@@ -438,7 +438,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  WebSocket render(@NonNull Object value, @NonNull WriteCallback callback);
+  WebSocket render(Object value, WriteCallback callback);
 
   /**
    * Encode a value and send a binary message to client.
@@ -446,7 +446,7 @@ public interface WebSocket {
    * @param value Value to send.
    * @return This websocket.
    */
-  default WebSocket renderBinary(@NonNull Object value) {
+  default WebSocket renderBinary(Object value) {
     return renderBinary(value, WriteCallback.NOOP);
   }
 
@@ -457,7 +457,7 @@ public interface WebSocket {
    * @param callback Write callback.
    * @return This websocket.
    */
-  WebSocket renderBinary(@NonNull Object value, @NonNull WriteCallback callback);
+  WebSocket renderBinary(Object value, WriteCallback callback);
 
   /**
    * Close the web socket and send a {@link WebSocketCloseStatus#NORMAL} code to client.
@@ -478,5 +478,5 @@ public interface WebSocket {
    * @param closeStatus Close status.
    * @return This websocket.
    */
-  WebSocket close(@NonNull WebSocketCloseStatus closeStatus);
+  WebSocket close(WebSocketCloseStatus closeStatus);
 }

@@ -9,7 +9,6 @@ import java.nio.charset.Charset;
 
 import com.fizzed.rocker.ContentType;
 import com.fizzed.rocker.RockerOutputFactory;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.BufferedOutput;
 import io.jooby.output.Output;
 import io.jooby.output.OutputFactory;
@@ -68,7 +67,7 @@ public class BufferedRockerOutputImpl implements BufferedRockerOutput {
    *
    * @return Byte buffer.
    */
-  public @NonNull Output toOutput() {
+  public Output toOutput() {
     return output;
   }
 

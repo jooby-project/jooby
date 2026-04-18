@@ -15,7 +15,6 @@ import javax.net.ssl.SSLContext;
 
 import org.xnio.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.*;
 import io.jooby.exception.StartupException;
 import io.jooby.internal.undertow.UndertowGrpcHandler;
@@ -66,7 +65,7 @@ public class UndertowServer extends Server.Base {
    *
    * @param options Options.
    */
-  public UndertowServer(@NonNull ServerOptions options) {
+  public UndertowServer(ServerOptions options) {
     setOptions(options);
   }
 
@@ -87,7 +86,7 @@ public class UndertowServer extends Server.Base {
   }
 
   @Override
-  public Server start(@NonNull Jooby... application) {
+  public Server start(Jooby... application) {
     // force options to be non-null
     var options = getOptions();
     var portInUse = options.getPort();

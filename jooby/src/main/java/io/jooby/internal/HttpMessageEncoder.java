@@ -12,7 +12,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.*;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.FileDownload;
 import io.jooby.MediaType;
@@ -42,7 +41,7 @@ public class HttpMessageEncoder implements MessageEncoder {
   }
 
   @Override
-  public Output encode(@NonNull Context ctx, @NonNull Object value) throws Exception {
+  public Output encode(Context ctx, Object value) throws Exception {
     if (value instanceof ModelAndView<?> modelAndView) {
       for (var engine : templateEngineList) {
         if (engine.supports(modelAndView)) {

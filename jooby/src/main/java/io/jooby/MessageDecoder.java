@@ -7,7 +7,6 @@ package io.jooby;
 
 import java.lang.reflect.Type;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.exception.UnsupportedMediaType;
 
 /**
@@ -32,5 +31,5 @@ public interface MessageDecoder {
    * @return An instance of the target type.
    * @throws Exception Is something goes wrong.
    */
-  @NonNull Object decode(@NonNull Context ctx, @NonNull Type type) throws Exception;
+  Object decode(Context ctx, Type type) throws Exception;
 }

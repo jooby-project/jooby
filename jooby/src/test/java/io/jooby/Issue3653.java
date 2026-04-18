@@ -10,29 +10,28 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.output.OutputFactory;
 
 public class Issue3653 {
 
   private static class TestServer extends Server.Base {
 
-    @NonNull @Override
+    @Override
     public OutputFactory getOutputFactory() {
       return null;
     }
 
-    @NonNull @Override
+    @Override
     public String getName() {
       return "Test";
     }
 
-    @NonNull @Override
-    public Server start(@NonNull Jooby... application) {
+    @Override
+    public Server start(Jooby... application) {
       return this;
     }
 
-    @NonNull @Override
+    @Override
     public Server stop() {
       return this;
     }

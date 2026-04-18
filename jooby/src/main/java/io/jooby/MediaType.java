@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Implementation of media/content type.
@@ -112,7 +111,7 @@ public final class MediaType implements Comparable<MediaType> {
 
   private final String contentTypeHeader;
 
-  private MediaType(@NonNull String value, Charset charset) {
+  private MediaType(String value, Charset charset) {
     this.raw = value;
     this.subtypeStart = value.indexOf('/');
     if (subtypeStart < 0) {
@@ -153,7 +152,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param name Parameter name.
    * @return Parameter value or <code>null</code>.
    */
-  public @Nullable String getParameter(@NonNull String name) {
+  public @Nullable String getParameter(String name) {
     int paramStart = subtypeEnd + 1;
     for (int i = subtypeEnd; i < raw.length(); i++) {
       char ch = raw.charAt(i);
@@ -178,7 +177,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Media type value.
    */
-  public @NonNull String getValue() {
+  public String getValue() {
     return value;
   }
 
@@ -187,7 +186,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Content type header.
    */
-  public @NonNull String toContentTypeHeader() {
+  public String toContentTypeHeader() {
     return contentTypeHeader;
   }
 
@@ -196,7 +195,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Value of <code>q</code> parameter.
    */
-  @NonNull public float getQuality() {
+  public float getQuality() {
     String q = getParameter("q");
     return q == null ? 1f : Float.parseFloat(q);
   }
@@ -265,7 +264,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Type segment of mediatype (leading type).
    */
-  public @NonNull String getType() {
+  public String getType() {
     return raw.substring(0, subtypeStart).trim();
   }
 
@@ -274,7 +273,7 @@ public final class MediaType implements Comparable<MediaType> {
    *
    * @return Subtype segment of mediatype (trailing type).
    */
-  public @NonNull String getSubtype() {
+  public String getSubtype() {
     return raw.substring(subtypeStart + 1, subtypeEnd).trim();
   }
 
@@ -284,7 +283,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param mediaType Media type to test.
    * @return True if this mediatype is compatible with the given content type.
    */
-  public boolean matches(@NonNull String mediaType) {
+  public boolean matches(String mediaType) {
     return matches(value, mediaType);
   }
 
@@ -294,7 +293,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param type Media type to test.
    * @return True if this mediatype is compatible with the given content type.
    */
-  public boolean matches(@NonNull MediaType type) {
+  public boolean matches(MediaType type) {
     return matches(value, type.value);
   }
 
@@ -326,7 +325,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param value String media-type.
    * @return Media type.
    */
-  public static @NonNull MediaType valueOf(@NonNull String value) {
+  public static MediaType valueOf(String value) {
     if (value == null || value.isEmpty() || value.equals("*") || value.equals("*/*")) {
       return all;
     }
@@ -372,7 +371,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param value Mediatype comma separated value.
    * @return One or more mediatypes.
    */
-  public static @NonNull List<MediaType> parse(@Nullable String value) {
+  public static List<MediaType> parse(@Nullable String value) {
     if (value == null || value.isEmpty()) {
       return Collections.emptyList();
     }
@@ -394,7 +393,7 @@ public final class MediaType implements Comparable<MediaType> {
     return result;
   }
 
-  static boolean matches(@NonNull String expected, @NonNull String contentType) {
+  static boolean matches(String expected, String contentType) {
     int start = 0;
     int len1 = expected.length();
     int end = contentType.indexOf(',');
@@ -418,7 +417,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param file File.
    * @return Mediatype.
    */
-  public static @NonNull MediaType byFile(@NonNull File file) {
+  public static MediaType byFile(File file) {
     return byFile(file.getName());
   }
 
@@ -428,7 +427,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param file File.
    * @return Mediatype.
    */
-  public static @NonNull MediaType byFile(@NonNull Path file) {
+  public static MediaType byFile(Path file) {
     return byFile(file.getFileName().toString());
   }
 
@@ -438,7 +437,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param filename File.
    * @return Mediatype.
    */
-  public static @NonNull MediaType byFile(@NonNull String filename) {
+  public static MediaType byFile(String filename) {
     int index = filename.lastIndexOf('.');
     return index > 0 ? byFileExtension(filename.substring(index + 1)) : octetStream;
   }
@@ -449,8 +448,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param ext File extension.
    * @return Mediatype.
    */
-  public static @NonNull MediaType byFileExtension(
-      @NonNull String ext, @NonNull String defaultType) {
+  public static MediaType byFileExtension(String ext, String defaultType) {
     var result = byFileExtension(ext);
     if (result.equals(octetStream) || result.equals(all)) {
       return MediaType.valueOf(defaultType);
@@ -464,7 +462,7 @@ public final class MediaType implements Comparable<MediaType> {
    * @param ext File extension.
    * @return Mediatype.
    */
-  public static @NonNull MediaType byFileExtension(@NonNull String ext) {
+  public static MediaType byFileExtension(String ext) {
     switch (ext) {
       case "spl":
         return new MediaType("application/x-futuresplash", null);

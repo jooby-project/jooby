@@ -13,7 +13,6 @@ import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.MultiPart;
 import org.eclipse.jetty.io.Content;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.FileUpload;
 import io.jooby.SneakyThrows;
 
@@ -26,18 +25,18 @@ public class JettyFileUpload implements FileUpload {
     this.upload = upload;
   }
 
-  @NonNull @Override
+  @Override
   public String getName() {
     return upload.getName();
   }
 
   @Override
-  public @NonNull String getFileName() {
+  public String getFileName() {
     return upload.getFileName();
   }
 
   @Override
-  public @NonNull byte[] bytes() {
+  public byte[] bytes() {
     try (var in = stream()) {
       return in.readAllBytes();
     } catch (IOException x) {
@@ -46,7 +45,7 @@ public class JettyFileUpload implements FileUpload {
   }
 
   @Override
-  public @NonNull InputStream stream() {
+  public InputStream stream() {
     try {
       return Content.Source.asInputStream(upload.getContentSource());
     } catch (Exception c) {
@@ -60,7 +59,7 @@ public class JettyFileUpload implements FileUpload {
   }
 
   @Override
-  public @NonNull Path path() {
+  public Path path() {
     try {
       if (upload instanceof MultiPart.PathPart pathPart) {
         return pathPart.getPath();

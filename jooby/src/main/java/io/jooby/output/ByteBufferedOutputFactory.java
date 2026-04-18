@@ -8,7 +8,6 @@ package io.jooby.output;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.internal.output.CompositeOutput;
 import io.jooby.internal.output.OutputStatic;
 import io.jooby.internal.output.WrappedOutput;
@@ -27,22 +26,22 @@ public class ByteBufferedOutputFactory implements OutputFactory {
     }
 
     @Override
-    public Output wrap(@NonNull ByteBuffer buffer) {
+    public Output wrap(ByteBuffer buffer) {
       return new WrappedOutput(buffer);
     }
 
     @Override
-    public Output wrap(@NonNull String value, @NonNull Charset charset) {
+    public Output wrap(String value, Charset charset) {
       return new WrappedOutput(ByteBuffer.wrap(value.getBytes(charset)));
     }
 
     @Override
-    public Output wrap(@NonNull byte[] bytes) {
+    public Output wrap(byte[] bytes) {
       return new WrappedOutput(ByteBuffer.wrap(bytes));
     }
 
     @Override
-    public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+    public Output wrap(byte[] bytes, int offset, int length) {
       return new WrappedOutput(ByteBuffer.wrap(bytes, offset, length));
     }
   }
@@ -74,22 +73,22 @@ public class ByteBufferedOutputFactory implements OutputFactory {
   }
 
   @Override
-  public Output wrap(@NonNull String value, @NonNull Charset charset) {
+  public Output wrap(String value, Charset charset) {
     return wrap(value.getBytes(charset));
   }
 
   @Override
-  public Output wrap(@NonNull ByteBuffer buffer) {
+  public Output wrap(ByteBuffer buffer) {
     return new OutputStatic(buffer);
   }
 
   @Override
-  public Output wrap(@NonNull byte[] bytes) {
+  public Output wrap(byte[] bytes) {
     return wrap(bytes, 0, bytes.length);
   }
 
   @Override
-  public Output wrap(@NonNull byte[] bytes, int offset, int length) {
+  public Output wrap(byte[] bytes, int offset, int length) {
     return new OutputStatic(ByteBuffer.wrap(bytes, offset, length));
   }
 

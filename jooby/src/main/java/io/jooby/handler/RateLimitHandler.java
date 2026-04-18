@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import io.jooby.Context;
@@ -85,7 +84,7 @@ public class RateLimitHandler implements Route.Before {
    *
    * @param bucketFactory Bucket factory.
    */
-  public RateLimitHandler(@NonNull SneakyThrows.Function<String, Bucket> bucketFactory) {
+  public RateLimitHandler(SneakyThrows.Function<String, Bucket> bucketFactory) {
     this(bucketFactory, Context::getRemoteAddress);
   }
 
@@ -95,8 +94,7 @@ public class RateLimitHandler implements Route.Before {
    * @param bucketFactory Bucket factory.
    * @param headerName Header to use as key.
    */
-  public RateLimitHandler(
-      @NonNull SneakyThrows.Function<String, Bucket> bucketFactory, @NonNull String headerName) {
+  public RateLimitHandler(SneakyThrows.Function<String, Bucket> bucketFactory, String headerName) {
     this(bucketFactory, ctx -> ctx.header(headerName).value());
   }
 
@@ -107,8 +105,8 @@ public class RateLimitHandler implements Route.Before {
    * @param classifier Key provider.
    */
   public RateLimitHandler(
-      @NonNull SneakyThrows.Function<String, Bucket> bucketFactory,
-      @NonNull SneakyThrows.Function<Context, String> classifier) {
+      SneakyThrows.Function<String, Bucket> bucketFactory,
+      SneakyThrows.Function<Context, String> classifier) {
     this(byKey(bucketFactory, classifier));
   }
 
@@ -117,7 +115,7 @@ public class RateLimitHandler implements Route.Before {
    *
    * @param bucket Bucket to use.
    */
-  public RateLimitHandler(@NonNull Bucket bucket) {
+  public RateLimitHandler(Bucket bucket) {
     this((Function<Context, Bucket>) ctx -> bucket);
   }
 
@@ -131,8 +129,7 @@ public class RateLimitHandler implements Route.Before {
    * @param proxyManager Cluster bucket configuration.
    * @return Rate limiter.
    */
-  public static @NonNull RateLimitHandler cluster(
-      @NonNull SneakyThrows.Function<String, Bucket> proxyManager) {
+  public static RateLimitHandler cluster(SneakyThrows.Function<String, Bucket> proxyManager) {
     return cluster(proxyManager, Context::getRemoteAddress);
   }
 
@@ -143,8 +140,8 @@ public class RateLimitHandler implements Route.Before {
    * @param headerName Header to use as key.
    * @return Rate limiter.
    */
-  public static @NonNull RateLimitHandler cluster(
-      @NonNull SneakyThrows.Function<String, Bucket> proxyManager, @NonNull String headerName) {
+  public static RateLimitHandler cluster(
+      SneakyThrows.Function<String, Bucket> proxyManager, String headerName) {
     return cluster(proxyManager, ctx -> ctx.header(headerName).value());
   }
 
@@ -156,14 +153,14 @@ public class RateLimitHandler implements Route.Before {
    * @return Rate limiter.
    */
   public static RateLimitHandler cluster(
-      @NonNull SneakyThrows.Function<String, Bucket> proxyManager,
-      @NonNull SneakyThrows.Function<Context, String> classifier) {
+      SneakyThrows.Function<String, Bucket> proxyManager,
+      SneakyThrows.Function<Context, String> classifier) {
     return new RateLimitHandler(
         (Function<Context, Bucket>) ctx -> proxyManager.apply(classifier.apply(ctx)));
   }
 
   @Override
-  public void apply(@NonNull Context ctx) throws Exception {
+  public void apply(Context ctx) throws Exception {
     Bucket bucket = factory.apply(ctx);
     // tryConsume returns false immediately if no tokens available with the bucket
     ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);

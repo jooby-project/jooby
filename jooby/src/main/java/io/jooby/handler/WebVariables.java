@@ -5,7 +5,6 @@
  */
 package io.jooby.handler;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.jooby.Route;
 
@@ -39,7 +38,7 @@ public class WebVariables implements Route.Filter {
    *
    * @param scope Scope to use.
    */
-  public WebVariables(@NonNull String scope) {
+  public WebVariables(String scope) {
     this.scope = scope;
   }
 
@@ -48,8 +47,8 @@ public class WebVariables implements Route.Filter {
     this.scope = null;
   }
 
-  @NonNull @Override
-  public Route.Handler apply(@NonNull Route.Handler next) {
+  @Override
+  public Route.Handler apply(Route.Handler next) {
     return ctx -> next.apply(webvariables(ctx));
   }
 

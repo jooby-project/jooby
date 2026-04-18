@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.Context;
 import io.jooby.MediaType;
@@ -35,12 +35,12 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public Value get(@NonNull String name) {
+  public Value get(String name) {
     return new MissingValue(ctx.getValueFactory(), name);
   }
 
   @Override
-  public Value getOrDefault(@NonNull String name, @NonNull String defaultValue) {
+  public Value getOrDefault(String name, String defaultValue) {
     return Value.value(ctx.getValueFactory(), name, defaultValue);
   }
 
@@ -50,12 +50,12 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public @NonNull byte[] bytes() {
+  public byte[] bytes() {
     return bytes;
   }
 
   @Override
-  public @NonNull ReadableByteChannel channel() {
+  public ReadableByteChannel channel() {
     return Channels.newChannel(stream());
   }
 
@@ -65,16 +65,16 @@ public class ByteArrayBody implements Body {
   }
 
   @Override
-  public @NonNull InputStream stream() {
+  public InputStream stream() {
     return new ByteArrayInputStream(bytes);
   }
 
-  @NonNull @Override
+  @Override
   public String value() {
     return value(StandardCharsets.UTF_8);
   }
 
-  @NonNull @Override
+  @Override
   public List<String> toList() {
     return Collections.singletonList(value());
   }
@@ -84,18 +84,18 @@ public class ByteArrayBody implements Body {
     return "body";
   }
 
-  @NonNull @Override
-  public <T> T to(@NonNull Type type) {
+  @Override
+  public <T> T to(Type type) {
     return ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Nullable @Override
-  public <T> T toNullable(@NonNull Type type) {
+  public <T> T toNullable(Type type) {
     return bytes.length == 0 ? null : ctx.decode(type, ctx.getRequestType(MediaType.text));
   }
 
   @Override
-  public @NonNull Map<String, List<String>> toMultimap() {
+  public Map<String, List<String>> toMultimap() {
     return Map.of();
   }
 

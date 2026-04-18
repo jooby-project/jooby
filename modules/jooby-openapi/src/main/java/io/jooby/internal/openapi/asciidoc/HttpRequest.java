@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.net.UrlEscapers;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Router;
 import io.jooby.internal.openapi.OperationExt;
 import io.jooby.internal.openapi.ParameterExt;
@@ -170,7 +169,7 @@ public record HttpRequest(
     return getBody(List.of("application/x-www-form-urlencoded)", "multipart/form-data"));
   }
 
-  @NonNull public ListMultimap<String, String> formUrlEncoded(
+  public ListMultimap<String, String> formUrlEncoded(
       BiFunction<Schema<?>, Map.Entry<String, String>, Map.Entry<String, String>> formatter) {
     var output = ArrayListMultimap.<String, String>create();
     var form = getForm();
@@ -276,7 +275,7 @@ public record HttpRequest(
     return p -> "*".equals(in) || in.equals(p.getIn());
   }
 
-  @NonNull @Override
+  @Override
   public String toString() {
     return getMethod() + " " + getPath();
   }

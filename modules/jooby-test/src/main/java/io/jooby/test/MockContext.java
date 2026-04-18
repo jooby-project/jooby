@@ -30,8 +30,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Body;
 import io.jooby.CompletionListeners;
 import io.jooby.Context;
@@ -152,7 +152,7 @@ public class MockContext implements DefaultContext {
    * @return This context.
    */
   @Override
-  public MockContext setMethod(@NonNull String method) {
+  public MockContext setMethod(String method) {
     this.method = method.toUpperCase();
     return this;
   }
@@ -171,7 +171,7 @@ public class MockContext implements DefaultContext {
    * @param session Mock session.
    * @return This context.
    */
-  public MockContext setSession(@NonNull MockSession session) {
+  public MockContext setSession(MockSession session) {
     this.session = session;
     return this;
   }
@@ -187,7 +187,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Object forward(@NonNull String path) {
+  public Object forward(String path) {
     setRequestPath(path);
     if (mockRouter != null) {
       return mockRouter.call(getMethod(), path, this, consumer).value();
@@ -201,7 +201,7 @@ public class MockContext implements DefaultContext {
    * @param cookies Cookie map.
    * @return This context.
    */
-  public MockContext setCookieMap(@NonNull Map<String, String> cookies) {
+  public MockContext setCookieMap(Map<String, String> cookies) {
     this.cookies = cookies;
     return this;
   }
@@ -217,7 +217,7 @@ public class MockContext implements DefaultContext {
    * @param flashMap Flash map.
    * @return This context.
    */
-  public MockContext setFlashMap(@NonNull FlashMap flashMap) {
+  public MockContext setFlashMap(FlashMap flashMap) {
     this.flashMap = flashMap;
     return this;
   }
@@ -229,7 +229,7 @@ public class MockContext implements DefaultContext {
    * @param value Flash value.
    * @return This context.
    */
-  public MockContext setFlashAttribute(@NonNull String name, @NonNull String value) {
+  public MockContext setFlashAttribute(String name, String value) {
     flashMap.put(name, value);
     return this;
   }
@@ -240,7 +240,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setRoute(@NonNull Route route) {
+  public MockContext setRoute(Route route) {
     this.route = route;
     return this;
   }
@@ -257,7 +257,7 @@ public class MockContext implements DefaultContext {
    * @return This context.
    */
   @Override
-  public MockContext setRequestPath(@NonNull String pathString) {
+  public MockContext setRequestPath(String pathString) {
     int q = pathString.indexOf("?");
     if (q > 0) {
       this.requestPath = pathString.substring(0, q);
@@ -273,7 +273,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setPathMap(@NonNull Map<String, String> pathMap) {
+  public MockContext setPathMap(Map<String, String> pathMap) {
     this.pathMap = pathMap;
     return this;
   }
@@ -294,7 +294,7 @@ public class MockContext implements DefaultContext {
    * @param queryString Query string (starting with <code>?</code>).
    * @return This context.
    */
-  public MockContext setQueryString(@NonNull String queryString) {
+  public MockContext setQueryString(String queryString) {
     this.queryString = queryString;
     return this;
   }
@@ -310,7 +310,7 @@ public class MockContext implements DefaultContext {
    * @param headers Request headers.
    * @return This context.
    */
-  public MockContext setHeaders(@NonNull Map<String, Collection<String>> headers) {
+  public MockContext setHeaders(Map<String, Collection<String>> headers) {
     this.headers = headers;
     return this;
   }
@@ -322,7 +322,7 @@ public class MockContext implements DefaultContext {
    * @param value Request value.
    * @return This context.
    */
-  public MockContext setRequestHeader(@NonNull String name, @NonNull String value) {
+  public MockContext setRequestHeader(String name, String value) {
     Collection<String> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
     values.add(value);
     return this;
@@ -345,13 +345,13 @@ public class MockContext implements DefaultContext {
    * @param file Mock files.
    * @return This context.
    */
-  public MockContext setFile(@NonNull String name, @NonNull FileUpload file) {
+  public MockContext setFile(String name, FileUpload file) {
     this.files.computeIfAbsent(name, k -> new ArrayList<>()).add(file);
     return this;
   }
 
   @Override
-  public List<FileUpload> files(@NonNull String name) {
+  public List<FileUpload> files(String name) {
     return files.entrySet().stream()
         .filter(it -> it.getKey().equals(name))
         .flatMap(it -> it.getValue().stream())
@@ -359,7 +359,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public FileUpload file(@NonNull String name) {
+  public FileUpload file(String name) {
     return files.entrySet().stream()
         .filter(it -> it.getKey().equals(name))
         .findFirst()
@@ -373,7 +373,7 @@ public class MockContext implements DefaultContext {
    * @param formdata Form.
    * @return This context.
    */
-  public MockContext setForm(@NonNull Formdata formdata) {
+  public MockContext setForm(Formdata formdata) {
     this.formdata = formdata;
     return this;
   }
@@ -387,17 +387,17 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public <T> T body(@NonNull Class<T> type) {
+  public <T> T body(Class<T> type) {
     return decode(type, MediaType.text);
   }
 
   @Override
-  public <T> T body(@NonNull Type type) {
+  public <T> T body(Type type) {
     return decode(type, MediaType.text);
   }
 
   @Override
-  public <T> T decode(@NonNull Type type, @NonNull MediaType contentType) {
+  public <T> T decode(Type type, MediaType contentType) {
     if (bodyObject == null) {
       throw new IllegalStateException("No body was set, use setBodyObject() to set one.");
     }
@@ -414,7 +414,7 @@ public class MockContext implements DefaultContext {
    * @param body Request body.
    * @return This context.
    */
-  public MockContext setBody(@NonNull Body body) {
+  public MockContext setBody(Body body) {
     this.body = body;
     return this;
   }
@@ -425,7 +425,7 @@ public class MockContext implements DefaultContext {
    * @param body Request body.
    * @return This context.
    */
-  public MockContext setBodyObject(@NonNull Object body) {
+  public MockContext setBodyObject(Object body) {
     this.bodyObject = body;
     return this;
   }
@@ -436,7 +436,7 @@ public class MockContext implements DefaultContext {
    * @param body Request body.
    * @return This context.
    */
-  public MockContext setBody(@NonNull String body) {
+  public MockContext setBody(String body) {
     byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
     return setBody(bytes);
   }
@@ -447,13 +447,13 @@ public class MockContext implements DefaultContext {
    * @param body Request body.
    * @return This context.
    */
-  public MockContext setBody(@NonNull byte[] body) {
+  public MockContext setBody(byte[] body) {
     setBody(Body.of(this, new ByteArrayInputStream(body), body.length));
     return this;
   }
 
   @Override
-  public MessageDecoder decoder(@NonNull MediaType contentType) {
+  public MessageDecoder decoder(MediaType contentType) {
     return decoders.getOrDefault(contentType, MessageDecoder.UNSUPPORTED_MEDIA_TYPE);
   }
 
@@ -463,13 +463,13 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext dispatch(@NonNull Runnable action) {
+  public MockContext dispatch(Runnable action) {
     action.run();
     return this;
   }
 
   @Override
-  public MockContext dispatch(@NonNull Executor executor, @NonNull Runnable action) {
+  public MockContext dispatch(Executor executor, Runnable action) {
     action.run();
     return this;
   }
@@ -480,19 +480,19 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext removeResponseHeader(@NonNull String name) {
+  public MockContext removeResponseHeader(String name) {
     responseHeaders.remove(name);
     return this;
   }
 
   @Nullable @Override
-  public String getResponseHeader(@NonNull String name) {
+  public String getResponseHeader(String name) {
     Object value = responseHeaders.get(name);
     return value == null ? null : value.toString();
   }
 
   @Override
-  public MockContext setResponseHeader(@NonNull String name, @NonNull String value) {
+  public MockContext setResponseHeader(String name, String value) {
     responseHeaders.put(name, value);
     return this;
   }
@@ -509,13 +509,13 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setResponseType(@NonNull String contentType) {
+  public MockContext setResponseType(String contentType) {
     response.setContentType(MediaType.valueOf(contentType));
     return this;
   }
 
   @Override
-  public MockContext setResponseType(@NonNull MediaType contentType) {
+  public MockContext setResponseType(MediaType contentType) {
     response.setContentType(contentType);
     return this;
   }
@@ -532,7 +532,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext render(@NonNull Object result) {
+  public MockContext render(Object result) {
     responseStarted = true;
     this.response.setResult(result);
     return this;
@@ -561,14 +561,14 @@ public class MockContext implements DefaultContext {
     responseStarted = true;
     return new Sender() {
       @Override
-      public Sender write(@NonNull byte[] data, @NonNull Callback callback) {
+      public Sender write(byte[] data, Callback callback) {
         response.setResult(data);
         callback.onComplete(MockContext.this, null);
         return this;
       }
 
-      @NonNull @Override
-      public Sender write(@NonNull Output output, @NonNull Callback callback) {
+      @Override
+      public Sender write(Output output, Callback callback) {
         response.setResult(output);
         callback.onComplete(MockContext.this, null);
         return this;
@@ -587,7 +587,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context setHost(@NonNull String host) {
+  public Context setHost(String host) {
     this.host = host;
     return this;
   }
@@ -598,7 +598,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context setRemoteAddress(@NonNull String remoteAddress) {
+  public Context setRemoteAddress(String remoteAddress) {
     this.remoteAddress = remoteAddress;
     return this;
   }
@@ -619,7 +619,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context setScheme(@NonNull String scheme) {
+  public Context setScheme(String scheme) {
     this.scheme = scheme;
     return this;
   }
@@ -632,7 +632,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull String data, @NonNull Charset charset) {
+  public MockContext send(String data, Charset charset) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.length());
     listeners.run(this);
@@ -640,7 +640,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull byte[] data) {
+  public MockContext send(byte[] data) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.length);
     listeners.run(this);
@@ -648,7 +648,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull byte[]... data) {
+  public MockContext send(byte[]... data) {
     responseStarted = true;
     this.response
         .setResult(data)
@@ -658,7 +658,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull ByteBuffer data) {
+  public MockContext send(ByteBuffer data) {
     responseStarted = true;
     this.response.setResult(data).setContentLength(data.remaining());
     listeners.run(this);
@@ -666,7 +666,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context send(@NonNull Output output) {
+  public Context send(Output output) {
     responseStarted = true;
     this.response.setResult(output).setContentLength(output.size());
     listeners.run(this);
@@ -674,7 +674,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context send(@NonNull ByteBuffer[] data) {
+  public Context send(ByteBuffer[] data) {
     responseStarted = true;
     this.response
         .setResult(data)
@@ -692,7 +692,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context send(@NonNull FileDownload file) {
+  public Context send(FileDownload file) {
     responseStarted = true;
     this.response.setResult(file);
     listeners.run(this);
@@ -700,7 +700,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public Context send(@NonNull Path file) {
+  public Context send(Path file) {
     responseStarted = true;
     this.response.setResult(file);
     listeners.run(this);
@@ -708,7 +708,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull ReadableByteChannel channel) {
+  public MockContext send(ReadableByteChannel channel) {
     responseStarted = true;
     this.response.setResult(channel);
     listeners.run(this);
@@ -716,7 +716,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext send(@NonNull FileChannel file) {
+  public MockContext send(FileChannel file) {
     responseStarted = true;
     this.response.setResult(file);
     listeners.run(this);
@@ -731,12 +731,12 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext sendError(@NonNull Throwable cause) {
+  public MockContext sendError(Throwable cause) {
     return sendError(cause, router.errorCode(cause));
   }
 
   @Override
-  public MockContext sendError(@NonNull Throwable cause, @NonNull StatusCode code) {
+  public MockContext sendError(Throwable cause, StatusCode code) {
     responseStarted = true;
     this.response.setResult(cause).setStatusCode(router.errorCode(cause));
     listeners.run(this);
@@ -744,13 +744,13 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setDefaultResponseType(@NonNull MediaType contentType) {
+  public MockContext setDefaultResponseType(MediaType contentType) {
     response.setContentType(contentType);
     return this;
   }
 
   @Override
-  public MockContext setResponseCookie(@NonNull Cookie cookie) {
+  public MockContext setResponseCookie(Cookie cookie) {
     String setCookie = (String) response.getHeaders().get("Set-Cookie");
     if (setCookie == null) {
       setCookie = cookie.toCookieString();
@@ -767,7 +767,7 @@ public class MockContext implements DefaultContext {
   }
 
   @Override
-  public MockContext setResponseCode(@NonNull StatusCode statusCode) {
+  public MockContext setResponseCode(StatusCode statusCode) {
     response.setStatusCode(statusCode);
     return this;
   }
@@ -805,23 +805,23 @@ public class MockContext implements DefaultContext {
    * @param router Mock router.
    * @return This context.
    */
-  public MockContext setRouter(@NonNull Router router) {
+  public MockContext setRouter(Router router) {
     this.router = router;
     return this;
   }
 
   @Override
-  public MockContext upgrade(@NonNull WebSocket.Initializer handler) {
+  public MockContext upgrade(WebSocket.Initializer handler) {
     return this;
   }
 
   @Override
-  public Context upgrade(@NonNull ServerSentEmitter.Handler handler) {
+  public Context upgrade(ServerSentEmitter.Handler handler) {
     return this;
   }
 
   @Override
-  public Context onComplete(@NonNull Route.Complete task) {
+  public Context onComplete(Route.Complete task) {
     listeners.addListener(task);
     return this;
   }

@@ -5,7 +5,6 @@
  */
 package io.jooby.internal.netty;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Context;
 import io.netty.buffer.ByteBuf;
 
@@ -26,7 +25,7 @@ public class NettyOutputUnsafeHeapByteBuf implements NettyByteBufRef {
     return length;
   }
 
-  @NonNull public ByteBuf byteBuf() {
+  public ByteBuf byteBuf() {
     return buf.slice(0, length);
   }
 

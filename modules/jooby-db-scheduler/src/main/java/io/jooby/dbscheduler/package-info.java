@@ -28,5 +28,5 @@
  * @since 3.2.10
  * @author edgar
  */
-@edu.umd.cs.findbugs.annotations.ReturnValuesAreNonnullByDefault
+@org.jspecify.annotations.NullMarked
 package io.jooby.dbscheduler;

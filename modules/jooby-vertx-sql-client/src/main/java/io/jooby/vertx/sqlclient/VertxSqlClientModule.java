@@ -6,7 +6,6 @@
 package io.jooby.vertx.sqlclient;
 
 import com.typesafe.config.ConfigValueType;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
@@ -17,12 +16,12 @@ import io.vertx.sqlclient.*;
 public abstract class VertxSqlClientModule implements Extension {
   private final String name;
 
-  public VertxSqlClientModule(@NonNull String name) {
+  public VertxSqlClientModule(String name) {
     this.name = name;
   }
 
   @Override
-  public void install(@NonNull Jooby application) throws Exception {
+  public void install(Jooby application) throws Exception {
     var registry = application.getServices();
     var config = application.getConfig();
     var configOptions = config.getValue(name);

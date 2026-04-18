@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -27,12 +26,12 @@ public class GraphQLHandler implements Route.Handler {
     this.graphQL = graphQL;
   }
 
-  @NonNull @Override
-  public Object apply(@NonNull Context ctx) {
+  @Override
+  public Object apply(Context ctx) {
     return graphQL.executeAsync(newExecutionInput(ctx)).thenApply(ExecutionResult::toSpecification);
   }
 
-  protected final ExecutionInput newExecutionInput(@NonNull Context ctx) {
+  protected final ExecutionInput newExecutionInput(Context ctx) {
     GraphQLRequest request;
     if (ctx.getMethod().equals(Router.POST)) {
       request = ctx.body(GraphQLRequest.class);

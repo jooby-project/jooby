@@ -3,6 +3,6 @@ module io.jooby.trpc {
   exports io.jooby.annotation.trpc;
 
   requires io.jooby;
-  requires static com.github.spotbugs.annotations;
+  requires static org.jspecify;
   requires typesafe.config;
 }

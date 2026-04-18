@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
-
 /**
  * Collection of throwable interfaces to simplify exception handling on lambdas.
  *
@@ -1198,7 +1196,7 @@ public final class SneakyThrows {
    * @return A dummy RuntimeException; this method never returns normally, it <em>always</em> throws
    *     an exception!
    */
-  public static @NonNull RuntimeException propagate(final Throwable x) {
+  public static RuntimeException propagate(final Throwable x) {
     if (x == null) {
       throw new NullPointerException("x");
     }

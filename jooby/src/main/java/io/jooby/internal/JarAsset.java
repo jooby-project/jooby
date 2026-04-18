@@ -11,7 +11,6 @@ import java.net.JarURLConnection;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.MediaType;
 import io.jooby.SneakyThrows;
 import io.jooby.handler.Asset;
@@ -42,7 +41,7 @@ public class JarAsset implements Asset {
     return entry.getTime();
   }
 
-  @NonNull @Override
+  @Override
   public MediaType getContentType() {
     return MediaType.byFile(entry.getName());
   }

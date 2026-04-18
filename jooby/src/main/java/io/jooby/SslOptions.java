@@ -22,9 +22,9 @@ import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
+import org.jspecify.annotations.Nullable;
+
 import com.typesafe.config.Config;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 
 /**
  * SSL options for enabling HTTPs in Jooby. Jooby supports two certificate formats:
@@ -101,7 +101,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param type Certificate type.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setType(@NonNull String type) {
+  public SslOptions setType(String type) {
     this.type = type;
     return this;
   }
@@ -113,7 +113,7 @@ public final class SslOptions implements java.io.Closeable {
    * @return A PKCS12 or X.509 certificate chain file in PEM format. It can be an absolute path or a
    *     classpath resource. Required.
    */
-  public @NonNull InputStream getCert() {
+  public InputStream getCert() {
     return cert;
   }
 
@@ -124,7 +124,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param cert Certificate path or location.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setCert(@NonNull InputStream cert) {
+  public SslOptions setCert(InputStream cert) {
     this.cert = cert;
     return this;
   }
@@ -148,7 +148,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param trustCert Certificate path or location.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setTrustCert(@Nullable InputStream trustCert) {
+  public SslOptions setTrustCert(@Nullable InputStream trustCert) {
     this.trustCert = trustCert;
     return this;
   }
@@ -168,7 +168,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param password Certificate password.
    * @return SSL options.
    */
-  public @NonNull SslOptions setTrustPassword(@Nullable String password) {
+  public SslOptions setTrustPassword(@Nullable String password) {
     this.trustPassword = password;
     return this;
   }
@@ -192,7 +192,7 @@ public final class SslOptions implements java.io.Closeable {
    *     an absolute path or a classpath resource. Required when using X.509 certificates.
    * @return Ssl options.
    */
-  public @NonNull SslOptions setPrivateKey(@Nullable InputStream privateKey) {
+  public SslOptions setPrivateKey(@Nullable InputStream privateKey) {
     this.privateKey = privateKey;
     return this;
   }
@@ -222,7 +222,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param password Certificate password.
    * @return SSL options.
    */
-  public @NonNull SslOptions setPassword(@Nullable String password) {
+  public SslOptions setPassword(@Nullable String password) {
     this.password = password;
     return this;
   }
@@ -245,7 +245,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param path Path (file system path or classpath).
    * @return Resource.
    */
-  public static @NonNull InputStream getResource(@NonNull String path) {
+  public static InputStream getResource(String path) {
     try {
       Path filepath = Paths.get(path);
       Stream<Path> paths;
@@ -288,7 +288,7 @@ public final class SslOptions implements java.io.Closeable {
    *
    * @return desired SSL client authentication mode for SSL channels in server mode.
    */
-  public @NonNull ClientAuth getClientAuth() {
+  public ClientAuth getClientAuth() {
     return clientAuth;
   }
 
@@ -298,7 +298,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param clientAuth The desired SSL client authentication mode for SSL channels in server mode.
    * @return This options.
    */
-  public @NonNull SslOptions setClientAuth(@NonNull ClientAuth clientAuth) {
+  public SslOptions setClientAuth(ClientAuth clientAuth) {
     this.clientAuth = clientAuth;
     return this;
   }
@@ -315,7 +315,7 @@ public final class SslOptions implements java.io.Closeable {
    *
    * @return TLS protocols. Default is: <code>TLSv1.2</code> and <code>TLSv1.3</code>.
    */
-  public @NonNull List<String> getProtocol() {
+  public List<String> getProtocol() {
     return protocol;
   }
 
@@ -327,7 +327,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public @NonNull SslOptions setProtocol(@NonNull String... protocol) {
+  public SslOptions setProtocol(String... protocol) {
     return setProtocol(Arrays.asList(protocol));
   }
 
@@ -339,7 +339,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param protocol TLS protocols.
    * @return This options.
    */
-  public @NonNull SslOptions setProtocol(@NonNull List<String> protocol) {
+  public SslOptions setProtocol(List<String> protocol) {
     this.protocol = protocol;
     return this;
   }
@@ -380,7 +380,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param key Private key path or location.
    * @return New SSL options.
    */
-  public static @NonNull SslOptions x509(@NonNull String crt, @NonNull String key) {
+  public static SslOptions x509(String crt, String key) {
     return x509(crt, key, null);
   }
 
@@ -392,8 +392,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param password Password.
    * @return New SSL options.
    */
-  public static @NonNull SslOptions x509(
-      @NonNull String crt, @NonNull String key, @Nullable String password) {
+  public static SslOptions x509(String crt, String key, @Nullable String password) {
     SslOptions options = new SslOptions();
     options.setType(X509);
     options.setPrivateKey(getResource(key));
@@ -409,7 +408,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param password Password.
    * @return New SSL options.
    */
-  public static SslOptions pkcs12(@NonNull String crt, @NonNull String password) {
+  public static SslOptions pkcs12(String crt, String password) {
     SslOptions options = new SslOptions();
     options.setType(PKCS12);
     options.setCert(getResource(crt));
@@ -476,7 +475,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param conf Application configuration.
    * @return SSl options or empty.
    */
-  public static @NonNull Optional<SslOptions> from(@NonNull Config conf) {
+  public static Optional<SslOptions> from(Config conf) {
     return from(conf, "server.ssl", "ssl");
   }
 
@@ -511,7 +510,7 @@ public final class SslOptions implements java.io.Closeable {
    * @param key Path to use for loading SSL options. Required.
    * @return SSl options or empty.
    */
-  static @NonNull Optional<SslOptions> from(@NonNull Config conf, String... key) {
+  static Optional<SslOptions> from(Config conf, String... key) {
     return Stream.of(key)
         .filter(conf::hasPath)
         .findFirst()

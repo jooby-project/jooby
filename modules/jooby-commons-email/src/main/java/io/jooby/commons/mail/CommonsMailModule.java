@@ -18,7 +18,6 @@ import org.apache.commons.mail.SimpleEmail;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException.Missing;
 import com.typesafe.config.ConfigFactory;
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.AvailableSettings;
 import io.jooby.Extension;
 import io.jooby.Jooby;
@@ -84,7 +83,7 @@ public class CommonsMailModule implements Extension {
   }
 
   @Override
-  public void install(@NonNull Jooby application) {
+  public void install(Jooby application) {
     Config config = mailConfig(application.getConfig(), name);
 
     ServiceRegistry services = application.getServices();

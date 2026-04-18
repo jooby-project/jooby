@@ -8,7 +8,6 @@ package io.jooby.internal;
 import java.io.IOException;
 import java.io.InputStream;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.ByteRange;
 import io.jooby.Context;
 import io.jooby.StatusCode;
@@ -35,23 +34,23 @@ public class NoByteRange implements ByteRange {
     return contentLength;
   }
 
-  @NonNull @Override
+  @Override
   public StatusCode getStatusCode() {
     return StatusCode.OK;
   }
 
-  @NonNull @Override
+  @Override
   public String getContentRange() {
     return "bytes */" + contentLength;
   }
 
-  @NonNull @Override
-  public ByteRange apply(@NonNull Context ctx) {
+  @Override
+  public ByteRange apply(Context ctx) {
     return this;
   }
 
-  @NonNull @Override
-  public InputStream apply(@NonNull InputStream input) throws IOException {
+  @Override
+  public InputStream apply(InputStream input) throws IOException {
     return input;
   }
 }
