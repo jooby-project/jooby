@@ -20,6 +20,9 @@ import io.jooby.Jooby;
 import io.jooby.MediaType;
 import io.jooby.MessageDecoder;
 import io.jooby.MessageEncoder;
+import io.jooby.json.JsonCodec;
+import io.jooby.json.JsonDecoder;
+import io.jooby.json.JsonEncoder;
 import io.jooby.output.Output;
 
 /**
@@ -90,6 +93,11 @@ public class GsonModule implements Extension, MessageDecoder, MessageEncoder {
 
     var services = application.getServices();
     services.put(Gson.class, gson);
+    // JsonCodec
+    var jsonCodec = new GsonJsonCodec(gson);
+    services.putIfAbsent(JsonCodec.class, jsonCodec);
+    services.putIfAbsent(JsonEncoder.class, jsonCodec);
+    services.putIfAbsent(JsonDecoder.class, jsonCodec);
   }
 
   @Override
