@@ -134,7 +134,7 @@
     <!-- Misc -->
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
-    <pac4j.version>6.4.0</pac4j.version>
+    <pac4j.version>6.4.1</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <db-scheduler.version>16.7.1</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
