@@ -44,6 +44,52 @@ import io.jooby.kt.Kooby
 <1> Enable HTTP/2 on your server.
 <2> Install the module and explicitly register your services.
 
+=== Configuration
+
+You can customize the underlying `InProcessServerBuilder` and `InProcessChannelBuilder` used by the module to apply advanced gRPC configurations. This is particularly useful for registering global interceptors (like OpenTelemetry traces), adjusting payload limits, or tweaking executor settings.
+
+Use the `withServer` and `withChannel` callbacks to hook directly into the builders before the server starts:
+
+[source, java, role="primary"]
+.Java
+----
+import io.jooby.Jooby;
+import io.jooby.grpc.GrpcModule;
+
+{
+  install(new GrpcModule(new GreeterService())
+      .withServer(server -> {                 // <1>
+        server.maxInboundMessageSize(1024 * 1024 * 20); // 20MB limit
+      })
+      .withChannel(channel -> {               // <2>
+        channel.intercept(new MyCustomClientInterceptor());
+      })
+  );
+}
+----
+
+[source, kotlin, role="secondary"]
+.Kotlin
+----
+import io.jooby.grpc.GrpcModule
+import io.jooby.kt.Kooby
+
+{
+  install(GrpcModule(GreeterService())
+      .withServer { server ->                 // <1>
+        server.maxInboundMessageSize(1024 * 1024 * 20) // 20MB limit
+      }
+      .withChannel { channel ->               // <2>
+        channel.intercept(MyCustomClientInterceptor())
+      }
+  )
+}
+----
+<1> Customize the internal gRPC server (e.g., adjust max message sizes, add server-side interceptors).
+<2> Customize the internal loopback channel (e.g., add client-side interceptors for context propagation).
+
+NOTE: **Size Limits:** By default, Jooby automatically sets the gRPC server's `maxInboundMessageSize` and `maxInboundMetadataSize` to match your web server's `server.maxRequestSize` property (which defaults to `10mb`). If you manually increase these limits on the gRPC server builder, you **must** also increase `server.maxRequestSize`. If an incoming gRPC payload or metadata exceeds the configured web server limit, the request will be rejected before it ever reaches the gRPC layer.
+
 === Dependency Injection
 
 If your gRPC services require external dependencies (like database repositories), you can register the service classes instead of pre-instantiated objects. The module will automatically provision them using your active Dependency Injection framework (e.g., Guice, Spring).

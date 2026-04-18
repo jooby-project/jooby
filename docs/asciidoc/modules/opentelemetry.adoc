@@ -196,6 +196,55 @@ import io.jooby.opentelemetry.instrumentation.OtelDbScheduler
 }
 ----
 
+==== gRPC
+
+Provides automatic tracing, metrics, and context propagation for gRPC services. It instruments both the embedded `grpc-java` server and loopback channels to ensure seamless distributed traces across your application.
+
+Required dependency:
+[dependency, groupId="io.opentelemetry.instrumentation", artifactId="opentelemetry-grpc-1.6", version="${otel-instrumentation.version}"]
+.
+
+.gRPC Integration
+[source, java, role = "primary"]
+----
+import io.jooby.grpc.GrpcModule;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.instrumentation.grpc.v1_6.GrpcTelemetry;
+
+{
+  install(new OtelModule());
+
+  var grpcTelemetry = GrpcTelemetry.create(require(OpenTelemetry.class));
+  
+  install(new GrpcModule(new GreeterService()
+    .withServer(server -> server.intercept(grpcTelemetry.newServerInterceptor()))        // <1>
+    .withChannel(channel -> channel.intercept(grpcTelemetry.newClientInterceptor()))     // <2>
+  )); 
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.grpc.GrpcModule
+import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.grpc.v1_6.GrpcTelemetry
+
+{
+  install(OtelModule())
+
+  val grpcTelemetry = GrpcTelemetry.create(require(OpenTelemetry::class.java))
+  
+  install(GrpcModule(GreeterService())
+    .withServer { server -> server.intercept(grpcTelemetry.newServerInterceptor()) }     // <1>
+    .withChannel { channel -> channel.intercept(grpcTelemetry.newClientInterceptor()) }  // <2>
+  )
+}
+----
+
+<1> **`newServerInterceptor()`:** Extracts the distributed trace context from incoming gRPC metadata. It creates a dedicated child span for the specific gRPC method execution, automatically recording its duration and status code when the call completes.
+<2> **`newClientInterceptor()`:** Grabs the active trace context (typically started by Jooby's underlying HTTP router) and injects it into the outgoing metadata on the internal loopback channel. This bridges the gap between the HTTP pipeline and the gRPC engine, ensuring a single, unbroken distributed trace.
+
 ==== HikariCP
 
 Instruments all registered `HikariDataSource` instances to export critical pool metrics (active/idle connections, timeouts).
