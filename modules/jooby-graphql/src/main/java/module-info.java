@@ -11,5 +11,4 @@ module io.jooby.graphql {
   requires static org.jspecify;
   requires typesafe.config;
   requires com.graphqljava;
-  requires com.google.gson;
 }
