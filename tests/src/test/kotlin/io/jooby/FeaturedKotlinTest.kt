@@ -27,7 +27,7 @@ class FeaturedKotlinTest {
     runner
       .define { app -> app.get("/") { "Hello World!" } }
       .ready { client ->
-        client.get("/") { rsp -> assertEquals("Hello World!", rsp.body!!.string()) }
+        client.get("/") { rsp -> assertEquals("Hello World!", rsp.body.string()) }
       }
   }
 
@@ -36,7 +36,7 @@ class FeaturedKotlinTest {
     runner
       .use { -> Kooby { get("/") { ctx.send("Hello World!") } } }
       .ready { client ->
-        client.get("/") { rsp -> assertEquals("Hello World!", rsp.body!!.string()) }
+        client.get("/") { rsp -> assertEquals("Hello World!", rsp.body.string()) }
       }
   }
 
@@ -44,9 +44,7 @@ class FeaturedKotlinTest {
   fun coroutineNoSuspend(runner: ServerTestRunner) {
     runner
       .use { -> Kooby { coroutine { get("/") { ctx.getRequestPath() + "coroutine" } } } }
-      .ready { client ->
-        client.get("/") { rsp -> assertEquals("/coroutine", rsp.body!!.string()) }
-      }
+      .ready { client -> client.get("/") { rsp -> assertEquals("/coroutine", rsp.body.string()) } }
   }
 
   @ServerTest
@@ -62,9 +60,7 @@ class FeaturedKotlinTest {
           }
         }
       }
-      .ready { client ->
-        client.get("/") { rsp -> assertEquals("/coroutine", rsp.body!!.string()) }
-      }
+      .ready { client -> client.get("/") { rsp -> assertEquals("/coroutine", rsp.body.string()) } }
   }
 
   @ServerTest
@@ -83,7 +79,7 @@ class FeaturedKotlinTest {
         }
       }
       .ready { client ->
-        client.get("/") { rsp -> assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body!!.string()) }
+        client.get("/") { rsp -> assertEquals("1,2,3,4,5,6,7,8,9,10,", rsp.body.string()) }
       }
   }
 
@@ -92,16 +88,16 @@ class FeaturedKotlinTest {
     runner
       .define { app -> app.mvc(KotlinMvc_()) }
       .ready { client ->
-        client.get("/kotlin") { rsp -> assertEquals("Got it!", rsp.body!!.string()) }
+        client.get("/kotlin") { rsp -> assertEquals("Got it!", rsp.body.string()) }
 
-        client.get("/kotlin/78") { rsp -> assertEquals("78", rsp.body!!.string()) }
+        client.get("/kotlin/78") { rsp -> assertEquals("78", rsp.body.string()) }
 
         client.get("/kotlin/point?x=8&y=1") { rsp ->
-          assertEquals("QueryPoint(x=8, y=1) : 8", rsp.body!!.string())
+          assertEquals("QueryPoint(x=8, y=1) : 8", rsp.body.string())
         }
 
         client.get("/kotlin/point") { rsp ->
-          val body = rsp.body!!.string()
+          val body = rsp.body.string()
           assertTrue(
             body.contains(
               "Cannot convert value: &apos;null&apos;, to: &apos;io.jooby.internal.mvc.QueryPoint&apos;"
@@ -110,11 +106,11 @@ class FeaturedKotlinTest {
         }
 
         client.get("/kotlin/point?x=9") { rsp ->
-          assertEquals("QueryPoint(x=9, y=null) : 9", rsp.body!!.string())
+          assertEquals("QueryPoint(x=9, y=null) : 9", rsp.body.string())
         }
 
         client.get("/kotlin/point?x=9&y=8") { rsp ->
-          assertEquals("QueryPoint(x=9, y=8) : 9", rsp.body!!.string())
+          assertEquals("QueryPoint(x=9, y=8) : 9", rsp.body.string())
         }
       }
   }
@@ -133,14 +129,14 @@ class FeaturedKotlinTest {
         }
       }
       .ready { client ->
-        client.get("/") { rsp -> assertEquals("Got it!", rsp.body!!.string()) }
+        client.get("/") { rsp -> assertEquals("Got it!", rsp.body.string()) }
 
-        client.get("/delay") { rsp -> assertEquals("/delay", rsp.body!!.string()) }
+        client.get("/delay") { rsp -> assertEquals("/delay", rsp.body.string()) }
 
-        client.get("/456") { rsp -> assertEquals("456", rsp.body!!.string()) }
+        client.get("/456") { rsp -> assertEquals("456", rsp.body.string()) }
 
         client.get("/456x") { rsp ->
-          assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body!!.string())
+          assertEquals("Cannot convert value: 'id', to: 'int'", rsp.body.string())
         }
       }
   }
@@ -174,7 +170,7 @@ class FeaturedKotlinTest {
       }
       .ready { client ->
         client.get("/") { rsp ->
-          val json = JSONObject(rsp.body!!.string())
+          val json = JSONObject(rsp.body.string())
           assertNotEquals("<<none>>", json.get("key"))
           assertNotEquals("<<none>>", json.get("thread"))
           assertNotEquals(json.get("thread"), json.get("currentThread"))
