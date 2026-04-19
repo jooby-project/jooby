@@ -7,6 +7,7 @@ package io.jooby.jsonrpc;
 
 import java.util.*;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +51,7 @@ public class JsonRpcModule implements Extension {
   private final Logger log = LoggerFactory.getLogger(JsonRpcService.class);
   private final Map<String, JsonRpcService> services = new HashMap<>();
   private final String path;
+  private @Nullable JsonRpcInvoker invoker;
 
   public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
@@ -59,6 +61,15 @@ public class JsonRpcModule implements Extension {
 
   public JsonRpcModule(JsonRpcService service, JsonRpcService... services) {
     this("/rpc", service, services);
+  }
+
+  public JsonRpcModule invoker(JsonRpcInvoker invoker) {
+    if (this.invoker != null) {
+      this.invoker = invoker.then(this.invoker);
+    } else {
+      this.invoker = invoker;
+    }
+    return this;
   }
 
   private void registry(JsonRpcService service) {
@@ -121,20 +132,25 @@ public class JsonRpcModule implements Extension {
       try {
         var targetService = services.get(fullMethod);
         if (targetService != null) {
-          var result = targetService.execute(ctx, request);
+          var result =
+              invoker == null
+                  ? targetService.execute(ctx, request)
+                  : invoker.invoke(ctx, request, () -> targetService.execute(ctx, request));
           // Spec: If the "id" is missing, it is a notification and no response is returned.
           if (request.getId() != null) {
-            responses.add(JsonRpcResponse.success(request.getId(), result));
+            if (result instanceof JsonRpcResponse jsonRpcResponse) {
+              responses.add(jsonRpcResponse);
+            } else {
+              responses.add(JsonRpcResponse.success(request.getId(), result));
+            }
           }
         } else {
           // Spec: -32601 Method not found
-          if (request.getId() != null) {
-            responses.add(
-                JsonRpcResponse.error(
-                    request.getId(),
-                    JsonRpcErrorCode.METHOD_NOT_FOUND,
-                    "Method not found: " + fullMethod));
-          }
+          responses.add(
+              JsonRpcResponse.error(
+                  request.getId(),
+                  JsonRpcErrorCode.METHOD_NOT_FOUND,
+                  "Method not found: " + fullMethod));
         }
       } catch (JsonRpcException cause) {
         log(ctx, request, cause);

@@ -16,13 +16,14 @@ import org.jspecify.annotations.Nullable;
 public class JsonRpcResponse {
 
   private String jsonrpc = "2.0";
-  private Object result;
-  private ErrorDetail error;
-  private Object id;
+  private @Nullable Object result;
+  private @Nullable ErrorDetail error;
+  private @Nullable Object id;
 
   public JsonRpcResponse() {}
 
-  private JsonRpcResponse(Object id, Object result, ErrorDetail error) {
+  private JsonRpcResponse(
+      @Nullable Object id, @Nullable Object result, @Nullable ErrorDetail error) {
     this.id = id;
     this.result = result;
     this.error = error;
@@ -47,7 +48,7 @@ public class JsonRpcResponse {
    * @param data Additional data about the error.
    * @return A populated JsonRpcResponse.
    */
-  public static JsonRpcResponse error(Object id, JsonRpcErrorCode code, Object data) {
+  public static JsonRpcResponse error(@Nullable Object id, JsonRpcErrorCode code, Object data) {
     return new JsonRpcResponse(
         id, null, new ErrorDetail(code.getCode(), code.getMessage(), data(data)));
   }
@@ -67,11 +68,11 @@ public class JsonRpcResponse {
     this.jsonrpc = jsonrpc;
   }
 
-  public Object getResult() {
+  public @Nullable Object getResult() {
     return result;
   }
 
-  public void setResult(Object result) {
+  public void setResult(@Nullable Object result) {
     this.result = result;
   }
 
@@ -79,7 +80,7 @@ public class JsonRpcResponse {
     return error;
   }
 
-  public void setError(ErrorDetail error) {
+  public void setError(@Nullable ErrorDetail error) {
     this.error = error;
   }
 
@@ -87,7 +88,7 @@ public class JsonRpcResponse {
     return id;
   }
 
-  public void setId(Object id) {
+  public void setId(@Nullable Object id) {
     this.id = id;
   }
 

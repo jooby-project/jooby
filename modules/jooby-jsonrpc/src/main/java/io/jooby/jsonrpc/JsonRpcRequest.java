@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents a JSON-RPC 2.0 Request object, and simultaneously acts as an iterable container for
  * batch requests.
@@ -48,7 +50,7 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
    * An identifier established by the Client that MUST contain a String, Number, or NULL value if
    * included. If it is not included it is assumed to be a notification.
    */
-  private Object id;
+  private @Nullable Object id;
 
   // --- Batch State ---
   private boolean batch;
@@ -80,11 +82,11 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
     this.params = params;
   }
 
-  public Object getId() {
+  public @Nullable Object getId() {
     return id;
   }
 
-  public void setId(Object id) {
+  public void setId(@Nullable Object id) {
     this.id = id;
   }
 
