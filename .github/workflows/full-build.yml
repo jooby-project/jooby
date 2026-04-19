@@ -29,6 +29,17 @@ jobs:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
           cache: maven
+
+      # 1. Set up Go (cross-platform)
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+
+      # 2. Install grpcurl (this places it in the $PATH automatically)
+      - name: Install grpcurl
+        run: go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest
+
       - name: Build
         run: mvn -B install -P gradlePlugin --no-transfer-progress
         env:
