@@ -31,7 +31,7 @@ class Issue2710 {
         }
       }
       .ready { client ->
-        client.get("/2710") { rsp -> Assertions.assertEquals("OK", rsp.body!!.string()) }
+        client.get("/2710") { rsp -> Assertions.assertEquals("OK", rsp.body.string()) }
       }
     latch.await()
   }

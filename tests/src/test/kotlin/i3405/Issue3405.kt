@@ -25,7 +25,7 @@ class Issue3405 {
       }
       .ready { client ->
         client.get("/i3405/normal-error") { rsp ->
-          assertEquals("normal/global", rsp.body!!.string())
+          assertEquals("normal/global", rsp.body.string())
         }
       }
 
@@ -50,7 +50,7 @@ class Issue3405 {
       }
       .ready { client ->
         client.get("/i3405/coroutine-error") { rsp ->
-          assertEquals("coroutine/suspended", rsp.body!!.string())
+          assertEquals("coroutine/suspended", rsp.body.string())
         }
       }
 
@@ -73,8 +73,8 @@ class Issue3405 {
       }
       .ready { client ->
         client.get("/i3405/coroutine-error") { rsp ->
-          assertEquals("coroutine/suspended", rsp.body!!.string())
+          assertEquals("coroutine/suspended", rsp.body.string())
         }
-        client.get("/i3405/chain") { rsp -> assertEquals("conflict", rsp.body!!.string()) }
+        client.get("/i3405/chain") { rsp -> assertEquals("conflict", rsp.body.string()) }
       }
 }

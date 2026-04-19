@@ -91,8 +91,7 @@ public class ServerTestRunner {
       System.setProperty("___server_name__", server.getName());
       var app = provider.get();
       // Reduce log from maven build:
-      var mavenBuild = System.getProperty("surefire.real.class.path", "").length() > 0;
-      if (mavenBuild) {
+      if (ServerExtensionImpl.isMavenBuild()) {
         applogger = app.getClass().getName();
         app.setStartupSummary(List.of(StartupSummary.NONE));
         app.error(

@@ -22,8 +22,6 @@ class Issue3477 {
         }
       }
       .ready { client ->
-        client.get("/3477") { rsp ->
-          assertEquals("{\"Transactional\":false}", rsp.body!!.string())
-        }
+        client.get("/3477") { rsp -> assertEquals("{\"Transactional\":false}", rsp.body.string()) }
       }
 }

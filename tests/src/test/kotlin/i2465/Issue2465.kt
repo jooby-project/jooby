@@ -35,13 +35,13 @@ class Issue2465 {
         client.get("/2465") { rsp ->
           Assertions.assertEquals("/2465", rsp.header("After"))
           Assertions.assertEquals("false", rsp.header("Response-Started"))
-          Assertions.assertEquals("/2465", rsp.body!!.string())
+          Assertions.assertEquals("/2465", rsp.body.string())
         }
 
         client.get("/fun/2465") { rsp ->
           Assertions.assertEquals("/fun/2465", rsp.header("After"))
           Assertions.assertEquals("false", rsp.header("Response-Started"))
-          Assertions.assertEquals("/fun/2465", rsp.body!!.string())
+          Assertions.assertEquals("/fun/2465", rsp.body.string())
         }
       }
 }

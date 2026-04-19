@@ -21,5 +21,5 @@ class Issue3476 {
           mvc(C3476_())
         }
       }
-      .ready { client -> client.get("/3476") { rsp -> assertEquals("[]", rsp.body!!.string()) } }
+      .ready { client -> client.get("/3476") { rsp -> assertEquals("[]", rsp.body.string()) } }
 }

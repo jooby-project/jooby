@@ -59,13 +59,13 @@ class Issue3228 {
       }
       .ready { client ->
         client.get("/i3228/without-worker") { rsp ->
-          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body!!.string())
+          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body.string())
         }
         client.get("/i3228/without-worker-no-coroutine") { rsp ->
-          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body!!.string())
+          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body.string())
         }
         client.get("/i3228/with-worker") { rsp ->
-          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body!!.string())
+          Assertions.assertEquals("nonBlocking: true, coroutine: true", rsp.body.string())
         }
       }
 }

@@ -18,7 +18,6 @@ public class WidgetService extends Jooby {
         "/api/widgets1",
         ctx -> {
           Widget widget = ctx.body().to(Widget.class);
-          System.out.println("Created " + widget);
           return ctx.send(StatusCode.CREATED);
         });
 
