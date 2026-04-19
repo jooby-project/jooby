@@ -120,3 +120,48 @@ jobs:
                       for test in sorted(skipped_tests):
                           f.write(f"{test}\n")
           '
+
+      - name: 📈 Coverage Report
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java-version == '21'
+        run: |
+          python3 -c '
+          import csv, os
+
+          # Hardcoded path to the aggregated CSV
+          csv_file = "tests/target/site/jacoco-aggregate/jacoco.csv"
+          summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+
+          if not os.path.exists(csv_file):
+              with open(summary_file, "a", encoding="utf-8") as f:
+                  f.write(f"\n⚠️ **Coverage report not found at {csv_file}.**\n")
+          else:
+              instr_missed, instr_covered = 0, 0
+              branch_missed, branch_covered = 0, 0
+              line_missed, line_covered = 0, 0
+
+              with open(csv_file, mode="r", encoding="utf-8") as file:
+                  reader = csv.DictReader(file)
+                  for row in reader:
+                      instr_missed += int(row["INSTRUCTION_MISSED"])
+                      instr_covered += int(row["INSTRUCTION_COVERED"])
+                      branch_missed += int(row["BRANCH_MISSED"])
+                      branch_covered += int(row["BRANCH_COVERED"])
+                      line_missed += int(row["LINE_MISSED"])
+                      line_covered += int(row["LINE_COVERED"])
+
+              def calc(covered, missed):
+                  total = covered + missed
+                  return (covered / total * 100) if total > 0 else 0
+
+              instr_pct = calc(instr_covered, instr_missed)
+              line_pct = calc(line_covered, line_missed)
+              branch_pct = calc(branch_covered, branch_missed)
+
+              with open(summary_file, "a", encoding="utf-8") as f:
+                  f.write("## 📈 Code Coverage\n")
+                  f.write("| Metric | Coverage |\n")
+                  f.write("|--------|----------|\n")
+                  f.write(f"| **Instruction (Overall)** | **{instr_pct:.2f}%** |\n")
+                  f.write(f"| **Line** | **{line_pct:.2f}%** |\n")
+                  f.write(f"| **Branch** | **{branch_pct:.2f}%** |\n\n")
+          '
