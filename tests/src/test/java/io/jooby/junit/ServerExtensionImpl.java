@@ -117,7 +117,7 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
     return new TestTemplateInvocationContext() {
       @Override
       public String getDisplayName(int invocationIndex) {
-        return serverInfo.description;
+        return isMavenBuild() ? "(" + serverInfo.description + ")" : serverInfo.description;
       }
 
       @Override
@@ -137,5 +137,9 @@ public class ServerExtensionImpl implements TestTemplateInvocationContextProvide
       displayName.append("[").append(i + 1).append("]");
     }
     return displayName.toString();
+  }
+
+  static boolean isMavenBuild() {
+    return !System.getProperty("surefire.real.class.path", "").isEmpty();
   }
 }
