@@ -110,11 +110,11 @@
     <undertow.version>2.4.0.RC4</undertow.version>
     <jetty.version>12.1.8</jetty.version>
     <netty.version>4.2.12.Final</netty.version>
-    <vertx.version>5.0.10</vertx.version>
+    <vertx.version>5.0.11</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.47</swagger.version>
-    <swagger-parser.version>2.1.39</swagger-parser.version>
+    <swagger.version>2.2.48</swagger.version>
+    <swagger-parser.version>2.1.40</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -157,7 +157,7 @@
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
     <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
-    <guava.version>33.5.0-jre</guava.version>
+    <guava.version>33.6.0-jre</guava.version>
 
     <compile-testing.version>0.23.0</compile-testing.version>
     <truth.version>1.4.5</truth.version>
@@ -174,14 +174,14 @@
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.43</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-    <maven-core.version>3.9.14</maven-core.version>
+    <maven-core.version>3.9.15</maven-core.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
     <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
-    <maven-plugin-api.version>3.9.14</maven-plugin-api.version>
+    <maven-plugin-api.version>3.9.15</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
