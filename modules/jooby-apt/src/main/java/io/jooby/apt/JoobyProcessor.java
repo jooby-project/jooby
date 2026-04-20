@@ -25,6 +25,8 @@ import javax.tools.*;
 
 import io.jooby.internal.apt.*;
 
+import io.jooby.internal.apt.ws.WsRouter;
+
 /** Process jooby/jakarta annotation and generate source code from MVC controllers. */
 @SupportedOptions({
   DEBUG,
@@ -155,6 +157,11 @@ public class JoobyProcessor extends AbstractProcessor {
           if (!trpcRouter.isEmpty()) {
             activeRouters.add(trpcRouter);
           }
+
+          var wsRouter = WsRouter.parse(context, controller);
+          if (!wsRouter.isEmpty()) {
+            activeRouters.add(wsRouter);
+          }
         }
 
         verifyBeanValidationDependency(activeRouters);
@@ -276,6 +283,12 @@ public class JoobyProcessor extends AbstractProcessor {
     supportedTypes.add("io.jooby.annotation.mcp.McpPrompt");
     supportedTypes.add("io.jooby.annotation.mcp.McpResource");
     supportedTypes.add("io.jooby.annotation.mcp.McpServer");
+    // Add WS Annotations
+    supportedTypes.add("io.jooby.annotation.ws.WebSocketRoute");
+    supportedTypes.add("io.jooby.annotation.ws.OnConnect");
+    supportedTypes.add("io.jooby.annotation.ws.OnClose");
+    supportedTypes.add("io.jooby.annotation.ws.OnMessage");
+    supportedTypes.add("io.jooby.annotation.ws.OnError");
     return supportedTypes;
   }
 

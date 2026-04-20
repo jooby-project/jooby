@@ -73,7 +73,7 @@ public abstract class WebRoute<R extends WebRouter<?>> {
         .toList();
   }
 
-  static String leadingSlash(String path) {
+  public static String leadingSlash(String path) {
     if (path == null || path.isEmpty() || path.equals("/")) {
       return "/";
     }
@@ -122,6 +122,25 @@ public abstract class WebRoute<R extends WebRouter<?>> {
         .map(TypeMirror::toString)
         .map(it -> keepJavaLang ? it : type(kt, it))
         .toList();
+  }
+
+  public String seeControllerMethodJavadoc(boolean kt, CharSequence controllerSimpleName) {
+    if (kt) {
+      return CodeBlock.statement(
+          "/** See [", controllerSimpleName, ".", getMethodName(), "]", " */");
+    }
+    return CodeBlock.statement(
+        "/** See {@link ",
+        controllerSimpleName,
+        "#",
+        getMethodName(),
+        "(",
+        String.join(", ", getRawParameterTypes(true, false)),
+        ")} */");
+  }
+
+  public String seeControllerMethodJavadoc(boolean kt) {
+    return seeControllerMethodJavadoc(kt, getRouter().getTargetType().getSimpleName());
   }
 
   /**
