@@ -242,6 +242,47 @@ class ChatSocket {
 <4> You still can use `ws.send(...)` if method return type is `void`.
 <5> Register the generated extension with javadoc:Jooby[ws, io.jooby.Extension].
 
+`@OnMessage` handlers also support parsing messages into structured data, similar to MVC methods:
+
+.Java
+[source,java,role="primary"]
+----
+@Path("/chat/{room}")   
+public class ChatSocket {
+
+  record ChatMessage(String username, String message, String type) {}
+  
+  @OnMessage
+  public Map<String, ChatMessage> onMessage(ChatMessage message) { // <1>
+    return Map.of("echo", message);
+  }
+  
+  ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Path("/chat/{room}")                                        
+class ChatSocket {
+
+  data class ChatMessage(
+      val username: String,
+      val message: String,
+      val type: String
+  )
+  
+  @OnMessage
+  fun onMessage(message: ChatMessage): Map<String, ChatMessage> { // <1>
+    return mapOf("echo" to message)
+  }
+
+  ...
+}
+
+----
+<1> WebSocket message is automatically decoded into `ChatMessage` structure.
 
 ==== Options
 
