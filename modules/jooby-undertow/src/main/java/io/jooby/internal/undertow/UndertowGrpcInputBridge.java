@@ -55,7 +55,6 @@ public class UndertowGrpcInputBridge
   public void cancel() {
     demand.set(0);
     IoUtils.safeClose(channel);
-    exchange.endExchange();
   }
 
   @Override
@@ -90,7 +89,6 @@ public class UndertowGrpcInputBridge
     } catch (Throwable t) {
       subscriber.onError(t);
       IoUtils.safeClose(channel);
-      exchange.endExchange();
     }
   }
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import org.xnio.IoUtils;
 import org.xnio.channels.StreamSinkChannel;
 
 import io.jooby.rpc.grpc.GrpcExchange;
@@ -144,19 +145,19 @@ public class UndertowGrpcExchange implements GrpcExchange {
                     try {
                       if (ch.flush()) {
                         ch.suspendWrites();
-                        exchange.endExchange();
+                        endExchange();
                       }
                     } catch (IOException ignored) {
                       ch.suspendWrites();
-                      exchange.endExchange();
+                      endExchange();
                     }
                   });
           responseChannel.resumeWrites();
         } else {
-          exchange.endExchange();
+          endExchange();
         }
       } catch (IOException e) {
-        exchange.endExchange();
+        endExchange();
       }
 
     } else {
@@ -169,5 +170,10 @@ public class UndertowGrpcExchange implements GrpcExchange {
       }
       exchange.endExchange();
     }
+  }
+
+  private void endExchange() {
+    IoUtils.safeClose(responseChannel);
+    IoUtils.safeClose(exchange.getRequestChannel());
   }
 }
