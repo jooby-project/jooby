@@ -171,7 +171,7 @@ import io.jooby.jackson.Jackson2Module
 ==== Declarative definition
 
 You can implement the same WebSocket as above using annotated classes in declarative style. 
-Ensure that `jooby-apt` is in the annotation processor path, annotate the class with javadoc:annotation.ws.WebSocketRoute[], 
+Ensure that `jooby-apt` is in the annotation processor path, annotate the class with javadoc:annotation.Path[], 
 and mark methods with javadoc:annotation.ws.OnConnect[], javadoc:annotation.ws.OnMessage[], javadoc:annotation.ws.OnClose[], and javadoc:annotation.ws.OnError[]. Compile code to generate an extension javadoc:Extension[] and register it by calling javadoc:Jooby[ws, io.jooby.Extension].
 
 When a lifecycle method **returns** a value, that value is written to the client automatically: plain text or binary for `String`, `byte[]`, and `ByteBuffer`, and structured values (for example JSON) using the same encoders as in <<Structured Data>>. Alternatively, use a **void** method and send with `ws.send(...)` on the javadoc:WebSocket[] argument.
@@ -179,7 +179,7 @@ When a lifecycle method **returns** a value, that value is written to the client
 .Java
 [source,java,role="primary"]
 ----
-@WebSocketRoute("/chat/{room}")                              // <1>
+@Path("/chat/{room}")                                        // <1>
 public class ChatSocket {
 
   @OnConnect
@@ -190,7 +190,7 @@ public class ChatSocket {
   @OnMessage
   public Map<String, String> onMessage(WebSocket ws, Context ctx, WebSocketMessage message) { // <3>
     return Map.of("echo", message.value());
-    // ws.send(message.value());                            // <4>
+    // ws.send(message.value());                             // <4>
   }
 
   @OnClose
@@ -202,14 +202,14 @@ public class ChatSocket {
 
 // Application startup:
 {
-  ws(new ChatSocketWs_());                                  // <5>
+  ws(new ChatSocketWs_());                                   // <5>
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@WebSocketRoute("/chat/{room}")                               // <1>
+@Path("/chat/{room}")                                        // <1>
 class ChatSocket {
 
   @OnConnect
@@ -220,7 +220,7 @@ class ChatSocket {
   @OnMessage
   fun onMessage(ws: WebSocket, ctx: Context, message: WebSocketMessage): Map<String, String> { // <3>
     return mapOf("echo" to message.value())
-    // ws.send(message.value())                             // <4>
+    // ws.send(message.value())                              // <4>
   }
 
   @OnClose
@@ -232,7 +232,7 @@ class ChatSocket {
 
 // Application startup:
 {
-  ws(ChatSocketWs_())                                        // <5>
+  ws(ChatSocketWs_())                                         // <5>
 }
 ----
 

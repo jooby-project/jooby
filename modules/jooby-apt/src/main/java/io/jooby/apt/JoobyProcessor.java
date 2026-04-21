@@ -284,7 +284,6 @@ public class JoobyProcessor extends AbstractProcessor {
     supportedTypes.add("io.jooby.annotation.mcp.McpResource");
     supportedTypes.add("io.jooby.annotation.mcp.McpServer");
     // Add WS Annotations
-    supportedTypes.add("io.jooby.annotation.ws.WebSocketRoute");
     supportedTypes.add("io.jooby.annotation.ws.OnConnect");
     supportedTypes.add("io.jooby.annotation.ws.OnClose");
     supportedTypes.add("io.jooby.annotation.ws.OnMessage");

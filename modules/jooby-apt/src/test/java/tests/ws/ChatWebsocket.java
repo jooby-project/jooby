@@ -15,9 +15,9 @@ import io.jooby.annotation.ws.OnClose;
 import io.jooby.annotation.ws.OnConnect;
 import io.jooby.annotation.ws.OnError;
 import io.jooby.annotation.ws.OnMessage;
-import io.jooby.annotation.ws.WebSocketRoute;
+import io.jooby.annotation.Path;
 
-@WebSocketRoute("/chat/{username}")
+@Path("/chat/{username}")
 public class ChatWebsocket {
 
   @OnConnect

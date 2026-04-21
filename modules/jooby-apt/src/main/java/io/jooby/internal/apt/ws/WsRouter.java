@@ -10,27 +10,12 @@ import io.jooby.internal.apt.*;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 import java.util.List;
-import java.util.Map;
 
-import static io.jooby.internal.apt.AnnotationSupport.VALUE;
-import static io.jooby.internal.apt.AnnotationSupport.findAnnotationByName;
 import static io.jooby.internal.apt.CodeBlock.*;
 import static java.lang.System.lineSeparator;
 
-public class WsRouter extends WebRouter<WsHandlerMethod> {
-
-  private static final String WEBSOCKET_ROUTE_ANNOTATION = "io.jooby.annotation.ws.WebSocketRoute";
-
-  private static final Map<String, WsLifecycle> LIFECYCLE_ANNOTATIONS =
-      Map.of(
-          "io.jooby.annotation.ws.OnConnect", WsLifecycle.CONNECT,
-          "io.jooby.annotation.ws.OnMessage", WsLifecycle.MESSAGE,
-          "io.jooby.annotation.ws.OnClose", WsLifecycle.CLOSE,
-          "io.jooby.annotation.ws.OnError", WsLifecycle.ERROR);
+public class WsRouter extends WebRouter<WsRoute> {
 
   public WsRouter(MvcContext context, TypeElement clazz) {
     super(context, clazz);
@@ -38,76 +23,24 @@ public class WsRouter extends WebRouter<WsHandlerMethod> {
 
   public static WsRouter parse(MvcContext context, TypeElement controller) {
     var router = new WsRouter(context, controller);
-    if (findAnnotationByName(controller, WEBSOCKET_ROUTE_ANNOTATION) == null) {
-      return router;
-    }
 
     for (var enclosed : controller.getEnclosedElements()) {
-      if (enclosed.getKind() != ElementKind.METHOD) {
-        continue;
-      }
-
-      var method = (ExecutableElement) enclosed;
-      for (var mirror : method.getAnnotationMirrors()) {
-        var annoName = mirror.getAnnotationType().asElement().toString();
-        var lc = LIFECYCLE_ANNOTATIONS.get(annoName);
-        if (lc == null) {
-          continue;
+      if (enclosed.getKind() == ElementKind.METHOD) {
+        var route = new WsRoute(router, (ExecutableElement) enclosed);
+        if (route.getWsLifecycle() != null) {
+          router.routes.put(route.getWsLifecycle().name(), route);
         }
-
-        var key = lc.name();
-        if (router.routes.containsKey(key)) {
-          context.error(
-              "Duplicate websocket lifecycle annotation %s on type %s",
-              annoName,
-              controller.getQualifiedName());
-          continue;
-        }
-        validateLifecycleParameters(context, method, lc);
-        router.routes.put(key, new WsHandlerMethod(router, method));
       }
     }
 
-    if (router.routes.isEmpty()) {
-      context.error(
-          "Websocket handler %s must declare at least one of @OnConnect, @OnMessage, @OnClose, @OnError",
-          controller.getQualifiedName());
+    boolean isWsHandler = router.routes.containsKey(WsLifecycle.CONNECT.name())
+                          || router.routes.containsKey(WsLifecycle.MESSAGE.name());
+
+    if (!isWsHandler) {
+      return new WsRouter(context, controller);
     }
+
     return router;
-  }
-
-  private static void validateLifecycleParameters(MvcContext context,
-                                                  ExecutableElement method,
-                                                  WsLifecycle lc) {
-    var env = context.getProcessingEnvironment();
-    var types = env.getTypeUtils();
-    var throwableType = env.getElementUtils().getTypeElement(Throwable.class.getName()).asType();
-    var allowed = WsParamTypes.getAllowedTypes(lc);
-
-    for (VariableElement parameter : method.getParameters()) {
-      TypeMirror rawMirror = websocketParameterRawType(types, parameter);
-      var raw = rawMirror.toString();
-      if (allowed.contains(raw)) {
-        continue;
-      }
-
-      if (lc == WsLifecycle.ERROR
-          && throwableType != null
-          && types.isAssignable(rawMirror, throwableType)) {
-        continue;
-      }
-
-      context.error(
-          "Illegal parameter type %s on websocket %s method %s#%s",
-          raw,
-          lc.name().toLowerCase(),
-          ((TypeElement) method.getEnclosingElement()).getQualifiedName(),
-          method.getSimpleName());
-    }
-  }
-
-  private static TypeMirror websocketParameterRawType(Types types, VariableElement parameter) {
-    return new TypeDefinition(types, parameter.asType()).getRawType();
   }
 
   @Override
@@ -115,17 +48,13 @@ public class WsRouter extends WebRouter<WsHandlerMethod> {
     return context.generateRouterName(getTargetType().getQualifiedName() + "Ws");
   }
 
-  private List<String> websocketRoutes() {
-    var wsMirror = findAnnotationByName(clazz, WEBSOCKET_ROUTE_ANNOTATION);
-    if (wsMirror == null) {
-      return List.of();
+  private List<String> websocketPaths() {
+    var declared = HttpPath.PATH.path(clazz);
+    if (declared.isEmpty()) {
+      return List.of("/");
     }
 
-    var paths = AnnotationSupport.findAnnotationValue(wsMirror, VALUE);
-    if (paths.isEmpty()) {
-      paths = List.of("/");
-    }
-    return paths.stream()
+    return declared.stream()
         .map(WebRoute::leadingSlash)
         .distinct()
         .toList();
@@ -135,7 +64,7 @@ public class WsRouter extends WebRouter<WsHandlerMethod> {
   public String toSourceCode(boolean kt) {
     var generateTypeName = getTargetType().getSimpleName().toString();
     var generatedClass = getGeneratedType().substring(getGeneratedType().lastIndexOf('.') + 1);
-    var routes = websocketRoutes();
+    var paths = websocketPaths();
 
     var buffer = new StringBuilder();
 
@@ -152,7 +81,7 @@ public class WsRouter extends WebRouter<WsHandlerMethod> {
           .append(lineSeparator());
     }
 
-    for (var path : routes) {
+    for (var path : paths) {
       buffer.append(
           statement(
               indent(6),
@@ -227,12 +156,12 @@ public class WsRouter extends WebRouter<WsHandlerMethod> {
 
   private void appendCallback(boolean kt,
                               StringBuilder buffer,
-                              WsHandlerMethod handler,
+                              WsRoute route,
                               String openLine,
                               String closeToken) {
-    buffer.append(indent(6)).append(handler.seeControllerMethodJavadoc(kt));
+    buffer.append(indent(6)).append(route.seeControllerMethodJavadoc(kt));
     buffer.append(indent(6)).append(openLine).append(lineSeparator());
-    handler.appendBody(kt, buffer, indent(8));
+    route.appendBody(kt, buffer, indent(8));
     buffer.append(indent(6)).append(closeToken).append(lineSeparator()).append(lineSeparator());
   }
 }
