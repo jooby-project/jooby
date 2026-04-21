@@ -5,6 +5,8 @@
  */
 package io.jooby.jsonrpc;
 
+import java.util.Optional;
+
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -19,8 +21,6 @@ public class JsonRpcResponse {
   private @Nullable Object result;
   private @Nullable ErrorDetail error;
   private @Nullable Object id;
-
-  public JsonRpcResponse() {}
 
   private JsonRpcResponse(
       @Nullable Object id, @Nullable Object result, @Nullable ErrorDetail error) {
@@ -49,15 +49,23 @@ public class JsonRpcResponse {
    * @return A populated JsonRpcResponse.
    */
   public static JsonRpcResponse error(@Nullable Object id, JsonRpcErrorCode code, Object data) {
-    return new JsonRpcResponse(
-        id, null, new ErrorDetail(code.getCode(), code.getMessage(), data(data)));
+    if (data instanceof Throwable) {
+      return error(id, code, (Throwable) data);
+    }
+    return new JsonRpcResponse(id, null, new ErrorDetail(code, data));
   }
 
-  private static Object data(Object data) {
-    if (data instanceof Throwable cause) {
-      return cause.getMessage();
-    }
-    return data;
+  /**
+   * Creates an error JSON-RPC response.
+   *
+   * @param id The id from the corresponding request.
+   * @param code The error code.
+   * @param cause Additional data about the error.
+   * @return A populated JsonRpcResponse.
+   */
+  public static JsonRpcResponse error(
+      @Nullable Object id, JsonRpcErrorCode code, @Nullable Throwable cause) {
+    return new JsonRpcResponse(id, null, new ErrorDetail(code, cause));
   }
 
   public String getJsonrpc() {
@@ -94,40 +102,44 @@ public class JsonRpcResponse {
 
   /** Represents the error object inside a JSON-RPC response. */
   public static class ErrorDetail {
-    private int code;
-    private String message;
-    private Object data;
+    private final int code;
+    private final String message;
+    private final @Nullable Object data;
 
-    public ErrorDetail() {}
-
-    public ErrorDetail(int code, String message, Object data) {
-      this.code = code;
-      this.message = message;
+    public ErrorDetail(JsonRpcErrorCode code, @Nullable String message, @Nullable Object data) {
+      this.code = code.getCode();
+      this.message = Optional.ofNullable(message).orElse(code.getMessage());
       this.data = data;
+    }
+
+    public ErrorDetail(JsonRpcErrorCode code, @Nullable Object data) {
+      this(code, null, data);
+    }
+
+    public ErrorDetail(JsonRpcErrorCode code) {
+      this(code, null, null);
     }
 
     public int getCode() {
       return code;
     }
 
-    public void setCode(int code) {
-      this.code = code;
-    }
-
     public String getMessage() {
       return message;
     }
 
-    public void setMessage(String message) {
-      this.message = message;
-    }
-
-    public Object getData() {
+    public @Nullable Object getData() {
+      if (data instanceof Throwable cause) {
+        return cause.getMessage();
+      }
       return data;
     }
 
-    public void setData(Object data) {
-      this.data = data;
+    public @Nullable Throwable exception() {
+      if (data instanceof Throwable cause) {
+        return cause;
+      }
+      return null;
     }
   }
 }

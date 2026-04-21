@@ -38,4 +38,6 @@ module io.jooby.jsonrpc {
   requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
+  requires static io.opentelemetry.api;
+  requires static io.opentelemetry.context;
 }

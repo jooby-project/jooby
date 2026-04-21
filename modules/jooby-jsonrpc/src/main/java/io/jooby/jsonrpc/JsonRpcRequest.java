@@ -33,6 +33,7 @@ import org.jspecify.annotations.Nullable;
  * generic structure (e.g., a List or a Map) and populating the batch state.
  */
 public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
+  public static final String UNKNOWN_METHOD = "unknown_method";
 
   /** A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0". */
   private String jsonrpc = "2.0";

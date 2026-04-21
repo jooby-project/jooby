@@ -141,6 +141,7 @@
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.18.1</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
+    <opentelemetry.version>1.60.1</opentelemetry.version>
 
     <commons-io.version>2.21.0</commons-io.version>
 

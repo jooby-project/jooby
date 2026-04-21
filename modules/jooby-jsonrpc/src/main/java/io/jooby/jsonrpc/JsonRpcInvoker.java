@@ -6,24 +6,20 @@
 package io.jooby.jsonrpc;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 
 public interface JsonRpcInvoker {
 
-  Object invoke(Context ctx, JsonRpcRequest request, SneakyThrows.Supplier<Object> action)
+  Optional<JsonRpcResponse> invoke(
+      Context ctx, JsonRpcRequest request, SneakyThrows.Supplier<Optional<JsonRpcResponse>> action)
       throws Exception;
 
   default JsonRpcInvoker then(JsonRpcInvoker next) {
     Objects.requireNonNull(next, "next invoker is required");
-    return new JsonRpcInvoker() {
-      @Override
-      public Object invoke(
-          Context ctx, JsonRpcRequest request, SneakyThrows.Supplier<Object> action)
-          throws Exception {
-        return JsonRpcInvoker.this.invoke(ctx, request, () -> next.invoke(ctx, request, action));
-      }
-    };
+    return (ctx, request, action) ->
+        JsonRpcInvoker.this.invoke(ctx, request, () -> next.invoke(ctx, request, action));
   }
 }

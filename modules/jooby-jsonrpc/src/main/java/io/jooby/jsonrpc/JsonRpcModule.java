@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.internal.jsonrpc.JsonRpcExceptionTranslator;
+import io.jooby.internal.jsonrpc.JsonRpcExecutor;
+import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
 
 /**
  * Global Tier 1 Dispatcher for JSON-RPC 2.0 requests.
@@ -52,6 +55,8 @@ public class JsonRpcModule implements Extension {
   private final Map<String, JsonRpcService> services = new HashMap<>();
   private final String path;
   private @Nullable JsonRpcInvoker invoker;
+  private @Nullable OtelJsonRcpTracing head;
+  private JsonRpcExceptionTranslator exceptionTranslator;
 
   public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
@@ -64,10 +69,15 @@ public class JsonRpcModule implements Extension {
   }
 
   public JsonRpcModule invoker(JsonRpcInvoker invoker) {
-    if (this.invoker != null) {
-      this.invoker = invoker.then(this.invoker);
+    if (invoker instanceof OtelJsonRcpTracing otel) {
+      // otel goes first:
+      this.head = otel;
     } else {
-      this.invoker = invoker;
+      if (this.invoker != null) {
+        this.invoker = invoker.then(this.invoker);
+      } else {
+        this.invoker = invoker;
+      }
     }
     return this;
   }
@@ -86,8 +96,13 @@ public class JsonRpcModule implements Extension {
    */
   @Override
   public void install(Jooby app) throws Exception {
+    if (head != null) {
+      invoker = invoker == null ? head : head.then(invoker);
+    }
     app.post(path, this::handle);
 
+    exceptionTranslator = new JsonRpcExceptionTranslator(app);
+    app.getServices().put(JsonRpcExceptionTranslator.class, exceptionTranslator);
     // Initialize the custom exception mapping registry
     app.getServices()
         .mapOf(Class.class, JsonRpcErrorCode.class)
@@ -106,64 +121,43 @@ public class JsonRpcModule implements Extension {
    * @return A single {@link JsonRpcResponse}, a {@code List} of responses for batches, or an empty
    *     string for notifications.
    */
-  private Object handle(Context ctx) {
+  private Object handle(Context ctx) throws Exception {
     JsonRpcRequest input;
     try {
       input = ctx.body(JsonRpcRequest.class);
-    } catch (Exception e) {
-      // Spec: -32700 Parse error if the JSON is physically malformed.
-      return JsonRpcResponse.error(null, JsonRpcErrorCode.PARSE_ERROR, e);
+    } catch (Exception cause) {
+      var badRequest = new JsonRpcRequest();
+      badRequest.setMethod(JsonRpcRequest.UNKNOWN_METHOD);
+      var parseError = JsonRpcResponse.error(null, JsonRpcErrorCode.PARSE_ERROR, cause);
+      if (head != null) {
+        // Manually handle bad request for otel
+        return head.invoke(ctx, badRequest, () -> Optional.of(parseError));
+      }
+      log(badRequest, cause);
+      return parseError;
     }
 
     List<JsonRpcResponse> responses = new ArrayList<>();
 
     // Look up all generated *Rpc classes registered in the service registry
-
     for (var request : input) {
-      var fullMethod = request.getMethod();
-
-      // Spec: -32600 Invalid Request if the method member is missing or null
-      if (fullMethod == null) {
-        responses.add(
-            JsonRpcResponse.error(request.getId(), JsonRpcErrorCode.INVALID_REQUEST, null));
-        continue;
-      }
-
       try {
-        var targetService = services.get(fullMethod);
-        if (targetService != null) {
-          var result =
-              invoker == null
-                  ? targetService.execute(ctx, request)
-                  : invoker.invoke(ctx, request, () -> targetService.execute(ctx, request));
-          // Spec: If the "id" is missing, it is a notification and no response is returned.
-          if (request.getId() != null) {
-            if (result instanceof JsonRpcResponse jsonRpcResponse) {
-              responses.add(jsonRpcResponse);
-            } else {
-              responses.add(JsonRpcResponse.success(request.getId(), result));
-            }
-          }
-        } else {
-          // Spec: -32601 Method not found
-          responses.add(
-              JsonRpcResponse.error(
-                  request.getId(),
-                  JsonRpcErrorCode.METHOD_NOT_FOUND,
-                  "Method not found: " + fullMethod));
-        }
+        var target = new JsonRpcExecutor(services, ctx, request);
+        var response = invoker == null ? target.get() : invoker.invoke(ctx, request, target);
+        response.ifPresent(responses::add);
       } catch (JsonRpcException cause) {
-        log(ctx, request, cause);
+        log(request, cause);
         // Domain-specific or protocol-level exceptions (e.g., -32602 Invalid Params)
         if (request.getId() != null) {
           responses.add(JsonRpcResponse.error(request.getId(), cause.getCode(), cause.getCause()));
         }
       } catch (Exception cause) {
-        log(ctx, request, cause);
+        log(request, cause);
         // Spec: -32603 Internal error for unhandled application exceptions
         if (request.getId() != null) {
           responses.add(
-              JsonRpcResponse.error(request.getId(), computeErrorCode(ctx, cause), cause));
+              JsonRpcResponse.error(
+                  request.getId(), exceptionTranslator.toErrorCode(cause), cause));
         }
       }
     }
@@ -178,14 +172,14 @@ public class JsonRpcModule implements Extension {
     return input.isBatch() ? responses : responses.getFirst();
   }
 
-  private void log(Context ctx, JsonRpcRequest request, Throwable cause) {
+  private void log(JsonRpcRequest request, Throwable cause) {
     JsonRpcErrorCode code;
     boolean hasCause = true;
     if (cause instanceof JsonRpcException rpcException) {
       code = rpcException.getCode();
       hasCause = false;
     } else {
-      code = computeErrorCode(ctx, cause);
+      code = exceptionTranslator.toErrorCode(cause);
     }
     var type = code == JsonRpcErrorCode.INTERNAL_ERROR ? "server" : "client";
     var message = "JSON-RPC {} error [{} {}] on method '{}' (id: {})";
@@ -229,34 +223,5 @@ public class JsonRpcModule implements Extension {
         }
       }
     }
-  }
-
-  private JsonRpcErrorCode computeErrorCode(Context ctx, Throwable cause) {
-    JsonRpcErrorCode code;
-    // Attempt to look up any user-defined exception mappings from the registry
-    Map<Class<?>, JsonRpcErrorCode> customMapping =
-        ctx.require(Reified.map(Class.class, JsonRpcErrorCode.class));
-    code =
-        errorCode(customMapping, cause)
-            .orElseGet(() -> JsonRpcErrorCode.of(ctx.getRouter().errorCode(cause)));
-    return code;
-  }
-
-  /**
-   * Evaluates the given exception against the registered custom exception mappings.
-   *
-   * @param mappings A map of Exception classes to specific tRPC error codes.
-   * @param x The exception to evaluate.
-   * @return An {@code Optional} containing the matched {@code TrpcErrorCode}, or empty if no match
-   *     is found.
-   */
-  private Optional<JsonRpcErrorCode> errorCode(
-      Map<Class<?>, JsonRpcErrorCode> mappings, Throwable x) {
-    for (var mapping : mappings.entrySet()) {
-      if (mapping.getKey().isInstance(x)) {
-        return Optional.of(mapping.getValue());
-      }
-    }
-    return Optional.empty();
   }
 }
