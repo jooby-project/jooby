@@ -58,30 +58,6 @@ public class WsRoute extends WebRoute<WsRouter> {
     return new TypeDefinition(types, method.getReturnType());
   }
 
-  private String wsParameterName(MvcParameter parameter) {
-    String rawParamType = parameter.getType().getRawType().toString();
-    var name = WsParamTypes.generateArgumentName(rawParamType);
-    if (name != null) {
-      return name;
-    }
-
-    getContext()
-        .error("Unsupported websocket handler parameter type: %s.", rawParamType);
-    return "null";
-  }
-
-  private String paramList() {
-    var joiner = new StringJoiner(", ", "(", ")");
-    for (var param : getParameters(true)) {
-      joiner.add(wsParameterName(param));
-    }
-    return joiner.toString();
-  }
-
-  public String invocation(boolean kt) {
-    return makeCall(kt, paramList(), false, false);
-  }
-
   public void appendBody(boolean kt, StringBuilder buffer, String indent) {
     buffer.append(statement(indent, var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
 
@@ -112,6 +88,54 @@ public class WsRoute extends WebRoute<WsRouter> {
     }
   }
 
+  public String invocation(boolean kt) {
+    return makeCall(kt, paramList(kt), false, false);
+  }
+
+  private String paramList(boolean kt) {
+    var joiner = new StringJoiner(", ", "(", ")");
+    for (var param : getParameters(true)) {
+      joiner.add(websocketArgumentExpression(param, kt));
+    }
+    return joiner.toString();
+  }
+
+  private String websocketArgumentExpression(MvcParameter parameter, boolean kt) {
+    String rawParamType = parameter.getType().getRawType().toString();
+    if (wsLifecycle == WsLifecycle.MESSAGE) {
+      if (WsParamTypes.getAllowedTypes(WsLifecycle.MESSAGE).contains(rawParamType)) {
+        return WsParamTypes.generateArgumentName(rawParamType);
+      }
+
+      var mvcBodyExpr =
+          ParameterGenerator.BodyParam.toSourceCode(
+              kt,
+              this,
+              null,
+              parameter.getType(),
+              parameter.variableElement(),
+              parameter.getName(),
+              parameter.isNullable(kt));
+      return mvcExprToWsExpr(mvcBodyExpr);
+    }
+
+    String expr = WsParamTypes.generateArgumentName(rawParamType);
+    if (expr != null) {
+      return expr;
+    }
+
+    getContext()
+        .error("Unsupported websocket handler parameter type: %s.", rawParamType);
+    return "null";
+  }
+
+  private static String mvcExprToWsExpr(String mvcBodyExpr) {
+    String s = mvcBodyExpr;
+    s = s.replace("ctx.body().", "message.");
+    s = s.replace("ctx.body(", "message.to(");
+    return s;
+  }
+
   private void validateLifecycleParameters(MvcContext context, ExecutableElement method) {
     var env = context.getProcessingEnvironment();
     var types = env.getTypeUtils();
@@ -128,6 +152,10 @@ public class WsRoute extends WebRoute<WsRouter> {
       if (wsLifecycle == WsLifecycle.ERROR
           && throwableType != null
           && types.isAssignable(rawMirror, throwableType)) {
+        continue;
+      }
+
+      if (wsLifecycle == WsLifecycle.MESSAGE) {
         continue;
       }
 

@@ -26,6 +26,20 @@ public class WebsocketGeneratorTest {
         );
   }
 
+  @Test
+  public void beanMessageWebsocketMatchesGeneratedSource() throws Exception {
+    var expected = new String(
+        getClass()
+            .getResourceAsStream("/tests/ws/WebsocketBeanMessageWs_expected.java")
+            .readAllBytes()
+    );
+
+    new ProcessorRunner(new WebsocketBeanMessage())
+        .withWsCode(source -> assertThat(normalize(source))
+            .isEqualTo(normalize(expected))
+        );
+  }
+
   private static String normalize(String source) {
     return source.replace("\r\n", "\n").replace('\r', '\n')
         .stripTrailing();
