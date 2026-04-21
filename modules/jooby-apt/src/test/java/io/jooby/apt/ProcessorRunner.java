@@ -186,6 +186,10 @@ public class ProcessorRunner {
     return withSourceCode(false, it -> it.endsWith("Rpc_"), consumer);
   }
 
+  public ProcessorRunner withWsCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, it -> it.endsWith("Ws_"), consumer);
+  }
+
   public ProcessorRunner withSourceCode(boolean kt, SneakyThrows.Consumer<String> consumer) {
     consumer.accept(
         kt

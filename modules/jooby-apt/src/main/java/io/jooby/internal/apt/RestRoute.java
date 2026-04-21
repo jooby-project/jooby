@@ -82,26 +82,12 @@ public class RestRoute extends WebRoute<RestRouter> {
             .collect(Collectors.joining(", ", "java.util.List.of(", ")")));
   }
 
-  private String javadocComment(boolean kt, String routerName) {
-    if (kt) {
-      return CodeBlock.statement("/** See [", routerName, ".", getMethodName(), "]", " */");
-    }
-    return CodeBlock.statement(
-        "/** See {@link ",
-        routerName,
-        "#",
-        getMethodName(),
-        "(",
-        String.join(", ", getRawParameterTypes(true, false)),
-        ") */");
-  }
-
   public List<String> generateMapping(boolean kt, String routerName, boolean isLastRoute) {
     List<String> block = new ArrayList<>();
     var methodName = getGeneratedName();
     var returnType = getReturnType();
     var paramString = String.join(", ", getJavaMethodSignature(kt));
-    var javadocLink = javadocComment(kt, routerName);
+    var javadocLink = seeControllerMethodJavadoc(kt, routerName);
     var attributeGenerator = new RouteAttributesGenerator(context, hasBeanValidation);
 
     var httpMethod =

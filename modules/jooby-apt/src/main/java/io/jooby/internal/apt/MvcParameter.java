@@ -183,4 +183,8 @@ public class MvcParameter {
   public boolean isRequireBeanValidation() {
     return requireBeanValidation;
   }
+
+  public VariableElement variableElement() {
+    return parameter;
+  }
 }

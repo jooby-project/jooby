@@ -520,6 +520,16 @@ public class Jooby implements Router, Registry {
     }
   }
 
+  /**
+   * Add websocket routes from a generated handler extension.
+   *
+   * @param router Websocket extension.
+   * @return Route set.
+   */
+  public Route.Set ws(Extension router) {
+    return mvc(router);
+  }
+
   @Override
   public Route ws(String pattern, WebSocket.Initializer handler) {
     return router.ws(pattern, handler);

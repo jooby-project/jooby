@@ -168,6 +168,122 @@ import io.jooby.jackson.Jackson2Module
 }
 ----
 
+==== Declarative definition
+
+You can implement the same WebSocket as above using annotated classes in declarative style. 
+Ensure that `jooby-apt` is in the annotation processor path, annotate the class with javadoc:annotation.Path[], 
+and mark methods with javadoc:annotation.ws.OnConnect[], javadoc:annotation.ws.OnMessage[], javadoc:annotation.ws.OnClose[], and javadoc:annotation.ws.OnError[]. Compile code to generate an extension javadoc:Extension[] and register it by calling javadoc:Jooby[ws, io.jooby.Extension].
+
+When a lifecycle method **returns** a value, that value is written to the client automatically: plain text or binary for `String`, `byte[]`, and `ByteBuffer`, and structured values (for example JSON) using the same encoders as in <<Structured Data>>. Alternatively, use a **void** method and send with `ws.send(...)` on the javadoc:WebSocket[] argument.
+
+.Java
+[source,java,role="primary"]
+----
+@Path("/chat/{room}")                                        // <1>
+public class ChatSocket {
+
+  @OnConnect
+  public String onConnect(WebSocket ws, Context ctx) {       // <2>
+    return "welcome";
+  }
+
+  @OnMessage
+  public Map<String, String> onMessage(WebSocket ws, Context ctx, WebSocketMessage message) { // <3>
+    return Map.of("echo", message.value());
+    // ws.send(message.value());                             // <4>
+  }
+
+  @OnClose
+  public void onClose(WebSocket ws, Context ctx, WebSocketCloseStatus status) {}
+
+  @OnError
+  public void onError(WebSocket ws, Context ctx, Throwable cause) {}
+}
+
+// Application startup:
+{
+  ws(new ChatSocketWs_());                                   // <5>
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Path("/chat/{room}")                                        // <1>
+class ChatSocket {
+
+  @OnConnect
+  fun onConnect(ws: WebSocket, ctx: Context): String {       // <2>
+    return "welcome"
+  }
+
+  @OnMessage
+  fun onMessage(ws: WebSocket, ctx: Context, message: WebSocketMessage): Map<String, String> { // <3>
+    return mapOf("echo" to message.value())
+    // ws.send(message.value())                              // <4>
+  }
+
+  @OnClose
+  fun onClose(ws: WebSocket, ctx: Context, status: WebSocketCloseStatus) {}
+
+  @OnError
+  fun onError(ws: WebSocket, ctx: Context, cause: Throwable) {}
+}
+
+// Application startup:
+{
+  ws(ChatSocketWs_())                                         // <5>
+}
+----
+
+<1> WebSocket route patterns for this handler.
+<2> Returning a value sends it to the client without calling `send`.
+<3> Return a value for automatic encoding (see <<Structured Data>>)
+<4> You still can use `ws.send(...)` if method return type is `void`.
+<5> Register the generated extension with javadoc:Jooby[ws, io.jooby.Extension].
+
+`@OnMessage` handlers also support parsing messages into structured data, similar to MVC methods:
+
+.Java
+[source,java,role="primary"]
+----
+@Path("/chat/{room}")   
+public class ChatSocket {
+
+  record ChatMessage(String username, String message, String type) {}
+  
+  @OnMessage
+  public Map<String, ChatMessage> onMessage(ChatMessage message) { // <1>
+    return Map.of("echo", message);
+  }
+  
+  ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Path("/chat/{room}")                                        
+class ChatSocket {
+
+  data class ChatMessage(
+      val username: String,
+      val message: String,
+      val type: String
+  )
+  
+  @OnMessage
+  fun onMessage(message: ChatMessage): Map<String, ChatMessage> { // <1>
+    return mapOf("echo" to message)
+  }
+
+  ...
+}
+
+----
+<1> WebSocket message is automatically decoded into `ChatMessage` structure.
+
 ==== Options
 
 ===== Connection Timeouts
@@ -192,3 +308,6 @@ websocket.maxSize = 128K
 ----
 
 See the Typesafe Config documentation for the supported https://github.com/lightbend/config/blob/master/HOCON.md#size-in-bytes-format[size in bytes format].
+
+
+
