@@ -5,6 +5,10 @@
  */
 package io.jooby.jsonrpc;
 
+import java.util.Optional;
+
+import org.jspecify.annotations.Nullable;
+
 /**
  * Exception thrown when a JSON-RPC error occurs during routing, parsing, or execution.
  *
@@ -14,7 +18,7 @@ package io.jooby.jsonrpc;
 public class JsonRpcException extends RuntimeException {
   private final JsonRpcErrorCode code;
 
-  private final Object data;
+  private final @Nullable Object data;
 
   /**
    * Constructs a new JSON-RPC exception.
@@ -24,6 +28,18 @@ public class JsonRpcException extends RuntimeException {
    */
   public JsonRpcException(JsonRpcErrorCode code, String message) {
     super(message);
+    this.code = code;
+    this.data = null;
+  }
+
+  /**
+   * Constructs a new JSON-RPC exception.
+   *
+   * @param code The integer error code (preferably one of the standard constants).
+   * @param cause The underlying cause of the error.
+   */
+  public JsonRpcException(JsonRpcErrorCode code, Throwable cause) {
+    super(code.getMessage(), cause);
     this.code = code;
     this.data = null;
   }
@@ -68,7 +84,12 @@ public class JsonRpcException extends RuntimeException {
    *
    * @return Additional data regarding the error, or null if none was provided.
    */
-  public Object getData() {
+  public @Nullable Object getData() {
     return data;
+  }
+
+  public JsonRpcResponse.ErrorDetail toErrorDetail() {
+    return new JsonRpcResponse.ErrorDetail(
+        code, getMessage(), Optional.ofNullable(data).orElse(getCause()));
   }
 }

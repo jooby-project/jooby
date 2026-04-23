@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Represents a JSON-RPC 2.0 Request object, and simultaneously acts as an iterable container for
  * batch requests.
@@ -31,12 +33,14 @@ import java.util.List;
  * generic structure (e.g., a List or a Map) and populating the batch state.
  */
 public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
+  public static final JsonRpcRequest BAD_REQUEST = new JsonRpcRequest();
+  public static final String JSONRPC = "2.0";
 
   /** A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0". */
-  private String jsonrpc = "2.0";
+  private @Nullable String jsonrpc;
 
   /** A String containing the name of the method to be invoked. */
-  private String method;
+  private @Nullable String method;
 
   /**
    * A Structured value that holds the parameter values to be used during the invocation of the
@@ -48,27 +52,35 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
    * An identifier established by the Client that MUST contain a String, Number, or NULL value if
    * included. If it is not included it is assumed to be a notification.
    */
-  private Object id;
+  private @Nullable Object id;
 
   // --- Batch State ---
   private boolean batch;
-  private List<JsonRpcRequest> requests;
+  private @Nullable List<JsonRpcRequest> requests;
 
   public JsonRpcRequest() {}
 
-  public String getJsonrpc() {
+  public boolean isValid() {
+    return JSONRPC.equals(jsonrpc) && !isNullOrEmpty(method);
+  }
+
+  private boolean isNullOrEmpty(@Nullable String value) {
+    return value == null || value.trim().isEmpty();
+  }
+
+  public @Nullable String getJsonrpc() {
     return jsonrpc;
   }
 
-  public void setJsonrpc(String jsonrpc) {
+  public void setJsonrpc(@Nullable String jsonrpc) {
     this.jsonrpc = jsonrpc;
   }
 
-  public String getMethod() {
+  public @Nullable String getMethod() {
     return method;
   }
 
-  public void setMethod(String method) {
+  public void setMethod(@Nullable String method) {
     this.method = method;
   }
 
@@ -80,11 +92,11 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
     this.params = params;
   }
 
-  public Object getId() {
+  public @Nullable Object getId() {
     return id;
   }
 
-  public void setId(Object id) {
+  public void setId(@Nullable Object id) {
     this.id = id;
   }
 

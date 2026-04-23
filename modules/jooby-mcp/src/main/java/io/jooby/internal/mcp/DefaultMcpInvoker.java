@@ -5,6 +5,7 @@
  */
 package io.jooby.internal.mcp;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.LoggerFactory;
 
 import io.jooby.Jooby;
@@ -24,7 +25,7 @@ public class DefaultMcpInvoker implements McpInvoker {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action) {
+  public <R> R invoke(@NonNull McpOperation operation, SneakyThrows.@NonNull Supplier<R> action) {
     try {
       return action.get();
     } catch (McpError mcpError) {

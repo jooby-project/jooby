@@ -7,58 +7,104 @@ package io.jooby.jsonrpc;
 
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jspecify.annotations.Nullable;
 
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
+import io.jooby.internal.jsonrpc.JsonRpcHandler;
+import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
 
 /**
- * Global Tier 1 Dispatcher for JSON-RPC 2.0 requests.
+ * Jooby Extension module for integrating JSON-RPC 2.0 capabilities.
  *
- * <p>This dispatcher acts as the central entry point for all JSON-RPC traffic. It manages the
- * lifecycle of a request by:
+ * <p>This module acts as the central configuration point for setting up a JSON-RPC endpoint. It
+ * registers the target {@link JsonRpcService} instances, configures the route path, maps standard
+ * framework exceptions to JSON-RPC error codes, and installs the underlying request handler into
+ * the Jooby application.
+ *
+ * <h3>Middleware Pipeline (Invoker / Chain API)</h3>
+ *
+ * <p>This module allows you to configure a pipeline of interceptors using the {@link
+ * JsonRpcInvoker} API. By adding invokers, you create a {@link JsonRpcChain} that wraps the final
+ * method execution. This is the standard way to apply cross-cutting concerns to your RPC endpoints,
+ * such as:
  *
  * <ul>
- *   <li>Parsing the incoming body into a {@link JsonRpcRequest} (supporting both single and batch
- *       shapes).
- *   <li>Iterating through registered {@link JsonRpcService} instances to find a matching namespace.
- *   <li>Handling <strong>Notifications</strong> (requests without an {@code id}) by suppressing
- *       responses.
- *   <li>Unifying batch results into a single JSON array or a single object response as per the
- *       spec.
+ *   <li>Logging request payloads and execution times.
+ *   <li>Enforcing security and authorization rules.
+ *   <li>Gathering metrics and OpenTelemetry tracing.
  * </ul>
  *
- * <p>*
- *
- * <p>Usage:
+ * <h3>Usage:</h3>
  *
  * <pre>{@code
+ * {
  * install(new Jackson3Module());
- *
  * install(new JsonRpcJackson3Module());
- *
- * install(new JsonRpcModule(new MyServiceRpc_()));
- *
+ * * install(new JsonRpcModule(new MyServiceRpc_())
+ * .invoker(new MyJsonRpcMiddleware()));
+ * }
  * }</pre>
  *
  * @author Edgar Espina
  * @since 4.0.17
  */
 public class JsonRpcModule implements Extension {
-  private final Logger log = LoggerFactory.getLogger(JsonRpcService.class);
   private final Map<String, JsonRpcService> services = new HashMap<>();
   private final String path;
+  private @Nullable JsonRpcInvoker invoker;
+  private @Nullable OtelJsonRcpTracing head;
 
+  /**
+   * Creates a new JSON-RPC module at a custom HTTP path.
+   *
+   * @param path The HTTP path where the JSON-RPC endpoint will be mounted (e.g., {@code
+   *     "/api/rpc"}).
+   * @param service The primary {@link JsonRpcService} containing the RPC methods to expose.
+   * @param services Additional {@link JsonRpcService} instances to expose on the same endpoint.
+   */
   public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
     registry(service);
     Arrays.stream(services).forEach(this::registry);
   }
 
+  /**
+   * Creates a new JSON-RPC module mounted at the default {@code "/rpc"} HTTP path.
+   *
+   * @param service The primary {@link JsonRpcService} containing the RPC methods to expose.
+   * @param services Additional {@link JsonRpcService} instances to expose on the same endpoint.
+   */
   public JsonRpcModule(JsonRpcService service, JsonRpcService... services) {
     this("/rpc", service, services);
+  }
+
+  /**
+   * Adds a {@link JsonRpcInvoker} middleware to the execution pipeline.
+   *
+   * <p>Middlewares are composed together to form a {@link JsonRpcChain}. When multiple invokers are
+   * registered, they wrap around each other, meaning the first added invoker will execute first.
+   *
+   * <p><strong>Tracing Priority:</strong> If the provided invoker is an instance of {@link
+   * OtelJsonRcpTracing}, it is automatically promoted to the absolute head of the pipeline. This
+   * guarantees that OpenTelemetry spans encompass all other middlewares and the final execution.
+   *
+   * @param invoker The middleware interceptor to add to the pipeline.
+   * @return This module instance for fluent configuration chaining.
+   */
+  public JsonRpcModule invoker(JsonRpcInvoker invoker) {
+    if (invoker instanceof OtelJsonRcpTracing otel) {
+      // otel goes first:
+      this.head = otel;
+    } else {
+      if (this.invoker != null) {
+        this.invoker = invoker.then(this.invoker);
+      } else {
+        this.invoker = invoker;
+      }
+    }
+    return this;
   }
 
   private void registry(JsonRpcService service) {
@@ -68,179 +114,27 @@ public class JsonRpcModule implements Extension {
   }
 
   /**
-   * Installs the JSON-RPC handler at the default {@code /rpc} endpoint.
+   * Installs the JSON-RPC handler into the Jooby application.
+   *
+   * <p>This method is invoked automatically by Jooby during application startup. It resolves the
+   * final middleware chain, registers the HTTP POST route at the configured path, and sets up
+   * default exception mappings for standard Jooby routing errors (like missing or mismatched
+   * parameters).
    *
    * @param app The Jooby application instance.
-   * @throws Exception If registration fails.
+   * @throws Exception If route registration or configuration fails.
    */
   @Override
   public void install(Jooby app) throws Exception {
-    app.post(path, this::handle);
+    if (head != null) {
+      invoker = invoker == null ? head : head.then(invoker);
+    }
+    app.post(path, new JsonRpcHandler(services, invoker));
 
     // Initialize the custom exception mapping registry
     app.getServices()
         .mapOf(Class.class, JsonRpcErrorCode.class)
         .put(MissingValueException.class, JsonRpcErrorCode.INVALID_PARAMS)
         .put(TypeMismatchException.class, JsonRpcErrorCode.INVALID_PARAMS);
-  }
-
-  /**
-   * Main handler for the JSON-RPC protocol. *
-   *
-   * <p>This method implements the flattened iteration logic. Because {@link JsonRpcRequest}
-   * implements {@code Iterable}, this handler treats single requests and batch requests identically
-   * during processing.
-   *
-   * @param ctx The current Jooby context.
-   * @return A single {@link JsonRpcResponse}, a {@code List} of responses for batches, or an empty
-   *     string for notifications.
-   */
-  private Object handle(Context ctx) {
-    JsonRpcRequest input;
-    try {
-      input = ctx.body(JsonRpcRequest.class);
-    } catch (Exception e) {
-      // Spec: -32700 Parse error if the JSON is physically malformed.
-      return JsonRpcResponse.error(null, JsonRpcErrorCode.PARSE_ERROR, e);
-    }
-
-    List<JsonRpcResponse> responses = new ArrayList<>();
-
-    // Look up all generated *Rpc classes registered in the service registry
-
-    for (var request : input) {
-      var fullMethod = request.getMethod();
-
-      // Spec: -32600 Invalid Request if the method member is missing or null
-      if (fullMethod == null) {
-        responses.add(
-            JsonRpcResponse.error(request.getId(), JsonRpcErrorCode.INVALID_REQUEST, null));
-        continue;
-      }
-
-      try {
-        var targetService = services.get(fullMethod);
-        if (targetService != null) {
-          var result = targetService.execute(ctx, request);
-          // Spec: If the "id" is missing, it is a notification and no response is returned.
-          if (request.getId() != null) {
-            responses.add(JsonRpcResponse.success(request.getId(), result));
-          }
-        } else {
-          // Spec: -32601 Method not found
-          if (request.getId() != null) {
-            responses.add(
-                JsonRpcResponse.error(
-                    request.getId(),
-                    JsonRpcErrorCode.METHOD_NOT_FOUND,
-                    "Method not found: " + fullMethod));
-          }
-        }
-      } catch (JsonRpcException cause) {
-        log(ctx, request, cause);
-        // Domain-specific or protocol-level exceptions (e.g., -32602 Invalid Params)
-        if (request.getId() != null) {
-          responses.add(JsonRpcResponse.error(request.getId(), cause.getCode(), cause.getCause()));
-        }
-      } catch (Exception cause) {
-        log(ctx, request, cause);
-        // Spec: -32603 Internal error for unhandled application exceptions
-        if (request.getId() != null) {
-          responses.add(
-              JsonRpcResponse.error(request.getId(), computeErrorCode(ctx, cause), cause));
-        }
-      }
-    }
-
-    // Handle the case where all requests in a batch were notifications
-    if (responses.isEmpty()) {
-      ctx.setResponseCode(StatusCode.NO_CONTENT);
-      return "";
-    }
-
-    // Spec: Return an array only if the original request was a batch
-    return input.isBatch() ? responses : responses.getFirst();
-  }
-
-  private void log(Context ctx, JsonRpcRequest request, Throwable cause) {
-    JsonRpcErrorCode code;
-    boolean hasCause = true;
-    if (cause instanceof JsonRpcException rpcException) {
-      code = rpcException.getCode();
-      hasCause = false;
-    } else {
-      code = computeErrorCode(ctx, cause);
-    }
-    var type = code == JsonRpcErrorCode.INTERNAL_ERROR ? "server" : "client";
-    var message = "JSON-RPC {} error [{} {}] on method '{}' (id: {})";
-    switch (code) {
-      case INTERNAL_ERROR ->
-          log.error(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-      case UNAUTHORIZED, FORBIDDEN, NOT_FOUND_ERROR ->
-          log.debug(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-      default -> {
-        if (hasCause) {
-          log.warn(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-        } else {
-          log.debug(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId());
-        }
-      }
-    }
-  }
-
-  private JsonRpcErrorCode computeErrorCode(Context ctx, Throwable cause) {
-    JsonRpcErrorCode code;
-    // Attempt to look up any user-defined exception mappings from the registry
-    Map<Class<?>, JsonRpcErrorCode> customMapping =
-        ctx.require(Reified.map(Class.class, JsonRpcErrorCode.class));
-    code =
-        errorCode(customMapping, cause)
-            .orElseGet(() -> JsonRpcErrorCode.of(ctx.getRouter().errorCode(cause)));
-    return code;
-  }
-
-  /**
-   * Evaluates the given exception against the registered custom exception mappings.
-   *
-   * @param mappings A map of Exception classes to specific tRPC error codes.
-   * @param x The exception to evaluate.
-   * @return An {@code Optional} containing the matched {@code TrpcErrorCode}, or empty if no match
-   *     is found.
-   */
-  private Optional<JsonRpcErrorCode> errorCode(
-      Map<Class<?>, JsonRpcErrorCode> mappings, Throwable x) {
-    for (var mapping : mappings.entrySet()) {
-      if (mapping.getKey().isInstance(x)) {
-        return Optional.of(mapping.getValue());
-      }
-    }
-    return Optional.empty();
   }
 }

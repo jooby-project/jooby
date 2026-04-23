@@ -5,6 +5,8 @@
  */
 package io.jooby.mcp;
 
+import java.util.Objects;
+
 import io.jooby.SneakyThrows;
 
 /**
@@ -69,9 +71,7 @@ public interface McpInvoker {
    * @return A composed invoker.
    */
   default McpInvoker then(McpInvoker next) {
-    if (next == null) {
-      return this;
-    }
+    Objects.requireNonNull(next, "next invoker is required");
     return new McpInvoker() {
       @Override
       public <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action) {

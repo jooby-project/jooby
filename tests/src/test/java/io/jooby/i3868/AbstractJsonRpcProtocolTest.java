@@ -291,6 +291,21 @@ public abstract class AbstractJsonRpcProtocolTest {
                     assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
                   });
 
+              http.postJson(
+                  "/rpc",
+                  """
+                  {"jsonrpc": "2.0", "method": "movies.getByIdString", "params": {}, "id": 14}
+                  """,
+                  rsp -> {
+                    String json = rsp.body().string();
+                    assertThat(rsp.code()).isEqualTo(200);
+
+                    Map<String, Object> root = JsonPath.read(json, "$");
+                    assertThat(root).containsKey("error").doesNotContainKey("result");
+
+                    assertThat(JsonPath.<Integer>read(json, "$.error.code")).isEqualTo(-32602);
+                  });
+
               // 5. Omitted Params Object entirely
               http.postJson(
                   "/rpc",

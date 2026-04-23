@@ -30,6 +30,7 @@ public class JacksonJsonRpcRequestDeserializer extends StdDeserializer<JsonRpcRe
         JsonRpcRequest invalid = new JsonRpcRequest();
         invalid.setMethod(null); // Acts as a flag for Invalid Request
         invalid.setBatch(false); // Force single return shape
+        invalid.setJsonrpc(null);
         return invalid;
       }
 
@@ -63,10 +64,13 @@ public class JacksonJsonRpcRequestDeserializer extends StdDeserializer<JsonRpcRe
 
     // 2. Validate JSON-RPC version
     JsonNode versionNode = node.get("jsonrpc");
-    if (versionNode == null || !versionNode.isString() || !"2.0".equals(versionNode.asString())) {
+    if (versionNode == null
+        || !versionNode.isString()
+        || !JsonRpcRequest.JSONRPC.equals(versionNode.asString())) {
       req.setMethod(null); // Triggers -32600 Invalid Request
       return req;
     }
+    req.setJsonrpc(JsonRpcRequest.JSONRPC);
 
     // 3. Extract Method
     JsonNode methodNode = node.get("method");

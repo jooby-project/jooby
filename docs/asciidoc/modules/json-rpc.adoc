@@ -105,6 +105,90 @@ Supported engines include:
 
 No additional configuration is required. The generated dispatcher automatically hooks into the installed engine using the `JsonRpcParser` and `JsonRpcDecoder` interfaces, ensuring primitive types are strictly validated and parsed.
 
+=== Middleware Pipeline
+
+Jooby provides a dedicated middleware architecture for JSON-RPC using the `JsonRpcInvoker` and `JsonRpcChain` APIs. This allows you to intercept RPC calls to apply cross-cutting concerns like logging, security, metrics, or tracing.
+
+To create an interceptor, implement the `JsonRpcInvoker` interface.
+
+.JSON-RPC
+[source,java,role="primary"]
+----
+import io.jooby.jsonrpc.*;
+import java.util.Optional;
+
+public class LoggingInvoker implements JsonRpcInvoker {
+  
+  @Override
+  public Optional<JsonRpcResponse> invoke(Context ctx, JsonRpcRequest request, JsonRpcChain next) {
+    long start = System.currentTimeMillis();
+    
+    // Proceed down the chain
+    Optional<JsonRpcResponse> response = next.proceed(ctx, request);
+    
+    long took = System.currentTimeMillis() - start;
+    
+    // Inspect the response
+    response.ifPresent(res -> {
+      if (res.getError() != null) {
+        ctx.getLog().warn("RPC {} failed in {}ms", request.getMethod(), took);
+      } else {
+        ctx.getLog().info("RPC {} succeeded in {}ms", request.getMethod(), took);
+      }
+    });
+    
+    return response;
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.jsonrpc.*
+import java.util.Optional
+
+class LoggingInvoker : JsonRpcInvoker {
+  
+  override fun invoke(ctx: Context, request: JsonRpcRequest, next: JsonRpcChain): Optional<JsonRpcResponse> {
+    val start = System.currentTimeMillis()
+    
+    // Proceed down the chain
+    val response = next.proceed(ctx, request)
+    
+    val took = System.currentTimeMillis() - start
+    
+    // Inspect the response
+    response.ifPresent { res ->
+      if (res.error != null) {
+        ctx.log.warn("RPC {} failed in {}ms", request.method, took)
+      } else {
+        ctx.log.info("RPC {} succeeded in {}ms", request.method, took)
+      }
+    }
+    
+    return response
+  }
+}
+----
+
+You register invokers fluently when installing the `JsonRpcModule`. You can chain multiple invokers together, and they will execute in the order they are added.
+
+[source,java]
+----
+install(new JsonRpcModule(new MovieServiceRpc_())
+    .invoker(new SecurityInvoker())
+    .invoker(new LoggingInvoker()));
+----
+
+==== Safe Exception Handling
+Notice that you **do not** need to wrap `next.proceed()` in a `try-catch` block. The final executor in the JSON-RPC pipeline acts as an ultimate safety net. It catches all unhandled exceptions, protocol failures (like Parse Errors), and routing failures, safely transforming them into a standard `JsonRpcResponse` containing an `ErrorDetail`.
+
+To react to failures in your middleware, simply inspect `response.get().getError() != null`.
+
+==== Notifications and Optional Responses
+The invocation pipeline returns an `Optional<JsonRpcResponse>`. This is because the JSON-RPC 2.0 specification explicitly dictates that **Notifications** (requests sent without an `id` member) must not receive a response. For these requests, the chain will safely execute the target method but return `Optional.empty()`.
+
 === Error Mapping
 
 Jooby seamlessly bridges standard Java application exceptions and HTTP status codes into the JSON-RPC 2.0 format using the `JsonRpcErrorCode` mapping. You do not need to throw custom protocol exceptions for standard failures.

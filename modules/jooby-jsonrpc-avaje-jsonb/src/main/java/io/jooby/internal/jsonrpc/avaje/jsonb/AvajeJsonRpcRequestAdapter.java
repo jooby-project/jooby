@@ -34,6 +34,7 @@ public class AvajeJsonRpcRequestAdapter implements JsonAdapter<JsonRpcRequest> {
         JsonRpcRequest invalid = new JsonRpcRequest();
         invalid.setMethod(null);
         invalid.setBatch(false);
+        invalid.setJsonrpc(null);
         return invalid;
       }
 
@@ -67,10 +68,11 @@ public class AvajeJsonRpcRequestAdapter implements JsonAdapter<JsonRpcRequest> {
 
     // 2. Validate JSON-RPC version
     Object versionVal = map.get("jsonrpc");
-    if (!"2.0".equals(versionVal)) {
+    if (!JsonRpcRequest.JSONRPC.equals(versionVal)) {
       req.setMethod(null);
       return req;
     }
+    req.setJsonrpc(JsonRpcRequest.JSONRPC);
 
     // 3. Extract Method
     Object methodVal = map.get("method");

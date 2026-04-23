@@ -66,10 +66,13 @@ public class JacksonJsonRpcRequestDeserializer extends StdDeserializer<JsonRpcRe
 
     // 2. Validate JSON-RPC version
     JsonNode versionNode = node.get("jsonrpc");
-    if (versionNode == null || !versionNode.isTextual() || !"2.0".equals(versionNode.asText())) {
+    if (versionNode == null
+        || !versionNode.isTextual()
+        || !JsonRpcRequest.JSONRPC.equals(versionNode.asText())) {
       req.setMethod(null); // Triggers -32600 Invalid Request
       return req;
     }
+    req.setJsonrpc(JsonRpcRequest.JSONRPC);
 
     // 3. Extract Method
     JsonNode methodNode = node.get("method");
