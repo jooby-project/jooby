@@ -67,7 +67,7 @@
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
     <rocker.version>2.4.0</rocker.version>
-    <thymeleaf.version>3.1.4.RELEASE</thymeleaf.version>
+    <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
     <jte.version>3.2.3</jte.version>
 
     <!-- data -->
@@ -113,8 +113,8 @@
     <vertx.version>5.0.10</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.47</swagger.version>
-    <swagger-parser.version>2.1.39</swagger-parser.version>
+    <swagger.version>2.2.48</swagger.version>
+    <swagger-parser.version>2.1.40</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -122,7 +122,7 @@
 
     <!-- avaje -->
     <avaje.inject.version>12.5</avaje.inject.version>
-    <avaje.jsonb.version>3.12</avaje.jsonb.version>
+    <avaje.jsonb.version>3.13</avaje.jsonb.version>
     <avaje.validator.version>2.17</avaje.validator.version>
 
     <!-- jakarta -->
@@ -133,17 +133,17 @@
     <!-- Misc -->
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
-    <pac4j.version>6.4.1</pac4j.version>
+    <pac4j.version>6.4.2</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <db-scheduler.version>16.7.1</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.18.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
-    <camel.version>4.18.1</camel.version>
+    <camel.version>4.19.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
     <opentelemetry.version>1.60.1</opentelemetry.version>
 
-    <commons-io.version>2.21.0</commons-io.version>
+    <commons-io.version>2.22.0</commons-io.version>
 
     <!-- Kotlin -->
     <kotlin.version>2.3.20</kotlin.version>
