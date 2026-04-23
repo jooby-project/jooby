@@ -284,6 +284,46 @@ import io.jooby.opentelemetry.instrumentation.OtelHikari
 }
 ----
 
+==== JSON-RPC
+
+Provides automatic tracing for your JSON-RPC 2.0 endpoints. By adding the `OtelJsonRcpTracing` middleware to your JSON-RPC pipeline, it generates a dedicated OpenTelemetry span for every RPC invocation.
+
+It automatically records standard semantic attributes (such as `rpc.system`, `rpc.method`, and `rpc.jsonrpc.request_id`). Furthermore, because it hooks directly into the `JsonRpcChain`, it accurately records protocol errors and application failures by inspecting the `JsonRpcResponse` envelope, without relying on thrown exceptions.
+
+.JSON-RPC Integration
+[source, java, role = "primary"]
+----
+import io.jooby.jsonrpc.JsonRpcModule;
+import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
+import io.opentelemetry.api.OpenTelemetry;
+
+{
+  install(new OtelModule());
+
+  // Register the JSON-RPC module and attach the tracing middleware
+  install(new JsonRpcModule(new MovieServiceRpc_())
+    .invoker(new OtelJsonRcpTracing(require(OpenTelemetry.class)))
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.jsonrpc.JsonRpcModule
+import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing
+import io.opentelemetry.api.OpenTelemetry
+
+{
+  install(OtelModule())
+
+  // Register the JSON-RPC module and attach the tracing middleware
+  install(JsonRpcModule(MovieServiceRpc_())
+    .invoker(OtelJsonRcpTracing(require(OpenTelemetry::class.java)))
+  )
+}
+----
+
 ==== Log4j2
 
 Seamlessly exports all application logs to your OpenTelemetry backend, automatically correlated with active trace and span IDs using a dynamic appender.
