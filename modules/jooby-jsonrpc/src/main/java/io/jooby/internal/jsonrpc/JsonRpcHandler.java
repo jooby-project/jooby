@@ -70,12 +70,12 @@ public class JsonRpcHandler implements Route.Handler {
     }
 
     var responses = new ArrayList<JsonRpcResponse>();
+    var executor = new JsonRpcExecutor(loggers, services, exceptionTranslator, parseError);
 
     // Look up all generated *Rpc classes registered in the service registry
     for (var request : input) {
-      var target =
-          new JsonRpcExecutor(loggers, services, ctx, exceptionTranslator, request, parseError);
-      var response = invoker == null ? target.get() : invoker.invoke(ctx, request, target);
+      var response =
+          invoker == null ? executor.proceed(ctx, request) : invoker.invoke(ctx, request, executor);
       response.ifPresent(responses::add);
     }
 

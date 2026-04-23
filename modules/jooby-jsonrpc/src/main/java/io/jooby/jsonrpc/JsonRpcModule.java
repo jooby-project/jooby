@@ -8,8 +8,6 @@ package io.jooby.jsonrpc;
 import java.util.*;
 
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
@@ -19,54 +17,83 @@ import io.jooby.internal.jsonrpc.JsonRpcHandler;
 import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
 
 /**
- * Global Tier 1 Dispatcher for JSON-RPC 2.0 requests.
+ * Jooby Extension module for integrating JSON-RPC 2.0 capabilities.
  *
- * <p>This dispatcher acts as the central entry point for all JSON-RPC traffic. It manages the
- * lifecycle of a request by:
+ * <p>This module acts as the central configuration point for setting up a JSON-RPC endpoint. It
+ * registers the target {@link JsonRpcService} instances, configures the route path, maps standard
+ * framework exceptions to JSON-RPC error codes, and installs the underlying request handler into
+ * the Jooby application.
+ *
+ * <h3>Middleware Pipeline (Invoker / Chain API)</h3>
+ *
+ * <p>This module allows you to configure a pipeline of interceptors using the {@link
+ * JsonRpcInvoker} API. By adding invokers, you create a {@link JsonRpcChain} that wraps the final
+ * method execution. This is the standard way to apply cross-cutting concerns to your RPC endpoints,
+ * such as:
  *
  * <ul>
- *   <li>Parsing the incoming body into a {@link JsonRpcRequest} (supporting both single and batch
- *       shapes).
- *   <li>Iterating through registered {@link JsonRpcService} instances to find a matching namespace.
- *   <li>Handling <strong>Notifications</strong> (requests without an {@code id}) by suppressing
- *       responses.
- *   <li>Unifying batch results into a single JSON array or a single object response as per the
- *       spec.
+ *   <li>Logging request payloads and execution times.
+ *   <li>Enforcing security and authorization rules.
+ *   <li>Gathering metrics and OpenTelemetry tracing.
  * </ul>
  *
- * <p>*
- *
- * <p>Usage:
+ * <h3>Usage:</h3>
  *
  * <pre>{@code
+ * {
  * install(new Jackson3Module());
- *
  * install(new JsonRpcJackson3Module());
- *
- * install(new JsonRpcModule(new MyServiceRpc_()));
- *
+ * * install(new JsonRpcModule(new MyServiceRpc_())
+ * .invoker(new MyJsonRpcMiddleware()));
+ * }
  * }</pre>
  *
  * @author Edgar Espina
  * @since 4.0.17
  */
 public class JsonRpcModule implements Extension {
-  private final Logger log = LoggerFactory.getLogger(JsonRpcService.class);
   private final Map<String, JsonRpcService> services = new HashMap<>();
   private final String path;
   private @Nullable JsonRpcInvoker invoker;
   private @Nullable OtelJsonRcpTracing head;
 
+  /**
+   * Creates a new JSON-RPC module at a custom HTTP path.
+   *
+   * @param path The HTTP path where the JSON-RPC endpoint will be mounted (e.g., {@code
+   *     "/api/rpc"}).
+   * @param service The primary {@link JsonRpcService} containing the RPC methods to expose.
+   * @param services Additional {@link JsonRpcService} instances to expose on the same endpoint.
+   */
   public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
     registry(service);
     Arrays.stream(services).forEach(this::registry);
   }
 
+  /**
+   * Creates a new JSON-RPC module mounted at the default {@code "/rpc"} HTTP path.
+   *
+   * @param service The primary {@link JsonRpcService} containing the RPC methods to expose.
+   * @param services Additional {@link JsonRpcService} instances to expose on the same endpoint.
+   */
   public JsonRpcModule(JsonRpcService service, JsonRpcService... services) {
     this("/rpc", service, services);
   }
 
+  /**
+   * Adds a {@link JsonRpcInvoker} middleware to the execution pipeline.
+   *
+   * <p>Middlewares are composed together to form a {@link JsonRpcChain}. When multiple invokers are
+   * registered, they wrap around each other, meaning the first added invoker will execute first.
+   *
+   * <p><strong>Tracing Priority:</strong> If the provided invoker is an instance of {@link
+   * OtelJsonRcpTracing}, it is automatically promoted to the absolute head of the pipeline. This
+   * guarantees that OpenTelemetry spans encompass all other middlewares and the final execution.
+   *
+   * @param invoker The middleware interceptor to add to the pipeline.
+   * @return This module instance for fluent configuration chaining.
+   */
   public JsonRpcModule invoker(JsonRpcInvoker invoker) {
     if (invoker instanceof OtelJsonRcpTracing otel) {
       // otel goes first:
@@ -88,10 +115,15 @@ public class JsonRpcModule implements Extension {
   }
 
   /**
-   * Installs the JSON-RPC handler at the default {@code /rpc} endpoint.
+   * Installs the JSON-RPC handler into the Jooby application.
+   *
+   * <p>This method is invoked automatically by Jooby during application startup. It resolves the
+   * final middleware chain, registers the HTTP POST route at the configured path, and sets up
+   * default exception mappings for standard Jooby routing errors (like missing or mismatched
+   * parameters).
    *
    * @param app The Jooby application instance.
-   * @throws Exception If registration fails.
+   * @throws Exception If route registration or configuration fails.
    */
   @Override
   public void install(Jooby app) throws Exception {

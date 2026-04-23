@@ -20,7 +20,8 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 
 /**
- * OpenTelemetry tracing middleware for JSON-RPC invocations.
+ * OpenTelemetry tracing middleware for JSON-RPC invocations. See <a
+ * href="https://opentelemetry.io/docs/specs/semconv/rpc/rpc-spans/">rpc-spans</a>.
  *
  * <p>This invoker wraps JSON-RPC requests to automatically generate OpenTelemetry spans following
  * standard RPC semantic conventions. It records the RPC system ({@code jsonrpc}), the invoked
@@ -28,7 +29,7 @@ import io.opentelemetry.api.trace.Tracer;
  *
  * <h3>Error Tracking</h3>
  *
- * Because the Jooby JSON-RPC pipeline catches application exceptions and transforms them into
+ * <p>Because the Jooby JSON-RPC pipeline catches application exceptions and transforms them into
  * {@link JsonRpcResponse} objects, this tracing middleware does not rely on try-catch blocks to
  * detect business logic failures. Instead, after the action executes, it inspects the resulting
  * response for an {@link JsonRpcResponse.ErrorDetail}.
@@ -46,9 +47,9 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
 
   private final Tracer tracer;
 
-  private SneakyThrows.@Nullable Consumer2<JsonRpcRequest, Span> onStart;
+  private SneakyThrows.@Nullable Consumer3<Context, JsonRpcRequest, Span> onStart;
 
-  private SneakyThrows.@Nullable Consumer2<JsonRpcRequest, Span> onEnd;
+  private SneakyThrows.@Nullable Consumer3<Context, JsonRpcRequest, Span> onEnd;
 
   /**
    * Creates a new OpenTelemetry JSON-RPC tracing middleware.
@@ -67,7 +68,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    * @param onStart The callback accepting the HTTP Context and the active Span.
    * @return This invoker instance for chaining.
    */
-  public OtelJsonRcpTracing onStart(SneakyThrows.Consumer2<JsonRpcRequest, Span> onStart) {
+  public OtelJsonRcpTracing onStart(SneakyThrows.Consumer3<Context, JsonRpcRequest, Span> onStart) {
     this.onStart = onStart;
     return this;
   }
@@ -79,7 +80,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    * @param onEnd The callback accepting the HTTP Context and the active Span.
    * @return This invoker instance for chaining.
    */
-  public OtelJsonRcpTracing onEnd(SneakyThrows.Consumer2<JsonRpcRequest, Span> onEnd) {
+  public OtelJsonRcpTracing onEnd(SneakyThrows.Consumer3<Context, JsonRpcRequest, Span> onEnd) {
     this.onEnd = onEnd;
     return this;
   }
@@ -93,14 +94,12 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    *
    * @param ctx The current HTTP context.
    * @param request The incoming JSON-RPC request.
-   * @param action The next step in the invocation chain.
+   * @param chain The next step in the invocation chain.
    * @return An Optional containing the response (or empty for a Notification).
    */
   @Override
   public @NonNull Optional<JsonRpcResponse> invoke(
-      @NonNull Context ctx,
-      @NonNull JsonRpcRequest request,
-      SneakyThrows.@NonNull Supplier<Optional<JsonRpcResponse>> action) {
+      @NonNull Context ctx, @NonNull JsonRpcRequest request, JsonRpcChain chain) {
     var method = Optional.ofNullable(request.getMethod()).orElse("unknown_method");
     var span =
         tracer
@@ -113,9 +112,9 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
             .startSpan();
     try (var scope = span.makeCurrent()) {
       if (onStart != null) {
-        onStart.accept(request, span);
+        onStart.accept(ctx, request, span);
       }
-      var result = action.get();
+      var result = chain.proceed(ctx, request);
       if (result.isPresent()) {
         var rsp = result.get();
         // we need to check for errored response, jsonrpc pipeline won't fire exception unless they
@@ -136,7 +135,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
       return result;
     } finally {
       if (onEnd != null) {
-        onEnd.accept(request, span);
+        onEnd.accept(ctx, request, span);
       }
       span.end();
     }

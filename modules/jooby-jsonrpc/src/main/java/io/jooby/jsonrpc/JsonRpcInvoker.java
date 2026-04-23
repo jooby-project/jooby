@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import io.jooby.Context;
-import io.jooby.SneakyThrows;
 
 /**
  * Interceptor or middleware for processing JSON-RPC requests.
@@ -47,22 +46,22 @@ import io.jooby.SneakyThrows;
 public interface JsonRpcInvoker {
 
   /**
-   * Invokes the JSON-RPC request, passing control to the next invoker in the chain or to the final
+   * Invokes the JSON-RPC request, passing control to the next element in the chain or to the final
    * target method.
    *
    * <p>Because the final invoker automatically catches exceptions and converts them into error
-   * responses, you do not need to wrap the {@code action} in a try-catch block. Instead, if your
-   * middleware needs to react to a failure (e.g., to record an error metric), you can execute the
-   * action and check for an error by evaluating {@code response.get().getError() != null}.
+   * responses, you do not need to wrap the call to {@code next.proceed()} in a try-catch block.
+   * Instead, if your middleware needs to react to a failure (e.g., to record an error metric), you
+   * can proceed with the chain and check for an error by evaluating {@code
+   * response.get().getError() != null}.
    *
    * @param ctx The current HTTP context.
    * @param request The incoming JSON-RPC request.
-   * @param action The next step in the invocation chain (or the final method execution).
+   * @param next The remaining execution pipeline, ending in the final method execution.
    * @return An {@link Optional} containing the response for a standard method call, or {@link
    *     Optional#empty()} if the incoming request was a notification.
    */
-  Optional<JsonRpcResponse> invoke(
-      Context ctx, JsonRpcRequest request, SneakyThrows.Supplier<Optional<JsonRpcResponse>> action);
+  Optional<JsonRpcResponse> invoke(Context ctx, JsonRpcRequest request, JsonRpcChain next);
 
   /**
    * Chains this invoker with another one to form a middleware pipeline.
@@ -74,7 +73,7 @@ public interface JsonRpcInvoker {
    */
   default JsonRpcInvoker then(JsonRpcInvoker next) {
     Objects.requireNonNull(next, "next invoker is required");
-    return (ctx, request, action) ->
-        JsonRpcInvoker.this.invoke(ctx, request, () -> next.invoke(ctx, request, action));
+    return (ctx, request, chain) ->
+        JsonRpcInvoker.this.invoke(ctx, request, (c, r) -> next.invoke(c, r, chain));
   }
 }

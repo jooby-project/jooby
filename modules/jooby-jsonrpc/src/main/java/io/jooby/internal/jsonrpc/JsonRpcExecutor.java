@@ -8,6 +8,7 @@ package io.jooby.internal.jsonrpc;
 import java.util.Map;
 import java.util.Optional;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
 import io.jooby.Context;
@@ -17,7 +18,8 @@ import io.jooby.jsonrpc.*;
 /**
  * The internal execution engine and "final invoker" for JSON-RPC requests.
  *
- * <p>This class is responsible for the final stages of the JSON-RPC lifecycle:
+ * <p>This class acts as the terminal end of the {@link JsonRpcChain}. It is responsible for the
+ * final stages of the JSON-RPC lifecycle:
  *
  * <ul>
  *   <li>Validating the parsed request envelope.
@@ -27,10 +29,8 @@ import io.jooby.jsonrpc.*;
  *       compliant {@link JsonRpcResponse} objects.
  * </ul>
  */
-public class JsonRpcExecutor implements SneakyThrows.Supplier<Optional<JsonRpcResponse>> {
+public class JsonRpcExecutor implements JsonRpcChain {
   private final Map<String, JsonRpcService> services;
-  private final Context ctx;
-  private final JsonRpcRequest request;
   private final Map<Class<?>, Logger> loggers;
   private final JsonRpcExceptionTranslator exceptionTranslator;
   private final Exception parseError;
@@ -40,25 +40,19 @@ public class JsonRpcExecutor implements SneakyThrows.Supplier<Optional<JsonRpcRe
    *
    * @param loggers A map of loggers keyed by service class.
    * @param services A map of registered JSON-RPC services keyed by method name.
-   * @param ctx The current HTTP context.
    * @param exceptionTranslator The translator used to map standard Throwables to JSON-RPC error
    *     codes.
-   * @param request The incoming JSON-RPC request.
    * @param parseError Any exception that occurred during the initial JSON parsing phase.
    */
   public JsonRpcExecutor(
       Map<Class<?>, Logger> loggers,
       Map<String, JsonRpcService> services,
-      Context ctx,
       JsonRpcExceptionTranslator exceptionTranslator,
-      JsonRpcRequest request,
       Exception parseError) {
     this.services = services;
-    this.ctx = ctx;
-    this.exceptionTranslator = exceptionTranslator;
-    this.request = request;
-    this.parseError = parseError;
     this.loggers = loggers;
+    this.exceptionTranslator = exceptionTranslator;
+    this.parseError = parseError;
   }
 
   /**
@@ -68,13 +62,14 @@ public class JsonRpcExecutor implements SneakyThrows.Supplier<Optional<JsonRpcRe
    * response generation. It will return {@link Optional#empty()} for Notifications, unless a
    * fundamental Parse Error or Invalid Request error occurs, which always require a response.
    *
+   * @param ctx The current HTTP context passed down the chain.
+   * @param request The incoming JSON-RPC request passed down the chain.
    * @return An Optional containing the JSON-RPC response, or empty if the request was a valid
    *     Notification.
-   * @throws Exception Only thrown if a fatal JVM error occurs (e.g., OutOfMemoryError) that cannot
-   *     be recovered.
    */
   @Override
-  public Optional<JsonRpcResponse> tryGet() throws Exception {
+  public @NonNull Optional<JsonRpcResponse> proceed(
+      @NonNull Context ctx, @NonNull JsonRpcRequest request) {
     var log = loggers.get(JsonRpcService.class);
     try {
       if (parseError != null) {
