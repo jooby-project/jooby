@@ -12,6 +12,7 @@ import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 
 import io.jooby.Context;
+import io.jooby.Reified;
 import io.jooby.SneakyThrows;
 import io.jooby.jsonrpc.*;
 
@@ -32,26 +33,19 @@ import io.jooby.jsonrpc.*;
 public class JsonRpcExecutor implements JsonRpcChain {
   private final Map<String, JsonRpcService> services;
   private final Map<Class<?>, Logger> loggers;
-  private final JsonRpcExceptionTranslator exceptionTranslator;
   private final Exception parseError;
 
   /**
    * Constructs a new executor for a single JSON-RPC request.
    *
-   * @param loggers A map of loggers keyed by service class.
    * @param services A map of registered JSON-RPC services keyed by method name.
-   * @param exceptionTranslator The translator used to map standard Throwables to JSON-RPC error
-   *     codes.
+   * @param loggers A map of service loggers keyed by service class.
    * @param parseError Any exception that occurred during the initial JSON parsing phase.
    */
   public JsonRpcExecutor(
-      Map<Class<?>, Logger> loggers,
-      Map<String, JsonRpcService> services,
-      JsonRpcExceptionTranslator exceptionTranslator,
-      Exception parseError) {
+      Map<String, JsonRpcService> services, Map<Class<?>, Logger> loggers, Exception parseError) {
     this.services = services;
     this.loggers = loggers;
-    this.exceptionTranslator = exceptionTranslator;
     this.parseError = parseError;
   }
 
@@ -93,13 +87,13 @@ public class JsonRpcExecutor implements JsonRpcChain {
       throw new JsonRpcException(
           JsonRpcErrorCode.METHOD_NOT_FOUND, "Method not found: " + fullMethod);
     } catch (Throwable cause) {
-      return toRpcResponse(log, request, cause);
+      return toRpcResponse(ctx, log, request, cause);
     }
   }
 
   private Optional<JsonRpcResponse> toRpcResponse(
-      Logger log, JsonRpcRequest request, Throwable ex) {
-    var code = exceptionTranslator.toErrorCode(ex);
+      Context ctx, Logger log, JsonRpcRequest request, Throwable ex) {
+    var code = toErrorCode(ctx, ex);
     log(log, request, code, ex);
 
     if (SneakyThrows.isFatal(ex)) {
@@ -171,5 +165,19 @@ public class JsonRpcExecutor implements JsonRpcChain {
         }
       }
     }
+  }
+
+  public JsonRpcErrorCode toErrorCode(Context ctx, Throwable cause) {
+    if (cause instanceof JsonRpcException rpcException) {
+      return rpcException.getCode();
+    }
+    // Attempt to look up any user-defined exception mappings from the registry
+    Map<Class<?>, JsonRpcErrorCode> customErrorMapping =
+        ctx.require(Reified.map(Class.class, JsonRpcErrorCode.class));
+    return customErrorMapping.entrySet().stream()
+        .filter(entry -> entry.getKey().isInstance(cause))
+        .findFirst()
+        .map(Map.Entry::getValue)
+        .orElseGet(() -> JsonRpcErrorCode.of(ctx.getRouter().errorCode(cause)));
   }
 }

@@ -24,18 +24,11 @@ import io.jooby.jsonrpc.JsonRpcService;
 
 public class JsonRpcHandler implements Route.Handler {
   private final Map<String, JsonRpcService> services;
-  private final JsonRpcExceptionTranslator exceptionTranslator;
-  private final HashMap<Class<?>, Logger> loggers;
   private final JsonRpcInvoker invoker;
+  private final Map<Class<?>, Logger> loggers = new HashMap<>();
 
-  public JsonRpcHandler(
-      Map<String, JsonRpcService> services,
-      JsonRpcExceptionTranslator exceptionTranslator,
-      JsonRpcInvoker invoker) {
+  public JsonRpcHandler(Map<String, JsonRpcService> services, JsonRpcInvoker invoker) {
     this.services = services;
-    this.exceptionTranslator = exceptionTranslator;
-    this.invoker = invoker;
-    this.loggers = new HashMap<>();
     loggers.put(JsonRpcService.class, LoggerFactory.getLogger(JsonRpcService.class));
     services
         .values()
@@ -44,6 +37,7 @@ public class JsonRpcHandler implements Route.Handler {
               var generated = service.getClass().getAnnotation(Generated.class);
               loggers.put(service.getClass(), LoggerFactory.getLogger(generated.value()));
             });
+    this.invoker = invoker;
   }
 
   /**
@@ -70,7 +64,7 @@ public class JsonRpcHandler implements Route.Handler {
     }
 
     var responses = new ArrayList<JsonRpcResponse>();
-    var executor = new JsonRpcExecutor(loggers, services, exceptionTranslator, parseError);
+    var executor = new JsonRpcExecutor(services, loggers, parseError);
 
     // Look up all generated *Rpc classes registered in the service registry
     for (var request : input) {

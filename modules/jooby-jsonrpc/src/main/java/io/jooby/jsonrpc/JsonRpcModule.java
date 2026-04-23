@@ -12,7 +12,6 @@ import org.jspecify.annotations.Nullable;
 import io.jooby.*;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
-import io.jooby.internal.jsonrpc.JsonRpcExceptionTranslator;
 import io.jooby.internal.jsonrpc.JsonRpcHandler;
 import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
 
@@ -130,7 +129,7 @@ public class JsonRpcModule implements Extension {
     if (head != null) {
       invoker = invoker == null ? head : head.then(invoker);
     }
-    app.post(path, new JsonRpcHandler(services, new JsonRpcExceptionTranslator(app), invoker));
+    app.post(path, new JsonRpcHandler(services, invoker));
 
     // Initialize the custom exception mapping registry
     app.getServices()
