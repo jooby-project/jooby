@@ -11,7 +11,7 @@ import java.util.Optional;
 import io.jooby.Reified;
 import io.jooby.Router;
 import io.jooby.jsonrpc.JsonRpcErrorCode;
-import io.jooby.jsonrpc.JsonRpcResponse;
+import io.jooby.jsonrpc.JsonRpcException;
 
 public class JsonRpcExceptionTranslator {
   private final Router router;
@@ -21,15 +21,14 @@ public class JsonRpcExceptionTranslator {
   }
 
   public JsonRpcErrorCode toErrorCode(Throwable cause) {
+    if (cause instanceof JsonRpcException rpcException) {
+      return rpcException.getCode();
+    }
     // Attempt to look up any user-defined exception mappings from the registry
     Map<Class<?>, JsonRpcErrorCode> customMapping =
         router.require(Reified.map(Class.class, JsonRpcErrorCode.class));
     return errorCode(customMapping, cause)
         .orElseGet(() -> JsonRpcErrorCode.of(router.errorCode(cause)));
-  }
-
-  public JsonRpcResponse.ErrorDetail toErrorDetail(Throwable cause) {
-    return new JsonRpcResponse.ErrorDetail(toErrorCode(cause), cause);
   }
 
   /**

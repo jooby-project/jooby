@@ -36,6 +36,18 @@ public class JsonRpcException extends RuntimeException {
    * Constructs a new JSON-RPC exception.
    *
    * @param code The integer error code (preferably one of the standard constants).
+   * @param cause The underlying cause of the error.
+   */
+  public JsonRpcException(JsonRpcErrorCode code, Throwable cause) {
+    super(code.getMessage(), cause);
+    this.code = code;
+    this.data = null;
+  }
+
+  /**
+   * Constructs a new JSON-RPC exception.
+   *
+   * @param code The integer error code (preferably one of the standard constants).
    * @param message A short description of the error.
    * @param cause The underlying cause of the error.
    */

@@ -14,6 +14,19 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>When an RPC call is made, the Server MUST reply with a Response, except in the case of
  * Notifications. The Response is expressed as a single JSON Object.
+ *
+ * <h3>Exception and Error Handling</h3>
+ *
+ * <p>When an error or exception occurs during the processing of a JSON-RPC request, it is captured
+ * and wrapped within the {@link ErrorDetail} of this response object.
+ *
+ * <p><strong>Important:</strong> Not all exceptions are converted into an errored response sent to
+ * the client. Specifically, if an exception occurs while processing a <strong>Notification</strong>
+ * (a request intentionally omitting the {@code id} member), the server MUST NOT reply.
+ *
+ * <p>In all cases, whether the request is a standard Method Call or a Notification, the exception
+ * will <strong>always be logged</strong> by the server infrastructure. However, it is only
+ * serialized and transmitted back to the client if the original request required a response.
  */
 public class JsonRpcResponse {
 
@@ -34,19 +47,20 @@ public class JsonRpcResponse {
    *
    * @param id The id from the corresponding request.
    * @param result The result of the invoked method.
-   * @return A populated JsonRpcResponse.
+   * @return A populated JsonRpcResponse containing the result.
    */
   public static JsonRpcResponse success(Object id, Object result) {
     return new JsonRpcResponse(id, result, null);
   }
 
   /**
-   * Creates an error JSON-RPC response.
+   * Creates an error JSON-RPC response holding generic data or a Throwable.
    *
-   * @param id The id from the corresponding request.
-   * @param code The error code.
-   * @param data Additional data about the error.
-   * @return A populated JsonRpcResponse.
+   * @param id The id from the corresponding request (or null if a Parse Error / Invalid Request).
+   * @param code The JSON-RPC error code.
+   * @param data Additional data about the error. If this is a Throwable, it delegates to the
+   *     Throwable handler.
+   * @return A populated JsonRpcResponse containing the error details.
    */
   public static JsonRpcResponse error(@Nullable Object id, JsonRpcErrorCode code, Object data) {
     if (data instanceof Throwable) {
@@ -56,12 +70,12 @@ public class JsonRpcResponse {
   }
 
   /**
-   * Creates an error JSON-RPC response.
+   * Creates an error JSON-RPC response originating from a Throwable.
    *
-   * @param id The id from the corresponding request.
-   * @param code The error code.
-   * @param cause Additional data about the error.
-   * @return A populated JsonRpcResponse.
+   * @param id The id from the corresponding request (or null if a Parse Error / Invalid Request).
+   * @param code The JSON-RPC error code.
+   * @param cause The underlying exception that caused the error.
+   * @return A populated JsonRpcResponse containing the error details.
    */
   public static JsonRpcResponse error(
       @Nullable Object id, JsonRpcErrorCode code, @Nullable Throwable cause) {
@@ -100,7 +114,13 @@ public class JsonRpcResponse {
     this.id = id;
   }
 
-  /** Represents the error object inside a JSON-RPC response. */
+  /**
+   * Represents the error object inside a JSON-RPC response.
+   *
+   * <p>If constructed with a {@link Throwable}, the throwable is retained for internal server
+   * logging via {@link #exception()}, but only its message is exposed to the client payload via
+   * {@link #getData()} to prevent leaking sensitive stack traces.
+   */
   public static class ErrorDetail {
     private final int code;
     private final String message;
@@ -128,6 +148,12 @@ public class JsonRpcResponse {
       return message;
     }
 
+    /**
+     * Gets the additional error data. If the underlying data is an Exception, this safely returns
+     * only the exception message rather than the full stack trace object.
+     *
+     * @return The error data, or the exception message.
+     */
     public @Nullable Object getData() {
       if (data instanceof Throwable cause) {
         return cause.getMessage();
@@ -135,6 +161,11 @@ public class JsonRpcResponse {
       return data;
     }
 
+    /**
+     * Retrieves the raw exception for internal server logging, if one exists.
+     *
+     * @return The underlying Throwable, or null if the error wasn't caused by an exception.
+     */
     public @Nullable Throwable exception() {
       if (data instanceof Throwable cause) {
         return cause;

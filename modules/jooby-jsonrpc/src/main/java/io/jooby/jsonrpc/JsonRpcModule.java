@@ -15,7 +15,7 @@ import io.jooby.*;
 import io.jooby.exception.MissingValueException;
 import io.jooby.exception.TypeMismatchException;
 import io.jooby.internal.jsonrpc.JsonRpcExceptionTranslator;
-import io.jooby.internal.jsonrpc.JsonRpcExecutor;
+import io.jooby.internal.jsonrpc.JsonRpcHandler;
 import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
 
 /**
@@ -56,7 +56,6 @@ public class JsonRpcModule implements Extension {
   private final String path;
   private @Nullable JsonRpcInvoker invoker;
   private @Nullable OtelJsonRcpTracing head;
-  private JsonRpcExceptionTranslator exceptionTranslator;
 
   public JsonRpcModule(String path, JsonRpcService service, JsonRpcService... services) {
     this.path = path;
@@ -99,129 +98,12 @@ public class JsonRpcModule implements Extension {
     if (head != null) {
       invoker = invoker == null ? head : head.then(invoker);
     }
-    app.post(path, this::handle);
+    app.post(path, new JsonRpcHandler(services, new JsonRpcExceptionTranslator(app), invoker));
 
-    exceptionTranslator = new JsonRpcExceptionTranslator(app);
-    app.getServices().put(JsonRpcExceptionTranslator.class, exceptionTranslator);
     // Initialize the custom exception mapping registry
     app.getServices()
         .mapOf(Class.class, JsonRpcErrorCode.class)
         .put(MissingValueException.class, JsonRpcErrorCode.INVALID_PARAMS)
         .put(TypeMismatchException.class, JsonRpcErrorCode.INVALID_PARAMS);
-  }
-
-  /**
-   * Main handler for the JSON-RPC protocol. *
-   *
-   * <p>This method implements the flattened iteration logic. Because {@link JsonRpcRequest}
-   * implements {@code Iterable}, this handler treats single requests and batch requests identically
-   * during processing.
-   *
-   * @param ctx The current Jooby context.
-   * @return A single {@link JsonRpcResponse}, a {@code List} of responses for batches, or an empty
-   *     string for notifications.
-   */
-  private Object handle(Context ctx) throws Exception {
-    JsonRpcRequest input;
-    try {
-      input = ctx.body(JsonRpcRequest.class);
-    } catch (Exception cause) {
-      var badRequest = new JsonRpcRequest();
-      badRequest.setMethod(JsonRpcRequest.UNKNOWN_METHOD);
-      var parseError = JsonRpcResponse.error(null, JsonRpcErrorCode.PARSE_ERROR, cause);
-      if (head != null) {
-        // Manually handle bad request for otel
-        return head.invoke(ctx, badRequest, () -> Optional.of(parseError));
-      }
-      log(badRequest, cause);
-      return parseError;
-    }
-
-    List<JsonRpcResponse> responses = new ArrayList<>();
-
-    // Look up all generated *Rpc classes registered in the service registry
-    for (var request : input) {
-      try {
-        var target = new JsonRpcExecutor(services, ctx, request);
-        var response = invoker == null ? target.get() : invoker.invoke(ctx, request, target);
-        response.ifPresent(responses::add);
-      } catch (JsonRpcException cause) {
-        log(request, cause);
-        // Domain-specific or protocol-level exceptions (e.g., -32602 Invalid Params)
-        if (request.getId() != null) {
-          responses.add(JsonRpcResponse.error(request.getId(), cause.getCode(), cause.getCause()));
-        }
-      } catch (Exception cause) {
-        log(request, cause);
-        // Spec: -32603 Internal error for unhandled application exceptions
-        if (request.getId() != null) {
-          responses.add(
-              JsonRpcResponse.error(
-                  request.getId(), exceptionTranslator.toErrorCode(cause), cause));
-        }
-      }
-    }
-
-    // Handle the case where all requests in a batch were notifications
-    if (responses.isEmpty()) {
-      ctx.setResponseCode(StatusCode.NO_CONTENT);
-      return "";
-    }
-
-    // Spec: Return an array only if the original request was a batch
-    return input.isBatch() ? responses : responses.getFirst();
-  }
-
-  private void log(JsonRpcRequest request, Throwable cause) {
-    JsonRpcErrorCode code;
-    boolean hasCause = true;
-    if (cause instanceof JsonRpcException rpcException) {
-      code = rpcException.getCode();
-      hasCause = false;
-    } else {
-      code = exceptionTranslator.toErrorCode(cause);
-    }
-    var type = code == JsonRpcErrorCode.INTERNAL_ERROR ? "server" : "client";
-    var message = "JSON-RPC {} error [{} {}] on method '{}' (id: {})";
-    switch (code) {
-      case INTERNAL_ERROR ->
-          log.error(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-      case UNAUTHORIZED, FORBIDDEN, NOT_FOUND_ERROR ->
-          log.debug(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-      default -> {
-        if (hasCause) {
-          log.warn(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId(),
-              cause);
-        } else {
-          log.debug(
-              message,
-              type,
-              code.getCode(),
-              code.getMessage(),
-              request.getMethod(),
-              request.getId());
-        }
-      }
-    }
   }
 }

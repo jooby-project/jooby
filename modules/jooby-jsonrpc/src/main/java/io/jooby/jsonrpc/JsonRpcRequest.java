@@ -33,13 +33,14 @@ import org.jspecify.annotations.Nullable;
  * generic structure (e.g., a List or a Map) and populating the batch state.
  */
 public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
-  public static final String UNKNOWN_METHOD = "unknown_method";
+  public static final JsonRpcRequest BAD_REQUEST = new JsonRpcRequest();
+  public static final String JSONRPC = "2.0";
 
   /** A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0". */
-  private String jsonrpc = "2.0";
+  private @Nullable String jsonrpc;
 
   /** A String containing the name of the method to be invoked. */
-  private String method;
+  private @Nullable String method;
 
   /**
    * A Structured value that holds the parameter values to be used during the invocation of the
@@ -55,23 +56,31 @@ public class JsonRpcRequest implements Iterable<JsonRpcRequest> {
 
   // --- Batch State ---
   private boolean batch;
-  private List<JsonRpcRequest> requests;
+  private @Nullable List<JsonRpcRequest> requests;
 
   public JsonRpcRequest() {}
 
-  public String getJsonrpc() {
+  public boolean isValid() {
+    return JSONRPC.equals(jsonrpc) && !isNullOrEmpty(method);
+  }
+
+  private boolean isNullOrEmpty(@Nullable String value) {
+    return value == null || value.trim().isEmpty();
+  }
+
+  public @Nullable String getJsonrpc() {
     return jsonrpc;
   }
 
-  public void setJsonrpc(String jsonrpc) {
+  public void setJsonrpc(@Nullable String jsonrpc) {
     this.jsonrpc = jsonrpc;
   }
 
-  public String getMethod() {
+  public @Nullable String getMethod() {
     return method;
   }
 
-  public void setMethod(String method) {
+  public void setMethod(@Nullable String method) {
     this.method = method;
   }
 

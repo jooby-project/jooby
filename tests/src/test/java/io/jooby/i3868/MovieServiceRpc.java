@@ -7,6 +7,8 @@ package io.jooby.i3868;
 
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
+
 import io.jooby.annotation.*;
 import io.jooby.annotation.jsonrpc.JsonRpc;
 import io.jooby.exception.NotFoundException;
@@ -31,6 +33,10 @@ public class MovieServiceRpc {
         .filter(m -> m.id() == id)
         .findFirst()
         .orElseThrow(() -> new NotFoundException("Movie not found: " + id));
+  }
+
+  public Movie getByIdString(@NonNull String id) {
+    return getById(Integer.parseInt(id));
   }
 
   public List<Movie> search(String title, int year) {
