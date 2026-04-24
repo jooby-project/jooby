@@ -21,7 +21,7 @@ import io.jooby.mcp.jackson2.McpJackson2Module;
 import io.jooby.mcp.jackson3.McpJackson3Module;
 import io.jooby.test.WebClient;
 
-public class UserToolsTest {
+public class McpTestUserToolsTest {
 
   private void setupMcpApp(Jooby app, Extension... extensions) {
     for (var extension : extensions) {

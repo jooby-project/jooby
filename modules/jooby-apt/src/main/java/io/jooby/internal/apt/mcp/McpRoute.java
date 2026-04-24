@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.apt.mcp;
 
 import static io.jooby.internal.apt.CodeBlock.*;
 import static io.jooby.internal.apt.CodeBlock.string;
@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import javax.lang.model.element.ExecutableElement;
 
+import io.jooby.internal.apt.AnnotationSupport;
+import io.jooby.internal.apt.WebRoute;
 import io.jooby.javadoc.JavaDocNode;
 import io.jooby.javadoc.MethodDoc;
 
@@ -333,7 +335,8 @@ public class McpRoute extends WebRoute<McpRouter> {
       var type = param.getType().getRawType().toString();
       if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
           || type.equals("io.modelcontextprotocol.common.McpTransportContext")
-          || type.equals("io.jooby.Context")) continue;
+          || type.equals("io.jooby.Context")
+          || type.equals("io.jooby.mcp.McpOperation")) continue;
 
       var mcpName = param.getMcpName();
       var isRequired = !param.isNullable(kt);
@@ -461,7 +464,8 @@ public class McpRoute extends WebRoute<McpRouter> {
       var type = param.getType().getRawType().toString();
       if (type.equals("io.modelcontextprotocol.server.McpSyncServerExchange")
           || type.equals("io.modelcontextprotocol.common.McpTransportContext")
-          || type.equals("io.jooby.Context")) continue;
+          || type.equals("io.jooby.Context")
+          || type.equals("io.jooby.mcp.McpOperation")) continue;
 
       var mcpName = param.getMcpName();
       var paramDescription = param.getMcpDescription();
@@ -809,15 +813,19 @@ public class McpRoute extends WebRoute<McpRouter> {
               "private fun ",
               handlerName,
               "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?, transportContext:"
-                  + " io.modelcontextprotocol.common.McpTransportContext, req:"
-                  + " io.modelcontextprotocol.spec.McpSchema.",
-              reqType,
-              "): io.modelcontextprotocol.spec.McpSchema.",
+                  + " io.modelcontextprotocol.common.McpTransportContext, operation:"
+                  + " io.jooby.mcp.McpOperation): io.modelcontextprotocol.spec.McpSchema.",
               resType,
               " {"));
 
       buffer.add(
           statement(indent(6), "val ctx = transportContext.get(\"CTX\") as? io.jooby.Context"));
+      buffer.add(
+          statement(
+              indent(6),
+              "val req_ = operation.request(io.modelcontextprotocol.spec.McpSchema.",
+              reqType,
+              "::class.java)"));
     } else {
       buffer.add(
           statement(
@@ -827,29 +835,28 @@ public class McpRoute extends WebRoute<McpRouter> {
               " ",
               handlerName,
               "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
-                  + " io.modelcontextprotocol.common.McpTransportContext"
-                  + " transportContext,"
-                  + " io.modelcontextprotocol.spec.McpSchema.",
-              reqType,
-              " req) {"));
+                  + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
+                  + " io.jooby.mcp.McpOperation operation) {"));
 
       buffer.add(
           statement(
               indent(6),
               "var ctx = (io.jooby.Context) transportContext.get(\"CTX\")",
               semicolon(kt)));
+      buffer.add(
+          statement(
+              indent(6),
+              "var req_ = operation.request(io.modelcontextprotocol.spec.McpSchema.",
+              reqType,
+              ".class)",
+              semicolon(kt)));
     }
 
     if (isMcpTool() || isMcpPrompt()) {
       if (kt) {
-        buffer.add(statement(indent(6), "val args = req.arguments() ?: emptyMap<String, Any>()"));
+        buffer.add(statement(indent(6), "val args = operation.arguments()"));
       } else {
-        buffer.add(
-            statement(
-                indent(6),
-                "var args = req.arguments() != null ? req.arguments() :"
-                    + " java.util.Collections.<String, Object>emptyMap()",
-                semicolon(kt)));
+        buffer.add(statement(indent(6), "var args = operation.arguments()", semicolon(kt)));
       }
     } else if (isMcpResource() || isMcpResourceTemplate()) {
       String uriTemplate = extractAnnotationValue("io.jooby.annotation.mcp.McpResource", "uri");
@@ -857,7 +864,7 @@ public class McpRoute extends WebRoute<McpRouter> {
 
       if (isTemplate) {
         if (kt) {
-          buffer.add(statement(indent(6), "val uri = req.uri()"));
+          buffer.add(statement(indent(6), "val uri = req_.uri()"));
           buffer.add(
               statement(
                   indent(6),
@@ -867,7 +874,7 @@ public class McpRoute extends WebRoute<McpRouter> {
           buffer.add(statement(indent(6), "val args = mutableMapOf<String, Any>()"));
           buffer.add(statement(indent(6), "args.putAll(manager.extractVariableValues(uri))"));
         } else {
-          buffer.add(statement(indent(6), "var uri = req.uri()", semicolon(kt)));
+          buffer.add(statement(indent(6), "var uri = req_.uri()", semicolon(kt)));
           buffer.add(
               statement(
                   indent(6),
@@ -911,7 +918,11 @@ public class McpRoute extends WebRoute<McpRouter> {
           || type.equals("io.modelcontextprotocol.common.McpTransportContext")) {
         continue;
       } else if (type.equals("io.modelcontextprotocol.spec.McpSchema." + reqType)) {
-        buffer.add(statement(indent(6), kt ? "val " : "var ", javaName, " = req", semicolon(kt)));
+        buffer.add(statement(indent(6), kt ? "val " : "var ", javaName, " = req_", semicolon(kt)));
+        continue;
+      } else if (type.equals("io.jooby.mcp.McpOperation")) {
+        buffer.add(
+            statement(indent(6), kt ? "val " : "var ", javaName, " = operation", semicolon(kt)));
         continue;
       }
 
@@ -1070,7 +1081,7 @@ public class McpRoute extends WebRoute<McpRouter> {
 
     var methodCall = "c." + getMethodName() + "(" + String.join(", ", javaParamNames) + ")";
 
-    String toMethodPrefix = (isMcpResource() || isMcpResourceTemplate()) ? "req.uri(), " : "";
+    String toMethodPrefix = (isMcpResource() || isMcpResourceTemplate()) ? "req_.uri(), " : "";
 
     // Resolve output schema flag for Handler runtime behavior
     String toMethodSuffix = "";

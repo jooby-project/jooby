@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.apt;
+package io.jooby.internal.apt.mcp;
 
 import static io.jooby.internal.apt.AnnotationSupport.VALUE;
 import static io.jooby.internal.apt.CodeBlock.*;
@@ -23,6 +23,9 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
+import io.jooby.internal.apt.AnnotationSupport;
+import io.jooby.internal.apt.MvcContext;
+import io.jooby.internal.apt.WebRouter;
 import io.jooby.javadoc.JavaDocParser;
 import io.jooby.javadoc.MethodDoc;
 
@@ -347,38 +350,30 @@ public class McpRouter extends WebRouter<McpRoute> {
               ? "io.modelcontextprotocol.spec.McpSchema.ResourceReference"
               : "io.modelcontextprotocol.spec.McpSchema.PromptReference";
 
-      String lambda;
+      String invokerCall;
       if (groups.containsKey(ref)) {
         var targetMethod = findTargetMethodName(ref);
         var handlerName = targetMethod + "CompletionHandler";
-        var operationArg = generateOperationArg(kt, "completions/" + ref, targetMethod);
+        var targetClass = getTargetType().toString();
 
-        String invokeArgs =
-            isStateless ? "null, ctx, req" : "exchange, exchange.transportContext(), req";
-        String lambdaArgs = isStateless ? "ctx, req" : "exchange, req";
+        String adapterMethod = isStateless ? "asStatelessCompletionHandler" : "asCompletionHandler";
+        String handlerRef = "this::" + handlerName;
+        String operationId = "completions/" + ref;
 
-        lambda =
-            kt
-                ? "{ "
-                    + lambdaArgs
-                    + " -> invoker.invoke("
-                    + operationArg
-                    + ") { this."
-                    + handlerName
-                    + "("
-                    + invokeArgs
-                    + ") } }"
-                : "("
-                    + lambdaArgs
-                    + ") -> invoker.invoke("
-                    + operationArg
-                    + ", () -> this."
-                    + handlerName
-                    + "("
-                    + invokeArgs
-                    + "))";
+        invokerCall =
+            "invoker."
+                + adapterMethod
+                + "("
+                + string(operationId)
+                + ", "
+                + string(targetClass)
+                + ", "
+                + string(targetMethod)
+                + ", "
+                + handlerRef
+                + ")";
       } else {
-        lambda =
+        invokerCall =
             kt
                 ? "{ _, _ -> io.jooby.mcp.McpResult(this.json).toCompleteResult(emptyList<Any>()) }"
                 : "(exchange, req) -> new"
@@ -398,7 +393,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "(",
                 string(ref),
                 "), ",
-                lambda,
+                invokerCall,
                 "))"));
       } else {
         buffer.append(
@@ -411,7 +406,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "(",
                 string(ref),
                 "), ",
-                lambda,
+                invokerCall,
                 "))",
                 semicolon(kt)));
       }
@@ -482,32 +477,30 @@ public class McpRouter extends WebRouter<McpRoute> {
       var mcpType = getMcpRouteType(route);
       if (mcpType.isEmpty()) continue;
 
-      var operationArg = generateOperationArg(kt, mcpType + "/" + mcpName, methodName);
+      String adapterMethod = "";
+      if (route.isMcpTool())
+        adapterMethod = isStateless ? "asStatelessToolHandler" : "asToolHandler";
+      else if (route.isMcpPrompt())
+        adapterMethod = isStateless ? "asStatelessPromptHandler" : "asPromptHandler";
+      else if (route.isMcpResource() || route.isMcpResourceTemplate())
+        adapterMethod = isStateless ? "asStatelessResourceHandler" : "asResourceHandler";
 
-      String invokeArgs =
-          isStateless ? "null, ctx, req" : "exchange, exchange.transportContext(), req";
-      String lambdaArgs = isStateless ? "ctx, req" : "exchange, req";
-
-      var lambda =
-          kt
-              ? "{ "
-                  + lambdaArgs
-                  + " -> invoker.invoke("
-                  + operationArg
-                  + ") { this."
-                  + methodName
-                  + "("
-                  + invokeArgs
-                  + ") } }"
-              : "("
-                  + lambdaArgs
-                  + ") -> invoker.invoke("
-                  + operationArg
-                  + ", () -> this."
-                  + methodName
-                  + "("
-                  + invokeArgs
-                  + "))";
+      String handlerRef = "this::" + methodName;
+      String targetClass = getTargetType().toString();
+      String operationId = mcpType + "/" + mcpName;
+      String invokerCall =
+          of(
+              "invoker.",
+              adapterMethod,
+              "(",
+              string(operationId),
+              ",",
+              string(targetClass),
+              ", ",
+              string(methodName),
+              ", ",
+              handlerRef,
+              ")");
 
       String prefix = kt ? "" : "new ";
       String serverMethod = "io.modelcontextprotocol.server." + featuresClass + ".";
@@ -522,7 +515,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "SyncToolSpecification(",
                 methodName,
                 "ToolSpec(schemaGenerator), ",
-                lambda,
+                invokerCall,
                 "))",
                 semicolon(kt)));
       } else if (route.isMcpPrompt()) {
@@ -535,7 +528,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "SyncPromptSpecification(",
                 methodName,
                 "PromptSpec(), ",
-                lambda,
+                invokerCall,
                 "))",
                 semicolon(kt)));
       } else if (route.isMcpResource() || route.isMcpResourceTemplate()) {
@@ -556,7 +549,7 @@ public class McpRouter extends WebRouter<McpRoute> {
                 methodName,
                 defMethod,
                 ", ",
-                lambda,
+                invokerCall,
                 "))",
                 semicolon(kt)));
       }
@@ -577,14 +570,19 @@ public class McpRouter extends WebRouter<McpRoute> {
                 "private fun ",
                 handlerName,
                 "(exchange: io.modelcontextprotocol.server.McpSyncServerExchange?,"
-                    + " transportContext: io.modelcontextprotocol.common.McpTransportContext, req:"
-                    + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest):"
+                    + " transportContext: io.modelcontextprotocol.common.McpTransportContext,"
+                    + " operation: io.jooby.mcp.McpOperation):"
                     + " io.modelcontextprotocol.spec.McpSchema.CompleteResult {"));
         buffer.append(
-            statement(indent(6), "val ctx = transportContext.get(\"CTX\") as io.jooby.Context"));
+            statement(
+                indent(6),
+                "val req_ ="
+                    + " operation.request(io.modelcontextprotocol.spec.McpSchema.CompleteRequest::class.java)"));
+        buffer.append(
+            statement(indent(6), "val ctx = transportContext.get(\"CTX\") as? io.jooby.Context"));
         buffer.append(statement(indent(6), "val c = this.factory.apply(ctx)"));
-        buffer.append(statement(indent(6), "val targetArg = req.argument()?.name() ?: \"\""));
-        buffer.append(statement(indent(6), "val typedValue = req.argument()?.value() ?: \"\""));
+        buffer.append(statement(indent(6), "val targetArg = req_.argument()?.name() ?: \"\""));
+        buffer.append(statement(indent(6), "val typedValue = req_.argument()?.value() ?: \"\""));
         buffer.append(statement(indent(6), "return when (targetArg) {"));
       } else {
         buffer.append(
@@ -594,7 +592,13 @@ public class McpRouter extends WebRouter<McpRoute> {
                 handlerName,
                 "(io.modelcontextprotocol.server.McpSyncServerExchange exchange,"
                     + " io.modelcontextprotocol.common.McpTransportContext transportContext,"
-                    + " io.modelcontextprotocol.spec.McpSchema.CompleteRequest req) {"));
+                    + " io.jooby.mcp.McpOperation operation) {"));
+        buffer.append(
+            statement(
+                indent(6),
+                "var req_ ="
+                    + " operation.request(io.modelcontextprotocol.spec.McpSchema.CompleteRequest.class)",
+                semicolon(kt)));
         buffer.append(
             statement(
                 indent(6),
@@ -604,12 +608,12 @@ public class McpRouter extends WebRouter<McpRoute> {
         buffer.append(
             statement(
                 indent(6),
-                "var targetArg = req.argument() != null ? req.argument().name() : \"\"",
+                "var targetArg = req_.argument() != null ? req_.argument().name() : \"\"",
                 semicolon(kt)));
         buffer.append(
             statement(
                 indent(6),
-                "var typedValue = req.argument() != null ? req.argument().value() : \"\"",
+                "var typedValue = req_.argument() != null ? req_.argument().value() : \"\"",
                 semicolon(kt)));
         buffer.append(statement(indent(6), "return switch (targetArg) {"));
       }
@@ -625,6 +629,7 @@ public class McpRouter extends WebRouter<McpRoute> {
             invokeArgs.add("exchange");
           else if (type.equals("io.modelcontextprotocol.common.McpTransportContext"))
             invokeArgs.add("transportContext");
+          else if (type.equals("io.jooby.mcp.McpOperation")) invokeArgs.add("operation");
           else {
             targetArgName = param.getMcpName();
             invokeArgs.add("typedValue");
@@ -684,18 +689,6 @@ public class McpRouter extends WebRouter<McpRoute> {
       }
       buffer.append(statement(indent(4), "}\n"));
     }
-  }
-
-  private String generateOperationArg(boolean kt, String operationId, String targetMethod) {
-    String prefix = kt ? "" : "new ";
-    return prefix
-        + "io.jooby.mcp.McpOperation("
-        + string(operationId)
-        + ", "
-        + string(getTargetType().toString())
-        + ", "
-        + string(targetMethod)
-        + ")";
   }
 
   public Optional<MethodDoc> getMethodDoc(String methodName, List<String> types) {

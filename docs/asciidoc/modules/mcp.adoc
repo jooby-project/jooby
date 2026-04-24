@@ -189,7 +189,7 @@ public class UserService {
 <1> Forces array schema generation for `User`, overriding generic `Object` erasure and the global/config flag.
 <2> Explicitly disables schema generation for this specific tool.
 
-=== Custom Invokers & Telemetry
+=== Custom Invokers
 
 You can inject custom logic (like SLF4J MDC context propagation, tracing, or custom error handling) around every tool, prompt, or resource execution by providing an `McpInvoker`.
 
@@ -204,16 +204,21 @@ Invokers are chained. You can register multiple invokers and they will wrap the 
 ----
 import io.jooby.mcp.McpInvoker;
 import io.jooby.mcp.McpOperation;
+import io.jooby.mcp.McpChain;
+import io.modelcontextprotocol.common.McpTransportContext;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.MDC;
 
 public class MdcMcpInvoker implements McpInvoker {
   @Override
-  public <R> R invoke(McpOperation operation, SneakyThrows.Supplier<R> action) {
+  public <R> R invoke(@Nullable McpSyncServerExchange exchange, McpTransportContext transportContext, McpOperation operation, McpChain chain) throws Exception {
     try {
-      MDC.put("mcp.id", operation.id());                 <1>
+      MDC.put("mcp.id", operation.id());                            // <1>
       MDC.put("mcp.class", operation.className());
       MDC.put("mcp.method", operation.methodName());
-      return action.get();                               <2>
+      
+      return chain.proceed(exchange, transportContext, operation);  // <2>
     } finally {
       MDC.remove("mcp.id");
       MDC.remove("mcp.class");
@@ -224,13 +229,66 @@ public class MdcMcpInvoker implements McpInvoker {
 
 {
   install(new McpModule(new CalculatorServiceMcp_())
-      .invoker(new MdcMcpInvoker()));                    <3>
+      .invoker(new MdcMcpInvoker()));                               // <3>
 }
 ----
 
 <1> Extract rich contextual data from the `McpOperation` record.
-<2> Proceed with the execution chain.
-<3> Register the invoker. Jooby will safely map any business exceptions thrown by your action into valid MCP JSON-RPC errors.
+<2> Proceed to the next interceptor in the chain or execute the final target handler.
+<3> Register the invoker. Jooby will safely map any business exceptions thrown by your chain into valid MCP JSON-RPC errors.
+
+==== Context Augmentation
+
+You can use an `McpInvoker` to resolve contextual data (such as an authenticated user, a tenant ID, etc.) and inject it directly into the `McpOperation`.
+
+This allows your tool methods to simply declare the custom type in their method signature, keeping your business logic clean and completely decoupled from transport-layer extraction.
+
+.Context Injector Example
+[source, java]
+----
+import io.jooby.mcp.McpInvoker;
+import io.jooby.mcp.McpOperation;
+import io.jooby.mcp.McpChain;
+import io.modelcontextprotocol.common.McpTransportContext;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
+import org.jspecify.annotations.Nullable;
+
+public class UserContextInvoker implements McpInvoker {
+  @Override
+  @SuppressWarnings("unchecked")
+  public <R> R invoke(@Nullable McpSyncServerExchange exchange, McpTransportContext transportContext, McpOperation operation, McpChain chain) throws Exception {
+    
+    User currentUser = retrieveUser();
+
+    // 2. Augment the operation with the resolved user
+    operation.setArgument("user", currentUser);
+
+    // 3. Proceed with the augmented operation
+    return (R) chain.proceed(exchange, transportContext, augmentedOp);
+  }
+}
+----
+
+Once the invoker is registered, you can seamlessly declare the augmented argument in your MCP controllers. The Jooby Annotation Processor will automatically map the injected argument to your method parameter.
+
+.Tool Implementation
+[source, java]
+----
+import io.jooby.annotation.mcp.McpTool;
+
+public class BillingService {
+
+  /**
+   * @param user The authenticated user (injected by UserContextInvoker). 
+   * Note: Because it is a complex type not present in the JSON request, 
+   * it is safely ignored by the JSON schema generator.
+   */
+  @McpTool(description = "Retrieves the billing history for the current user")
+  public InvoiceHistory getMyInvoices(User user, int limit) {
+    return database.findInvoices(user.getId(), limit);
+  }
+}
+----
 
 === Multiple Servers
 

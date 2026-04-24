@@ -99,7 +99,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    */
   @Override
   public @NonNull Optional<JsonRpcResponse> invoke(
-      @NonNull Context ctx, @NonNull JsonRpcRequest request, JsonRpcChain chain) {
+      @NonNull Context ctx, @NonNull JsonRpcRequest request, @NonNull JsonRpcChain chain) {
     var method = Optional.ofNullable(request.getMethod()).orElse("unknown_method");
     var span =
         tracer
