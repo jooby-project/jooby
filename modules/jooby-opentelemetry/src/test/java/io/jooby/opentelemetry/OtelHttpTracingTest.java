@@ -7,14 +7,14 @@ package io.jooby.opentelemetry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,8 +27,11 @@ import io.jooby.Router;
 import io.jooby.StatusCode;
 import io.jooby.value.Value;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.sdk.testing.junit5.OpenTelemetryExtension;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.data.StatusData;
@@ -62,6 +65,11 @@ public class OtelHttpTracingTest {
     when(ctx.require(Tracer.class)).thenReturn(tracer);
     when(ctx.require(OpenTelemetry.class)).thenReturn(otelTesting.getOpenTelemetry());
 
+    // OtelContextExtractor mock
+    OtelContextExtractor extractor = mock(OtelContextExtractor.class);
+    when(ctx.require(OtelContextExtractor.class)).thenReturn(extractor);
+    when(extractor.extract(ctx)).thenReturn(io.opentelemetry.context.Context.current());
+
     // Header extraction mocks
     Value missingHeader = mock(Value.class);
     when(missingHeader.valueOrNull()).thenReturn(null);
@@ -87,7 +95,19 @@ public class OtelHttpTracingTest {
 
     // Assert
     assertEquals("Success", result);
-    verify(ctx).setAttribute(any(String.class), any()); // Verifies span was put in context
+
+    // Verify both attributes were saved to the Jooby context
+    verify(ctx).setAttribute(eq("otel-span"), any(Span.class));
+
+    ArgumentCaptor<io.opentelemetry.context.Context> otelCtxCaptor =
+        ArgumentCaptor.forClass(io.opentelemetry.context.Context.class);
+    verify(ctx)
+        .setAttribute(
+            eq(io.opentelemetry.context.Context.class.getName()), otelCtxCaptor.capture());
+
+    // Ensure the captured context actually contains the span we just created
+    io.opentelemetry.context.Context capturedContext = otelCtxCaptor.getValue();
+    assertNotNull(Span.fromContext(capturedContext));
 
     java.util.List<SpanData> spans = otelTesting.getSpans();
     assertEquals(1, spans.size());
@@ -121,11 +141,6 @@ public class OtelHttpTracingTest {
     // Act & Assert Exception
     assertThrows(RuntimeException.class, () -> wrapped.apply(ctx));
 
-    // Notice we do NOT trigger onComplete here because Jooby handles exception propagation,
-    // but the catch block in the filter records the exception immediately.
-    // Span.end() relies on the container eventually triggering onComplete. For the sake of the
-    // test,
-    // we manually trigger it to finalize the span state as Jooby would.
     when(ctx.getResponseCode()).thenReturn(StatusCode.SERVER_ERROR);
     ArgumentCaptor<Route.Complete> onCompleteCaptor = ArgumentCaptor.forClass(Route.Complete.class);
     verify(ctx).onComplete(onCompleteCaptor.capture());
@@ -173,23 +188,61 @@ public class OtelHttpTracingTest {
   }
 
   @Test
-  void joobyRequestGetterExtractsHeaders() {
-    // Arrange
-    when(ctx.headerMap())
-        .thenReturn(
-            Map.of("traceparent", "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"));
+  void shouldExtractContextAndCreateSpan() throws Throwable {
+    // 1. Arrange - Core Mocks
+    var ctx = mock(Context.class);
+    var route = mock(Route.class);
+    var next = mock(Route.Handler.class);
 
-    Value mockHeaderValue = mock(Value.class);
-    when(mockHeaderValue.valueOrNull())
-        .thenReturn("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01");
-    when(ctx.header("traceparent")).thenReturn(mockHeaderValue);
+    // 2. Arrange - OTel Mocks
+    var tracer = mock(Tracer.class);
+    var spanBuilder = mock(SpanBuilder.class);
+    var span = mock(Span.class);
+    var scope = mock(Scope.class);
+
+    // 3. Arrange - The new Extractor Mocks
+    var extractor = mock(OtelContextExtractor.class);
+    var parentOtelContext = mock(io.opentelemetry.context.Context.class);
+
+    // Mock Jooby Routing State
+    when(ctx.getMethod()).thenReturn("GET");
+    when(ctx.getRequestPath()).thenReturn("/api/users/123");
+    when(route.getPattern()).thenReturn("/api/users/{id}");
+    when(ctx.getRoute()).thenReturn(route);
+
+    // Wire up the registry requires
+    when(ctx.require(Tracer.class)).thenReturn(tracer);
+    when(ctx.require(OtelContextExtractor.class)).thenReturn(extractor);
+
+    // Mock the Extractor behavior
+    when(extractor.extract(ctx)).thenReturn(parentOtelContext);
+
+    // Mock the OpenTelemetry Builder Chain
+    when(tracer.spanBuilder("GET /api/users/{id}")).thenReturn(spanBuilder);
+    when(spanBuilder.setParent(parentOtelContext)).thenReturn(spanBuilder);
+    when(spanBuilder.setSpanKind(SpanKind.SERVER)).thenReturn(spanBuilder);
+    when(spanBuilder.setAttribute(anyString(), anyString())).thenReturn(spanBuilder);
+    when(spanBuilder.startSpan()).thenReturn(span);
+    when(span.makeCurrent()).thenReturn(scope);
 
     // Act
-    Iterable<String> keys = OtelHttpTracing.JoobyRequestGetter.INSTANCE.keys(ctx);
-    String headerVal = OtelHttpTracing.JoobyRequestGetter.INSTANCE.get(ctx, "traceparent");
+    var filter = new OtelHttpTracing();
+    filter.apply(next).apply(ctx);
 
     // Assert
-    assertThat(keys).containsExactly("traceparent");
-    assertEquals("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01", headerVal);
+    verify(extractor).extract(ctx);
+    verify(spanBuilder).setParent(parentOtelContext);
+
+    // Verify the span was stored in the jooby context
+    verify(ctx).setAttribute("otel-span", span);
+
+    // Safely verify the context was saved without accidentally evaluating Context.current() outside
+    // the scope
+    verify(ctx)
+        .setAttribute(
+            eq(io.opentelemetry.context.Context.class.getName()),
+            any(io.opentelemetry.context.Context.class));
+
+    verify(next).apply(ctx);
   }
 }

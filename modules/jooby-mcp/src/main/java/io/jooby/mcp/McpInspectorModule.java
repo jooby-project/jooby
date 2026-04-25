@@ -115,7 +115,6 @@ public class McpInspectorModule implements Extension {
   @Override
   public void install(Jooby app) {
     this.indexHtml = buildIndexHtml();
-    this.mcpSrvConfig = resolveMcpServerConfig(app);
 
     app.assets(inspectorEndpoint + "/static/*", "/mcpInspector/assets/");
 
@@ -127,6 +126,11 @@ public class McpInspectorModule implements Extension {
           var location = resolveLocation(ctx);
           var configJson = buildConfigJson(mcpSrvConfig, location);
           return ctx.setResponseType(MediaType.json).render(configJson);
+        });
+
+    app.onStarting(
+        () -> {
+          this.mcpSrvConfig = resolveMcpServerConfig(app);
         });
   }
 

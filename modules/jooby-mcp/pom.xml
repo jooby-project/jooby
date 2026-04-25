@@ -22,6 +22,14 @@
       <groupId>io.modelcontextprotocol.sdk</groupId>
       <artifactId>mcp-core</artifactId>
     </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-opentelemetry</artifactId>
+      <version>${jooby.version}</version>
+      <optional>true</optional>
+    </dependency>
+
   </dependencies>
 
   <build>

@@ -5,14 +5,9 @@
  */
 package io.jooby.opentelemetry;
 
-import static io.opentelemetry.context.Context.current;
-
-import io.jooby.Context;
 import io.jooby.Route;
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.propagation.TextMapGetter;
 
 /**
  * OpenTelemetry HTTP tracing filter for Jooby routes.
@@ -66,14 +61,12 @@ public class OtelHttpTracing implements Route.Filter {
       // Create a high-cardinality-safe span name: e.g., "GET /api/users/{id}"
       var spanName = ctx.getMethod() + " " + ctx.getRoute().getPattern();
       var tracer = ctx.require(Tracer.class);
-      var otel = ctx.require(OpenTelemetry.class);
-      var propagator = otel.getPropagators().getTextMapPropagator();
-
-      var extractedContext = propagator.extract(current(), ctx, JoobyRequestGetter.INSTANCE);
+      var extractor = ctx.require(OtelContextExtractor.class);
+      var parent = extractor.extract(ctx);
       var span =
           tracer
               .spanBuilder(spanName)
-              .setParent(extractedContext)
+              .setParent(parent)
               .setSpanKind(SpanKind.SERVER)
               .setAttribute("http.request.method", ctx.getMethod())
               .setAttribute("url.path", ctx.getRequestPath())
@@ -96,6 +89,12 @@ public class OtelHttpTracing implements Route.Filter {
       try (var scope = span.makeCurrent()) {
         ctx.setAttribute("otel-span", span);
 
+        // Save the active OpenTelemetry context into Jooby's context
+        // so it survives thread boundaries (like WebSocket frames or async workers)
+        ctx.setAttribute(
+            io.opentelemetry.context.Context.class.getName(),
+            io.opentelemetry.context.Context.current());
+
         return next.apply(ctx);
       } catch (Throwable t) {
         span.recordException(t);
@@ -103,25 +102,5 @@ public class OtelHttpTracing implements Route.Filter {
         throw t;
       }
     };
-  }
-
-  /**
-   * A bridge implementation allowing OpenTelemetry to extract distributed tracing headers directly
-   * from a Jooby {@link Context}.
-   */
-  enum JoobyRequestGetter implements TextMapGetter<Context> {
-    INSTANCE;
-
-    @Override
-    public Iterable<String> keys(io.jooby.Context ctx) {
-      // Allows OTel to iterate over all header names if needed
-      return ctx.headerMap().keySet();
-    }
-
-    @Override
-    public String get(io.jooby.Context ctx, String key) {
-      // Safely extract the header value, returning null if it doesn't exist
-      return ctx.header(key).valueOrNull();
-    }
   }
 }

@@ -20,12 +20,13 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.exception.StartupException;
-import io.jooby.internal.mcp.McpDefaultInvoker;
+import io.jooby.internal.mcp.McpExecutor;
 import io.jooby.internal.mcp.McpServerConfig;
 import io.jooby.internal.mcp.transport.SseTransportProvider;
 import io.jooby.internal.mcp.transport.StatelessTransportProvider;
 import io.jooby.internal.mcp.transport.StreamableTransportProvider;
 import io.jooby.internal.mcp.transport.WebSocketTransportProvider;
+import io.jooby.mcp.instrumentation.OtelMcpTracing;
 import io.modelcontextprotocol.common.McpTransportContext;
 import io.modelcontextprotocol.json.McpJsonMapper;
 import io.modelcontextprotocol.server.*;
@@ -153,8 +154,9 @@ public class McpModule implements Extension {
   private final List<McpService> mcpServices = new ArrayList<>();
 
   private @Nullable McpInvoker invoker;
+  private @Nullable OtelMcpTracing head;
 
-  private Boolean generateOutputSchema = null;
+  private @Nullable Boolean generateOutputSchema;
 
   /**
    * Creates a new MCP module initialized with the provided generated services.
@@ -200,10 +202,15 @@ public class McpModule implements Extension {
    * @return This module instance for method chaining.
    */
   public McpModule invoker(McpInvoker invoker) {
-    if (this.invoker != null) {
-      this.invoker = invoker.then(this.invoker);
+    if (invoker instanceof OtelMcpTracing otel) {
+      // otel goes first:
+      this.head = otel;
     } else {
-      this.invoker = invoker;
+      if (this.invoker != null) {
+        this.invoker = invoker.then(this.invoker);
+      } else {
+        this.invoker = invoker;
+      }
     }
     return this;
   }
@@ -229,9 +236,14 @@ public class McpModule implements Extension {
             ? app.getConfig().getBoolean("mcp.generateOutputSchema")
             : Optional.ofNullable(this.generateOutputSchema).orElse(Boolean.FALSE);
     // invoker
-    McpInvoker pipeline = new McpDefaultInvoker(app);
+    McpInvoker pipeline = new McpExecutor(app);
+    // Otel tracing goes first:
+    if (head != null) {
+      invoker = invoker == null ? head : head.then(invoker);
+    }
+    // Default invoker:
     if (this.invoker != null) {
-      pipeline = pipeline.then(this.invoker);
+      pipeline = this.invoker.then(pipeline);
     }
     services.put(McpInvoker.class, pipeline);
     // Group services by server

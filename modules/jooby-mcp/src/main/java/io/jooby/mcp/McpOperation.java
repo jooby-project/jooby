@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.jspecify.annotations.Nullable;
+
 import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.CompleteRequest;
 import io.modelcontextprotocol.spec.McpSchema.GetPromptRequest;
@@ -30,6 +32,7 @@ public class McpOperation {
   private final String methodName;
   private final McpSchema.Request request;
   private final ConcurrentMap<String, Object> arguments;
+  private @Nullable Throwable exception;
 
   private McpOperation(String id, String className, String methodName, McpSchema.Request request) {
     this.id = id;
@@ -140,6 +143,27 @@ public class McpOperation {
    */
   public void setArgument(String name, Object value) {
     this.arguments.put(name, value);
+  }
+
+  /**
+   * Retrieves the exception associated with the current operation. Internal use only. This
+   * exception is set by the default MCP executor in case of an error. It makes sense for a tool
+   * error only bc it must generate a tool errored response and the exception is dropped.
+   *
+   * @return The {@code Throwable} object representing the exception associated with this operation,
+   *     or {@code null} if no exception is set.
+   */
+  public @Nullable Throwable exception() {
+    return exception;
+  }
+
+  /**
+   * Sets the exception associated with this operation. Internal use only.
+   *
+   * @param exception The {@code Throwable} object representing the exception to set. Can be null.
+   */
+  public void exception(@Nullable Throwable exception) {
+    this.exception = exception;
   }
 
   /**
