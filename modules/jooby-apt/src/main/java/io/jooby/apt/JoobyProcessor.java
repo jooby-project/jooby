@@ -24,7 +24,7 @@ import javax.lang.model.element.*;
 import javax.tools.*;
 
 import io.jooby.internal.apt.*;
-
+import io.jooby.internal.apt.mcp.McpRouter;
 import io.jooby.internal.apt.ws.WsRouter;
 
 /** Process jooby/jakarta annotation and generate source code from MVC controllers. */

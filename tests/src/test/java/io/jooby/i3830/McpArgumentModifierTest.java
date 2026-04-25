@@ -6,37 +6,59 @@
 package io.jooby.i3830;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import io.jooby.Jooby;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.mcp.McpChain;
+import io.jooby.mcp.McpInvoker;
 import io.jooby.mcp.McpModule;
+import io.jooby.mcp.McpOperation;
 import io.jooby.mcp.jackson3.McpJackson3Module;
+import io.modelcontextprotocol.common.McpTransportContext;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 
-public class McpExchangeInjectionTest {
+public class McpArgumentModifierTest {
+
+  private static final UUID uuid = UUID.randomUUID();
+
+  private void setupMcpApp(Jooby app, McpModule.Transport transport) {
+    app.install(new Jackson3Module());
+    app.install(new McpJackson3Module());
+    app.install(
+        new McpModule(new ArgumentModifierMcp_())
+            .invoker(
+                new McpInvoker() {
+                  @Override
+                  public <R> R invoke(
+                      @Nullable McpSyncServerExchange exchange,
+                      @NonNull McpTransportContext transportContext,
+                      @NonNull McpOperation operation,
+                      @NonNull McpChain next)
+                      throws Exception {
+                    operation.setArgument("user", new CustomArg(uuid.toString()));
+                    return next.proceed(exchange, transportContext, operation);
+                  }
+                })
+            .transport(transport));
+  }
 
   @ServerTest
-  public void shouldInjectExchangeAndAccessSession(ServerTestRunner runner) throws Exception {
+  public void shouldIntroduceArguments(ServerTestRunner runner) {
     runner
-        .define(
-            app -> {
-              app.install(new Jackson3Module());
-              app.install(new McpJackson3Module());
-              // Register the module using the STREAMABLE_HTTP transport
-              app.install(
-                  new McpModule(new CalculatorToolsMcp_())
-                      .transport(McpModule.Transport.STREAMABLE_HTTP));
-            })
+        .define(app -> setupMcpApp(app, McpModule.Transport.STREAMABLE_HTTP))
         .ready(
             client -> {
               AtomicReference<String> sessionId = new AtomicReference<>();
 
-              // 1. STREAMABLE_HTTP requires a formal MCP initialize handshake via POST
-              // to generate the session ID.
               String initRequest =
                   """
                   {
@@ -76,8 +98,8 @@ public class McpExchangeInjectionTest {
                     "id": "tool-1",
                     "method": "tools/call",
                     "params": {
-                      "name": "get_session_info",
-                      "arguments": {}
+                      "name": "customArgument",
+                      "arguments": { }
                     }
                   }
                   """;
@@ -95,10 +117,7 @@ public class McpExchangeInjectionTest {
 
                     var body = response.body().string();
 
-                    assertThat(body)
-                        .contains("\"id\":\"tool-1\"")
-                        .as("The response should contain the calculated result");
-                    ;
+                    assertThat(body).contains("\"text\":\"%s\"".formatted(uuid.toString()));
                   });
             });
   }

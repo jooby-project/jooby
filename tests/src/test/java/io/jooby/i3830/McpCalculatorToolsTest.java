@@ -18,19 +18,41 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Jooby;
 import io.jooby.jackson3.Jackson3Module;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
+import io.jooby.mcp.McpChain;
+import io.jooby.mcp.McpInvoker;
 import io.jooby.mcp.McpModule;
+import io.jooby.mcp.McpOperation;
 import io.jooby.mcp.jackson3.McpJackson3Module;
+import io.modelcontextprotocol.common.McpTransportContext;
+import io.modelcontextprotocol.server.McpSyncServerExchange;
 
-public class CalculatorToolsTest {
+public class McpCalculatorToolsTest {
 
   private void setupMcpApp(Jooby app, McpModule.Transport transport) {
     app.install(new Jackson3Module());
     app.install(new McpJackson3Module());
-    app.install(new McpModule(new CalculatorToolsMcp_()).transport(transport));
+    app.install(
+        new McpModule(new CalculatorToolsMcp_())
+            .invoker(
+                new McpInvoker() {
+                  @Override
+                  public <R> R invoke(
+                      @Nullable McpSyncServerExchange exchange,
+                      @NonNull McpTransportContext transportContext,
+                      @NonNull McpOperation operation,
+                      @NonNull McpChain next)
+                      throws Exception {
+                    return next.proceed(exchange, transportContext, operation);
+                  }
+                })
+            .transport(transport));
   }
 
   @ServerTest

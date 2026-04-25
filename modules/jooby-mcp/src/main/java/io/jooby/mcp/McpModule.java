@@ -11,6 +11,7 @@ import static io.jooby.mcp.McpModule.Transport.STREAMABLE_HTTP;
 
 import java.util.*;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.ServiceKey;
 import io.jooby.exception.StartupException;
-import io.jooby.internal.mcp.DefaultMcpInvoker;
+import io.jooby.internal.mcp.McpDefaultInvoker;
 import io.jooby.internal.mcp.McpServerConfig;
 import io.jooby.internal.mcp.transport.SseTransportProvider;
 import io.jooby.internal.mcp.transport.StatelessTransportProvider;
@@ -151,7 +152,7 @@ public class McpModule implements Extension {
 
   private final List<McpService> mcpServices = new ArrayList<>();
 
-  private McpInvoker invoker;
+  private @Nullable McpInvoker invoker;
 
   private Boolean generateOutputSchema = null;
 
@@ -167,9 +168,7 @@ public class McpModule implements Extension {
    */
   public McpModule(McpService mcpService, McpService... mcpServices) {
     this.mcpServices.add(mcpService);
-    if (mcpServices != null) {
-      Collections.addAll(this.mcpServices, mcpServices);
-    }
+    Collections.addAll(this.mcpServices, mcpServices);
   }
 
   /**
@@ -230,11 +229,11 @@ public class McpModule implements Extension {
             ? app.getConfig().getBoolean("mcp.generateOutputSchema")
             : Optional.ofNullable(this.generateOutputSchema).orElse(Boolean.FALSE);
     // invoker
-    McpInvoker firstInvoker = new DefaultMcpInvoker(app);
+    McpInvoker pipeline = new McpDefaultInvoker(app);
     if (this.invoker != null) {
-      firstInvoker = firstInvoker.then(this.invoker);
+      pipeline = pipeline.then(this.invoker);
     }
-    services.put(McpInvoker.class, firstInvoker);
+    services.put(McpInvoker.class, pipeline);
     // Group services by server
     var mcpServiceMap = new HashMap<String, List<McpService>>();
     for (var mcpService : mcpServices) {
