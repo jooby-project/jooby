@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
 import io.jooby.Context;
 import io.jooby.SneakyThrows;
 import io.jooby.jsonrpc.*;
+import io.jooby.opentelemetry.OtelContextExtractor;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.StatusCode;
@@ -44,6 +45,7 @@ import io.opentelemetry.api.trace.Tracer;
  * @since 4.5.0
  */
 public class OtelJsonRcpTracing implements JsonRpcInvoker {
+  private final OpenTelemetry otel;
 
   private final Tracer tracer;
 
@@ -57,6 +59,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    * @param otel The OpenTelemetry instance used to obtain the tracer.
    */
   public OtelJsonRcpTracing(OpenTelemetry otel) {
+    this.otel = otel;
     tracer = otel.getTracer("io.jooby.jsonrpc");
   }
 
@@ -101,6 +104,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
   public @NonNull Optional<JsonRpcResponse> invoke(
       @NonNull Context ctx, @NonNull JsonRpcRequest request, @NonNull JsonRpcChain chain) {
     var method = Optional.ofNullable(request.getMethod()).orElse("unknown_method");
+    var parent = ctx.require(OtelContextExtractor.class).extract(ctx);
     var span =
         tracer
             .spanBuilder(method)
@@ -109,6 +113,7 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
             .setAttribute(
                 "rpc.jsonrpc.request_id",
                 Optional.ofNullable(request.getId()).map(Objects::toString).orElse(null))
+            .setParent(parent)
             .startSpan();
     try (var scope = span.makeCurrent()) {
       if (onStart != null) {

@@ -16,6 +16,7 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.internal.opentelemetry.DefaultOtelContextExtractor;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Tracer;
@@ -171,6 +172,7 @@ public class OtelModule implements Extension {
     services.put(OpenTelemetry.class, otel);
     services.put(Tracer.class, tracer);
     services.put(Trace.class, trace(tracer));
+    services.putIfAbsent(OtelContextExtractor.class, new DefaultOtelContextExtractor(otel));
 
     application.onStarting(
         () -> extensions.forEach(throwingConsumer(ext -> ext.install(application, otel))));

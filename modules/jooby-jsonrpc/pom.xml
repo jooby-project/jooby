@@ -20,9 +20,9 @@
     </dependency>
 
     <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-api</artifactId>
-      <version>${opentelemetry.version}</version>
+      <groupId>io.jooby</groupId>
+      <artifactId>jooby-opentelemetry</artifactId>
+      <version>${jooby.version}</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

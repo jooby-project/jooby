@@ -324,6 +324,46 @@ import io.opentelemetry.api.OpenTelemetry
 }
 ----
 
+==== Model Context Protocol (MCP)
+
+Provides automatic tracing for your MCP (Model Context Protocol) servers. By adding the `OtelMcpTracing` invoker to your MCP module pipeline, it generates a dedicated OpenTelemetry span for every MCP operation (tools, prompts, resources, and completions).
+
+It strictly follows the official **OpenTelemetry GenAI and RPC Semantic Conventions**, ensuring seamless integration with modern APM and specialized AI observability dashboards. It prevents metric cardinality explosion by intelligently handling span names, and accurately records both protocol failures and MCP tool errors (which return `isError = true` rather than throwing exceptions).
+
+.MCP Integration
+[source, java, role = "primary"]
+----
+import io.jooby.mcp.McpModule;
+import io.jooby.mcp.instrumentation.OtelMcpTracing;
+import io.opentelemetry.api.OpenTelemetry;
+
+{
+  install(new OtelModule());
+
+  // Register the MCP module and attach the tracing invoker
+  install(new McpModule(new CalculatorServiceMcp_())
+    .invoker(new OtelMcpTracing(require(OpenTelemetry.class)))
+  );
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.mcp.McpModule
+import io.jooby.mcp.instrumentation.OtelMcpTracing
+import io.opentelemetry.api.OpenTelemetry
+
+{
+  install(OtelModule())
+
+  // Register the MCP module and attach the tracing invoker
+  install(McpModule(CalculatorServiceMcp_())
+    .invoker(OtelMcpTracing(require(OpenTelemetry::class.java)))
+  )
+}
+----
+
 ==== Log4j2
 
 Seamlessly exports all application logs to your OpenTelemetry backend, automatically correlated with active trace and span IDs using a dynamic appender.

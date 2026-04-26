@@ -27,7 +27,7 @@
  * install(new JsonRpcModule(new MyServiceRpc_()));
  * }</pre>
  *
- * @author Edgar Espina
+ * @author edgar
  * @since 4.0.17
  */
 module io.jooby.jsonrpc {
@@ -38,6 +38,7 @@ module io.jooby.jsonrpc {
   requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
+  requires static io.jooby.opentelemetry;
   requires static io.opentelemetry.api;
   requires static io.opentelemetry.context;
 }
