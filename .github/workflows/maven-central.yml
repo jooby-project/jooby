@@ -73,7 +73,7 @@ jobs:
           # Fetch milestone ID for the link
           MILESTONE_ID=$(gh api repos/${{ github.repository }}/milestones -q ".[] | select(.title==\"$VERSION_NUM\") | .number")
 
-          # 1. Fetch BREAKING changes (requires the 'break-change' label)
+          # 1. Fetch BREAKING changes
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" label:break-change" \
@@ -82,7 +82,7 @@ jobs:
             --json title,number \
             --jq '.[] | "- \(.title) #\(.number)"' > breaking_issues.md
 
-          # 2. Fetch NEW features (requires 'feature', excludes 'break-change')
+          # 2. Fetch NEW features
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" label:feature -label:break-change" \
@@ -91,7 +91,7 @@ jobs:
             --json title,number \
             --jq '.[] | "- \(.title) #\(.number)"' > new_issues.md
 
-          # 3. Fetch DEPRECATED changes (requires 'deprecated', excludes 'break-change')
+          # 3. Fetch DEPRECATED changes
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" label:deprecated -label:break-change" \
@@ -100,7 +100,7 @@ jobs:
             --json title,number \
             --jq '.[] | "- \(.title) #\(.number)"' > deprecated_issues.md
 
-          # 4. Fetch OTHER changes (excludes 'feature', 'break-change', 'deprecated', and 'dependencies')
+          # 4. Fetch OTHER changes
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\" -label:feature -label:break-change -label:deprecated -label:dependencies" \
@@ -108,6 +108,33 @@ jobs:
             --limit 100 \
             --json title,number \
             --jq '.[] | "- \(.title) #\(.number)"' > other_issues.md
+
+          # 4.5 Fetch Component Summary (Group, Count, and Link Labels)
+          # We grab labels and issue numbers, filter structural labels, group them,
+          # count them, join the issue numbers, and output a Markdown table.
+          gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\"" \
+            --state all \
+            --limit 1000 \
+            --json number,labels \
+            --jq '
+              [ .[] as $issue | $issue.labels[].name |
+              select(. != "bug" and . != "enhancement" and . != "feature" and . != "feedback" and . != "break-change" and . != "api-change" and . != "dependencies" and . != "deprecated") |
+              {name: ., number: $issue.number} ] |
+              group_by(.name) |
+              map({
+                name: .[0].name,
+                count: length,
+                issues: map("#\(.number)") | join(", ")
+              }) |
+              sort_by(-.count) |
+              if length > 0 then
+                "| Component | Count | Issues |\n|---|---|---|\n" + (map("| \(.name) | \(.count) | \(.issues) |") | join("\n"))
+              else
+                empty
+              end
+            ' > label_summary.md
 
           # 5. Initialize the changelog file
           > changelog.md
@@ -125,6 +152,14 @@ jobs:
             echo "## 🚀 What's New" >> changelog.md
             echo "" >> changelog.md
             cat new_issues.md >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 7.5 Conditionally add "Component Summary" Table
+          if [ -s label_summary.md ]; then
+            echo "## 📊 Component Updates" >> changelog.md
+            echo "" >> changelog.md
+            cat label_summary.md >> changelog.md
             echo "" >> changelog.md
           fi
 
