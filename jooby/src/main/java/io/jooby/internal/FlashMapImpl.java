@@ -22,8 +22,6 @@ public class FlashMapImpl extends HashMap<String, String> implements FlashMap {
 
   private Context ctx;
 
-  private boolean keep;
-
   private Cookie template;
 
   private Map<String, String> initialScope;

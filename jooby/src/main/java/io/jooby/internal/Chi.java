@@ -502,13 +502,13 @@ class Chi implements RouteTree {
     }
   }
 
-  private interface MethodMatcher {
+  interface MethodMatcher {
     StaticRouterMatch get(String method);
 
     void put(String method, StaticRouterMatch route);
   }
 
-  private static class SingleMethodMatcher implements MethodMatcher {
+  static class SingleMethodMatcher implements MethodMatcher {
     private String method;
     private StaticRouterMatch route;
 
@@ -529,7 +529,7 @@ class Chi implements RouteTree {
     }
   }
 
-  private static class MultipleMethodMatcher implements MethodMatcher {
+  static class MultipleMethodMatcher implements MethodMatcher {
     private final Map<String, StaticRouterMatch> methods = new HashMap<>();
 
     public MultipleMethodMatcher(SingleMethodMatcher matcher) {
@@ -549,7 +549,7 @@ class Chi implements RouteTree {
   }
 
   static class StaticRoute {
-    private MethodMatcher matcher;
+    MethodMatcher matcher;
 
     public void put(String method, Route route) {
       if (matcher == null) {
