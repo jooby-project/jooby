@@ -620,4 +620,8 @@ public class Pac4jModule implements Extension {
     options.getAuthorizers().putIfAbsent(authorizerName, authorizer);
     return authorizerName;
   }
+
+  Pac4jOptions options() {
+    return options;
+  }
 }

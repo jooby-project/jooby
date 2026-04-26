@@ -338,6 +338,13 @@
     </dependency>
 
     <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk-jvm</artifactId>
+      <version>1.14.9</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.asynchttpclient</groupId>
       <artifactId>async-http-client</artifactId>
       <version>3.0.9</version>

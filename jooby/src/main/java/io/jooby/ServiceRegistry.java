@@ -113,7 +113,7 @@ public interface ServiceRegistry extends Registry {
         @SuppressWarnings("unchecked")
         @Override
         public Set<T> get() {
-          return (Set<T>) Set.of(services.stream().map(Provider::get).toArray());
+          return (Set<T>) Set.of(services.stream().map(Provider::get).distinct().toArray());
         }
       };
     }
