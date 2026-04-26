@@ -165,3 +165,10 @@ jobs:
                   f.write(f"| **Line** | **{line_pct:.2f}%** |\n")
                   f.write(f"| **Branch** | **{branch_pct:.2f}%** |\n\n")
           '
+      - name: Upload coverage to Codecov
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java-version == '21'
+        uses: codecov/codecov-action@v6
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: tests/target/site/jacoco-aggregate/jacoco.xml
+          fail_ci_if_error: false
