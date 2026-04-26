@@ -5,8 +5,6 @@
  */
 package io.jooby.mcp.instrumentation;
 
-import java.util.List;
-
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -121,22 +119,5 @@ public class OtelMcpTracing implements McpInvoker {
       span.recordException(cause);
       span.setAttribute("error.type", cause.getClass().getName());
     }
-  }
-
-  private String extractErrorMessage(List<McpSchema.Content> contentList) {
-    if (contentList == null || contentList.isEmpty()) {
-      return "Tool execution failed (no content provided)";
-    }
-
-    McpSchema.Content first = contentList.getFirst();
-
-    return switch (first) {
-      case McpSchema.TextContent text -> text.text();
-      case McpSchema.ImageContent img -> "[Image: " + img.mimeType() + "]";
-      case McpSchema.AudioContent audio -> "[Audio]";
-      case McpSchema.EmbeddedResource embedded ->
-          "[Embedded Resource: " + embedded.resource().uri() + "]";
-      case McpSchema.ResourceLink link -> "[Resource Link: " + link.uri() + "]";
-    };
   }
 }
