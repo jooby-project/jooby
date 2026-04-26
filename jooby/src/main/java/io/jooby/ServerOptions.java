@@ -516,13 +516,15 @@ public class ServerOptions {
    * Set the server host, defaults to <code>0.0.0.0</code>.
    *
    * @param host Server host. Localhost, null or empty values fallback to <code>0.0.0.0</code>.
+   * @return This options.
    */
-  public void setHost(String host) {
+  public ServerOptions setHost(String host) {
     if (host == null || host.trim().length() == 0 || "localhost".equalsIgnoreCase(host.trim())) {
       this.host = LOCAL_HOST;
     } else {
       this.host = host;
     }
+    return this;
   }
 
   /**

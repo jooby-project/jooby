@@ -27,7 +27,6 @@ public final class $Types {
   static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};
 
   private $Types() {
-    throw new UnsupportedOperationException();
   }
 
   /**

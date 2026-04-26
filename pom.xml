@@ -1655,6 +1655,13 @@
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
             <version>${jacoco.version}</version>
+            <configuration>
+              <excludes>
+                <exclude>io/jooby/SneakyThrows.class</exclude>
+                <exclude>io/jooby/SneakyThrows$*.class</exclude>
+                <exclude>io/jooby/annotation/*.class</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <goals>

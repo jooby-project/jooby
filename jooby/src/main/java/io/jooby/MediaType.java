@@ -463,405 +463,206 @@ public final class MediaType implements Comparable<MediaType> {
    * @return Mediatype.
    */
   public static MediaType byFileExtension(String ext) {
-    switch (ext) {
-      case "spl":
-        return new MediaType("application/x-futuresplash", null);
-      case "java":
-        return text;
-      case "class":
-        return new MediaType("application/java-vm", null);
-      case "cpt":
-        return new MediaType("application/mac-compactpro", null);
-      case "etx":
-        return new MediaType("text/x-setext", null);
-      case "tar":
-        return new MediaType("application/x-tar", null);
-      case "js":
-        return js;
-      case "ogg":
-        return new MediaType("application/ogg", null);
-      case "xyz":
-        return new MediaType("chemical/x-xyz", null);
-      case "msh":
-        return new MediaType("model/mesh", null);
-      case "ustar":
-        return new MediaType("application/x-ustar", null);
-      case "msi":
-        return octetStream;
-      case "xht":
-        return new MediaType("application/xhtml+xml", UTF_8);
-      case "bmp":
-        return new MediaType("image/bmp", null);
-      case "silo":
-        return new MediaType("model/mesh", null);
-      case "sv4crc":
-        return new MediaType("application/x-sv4crc", null);
-      case "man":
-        return new MediaType("application/x-troff-man", null);
-      case "map":
-        return text;
-      case "cpio":
-        return new MediaType("application/x-cpio", null);
-      case "snd":
-        return new MediaType("audio/basic", null);
-      case "iges":
-        return new MediaType("model/iges", null);
-      case "smi":
-        return new MediaType("application/smil", null);
-      case "bcpio":
-        return new MediaType("application/x-bcpio", null);
-      case "pgm":
-        return new MediaType("image/x-portable-graymap", null);
-      case "pgn":
-        return new MediaType("application/x-chess-pgn", null);
-      case "vcd":
-        return new MediaType("application/x-cdlink", null);
-      case "aif":
-        return new MediaType("audio/x-aiff", null);
-      case "ods":
-        return new MediaType("application/vnd.oasis.opendocument.spreadsheet", null);
-      case "odt":
-        return new MediaType("application/vnd.oasis.opendocument.text", null);
-      case "odp":
-        return new MediaType("application/vnd.oasis.opendocument.presentation", null);
-      case "jpeg":
-        return new MediaType("image/jpeg", null);
-      case "xwd":
-        return new MediaType("image/x-xwindowdump", null);
-      case "odc":
-        return new MediaType("application/vnd.oasis.opendocument.chart", null);
-      case "ots":
-        return new MediaType("application/vnd.oasis.opendocument.spreadsheet-template", null);
-      case "ott":
-        return new MediaType("application/vnd.oasis.opendocument.text-template", null);
-      case "odf":
-        return new MediaType("application/vnd.oasis.opendocument.formula", null);
-      case "otp":
-        return new MediaType("application/vnd.oasis.opendocument.presentation-template", null);
-      case "oda":
-        return new MediaType("application/oda", null);
-      case "odb":
-        return new MediaType("application/vnd.oasis.opendocument.database", null);
-      case "less":
-        return css;
-      case "doc":
-        return new MediaType("application/msword", null);
-      case "odm":
-        return new MediaType("application/vnd.oasis.opendocument.text-master", null);
-      case "odg":
-        return new MediaType("application/vnd.oasis.opendocument.graphics", null);
-      case "woff":
-        return new MediaType("application/x-font-woff", null);
-      case "odi":
-        return new MediaType("application/vnd.oasis.opendocument.image", null);
-      case "otc":
-        return new MediaType("application/vnd.oasis.opendocument.chart-template", null);
-      case "otf":
-        return new MediaType("font/opentype", null);
-      case "zip":
-        return new MediaType("application/zip", null);
-      case "skt":
-        return new MediaType("application/x-koan", null);
-      case "eps":
-        return new MediaType("application/postscript", null);
-      case "mpe":
-        return new MediaType("video/mpeg", null);
-      case "otg":
-        return new MediaType("application/vnd.oasis.opendocument.graphics-template", null);
-      case "oth":
-        return new MediaType("application/vnd.oasis.opendocument.text-web", null);
-      case "oti":
-        return new MediaType("application/vnd.oasis.opendocument.image-template", null);
-      case "mpg":
-        return new MediaType("video/mpeg", null);
-      case "ps":
-        return new MediaType("application/postscript", null);
-      case "xul":
-        return new MediaType("application/vnd.mozilla.xul+xml", UTF_8);
-      case "xslt":
-        return new MediaType("application/xslt+xml", UTF_8);
-      case "dms":
-        return octetStream;
-      case "mol":
-        return new MediaType("chemical/x-mdl-molfile", null);
-      case "eot":
-        return new MediaType("application/vnd.ms-fontobject", null);
-      case "skd":
-        return new MediaType("application/x-koan", null);
-      case "wmlsc":
-        return new MediaType("application/vnd.wap.wmlscriptc", null);
-      case "roff":
-        return new MediaType("application/x-troff", null);
-      case "skp":
-        return new MediaType("application/x-koan", null);
-      case "mpga":
-        return new MediaType("audio/mpeg", null);
-      case "mov":
-        return new MediaType("video/quicktime", null);
-      case "igs":
-        return new MediaType("model/iges", null);
-      case "skm":
-        return new MediaType("application/x-koan", null);
-      case "sv4cpio":
-        return new MediaType("application/x-sv4cpio", null);
-      case "wbmp":
-        return new MediaType("image/vnd.wap.wbmp", null);
-      case "bin":
-        return new MediaType("application/octet-stream", null);
-      case "z":
-        return new MediaType("application/compress", null);
-      case "html":
-        return html;
-      case "gtar":
-        return new MediaType("application/x-gtar", null);
-      case "pdb":
-        return new MediaType("chemical/x-pdb", null);
-      case "t":
-        return new MediaType("application/x-troff", null);
-      case "mp2":
-        return new MediaType("audio/mpeg", null);
-      case "mp3":
-        return new MediaType("audio/mpeg", null);
-      case "ms":
-        return new MediaType("application/x-troff-ms", null);
-      case "wrl":
-        return new MediaType("model/vrml", null);
-      case "mp4":
-        return new MediaType("video/mp4", null);
-      case "vxml":
-        return new MediaType("application/voicexml+xml", UTF_8);
-      case "mathml":
-        return new MediaType("application/mathml+xml", UTF_8);
-      case "hdf":
-        return new MediaType("application/x-hdf", null);
-      case "wav":
-        return new MediaType("audio/x-wav", null);
-      case "pdf":
-        return new MediaType("application/pdf", null);
-      case "nc":
-        return new MediaType("application/x-netcdf", null);
-      case "sit":
-        return new MediaType("application/x-stuffit", null);
-      case "htm":
-        return html;
-      case "jnlp":
-        return new MediaType("application/x-java-jnlp-file", null);
-      case "dll":
-        return new MediaType("application/x-msdownload", null);
-      case "xsl":
-        return xml;
-      case "ief":
-        return new MediaType("image/ief", null);
-      case "rgb":
-        return new MediaType("image/x-rgb", null);
-      case "htc":
-        return new MediaType("text/x-component", null);
-      case "avi":
-        return new MediaType("video/x-msvideo", null);
-      case "me":
-        return new MediaType("application/x-troff-me", null);
-      case "tiff":
-        return new MediaType("image/tiff", null);
-      case "pbm":
-        return new MediaType("image/x-portable-bitmap", null);
-      case "xsd":
-        return xml;
-      case "mesh":
-        return new MediaType("model/mesh", null);
-      case "xbm":
-        return new MediaType("image/x-xbitmap", null);
-      case "midi":
-        return new MediaType("audio/midi", null);
-      case "texi":
-        return new MediaType("application/x-texinfo", null);
-      case "conf":
-        return new MediaType("application/hocon", UTF_8);
-      case "lzh":
-        return new MediaType("application/octet-stream", null);
-      case "tr":
-        return new MediaType("application/x-troff", null);
-      case "ts":
-        return js;
-      case "hqx":
-        return new MediaType("application/mac-binhex40", null);
-      case "tif":
-        return new MediaType("image/tiff", null);
-      case "ice":
-        return new MediaType("x-conference/x-cooltalk", null);
-      case "dir":
-        return new MediaType("application/x-director", null);
-      case "sgm":
-        return new MediaType("text/sgml", null);
-      case "woff2":
-        return new MediaType("application/font-woff2", null);
-      case "sh":
-        return new MediaType("application/x-sh", null);
-      case "ico":
-        return new MediaType("image/x-icon", null);
-      case "asx":
-        return new MediaType("video/x.ms.asx", null);
-      case "swf":
-        return new MediaType("application/x-shockwave-flash", null);
-      case "texinfo":
-        return new MediaType("application/x-texinfo", null);
-      case "ai":
-        return new MediaType("application/postscript", null);
-      case "txt":
-        return text;
-      case "asc":
-        return text;
-      case "ppm":
-        return new MediaType("image/x-portable-pixmap", null);
-      case "rtx":
-        return new MediaType("text/richtext", UTF_8);
-      case "movie":
-        return new MediaType("video/x-sgi-movie", null);
-      case "ra":
-        return new MediaType("audio/x-pn-realaudio", null);
-      case "vrml":
-        return new MediaType("model/vrml", null);
-      case "au":
-        return new MediaType("audio/basic", null);
-      case "gzip":
-        return new MediaType("application/gzip", null);
-      case "pps":
-        return new MediaType("application/vnd.ms-powerpoint", null);
-      case "rdf":
-        return new MediaType("application/rdf+xml", UTF_8);
-      case "ppt":
-        return new MediaType("application/vnd.ms-powerpoint", null);
-      case "asf":
-        return new MediaType("video/x.ms.asf", null);
-      case "xpm":
-        return new MediaType("image/x-xpixmap", null);
-      case "dxr":
-        return new MediaType("application/x-director", null);
-      case "ser":
-        return new MediaType("application/java-serialized-object", null);
-      case "rm":
-        return new MediaType("audio/x-pn-realaudio", null);
-      case "tgz":
-        return new MediaType("application/x-gtar", null);
-      case "rv":
-        return new MediaType("video/vnd.rn-realvideo", null);
-      case "shar":
-        return new MediaType("application/x-shar", null);
-      case "rtf":
-        return new MediaType("application/rtf", null);
-      case "svg":
-        return new MediaType("image/svg+xml", null);
-      case "lha":
-        return new MediaType("application/octet-stream", null);
-      case "mif":
-        return new MediaType("application/vnd.mif", null);
-      case "mpeg":
-        return new MediaType("video/mpeg", null);
-      case "wml":
-        return new MediaType("text/vnd.wap.wml", null);
-      case "jsp":
-        return html;
-      case "mid":
-        return new MediaType("audio/midi", null);
-      case "qt":
-        return new MediaType("video/quicktime", null);
-      case "yaml":
-      case "yml":
-        return yaml;
-      case "pnm":
-        return new MediaType("image/x-portable-anymap", null);
-      case "tar.gz":
-        return new MediaType("application/x-gtar", null);
-      case "gz":
-        return new MediaType("application/gzip", null);
-      case "ram":
-        return new MediaType("audio/x-pn-realaudio", null);
-      case "jar":
-        return new MediaType("application/java-archive", null);
-      case "apk":
-        return new MediaType("application/vnd.android.package-archive", null);
-      case "tex":
-        return new MediaType("application/x-tex", null);
-      case "png":
-        return new MediaType("image/png", null);
-      case "ras":
-        return new MediaType("image/x-cmu-raster", null);
-      case "cdf":
-        return new MediaType("application/x-netcdf", null);
-      case "jad":
-        return new MediaType("text/vnd.sun.j2me.app-descriptor", null);
-      case "dvi":
-        return new MediaType("application/x-dvi", null);
-      case "xml":
-        return xml;
-      case "exe":
-        return octetStream;
-      case "xls":
-        return new MediaType("application/vnd.ms-excel", null);
-      case "scss":
-        return css;
-      case "csv":
-        return new MediaType("text/comma-separated-values", UTF_8);
-      case "css":
-        return css;
-      case "xhtml":
-        return new MediaType("application/xhtml+xml", UTF_8);
-      case "rpm":
-        return new MediaType("application/x-rpm", null);
-      case "wtls-ca-certificate":
-        return new MediaType("application/vnd.wap.wtls-ca-certificate", null);
-      case "wmls":
-        return new MediaType("text/vnd.wap.wmlscript", null);
-      case "csh":
-        return new MediaType("application/x-csh", null);
-      case "aifc":
-        return new MediaType("audio/x-aiff", null);
-      case "ez":
-        return new MediaType("application/andrew-inset", null);
-      case "jpe":
-        return new MediaType("image/jpeg", null);
-      case "jpg":
-        return new MediaType("image/jpeg", null);
-      case "coffee":
-        return js;
-      case "kar":
-        return new MediaType("audio/midi", null);
-      case "tcl":
-        return new MediaType("application/x-tcl", null);
-      case "wmlc":
-        return new MediaType("application/vnd.wap.wmlc", null);
-      case "ttf":
-        return new MediaType("font/truetype", null);
-      case "src":
-        return new MediaType("application/x-wais-source", null);
-      case "crt":
-        return new MediaType("application/x-x509-ca-cert", null);
-      case "qml":
-        return new MediaType("text/x-qml", null);
-      case "tsv":
-        return new MediaType("text/tab-separated-values", null);
-      case "smil":
-        return new MediaType("application/smil", null);
-      case "dcr":
-        return new MediaType("application/x-director", null);
-      case "dtd":
-        return new MediaType("application/xml-dtd", null);
-      case "sgml":
-        return new MediaType("text/sgml", null);
-      case "latex":
-        return new MediaType("application/x-latex", null);
-      case "aiff":
-        return new MediaType("audio/x-aiff", null);
-      case "json":
-        return json;
-      case "cab":
-        return new MediaType("application/x-cabinet", null);
-      case "gif":
-        return new MediaType("image/gif", null);
-      case "wasm":
-        return new MediaType("application/wasm", null);
-      default:
-        return octetStream;
-    }
+    return switch (ext) {
+      case "spl" -> new MediaType("application/x-futuresplash", null);
+      case "java" -> text;
+      case "class" -> new MediaType("application/java-vm", null);
+      case "cpt" -> new MediaType("application/mac-compactpro", null);
+      case "etx" -> new MediaType("text/x-setext", null);
+      case "tar" -> new MediaType("application/x-tar", null);
+      case "js" -> js;
+      case "ogg" -> new MediaType("application/ogg", null);
+      case "xyz" -> new MediaType("chemical/x-xyz", null);
+      case "msh" -> new MediaType("model/mesh", null);
+      case "ustar" -> new MediaType("application/x-ustar", null);
+      case "msi" -> octetStream;
+      case "xht" -> new MediaType("application/xhtml+xml", UTF_8);
+      case "bmp" -> new MediaType("image/bmp", null);
+      case "silo" -> new MediaType("model/mesh", null);
+      case "sv4crc" -> new MediaType("application/x-sv4crc", null);
+      case "man" -> new MediaType("application/x-troff-man", null);
+      case "map" -> text;
+      case "cpio" -> new MediaType("application/x-cpio", null);
+      case "snd" -> new MediaType("audio/basic", null);
+      case "iges" -> new MediaType("model/iges", null);
+      case "smi" -> new MediaType("application/smil", null);
+      case "bcpio" -> new MediaType("application/x-bcpio", null);
+      case "pgm" -> new MediaType("image/x-portable-graymap", null);
+      case "pgn" -> new MediaType("application/x-chess-pgn", null);
+      case "vcd" -> new MediaType("application/x-cdlink", null);
+      case "aif" -> new MediaType("audio/x-aiff", null);
+      case "ods" -> new MediaType("application/vnd.oasis.opendocument.spreadsheet", null);
+      case "odt" -> new MediaType("application/vnd.oasis.opendocument.text", null);
+      case "odp" -> new MediaType("application/vnd.oasis.opendocument.presentation", null);
+      case "jpeg" -> new MediaType("image/jpeg", null);
+      case "xwd" -> new MediaType("image/x-xwindowdump", null);
+      case "odc" -> new MediaType("application/vnd.oasis.opendocument.chart", null);
+      case "ots" -> new MediaType("application/vnd.oasis.opendocument.spreadsheet-template", null);
+      case "ott" -> new MediaType("application/vnd.oasis.opendocument.text-template", null);
+      case "odf" -> new MediaType("application/vnd.oasis.opendocument.formula", null);
+      case "otp" -> new MediaType("application/vnd.oasis.opendocument.presentation-template", null);
+      case "oda" -> new MediaType("application/oda", null);
+      case "odb" -> new MediaType("application/vnd.oasis.opendocument.database", null);
+      case "less" -> css;
+      case "doc" -> new MediaType("application/msword", null);
+      case "odm" -> new MediaType("application/vnd.oasis.opendocument.text-master", null);
+      case "odg" -> new MediaType("application/vnd.oasis.opendocument.graphics", null);
+      case "woff" -> new MediaType("application/x-font-woff", null);
+      case "odi" -> new MediaType("application/vnd.oasis.opendocument.image", null);
+      case "otc" -> new MediaType("application/vnd.oasis.opendocument.chart-template", null);
+      case "otf" -> new MediaType("font/opentype", null);
+      case "zip" -> new MediaType("application/zip", null);
+      case "skt" -> new MediaType("application/x-koan", null);
+      case "eps" -> new MediaType("application/postscript", null);
+      case "mpe" -> new MediaType("video/mpeg", null);
+      case "otg" -> new MediaType("application/vnd.oasis.opendocument.graphics-template", null);
+      case "oth" -> new MediaType("application/vnd.oasis.opendocument.text-web", null);
+      case "oti" -> new MediaType("application/vnd.oasis.opendocument.image-template", null);
+      case "mpg" -> new MediaType("video/mpeg", null);
+      case "ps" -> new MediaType("application/postscript", null);
+      case "xul" -> new MediaType("application/vnd.mozilla.xul+xml", UTF_8);
+      case "xslt" -> new MediaType("application/xslt+xml", UTF_8);
+      case "dms" -> octetStream;
+      case "mol" -> new MediaType("chemical/x-mdl-molfile", null);
+      case "eot" -> new MediaType("application/vnd.ms-fontobject", null);
+      case "skd" -> new MediaType("application/x-koan", null);
+      case "wmlsc" -> new MediaType("application/vnd.wap.wmlscriptc", null);
+      case "roff" -> new MediaType("application/x-troff", null);
+      case "skp" -> new MediaType("application/x-koan", null);
+      case "mpga" -> new MediaType("audio/mpeg", null);
+      case "mov" -> new MediaType("video/quicktime", null);
+      case "igs" -> new MediaType("model/iges", null);
+      case "skm" -> new MediaType("application/x-koan", null);
+      case "sv4cpio" -> new MediaType("application/x-sv4cpio", null);
+      case "wbmp" -> new MediaType("image/vnd.wap.wbmp", null);
+      case "bin" -> new MediaType("application/octet-stream", null);
+      case "z" -> new MediaType("application/compress", null);
+      case "html" -> html;
+      case "gtar" -> new MediaType("application/x-gtar", null);
+      case "pdb" -> new MediaType("chemical/x-pdb", null);
+      case "t" -> new MediaType("application/x-troff", null);
+      case "mp2" -> new MediaType("audio/mpeg", null);
+      case "mp3" -> new MediaType("audio/mpeg", null);
+      case "ms" -> new MediaType("application/x-troff-ms", null);
+      case "wrl" -> new MediaType("model/vrml", null);
+      case "mp4" -> new MediaType("video/mp4", null);
+      case "vxml" -> new MediaType("application/voicexml+xml", UTF_8);
+      case "mathml" -> new MediaType("application/mathml+xml", UTF_8);
+      case "hdf" -> new MediaType("application/x-hdf", null);
+      case "wav" -> new MediaType("audio/x-wav", null);
+      case "pdf" -> new MediaType("application/pdf", null);
+      case "nc" -> new MediaType("application/x-netcdf", null);
+      case "sit" -> new MediaType("application/x-stuffit", null);
+      case "htm" -> html;
+      case "jnlp" -> new MediaType("application/x-java-jnlp-file", null);
+      case "dll" -> new MediaType("application/x-msdownload", null);
+      case "xsl" -> xml;
+      case "ief" -> new MediaType("image/ief", null);
+      case "rgb" -> new MediaType("image/x-rgb", null);
+      case "htc" -> new MediaType("text/x-component", null);
+      case "avi" -> new MediaType("video/x-msvideo", null);
+      case "me" -> new MediaType("application/x-troff-me", null);
+      case "tiff" -> new MediaType("image/tiff", null);
+      case "pbm" -> new MediaType("image/x-portable-bitmap", null);
+      case "xsd" -> xml;
+      case "mesh" -> new MediaType("model/mesh", null);
+      case "xbm" -> new MediaType("image/x-xbitmap", null);
+      case "midi" -> new MediaType("audio/midi", null);
+      case "texi" -> new MediaType("application/x-texinfo", null);
+      case "conf" -> new MediaType("application/hocon", UTF_8);
+      case "lzh" -> new MediaType("application/octet-stream", null);
+      case "tr" -> new MediaType("application/x-troff", null);
+      case "ts" -> js;
+      case "hqx" -> new MediaType("application/mac-binhex40", null);
+      case "tif" -> new MediaType("image/tiff", null);
+      case "ice" -> new MediaType("x-conference/x-cooltalk", null);
+      case "dir" -> new MediaType("application/x-director", null);
+      case "sgm" -> new MediaType("text/sgml", null);
+      case "woff2" -> new MediaType("application/font-woff2", null);
+      case "sh" -> new MediaType("application/x-sh", null);
+      case "ico" -> new MediaType("image/x-icon", null);
+      case "asx" -> new MediaType("video/x.ms.asx", null);
+      case "swf" -> new MediaType("application/x-shockwave-flash", null);
+      case "texinfo" -> new MediaType("application/x-texinfo", null);
+      case "ai" -> new MediaType("application/postscript", null);
+      case "txt" -> text;
+      case "asc" -> text;
+      case "ppm" -> new MediaType("image/x-portable-pixmap", null);
+      case "rtx" -> new MediaType("text/richtext", UTF_8);
+      case "movie" -> new MediaType("video/x-sgi-movie", null);
+      case "ra" -> new MediaType("audio/x-pn-realaudio", null);
+      case "vrml" -> new MediaType("model/vrml", null);
+      case "au" -> new MediaType("audio/basic", null);
+      case "gzip" -> new MediaType("application/gzip", null);
+      case "pps" -> new MediaType("application/vnd.ms-powerpoint", null);
+      case "rdf" -> new MediaType("application/rdf+xml", UTF_8);
+      case "ppt" -> new MediaType("application/vnd.ms-powerpoint", null);
+      case "asf" -> new MediaType("video/x.ms.asf", null);
+      case "xpm" -> new MediaType("image/x-xpixmap", null);
+      case "dxr" -> new MediaType("application/x-director", null);
+      case "ser" -> new MediaType("application/java-serialized-object", null);
+      case "rm" -> new MediaType("audio/x-pn-realaudio", null);
+      case "tgz" -> new MediaType("application/x-gtar", null);
+      case "rv" -> new MediaType("video/vnd.rn-realvideo", null);
+      case "shar" -> new MediaType("application/x-shar", null);
+      case "rtf" -> new MediaType("application/rtf", null);
+      case "svg" -> new MediaType("image/svg+xml", null);
+      case "lha" -> new MediaType("application/octet-stream", null);
+      case "mif" -> new MediaType("application/vnd.mif", null);
+      case "mpeg" -> new MediaType("video/mpeg", null);
+      case "wml" -> new MediaType("text/vnd.wap.wml", null);
+      case "jsp" -> html;
+      case "mid" -> new MediaType("audio/midi", null);
+      case "qt" -> new MediaType("video/quicktime", null);
+      case "yaml", "yml" -> yaml;
+      case "pnm" -> new MediaType("image/x-portable-anymap", null);
+      case "tar.gz" -> new MediaType("application/x-gtar", null);
+      case "gz" -> new MediaType("application/gzip", null);
+      case "ram" -> new MediaType("audio/x-pn-realaudio", null);
+      case "jar" -> new MediaType("application/java-archive", null);
+      case "apk" -> new MediaType("application/vnd.android.package-archive", null);
+      case "tex" -> new MediaType("application/x-tex", null);
+      case "png" -> new MediaType("image/png", null);
+      case "ras" -> new MediaType("image/x-cmu-raster", null);
+      case "cdf" -> new MediaType("application/x-netcdf", null);
+      case "jad" -> new MediaType("text/vnd.sun.j2me.app-descriptor", null);
+      case "dvi" -> new MediaType("application/x-dvi", null);
+      case "xml" -> xml;
+      case "exe" -> octetStream;
+      case "xls" -> new MediaType("application/vnd.ms-excel", null);
+      case "scss" -> css;
+      case "csv" -> new MediaType("text/comma-separated-values", UTF_8);
+      case "css" -> css;
+      case "xhtml" -> new MediaType("application/xhtml+xml", UTF_8);
+      case "rpm" -> new MediaType("application/x-rpm", null);
+      case "wtls-ca-certificate" -> new MediaType("application/vnd.wap.wtls-ca-certificate", null);
+      case "wmls" -> new MediaType("text/vnd.wap.wmlscript", null);
+      case "csh" -> new MediaType("application/x-csh", null);
+      case "aifc" -> new MediaType("audio/x-aiff", null);
+      case "ez" -> new MediaType("application/andrew-inset", null);
+      case "jpe" -> new MediaType("image/jpeg", null);
+      case "jpg" -> new MediaType("image/jpeg", null);
+      case "coffee" -> js;
+      case "kar" -> new MediaType("audio/midi", null);
+      case "tcl" -> new MediaType("application/x-tcl", null);
+      case "wmlc" -> new MediaType("application/vnd.wap.wmlc", null);
+      case "ttf" -> new MediaType("font/truetype", null);
+      case "src" -> new MediaType("application/x-wais-source", null);
+      case "crt" -> new MediaType("application/x-x509-ca-cert", null);
+      case "qml" -> new MediaType("text/x-qml", null);
+      case "tsv" -> new MediaType("text/tab-separated-values", null);
+      case "smil" -> new MediaType("application/smil", null);
+      case "dcr" -> new MediaType("application/x-director", null);
+      case "dtd" -> new MediaType("application/xml-dtd", null);
+      case "sgml" -> new MediaType("text/sgml", null);
+      case "latex" -> new MediaType("application/x-latex", null);
+      case "aiff" -> new MediaType("audio/x-aiff", null);
+      case "json" -> json;
+      case "cab" -> new MediaType("application/x-cabinet", null);
+      case "gif" -> new MediaType("image/gif", null);
+      case "wasm" -> new MediaType("application/wasm", null);
+      default -> octetStream;
+    };
   }
 
   private static boolean matchOne(String expected, int len1, String contentType) {
