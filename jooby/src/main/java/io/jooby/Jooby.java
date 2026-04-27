@@ -491,20 +491,6 @@ public class Jooby implements Router, Registry {
   }
 
   /**
-   * Registers a tRPC router within the application.
-   *
-   * <p>This method provides a native DSL entry point for integrating a tRPC router. It provisions
-   * the tRPC extension by delegating to the underlying {@link #mvc(Extension)} route registration
-   * mechanism.
-   *
-   * @param trpcRouter The tRPC router extension to register. Must not be null.
-   * @return A {@link Route.Set} containing the registered tRPC endpoints.
-   */
-  public Route.Set trpc(Extension trpcRouter) {
-    return mvc(trpcRouter);
-  }
-
-  /**
    * Add controller routes.
    *
    * @param router Mvc extension.
@@ -831,8 +817,8 @@ public class Jooby implements Router, Registry {
 
   @Override
   public Jooby executor(String name, Executor executor) {
-    if (executor instanceof ExecutorService) {
-      onStop(((ExecutorService) executor)::shutdown);
+    if (executor instanceof ExecutorService executorService) {
+      onStop(executorService::shutdown);
     }
     router.executor(name, executor);
     return this;
@@ -921,16 +907,7 @@ public class Jooby implements Router, Registry {
           Optional.of(getConfig())
               .filter(c -> c.hasPath(path))
               .map(c -> c.getString(path))
-              .map(
-                  v ->
-                      LocaleUtils.parseLocales(v)
-                          .orElseThrow(
-                              () ->
-                                  new RuntimeException(
-                                      String.format(
-                                          "Invalid value for configuration property '%s'; check the"
-                                              + " documentation of %s#parse(): %s",
-                                          path, Locale.LanguageRange.class.getName(), v))))
+              .map(LocaleUtils::parseLocalesOrFail)
               .orElseGet(() -> singletonList(Locale.getDefault()));
     }
 
@@ -1318,7 +1295,7 @@ public class Jooby implements Router, Registry {
         && config.getBoolean(ProblemDetailsHandler.ENABLED_KEY);
   }
 
-  private static void configurePackage(Package pkg) {
+  static void configurePackage(Package pkg) {
     if (pkg != null) {
       configurePackage(pkg.getName());
     }
@@ -1403,7 +1380,7 @@ public class Jooby implements Router, Registry {
     }
   }
 
-  private static Supplier<Jooby> consumerProvider(Consumer<Jooby> consumer) {
+  static Supplier<Jooby> consumerProvider(Consumer<Jooby> consumer) {
     configurePackage(consumer.getClass());
     return () -> {
       Jooby app = new Jooby();
@@ -1419,7 +1396,7 @@ public class Jooby implements Router, Registry {
    * @param loader Class loader.
    * @param server Server.
    */
-  private void joobyRunHook(ClassLoader loader, Server server) {
+  static void joobyRunHook(ClassLoader loader, Server server) {
     if (loader.getClass().getName().equals("org.jboss.modules.ModuleClassLoader")) {
       String hookClassname = System.getProperty(JOOBY_RUN_HOOK);
       System.setProperty(JOOBY_RUN_HOOK, "");

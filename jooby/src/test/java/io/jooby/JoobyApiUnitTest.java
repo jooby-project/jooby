@@ -19,7 +19,9 @@ import static org.mockito.Mockito.when;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Executor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,6 +137,137 @@ public class JoobyApiUnitTest {
     app.setRouterOptions(options);
     assertTrue(app.getRouterOptions().isIgnoreCase());
     assertNotNull(app.getServerOptions());
+  }
+
+  @Test
+  public void badMvcInstall() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            app.mvc(
+                application -> {
+                  throw new IllegalArgumentException("boom");
+                }));
+  }
+
+  @Test
+  public void badExtensionInstall() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            app.install(
+                application -> {
+                  throw new IllegalArgumentException("boom");
+                }));
+  }
+
+  @Test
+  public void shouldMountOnPredicateWithAction() {
+    app.mount(
+        ctx -> true,
+        () -> {
+          // do nothing
+        });
+  }
+
+  @Test
+  public void shouldDispatchWithAction() {
+    var executor = mock(Executor.class);
+    var action = mock(Runnable.class);
+    app.dispatch(executor, action);
+  }
+
+  @Test
+  public void shouldGroupRoutes() {
+    var action = mock(Runnable.class);
+    app.routes(action);
+  }
+
+  @Test
+  public void shouldMatch() {
+    assertTrue(app.match("/*", "/path"));
+  }
+
+  @Test
+  public void shouldRequireNamedReified() {
+    assertThrows(
+        RegistryException.class, () -> app.require(Reified.list(String.class), "listOfString"));
+  }
+
+  @Test
+  public void shouldGetDefaultPackageName() {
+    assertNotNull(app.getBasePackage());
+  }
+
+  @Test
+  public void shouldGetDefaultAppName() {
+    assertEquals("Jooby", app.getName());
+  }
+
+  @Test
+  public void shouldIgnoreSimpleExecutorOfBeingClose() {
+    var executor = mock(Executor.class);
+    app.executor("simple", executor);
+  }
+
+  @Test
+  public void shouldGetDefaultStartupSummary() {
+    assertNull(app.getStartupSummary());
+  }
+
+  @Test
+  public void shouldThrowLateInitException() {
+    app.install(
+        new Extension() {
+          @Override
+          public boolean lateinit() {
+            return true;
+          }
+
+          @Override
+          public void install(Jooby application) throws Exception {
+            throw new IllegalStateException("boom");
+          }
+        });
+    var server = mock(Server.class);
+    app.setTmpdir(Paths.get(System.getProperty("java.io.tmpdir")));
+    assertThrows(IllegalStateException.class, () -> app.start(server));
+  }
+
+  @Test
+  public void shouldStartWithNoSummary() {
+    var server = mock(Server.class);
+    when(server.getOptions()).thenReturn(new ServerOptions());
+    app.ready(server);
+  }
+
+  @Test
+  public void shouldStartWithConfigSummary() {
+    var server = mock(Server.class);
+    // when(server.getOptions()).thenReturn(new ServerOptions());
+    when(config.hasPath(AvailableSettings.STARTUP_SUMMARY)).thenReturn(true);
+    when(config.getAnyRef(AvailableSettings.STARTUP_SUMMARY)).thenReturn("NONE");
+    app.ready(server);
+  }
+
+  @Test
+  public void shouldStartWithConfigSummaryList() {
+    var server = mock(Server.class);
+    // when(server.getOptions()).thenReturn(new ServerOptions());
+    when(config.hasPath(AvailableSettings.STARTUP_SUMMARY)).thenReturn(true);
+    when(config.getAnyRef(AvailableSettings.STARTUP_SUMMARY)).thenReturn(List.of("NONE", "NONE"));
+    app.ready(server);
+  }
+
+  @Test
+  public void shouldInstallWebSocket() {
+    app.ws(application -> {});
+  }
+
+  @Test
+  public void shouldNotCopyRegistryOnInternalRouter() {
+    var router = mock(Router.class);
+    app.mount("/path", router);
   }
 
   @Test

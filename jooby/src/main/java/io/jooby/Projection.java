@@ -10,9 +10,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import io.jooby.value.ValueFactory;
 
 /**
  * Hierarchical schema for JSON field selection. A Projection defines exactly which fields of a Java
@@ -86,9 +83,6 @@ import io.jooby.value.ValueFactory;
  * @since 4.0.0
  */
 public class Projection<T> {
-
-  private static final Map<Class<?>, String> PROP_CACHE = new ConcurrentHashMap<>();
-
   private final Class<T> type;
   private final Map<String, Projection<?>> children = new LinkedHashMap<>();
   private String view = "";
@@ -147,12 +141,6 @@ public class Projection<T> {
     return this;
   }
 
-  /** Determines if a type is a simple/scalar value that cannot be further projected. */
-  private boolean isSimpleType(Type type) {
-    var valueFactory = new ValueFactory();
-    return valueFactory.get(type) != null;
-  }
-
   /**
    * Returns the Avaje-compatible DSL string.
    *
@@ -189,7 +177,7 @@ public class Projection<T> {
   }
 
   private void parseAndValidate(String path) {
-    if (path == null || path.trim().isEmpty()) return;
+    if (path.trim().isEmpty()) return;
     path = path.trim();
 
     // 1. Root-level grouping: "(id, name, address)"

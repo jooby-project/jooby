@@ -39,4 +39,15 @@ public class LocaleUtils {
     return parseRanges(value)
         .map(l -> l.stream().map(r -> Locale.forLanguageTag(r.getRange())).collect(toList()));
   }
+
+  public static List<Locale> parseLocalesOrFail(final String value) {
+    return parseRanges(value)
+        .map(l -> l.stream().map(r -> Locale.forLanguageTag(r.getRange())).collect(toList()))
+        .orElseThrow(
+            () ->
+                new IllegalArgumentException(
+                    String.format(
+                        "Invalid value '%s'; check the documentation of %s#parse()",
+                        value, Locale.LanguageRange.class.getName())));
+  }
 }

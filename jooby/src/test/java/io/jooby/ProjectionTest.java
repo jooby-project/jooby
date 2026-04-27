@@ -17,11 +17,18 @@ public class ProjectionTest {
   // --- Test Models ---
 
   public static class User {
+    private static final long staticLong = 1L;
+    private transient String email;
+
     private String id;
     private String name;
     private Address address;
     private List<Role> roles;
     private Map<String, String> meta;
+
+    public static long getStaticLong() {
+      return staticLong;
+    }
 
     public String getId() {
       return id;

@@ -6,8 +6,7 @@
 package io.jooby.test;
 
 import static java.util.stream.Collectors.toList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +30,17 @@ public class LocaleUtilsTest {
     assertEquals(Optional.empty(), LocaleUtils.parseRanges(""));
     assertEquals(Optional.empty(), LocaleUtils.parseRanges("some garbage"));
     assertEquals(Optional.empty(), LocaleUtils.parseRanges("hu-HU, and some garbage"));
+  }
+
+  @Test
+  public void shouldThrow() {
+    var cause =
+        assertThrows(
+            IllegalArgumentException.class, () -> LocaleUtils.parseLocalesOrFail("some garbage"));
+    assertEquals(
+        "Invalid value 'some garbage'; check the documentation of"
+            + " java.util.Locale$LanguageRange#parse()",
+        cause.getMessage());
   }
 
   @Test

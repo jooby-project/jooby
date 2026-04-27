@@ -12,8 +12,6 @@
   <name>jooby-trpc-generator</name>
 
   <dependencies>
-    <!-- JAXRS -->
-    <!-- Logging System -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -87,6 +85,7 @@
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
       <version>3.8.5</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
