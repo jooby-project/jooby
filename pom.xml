@@ -63,7 +63,7 @@
     <pebble.version>4.1.1</pebble.version>
     <jackson.version>2.21.2</jackson.version>
     <jackson3.version>3.1.2</jackson3.version>
-    <gson.version>2.13.2</gson.version>
+    <gson.version>2.14.0</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
     <rocker.version>2.4.0</rocker.version>
@@ -265,7 +265,7 @@
       <dependency>
         <groupId>io.modelcontextprotocol.sdk</groupId>
         <artifactId>mcp-bom</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
