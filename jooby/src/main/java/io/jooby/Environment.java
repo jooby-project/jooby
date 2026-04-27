@@ -8,11 +8,7 @@ package io.jooby;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +17,6 @@ import org.jspecify.annotations.Nullable;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigParseOptions;
 
 /**
  * Application environment contains configuration object and active environment names.
@@ -244,9 +239,7 @@ public class Environment {
    * @return Configuration object.
    */
   public static Config systemProperties() {
-    return ConfigFactory.parseProperties(
-        System.getProperties(),
-        ConfigParseOptions.defaults().setOriginDescription("system properties"));
+    return ConfigFactory.systemProperties();
   }
 
   /**

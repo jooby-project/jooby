@@ -7,6 +7,9 @@ package io.jooby;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -100,7 +103,7 @@ public class EnvironmentTest {
 
     Environment env =
         Environment.loadEnvironment(
-            new EnvironmentOptions().setBasedir(basedir).setActiveNames("prod"));
+            new EnvironmentOptions().setBasedir(basedir.toString()).setActiveNames("prod"));
     assertEquals("bazz", env.getConfig().getString("foo"));
     assertEnvMatches(
         env,
@@ -135,10 +138,6 @@ public class EnvironmentTest {
     assertEquals(Collections.emptyMap(), Jooby.parseArguments((String[]) null));
   }
 
-  private void env(String dir, BiConsumer<Environment, Config> consumer) {
-    env(dir, Collections.emptyMap(), consumer);
-  }
-
   @Test
   public void flattenProperties() {
     Config config =
@@ -156,6 +155,147 @@ public class EnvironmentTest {
     assertEquals(
         mapOf("p.map.key1", "1", "p.map.key2", "2", "p.map.list", "a, b"),
         environment.getProperties("root", "p"));
+  }
+
+  // --- Start of newly added tests for 100% coverage ---
+
+  @Test
+  public void testConstructorsAndAccessors() {
+    Config conf = ConfigFactory.empty();
+    Environment env = new Environment(getClass().getClassLoader(), conf, "dev", "test");
+    assertEquals(Arrays.asList("dev", "test"), env.getActiveNames());
+    assertEquals(getClass().getClassLoader(), env.getClassLoader());
+
+    Config newConf = ConfigFactory.parseMap(Map.of("k", "v"));
+    env.setConfig(newConf);
+    assertEquals(newConf, env.getConfig());
+  }
+
+  @Test
+  public void testGetProperty() {
+    Config conf = ConfigFactory.parseMap(Map.of("foo", "bar"));
+    Environment env = new Environment(getClass().getClassLoader(), conf, "dev");
+
+    assertEquals("bar", env.getProperty("foo"));
+    assertNull(env.getProperty("missing"));
+
+    assertEquals("bar", env.getProperty("foo", "default"));
+    assertEquals("default", env.getProperty("missing", "default"));
+  }
+
+  @Test
+  public void testGetPropertiesEdgeCases() {
+    Config conf = ConfigFactory.parseMap(Map.of("foo", Map.of("a", "b")));
+    Environment env = new Environment(getClass().getClassLoader(), conf, "dev");
+
+    // Key doesn't exist
+    assertTrue(env.getProperties("missing").isEmpty());
+
+    // Null/Empty prefix
+    assertEquals(Map.of("a", "b"), env.getProperties("foo", null));
+    assertEquals(Map.of("a", "b"), env.getProperties("foo", ""));
+  }
+
+  @Test
+  public void testIsActive() {
+    Environment env =
+        new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "prod", "QA");
+    assertTrue(env.isActive("prod"));
+    assertTrue(env.isActive("qa"));
+    assertTrue(env.isActive("dev", "PROD"));
+    assertFalse(env.isActive("dev", "test"));
+  }
+
+  @Test
+  public void testLoadClass() {
+    Environment env = new Environment(getClass().getClassLoader(), ConfigFactory.empty(), "dev");
+    assertTrue(env.loadClass("java.lang.String").isPresent());
+    assertFalse(env.loadClass("com.example.DoesNotExist").isPresent());
+  }
+
+  @Test
+  public void testPidWithSystemProperty() {
+    String original = System.getProperty("PID");
+    try {
+      System.setProperty("PID", "12345");
+      assertEquals("12345", Environment.pid());
+    } finally {
+      if (original != null) {
+        System.setProperty("PID", original);
+      } else {
+        System.clearProperty("PID");
+      }
+    }
+  }
+
+  @Test
+  public void loadEnvironment_LocalEnvFallback() throws Exception {
+    Path tempDir = Files.createTempDirectory("jooby-env-test");
+    tempDir.toFile().deleteOnExit();
+    Path appConf = tempDir.resolve("application.conf");
+    Path localConf = tempDir.resolve("application.localdev.conf");
+
+    Files.write(appConf, "application.env = localdev\nfallback.key = appconf".getBytes());
+    Files.write(localConf, "fallback.key = localdevconf".getBytes());
+
+    EnvironmentOptions options =
+        new EnvironmentOptions().setBasedir(tempDir.toString()).setActiveNames("dev");
+
+    Environment env = Environment.loadEnvironment(options);
+
+    assertEquals(Collections.singletonList("localdev"), env.getActiveNames());
+    assertEquals("localdevconf", env.getConfig().getString("fallback.key"));
+  }
+
+  @Test
+  public void loadEnvironment_NoExtension() throws Exception {
+    Path tempDir = Files.createTempDirectory("jooby-env-test2");
+    tempDir.toFile().deleteOnExit();
+    Path customFile = tempDir.resolve("myconfig.conf");
+    Files.write(customFile, "custom.key = true".getBytes());
+
+    EnvironmentOptions options =
+        new EnvironmentOptions().setBasedir(tempDir.toString()).setFilename("myconfig");
+
+    Environment env = Environment.loadEnvironment(options);
+    assertTrue(env.getConfig().getBoolean("custom.key"));
+  }
+
+  @Test
+  public void classpathConfigWithBasedir() {
+    // Uses src/test/resources/env/foo which is on the classpath.
+    // basedir="env/foo" will not be found as a directory by fileConfig relative to cwd in most
+    // setups, so it correctly falls back to classpathConfig which hits our target branches.
+    EnvironmentOptions options =
+        new EnvironmentOptions().setBasedir("env/foo").setActiveNames("prod");
+
+    Environment env = Environment.loadEnvironment(options);
+    assertEquals("bazz", env.getConfig().getString("foo"));
+  }
+
+  @Test
+  public void testSystemPropertiesAndEnv() {
+    Config props = Environment.systemProperties();
+    System.out.println(props.getAnyRef("java.version"));
+    assertEquals(System.getProperty("java.version"), props.getString("java.version"));
+
+    Config env = Environment.systemEnv();
+    assertNotNull(env);
+  }
+
+  @Test
+  public void testHasPathException() {
+    Environment env = new Environment(getClass().getClassLoader(), ConfigFactory.empty());
+    // Passing a single quote `"` forces a ConfigException (Parse error) hitting the catch block
+    assertNull(env.getProperty("\""));
+    assertEquals("default", env.getProperty("\"", "default"));
+    assertTrue(env.getProperties("\"").isEmpty());
+  }
+
+  // --- End of newly added tests ---
+
+  private void env(String dir, BiConsumer<Environment, Config> consumer) {
+    env(dir, Collections.emptyMap(), consumer);
   }
 
   private void env(String dir, Map<String, Object> args, BiConsumer<Environment, Config> consumer) {

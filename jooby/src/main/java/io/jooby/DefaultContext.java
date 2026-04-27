@@ -177,13 +177,9 @@ public interface DefaultContext extends Context {
 
   @Override
   default Object forward(String path) {
-    try {
-      setRequestPath(path);
-      Router.Match match = getRouter().match(this);
-      return match.execute(this, match.route().getHandler());
-    } catch (Throwable cause) {
-      throw SneakyThrows.propagate(cause);
-    }
+    setRequestPath(path);
+    Router.Match match = getRouter().match(this);
+    return match.execute(this, match.route().getHandler());
   }
 
   @Override
@@ -421,24 +417,18 @@ public interface DefaultContext extends Context {
   @Override
   default int getPort() {
     var hostAndPort = getHostAndPort();
-    if (hostAndPort != null) {
-      int index = hostAndPort.indexOf(':');
-      if (index > 0) {
-        return Integer.parseInt(hostAndPort.substring(index + 1));
-      }
-      return isSecure() ? SECURE_PORT : PORT;
+    int index = hostAndPort.indexOf(':');
+    if (index > 0) {
+      return Integer.parseInt(hostAndPort.substring(index + 1));
     }
-    return getServerPort();
+    return isSecure() ? SECURE_PORT : PORT;
   }
 
   @Override
   default String getHost() {
     String hostAndPort = getHostAndPort();
-    if (hostAndPort != null) {
-      int index = hostAndPort.indexOf(':');
-      return index > 0 ? hostAndPort.substring(0, index).trim() : hostAndPort;
-    }
-    return getServerHost();
+    int index = hostAndPort.indexOf(':');
+    return index > 0 ? hostAndPort.substring(0, index).trim() : hostAndPort;
   }
 
   @Override
