@@ -36,8 +36,7 @@ public final class UrlParser {
     return decodeComponent(value, 0, value.length(), StandardCharsets.UTF_8, true);
   }
 
-  private static void decodeParams(
-      HashValue root, String s, int from, Charset charset, int paramsLimit) {
+  static void decodeParams(HashValue root, String s, int from, Charset charset, int paramsLimit) {
     int len = s.length();
     if (from >= len) {
       return;
