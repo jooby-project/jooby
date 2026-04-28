@@ -19,9 +19,7 @@ import io.jooby.output.OutputFactory;
 
 public class MutedServer implements Server {
   private Server delegate;
-
   private List<String> mute;
-
   private LoggingService loggingService;
 
   private MutedServer(Server server, LoggingService loggingService, List<String> mute) {
@@ -35,30 +33,32 @@ public class MutedServer implements Server {
     return delegate.getOutputFactory();
   }
 
-  /**
-   * Muted a server when need it.
-   *
-   * @param server Server to mute.
-   * @return Muted server or same server.
-   */
+  static Optional<LoggingService> loadLoggingService(ClassLoader classLoader) {
+    return ServiceLoader.load(LoggingService.class, classLoader).findFirst();
+  }
+
   public static Server mute(Server server, String... logger) {
-    if (server instanceof MutedServer) {
+    var loggingService = loadLoggingService(server.getClass().getClassLoader());
+
+    if (loggingService.isEmpty()) {
       return server;
     }
-    List<String> mute =
-        Stream.concat(server.getLoggerOff().stream(), Stream.of(logger))
-            .collect(Collectors.toList());
 
-    Optional<LoggingService> loggingService =
-        ServiceLoader.load(LoggingService.class, server.getClass().getClassLoader()).findFirst();
-    return loggingService
-        .filter(service -> !mute.isEmpty())
-        .<Server>map(service -> new MutedServer(server, service, mute))
-        .orElse(server);
+    Server delegate = server instanceof MutedServer ? ((MutedServer) server).delegate : server;
+    var existingMute =
+        server instanceof MutedServer ? ((MutedServer) server).mute : delegate.getLoggerOff();
+
+    Stream<String> newLoggers = logger == null ? Stream.empty() : Stream.of(logger);
+
+    var mute =
+        Stream.concat(existingMute.stream(), newLoggers).distinct().collect(Collectors.toList());
+
+    return new MutedServer(delegate, loggingService.get(), mute);
   }
 
   public Server setOptions(ServerOptions options) {
-    return delegate.setOptions(options);
+    delegate.setOptions(options);
+    return this;
   }
 
   public String getName() {
@@ -71,16 +71,16 @@ public class MutedServer implements Server {
 
   public Server start(Jooby... application) {
     loggingService.logOff(mute, () -> delegate.start(application));
-    return delegate;
+    return this;
   }
 
   public List<String> getLoggerOff() {
-    return delegate.getLoggerOff();
+    return mute;
   }
 
   public Server stop() {
     loggingService.logOff(mute, delegate::stop);
-    return delegate;
+    return this;
   }
 
   @Override
