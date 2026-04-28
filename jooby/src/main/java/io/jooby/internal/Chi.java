@@ -8,10 +8,7 @@ package io.jooby.internal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
@@ -633,38 +630,6 @@ class Chi implements RouteTree {
       return this;
     }
 
-    @Override
-    public String toString() {
-      StringBuilder node = new StringBuilder();
-      if (prefix != null) {
-        node.append(prefix);
-      }
-      node.append("{type: ");
-      switch (typ) {
-        case ntStatic:
-          node.append("static");
-          break;
-        case ntParam:
-          node.append("param");
-          break;
-        case ntRegexp:
-          node.append("regex");
-          break;
-        default:
-          node.append("catch-all");
-      }
-      String nodes =
-          Stream.of(children)
-              .filter(Objects::nonNull)
-              .flatMap(Stream::of)
-              .filter(Objects::nonNull)
-              .map(Node::toString)
-              .collect(Collectors.joining(", ", "[", "]"));
-      node.append(", children: ").append(nodes);
-      node.append("}");
-      return node.toString();
-    }
-
     Node insertRoute(String method, String pattern, Route route, boolean failOnDuplicateRoutes) {
       Node n = this;
       Node parent;
@@ -959,7 +924,7 @@ class Chi implements RouteTree {
                 }
 
                 // rctx.routeParams.Values = append(rctx.routeParams.Values, xsearch[:p])
-                int prevlen = rctx.vars.size();
+                int prevlen = rctx.size();
                 rctx.value(xsearch.substring(0, p).toString());
                 xsearch = xsearch.substring(p);
 

@@ -5,11 +5,7 @@
  */
 package io.jooby.internal;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import io.jooby.Context;
 import io.jooby.MessageEncoder;
@@ -18,40 +14,47 @@ import io.jooby.Router;
 
 public class RouterMatch implements Router.Match {
 
-  boolean matches;
-
+  private boolean matches;
   private Route route;
-
-  Map vars = Collections.EMPTY_MAP;
-
   private Route.Handler handler;
+
+  private static final int INITIAL_CAPACITY = 5;
+  private String[] keys = new String[INITIAL_CAPACITY];
+  private String[] values = new String[INITIAL_CAPACITY];
+  private int size = 0;
 
   public RouterMatch() {}
 
-  public void key(List<String> keys) {
-    for (int i = 0; i < Math.min(keys.size(), vars.size()); i++) {
-      vars.put(keys.get(i), vars.remove(i));
-    }
-  }
-
-  public void truncate(int size) {
-    while (size < vars.size()) {
-      vars.remove(size++);
+  public void key(List<String> routeKeys) {
+    int limit = Math.min(routeKeys.size(), this.size);
+    for (int i = 0; i < limit; i++) {
+      this.keys[i] = routeKeys.get(i);
     }
   }
 
   public void value(String value) {
-    if (vars == Collections.EMPTY_MAP) {
-      vars = new LinkedHashMap();
+    if (size == values.length) {
+      values = Arrays.copyOf(values, values.length * 2);
+      keys = Arrays.copyOf(keys, keys.length * 2);
     }
-    vars.put(vars.size(), value);
+    this.values[size++] = value;
   }
 
   public void pop() {
-    vars.remove(vars.size() - 1);
+    if (this.size > 0) {
+      this.size--;
+    }
   }
 
-  public void methodNotAllowed(Set<String> allow) {
+  public void truncate(int newSize) {
+    this.size = newSize;
+  }
+
+  public int size() {
+    return this.size;
+  }
+
+  public void methodNotAllowed(Iterable<String> allow) {
     String allowString = String.join(",", allow);
     Route.Filter filter =
         next ->
@@ -74,7 +77,16 @@ public class RouterMatch implements Router.Match {
 
   @Override
   public Map<String, String> pathMap() {
-    return vars;
+    if (size == 1) {
+      return Collections.singletonMap(keys[0], values[0]);
+    } else {
+      int capacity = (int) (size / 0.75f) + 1;
+      var map = new LinkedHashMap<String, String>(capacity);
+      for (int i = 0; i < size; i++) {
+        map.put(keys[i], values[i]);
+      }
+      return map;
+    }
   }
 
   public RouterMatch found(Route route) {
@@ -85,7 +97,7 @@ public class RouterMatch implements Router.Match {
 
   @Override
   public Object execute(Context context, Route.Handler pipeline) {
-    context.setPathMap(vars);
+    context.setPathMap(pathMap());
     context.setRoute(route);
     try {
       return pipeline.apply(context);
@@ -95,7 +107,8 @@ public class RouterMatch implements Router.Match {
     } finally {
       this.handler = null;
       this.route = null;
-      this.vars = null;
+      this.keys = null;
+      this.values = null;
     }
   }
 
