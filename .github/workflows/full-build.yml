@@ -172,3 +172,19 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: tests/target/site/jacoco-aggregate/jacoco.xml
           fail_ci_if_error: false
+      - name: 🔗 Codecov Report Link
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.java-version == '21'
+        run: |
+          # Use the PR head SHA if available, otherwise fallback to the push commit SHA
+          COMMIT_SHA="${{ github.event.pull_request.head.sha || github.sha }}"
+          REPO="${{ github.repository }}"
+
+          # Construct both URLs
+          COMMIT_URL="https://app.codecov.io/github/$REPO/commit/$COMMIT_SHA"
+          PROJECT_URL="https://app.codecov.io/github/$REPO"
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ☂️ Codecov Report" >> $GITHUB_STEP_SUMMARY
+          echo "Your upload is queued for processing. When finished, results will be available at:" >> $GITHUB_STEP_SUMMARY
+          echo "- 👉 **[View Report for this Commit]($COMMIT_URL)**" >> $GITHUB_STEP_SUMMARY
+          echo "- 🏠 **[View Overall Project Dashboard]($PROJECT_URL)**" >> $GITHUB_STEP_SUMMARY
