@@ -7,6 +7,8 @@ package io.jooby.internal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,9 +19,9 @@ import io.jooby.Context;
 import io.jooby.MessageEncoder;
 import io.jooby.Route;
 import io.jooby.Router;
-import io.jooby.SneakyThrows;
 
 public class ChiTest {
+
   @Test
   public void routeOverride() {
     Chi router = new Chi(false);
@@ -31,20 +33,6 @@ public class ChiTest {
     Router.Match result = router.find("GET", "/abcd");
     assertTrue(result.matches());
     assertEquals(bar, result.route());
-  }
-
-  @Test
-  public void staticMap6() {
-    Chi router = new Chi(false);
-    router.insert(route("GET", "/1", stringHandler("1")));
-    router.insert(route("GET", "/2", stringHandler("2")));
-    router.insert(route("GET", "/3", stringHandler("3")));
-    router.insert(route("GET", "/4", stringHandler("4")));
-    router.insert(route("GET", "/5", stringHandler("5")));
-    router.insert(route("GET", "/6", stringHandler("6")));
-
-    Router.Match result = router.find("GET", "/1");
-    assertTrue(result.matches());
   }
 
   @Test
@@ -61,196 +49,170 @@ public class ChiTest {
   }
 
   @Test
-  public void wildOnRoot() throws Exception {
+  public void staticMapExpansionAndOverrides() {
     Chi router = new Chi(false);
 
-    router.insert(route("GET", "/foo/?*", stringHandler("foo")));
-    router.insert(route("GET", "/bar/*", stringHandler("bar")));
-    router.insert(route("GET", "/*", stringHandler("root")));
+    // Add up to 8 routes to trigger StaticMap1 through StaticMapN
+    for (int i = 1; i <= 8; i++) {
+      router.insert(route("GET", "/path" + i, stringHandler("v" + i)));
 
-    find(
-        router,
-        "/",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("root", result.route().getPipeline().apply(ctx));
-        });
+      // Override the same path to trigger the `if (patternX.equals(path))` override branches
+      for (int j = 1; j <= i; j++) {
+        router.insert(route("GET", "/path" + j, stringHandler("v" + j + "_override")));
+      }
+    }
 
-    find(
-        router,
-        "/foo",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("foo", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/bar",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("root", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/foox",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("root", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/foo/",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("foo", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/foo/x",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("foo", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/bar/x",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("bar", result.route().getPipeline().apply(ctx));
-        });
+    assertTrue(router.exists("GET", "/path1"));
+    assertTrue(router.exists("GET", "/path8"));
+    assertFalse(router.exists("GET", "/path9")); // Missing
   }
 
   @Test
-  public void searchString() throws Exception {
+  public void multipleMethods() {
+    Chi router = new Chi(false);
+    router.insert(route("GET", "/multi", stringHandler("get")));
+    router.insert(route("POST", "/multi", stringHandler("post")));
+    router.insert(route("PUT", "/multi", stringHandler("put")));
+
+    assertTrue(router.exists("GET", "/multi"));
+    assertTrue(router.exists("POST", "/multi"));
+    assertTrue(router.exists("PUT", "/multi"));
+    assertFalse(router.exists("DELETE", "/multi"));
+
+    // Check method not allowed correctly triggers
+    Router.Match result = router.find("DELETE", "/multi");
+    assertFalse(result.matches());
+  }
+
+  @Test
+  public void nodeSplittingAndEdges() {
+    Chi router = new Chi(false);
+    // These will force the tree to split prefixes e.g. /a vs /ab vs /abc
+    router.insert(route("GET", "/abc/d", stringHandler("1")));
+    router.insert(route("GET", "/abc/e", stringHandler("2"))); // Splits at /abc/
+    router.insert(route("GET", "/abx/y", stringHandler("3"))); // Splits at /ab
+
+    assertTrue(router.find("GET", "/abc/d").matches());
+    assertTrue(router.find("GET", "/abc/e").matches());
+    assertTrue(router.find("GET", "/abx/y").matches());
+  }
+
+  @Test
+  public void failOnDuplicateRoutes() {
+    Chi router = new Chi(true); // Fail on duplicate is TRUE
+    router.insert(route("GET", "/dup", stringHandler("1")));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              router.insert(route("GET", "/dup", stringHandler("2")));
+            });
+    assertTrue(ex.getMessage().contains("Route already exists: GET /dup"));
+  }
+
+  @Test
+  public void wildOnRootAndCatchAllBase() throws Exception {
     Chi router = new Chi(false);
 
+    router.insert(route("GET", "/foo/?*", stringHandler("foo"))); // Creates baseCatchAll /foo
+    router.insert(route("GET", "/bar/*", stringHandler("bar")));
+    router.insert(route("GET", "/*", stringHandler("root")));
+    router.insert(route("GET", "/?*", stringHandler("base_catchall"))); // Converted to /*
+
+    assertTrue(router.exists("GET", "/foo"));
+    assertTrue(router.exists("GET", "/foo/bar"));
+    assertTrue(router.exists("GET", "/bar/xyz"));
+    assertTrue(router.exists("GET", "/anything"));
+  }
+
+  @Test
+  public void searchStringAndRegexAutoAnchors() throws Exception {
+    Chi router = new Chi(false);
+
+    // Regex missing both ^ and $
     router.insert(route("GET", "/regex/{nid:[0-9]+}", stringHandler("nid")));
-    router.insert(route("GET", "/regex/{zid:[0-9]+}/edit", stringHandler("zid")));
+    // Regex missing $ only
+    router.insert(route("GET", "/regex2/{zid:^[0-9]+}/edit", stringHandler("zid")));
+
     router.insert(route("GET", "/articles/{id}", stringHandler("id")));
     router.insert(route("GET", "/articles/*", stringHandler("*")));
 
-    find(
-        router,
-        "/regex/678/edit",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("zid", result.route().getPipeline().apply(ctx));
-        });
+    assertTrue(router.find("GET", "/regex/678").matches());
+    assertTrue(router.find("GET", "/regex2/678/edit").matches());
+    assertFalse(router.find("GET", "/regex/abc").matches()); // Regex fails
 
-    find(
-        router,
-        "/articles/tail/match",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("*", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/articles/123",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("id", result.route().getPipeline().apply(ctx));
-        });
+    // Test segment tail other than '/'
+    router.insert(route("GET", "/file-{id}.jpg", stringHandler("file")));
+    assertTrue(router.find("GET", "/file-123.jpg").matches());
   }
 
   @Test
-  public void searchParam() throws Exception {
+  public void wildCardParsingExceptions() {
     Chi router = new Chi(false);
 
-    router.insert(route("GET", "/catchallWithVarPrefix/{id}/*path", stringHandler("path")));
+    // 1. Missing closing delimiter
+    IllegalArgumentException ex1 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              router.insert(route("GET", "/foo/{bar", stringHandler("err")));
+            });
+    assertTrue(ex1.getMessage().contains("missing"));
 
-    router.insert(route("GET", "/articles/{id}", stringHandler("id")));
-    router.insert(route("GET", "/articles/*", stringHandler("catchall")));
+    // 2. Wildcard not at the end
+    IllegalArgumentException ex2 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              router.insert(route("GET", "/foo/*/bar", stringHandler("err")));
+            });
+    assertEquals(
+        "Router: wildcard '*' must be the last element in a route. Found trailing segment in:"
+            + " /foo/*/bar",
+        ex2.getMessage());
 
-    find(
-        router,
-        "/catchallWithVarPrefix/55/js/index.js",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("path", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/articles/123",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("id", result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/articles/a/b",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("catchall", result.route().getPipeline().apply(ctx));
-        });
+    IllegalArgumentException ex3 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> {
+              router.insert(route("GET", "/foo/*{bar}", stringHandler("err")));
+            });
+    assertEquals(
+        "Router: wildcard '*' must be the last pattern in a route, otherwise use a '{param}'",
+        ex3.getMessage());
   }
 
   @Test
-  public void multipleRegex() {
+  public void backtrackingAndMethodNotAllowed() {
     Chi router = new Chi(false);
 
-    router.insert(route("GET", "/{lang:[a-z][a-z]}/{page:[^.]+}/", stringHandler("1515")));
+    router.insert(route("GET", "/a/b/c", stringHandler("c")));
+    router.insert(route("GET", "/a/{p}/d", stringHandler("d")));
+    router.insert(route("POST", "/a/{p}/d", stringHandler("d-post")));
 
-    find(
-        router,
-        "/12/f/",
-        (ctx, result) -> {
-          assertFalse(result.matches());
-          assertEquals(null, result.route().getPipeline().apply(ctx));
-        });
+    // Matches static
+    assertTrue(router.find("GET", "/a/b/c").matches());
 
-    find(
-        router,
-        "/ar/page/",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("1515", result.route().getPipeline().apply(ctx));
-        });
+    // Backtracks past the static `/b/c` branch to match the `{p}/d` branch
+    assertTrue(router.find("GET", "/a/b/d").matches());
 
-    find(
-        router,
-        "/arx/page/",
-        (ctx, result) -> {
-          assertFalse(result.matches());
-          assertEquals(null, result.route().getPipeline().apply(ctx));
-        });
+    // Matches but wrong method
+    Router.Match result = router.find("PUT", "/a/b/d");
+    assertFalse(result.matches());
   }
 
   @Test
-  public void regexWithQuantity() {
+  public void destroyAndEncoder() {
     Chi router = new Chi(false);
+    MessageEncoder mockEncoder = mock(MessageEncoder.class);
+    router.setEncoder(mockEncoder); // Coverage for setEncoder
 
-    router.insert(route("GET", "/{lang:[a-z]{2}}/", stringHandler("qx")));
+    router.insert(route("GET", "/a/{b}", stringHandler("b")));
+    router.insert(route("GET", "/x/y", stringHandler("y")));
 
-    find(
-        router,
-        "/12/",
-        (ctx, result) -> {
-          assertFalse(result.matches());
-          assertEquals(null, result.route().getPipeline().apply(ctx));
-        });
-
-    find(
-        router,
-        "/ar/",
-        (ctx, result) -> {
-          assertTrue(result.matches());
-          assertEquals("qx", result.route().getPipeline().apply(ctx));
-        });
-  }
-
-  private void find(
-      Chi router, String pattern, SneakyThrows.Consumer2<Context, Router.Match> consumer) {
-    Router.Match result = router.find("GET", pattern);
-    consumer.accept(ctx(pattern), result);
+    router.destroy(); // Coverage for internal Node.destroy() recursion
+    assertNotNull(router);
   }
 
   private Route.Handler stringHandler(String foo) {

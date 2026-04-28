@@ -810,7 +810,7 @@ class Chi implements RouteTree {
           return;
         }
       }
-      throw new IllegalArgumentException("chi: replacing missing child");
+      throw new IllegalArgumentException("Router: replacing missing child");
     }
 
     Node getEdge(int ntyp, char label, char tail, String prefix) {
@@ -1072,9 +1072,22 @@ class Chi implements RouteTree {
       }
 
       // Sanity check
-      if (ws >= 0 && ws < ps) {
-        throw new IllegalArgumentException(
-            "chi: wildcard '*' must be the last pattern in a route, otherwise use a '{param}'");
+      if (ws >= 0) {
+        // 1. Wildcard cannot appear before a parameter
+        if (ws < ps) {
+          throw new IllegalArgumentException(
+              "Router: wildcard '*' must be the last pattern in a route, otherwise use a"
+                  + " '{param}'");
+        }
+
+        // 2. Wildcard cannot have structural segments after it (e.g., /*/bar)
+        // Named wildcards (e.g., /*bar) will pass this check because they don't contain a '/'
+        if (pattern.indexOf('/', ws) >= 0) {
+          throw new IllegalArgumentException(
+              "Router: wildcard '*' must be the last element in a route. Found trailing segment in:"
+                  + " "
+                  + pattern);
+        }
       }
 
       char tail = '/'; // Default endpoint tail to / byte
