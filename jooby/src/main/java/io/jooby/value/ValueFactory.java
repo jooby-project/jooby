@@ -175,13 +175,28 @@ public class ValueFactory {
       return (T) converter.convert(type, value, hint);
     }
     var rawType = $Types.getRawType(type);
+
     // Is it a container?
     if (List.class.isAssignableFrom(rawType)) {
-      return (T) List.of(convert($Types.parameterizedType0(type), value));
+      Object element = convert($Types.parameterizedType0(type), value);
+      return (T)
+          (element == null
+              ? java.util.Collections.emptyList()
+              : java.util.Collections.singletonList(element));
+
     } else if (Set.class.isAssignableFrom(rawType)) {
-      return (T) Set.of(convert($Types.parameterizedType0(type), value));
+      Object element = convert($Types.parameterizedType0(type), value);
+      return (T)
+          (element == null
+              ? java.util.Collections.emptySet()
+              : java.util.Collections.singleton(element));
+
     } else if (Optional.class.isAssignableFrom(rawType)) {
-      return (T) Optional.of(convert($Types.parameterizedType0(type), value));
+      if (value.isMissing()) {
+        return (T) Optional.empty();
+      }
+      Object element = convert($Types.parameterizedType0(type), value);
+      return (T) Optional.ofNullable(element);
     } else {
       // dynamic conversion
       if (Enum.class.isAssignableFrom(rawType)) {

@@ -216,8 +216,8 @@ public enum StandardConverter implements Converter {
       try {
         return java.time.Duration.parse(value.value());
       } catch (DateTimeParseException x) {
-        var millis = MILLISECONDS.convert(parseDuration(value.value()), NANOSECONDS);
-        return java.time.Duration.ofMillis(millis);
+        var nanos = parseDuration(value.value());
+        return java.time.Duration.ofNanos(nanos);
       }
     }
 
