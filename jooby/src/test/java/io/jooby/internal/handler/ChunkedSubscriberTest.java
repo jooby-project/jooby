@@ -149,12 +149,17 @@ public class ChunkedSubscriberTest {
     when(ctx.getMethod()).thenReturn("GET");
     when(ctx.getRequestPath()).thenReturn("/path");
 
-    ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
-    sub.onSubscribe(subscription);
-    sub.onNext(item);
+    // Isolate from global test pollution: force it into the sendError path
+    try (MockedStatic<Server> serverMock = mockStatic(Server.class)) {
+      serverMock.when(() -> Server.connectionLost(any(Throwable.class))).thenReturn(false);
 
-    verify(subscription).cancel();
-    verify(ctx).sendError(ex);
+      ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
+      sub.onSubscribe(subscription);
+      sub.onNext(item);
+
+      verify(subscription).cancel();
+      verify(ctx).sendError(ex);
+    }
   }
 
   @Test
@@ -167,19 +172,23 @@ public class ChunkedSubscriberTest {
     when(ctx.getMethod()).thenReturn("GET");
     when(ctx.getRequestPath()).thenReturn("/path");
 
-    ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
-    sub.onSubscribe(subscription);
-    sub.onNext(item);
+    // Isolate from global test pollution
+    try (MockedStatic<Server> serverMock = mockStatic(Server.class)) {
+      serverMock.when(() -> Server.connectionLost(any(Throwable.class))).thenReturn(false);
 
-    ArgumentCaptor<Sender.Callback> captor = ArgumentCaptor.forClass(Sender.Callback.class);
-    verify(sender).write(eq(data), captor.capture());
+      ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
+      sub.onSubscribe(subscription);
+      sub.onNext(item);
 
-    Exception ex = new Exception("write error");
+      ArgumentCaptor<Sender.Callback> captor = ArgumentCaptor.forClass(Sender.Callback.class);
+      verify(sender).write(eq(data), captor.capture());
 
-    captor.getValue().onComplete(ctx, ex);
+      Exception ex = new Exception("write error");
+      captor.getValue().onComplete(ctx, ex);
 
-    verify(subscription).cancel();
-    verify(ctx).sendError(ex);
+      verify(subscription).cancel();
+      verify(ctx).sendError(ex);
+    }
   }
 
   @Test
@@ -273,20 +282,24 @@ public class ChunkedSubscriberTest {
     when(ctx.getMethod()).thenReturn("GET");
     when(ctx.getRequestPath()).thenReturn("/path");
 
-    ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
-    sub.onSubscribe(subscription);
-    sub.onNext(item);
-    reset(sender);
+    // Isolate from global test pollution
+    try (MockedStatic<Server> serverMock = mockStatic(Server.class)) {
+      serverMock.when(() -> Server.connectionLost(any(Throwable.class))).thenReturn(false);
 
-    sub.onComplete();
+      ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
+      sub.onSubscribe(subscription);
+      sub.onNext(item);
+      reset(sender);
 
-    ArgumentCaptor<Sender.Callback> captor = ArgumentCaptor.forClass(Sender.Callback.class);
-    verify(sender).write(any(byte[].class), captor.capture());
+      sub.onComplete();
 
-    Exception err = new Exception("complete callback error");
+      ArgumentCaptor<Sender.Callback> captor = ArgumentCaptor.forClass(Sender.Callback.class);
+      verify(sender).write(any(byte[].class), captor.capture());
 
-    captor.getValue().onComplete(ctx, err);
+      Exception err = new Exception("complete callback error");
+      captor.getValue().onComplete(ctx, err);
 
-    verify(ctx).sendError(err);
+      verify(ctx).sendError(err);
+    }
   }
 }
