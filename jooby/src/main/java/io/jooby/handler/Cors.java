@@ -46,7 +46,6 @@ public class Cors {
       return values.contains("*");
     }
 
-    @Override
     public String toString() {
       return values.toString();
     }
