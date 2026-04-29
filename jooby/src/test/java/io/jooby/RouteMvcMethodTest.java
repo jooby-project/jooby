@@ -19,6 +19,10 @@ public class RouteMvcMethodTest {
     public String hello(String name) {
       return "Hello " + name;
     }
+
+    public String noArgs() {
+      return "No args";
+    }
   }
 
   @Test
@@ -92,5 +96,45 @@ public class RouteMvcMethodTest {
     assertEquals("hello", mvc.name());
     assertEquals(String.class, mvc.returnType());
     assertArrayEquals(new Class[] {String.class}, mvc.parameterTypes());
+  }
+
+  // --- Complementary tests for 100% JaCoCo Record Coverage ---
+
+  @Test
+  public void testNoArgsMethod() throws Exception {
+    Route.MvcMethod mvc = new Route.MvcMethod(Controller.class, "noArgs", String.class);
+
+    // Verifies the varargs edge case where the array length is 0
+    assertEquals(0, mvc.parameterTypes().length);
+    assertNotNull(mvc.toMethod());
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    Route.MvcMethod mvc1 =
+        new Route.MvcMethod(Controller.class, "hello", String.class, String.class);
+    Route.MvcMethod mvc2 =
+        new Route.MvcMethod(Controller.class, "hello", String.class, String.class);
+    Route.MvcMethod mvc3 = new Route.MvcMethod(Controller.class, "noArgs", String.class);
+
+    // Verify auto-generated record equality and hashing logic
+    assertEquals(mvc1, mvc2);
+    assertEquals(mvc1.hashCode(), mvc2.hashCode());
+    assertNotEquals(mvc1, mvc3);
+    assertNotEquals(mvc1.hashCode(), mvc3.hashCode());
+    assertNotEquals(mvc1, null);
+  }
+
+  @Test
+  public void testToString() {
+    Route.MvcMethod mvc =
+        new Route.MvcMethod(Controller.class, "hello", String.class, String.class);
+
+    // Verify auto-generated record stringification logic
+    String str = mvc.toString();
+    assertTrue(str.contains("MvcMethod"));
+    assertTrue(str.contains("hello"));
+    assertTrue(str.contains("Controller"));
+    assertTrue(str.contains("java.lang.String"), "Should contain array content representation");
   }
 }

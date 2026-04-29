@@ -5,8 +5,6 @@
  */
 package io.jooby;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -16,6 +14,7 @@ import io.jooby.SneakyThrows.Consumer2;
 import io.jooby.handler.Asset;
 import io.jooby.handler.AssetSource;
 import io.jooby.internal.IOUtils;
+import io.jooby.internal.OpenAPIAsset;
 
 /**
  * OpenAPI supports for Jooby. Basic Usage:
@@ -39,54 +38,9 @@ import io.jooby.internal.IOUtils;
  */
 public class OpenAPIModule implements Extension {
 
-  private static class OpenAPIAsset implements Asset {
-
-    private final long lastModified;
-
-    private final byte[] content;
-
-    private final MediaType type;
-
-    OpenAPIAsset(MediaType type, byte[] content, long lastModified) {
-      this.content = content;
-      this.type = type;
-      this.lastModified = lastModified;
-    }
-
-    @Override
-    public long getSize() {
-      return content.length;
-    }
-
-    @Override
-    public long getLastModified() {
-      return lastModified;
-    }
-
-    @Override
-    public boolean isDirectory() {
-      return false;
-    }
-
-    @Override
-    public MediaType getContentType() {
-      return type;
-    }
-
-    @Override
-    public InputStream stream() {
-      return new ByteArrayInputStream(content);
-    }
-
-    @Override
-    public void close() throws Exception {
-      // NOOP
-    }
-  }
-
   private static class OpenAPISource implements AssetSource {
 
-    private Map<String, Asset> assets = new HashMap<>();
+    private final Map<String, Asset> assets = new HashMap<>();
 
     public OpenAPISource put(String key, Asset asset) {
       assets.put(key, asset);

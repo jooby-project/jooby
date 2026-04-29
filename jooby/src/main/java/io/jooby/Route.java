@@ -447,6 +447,37 @@ public class Route {
     public MethodHandle toMethodHandle() {
       return toMethodHandle(MethodHandles.publicLookup());
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (!(o instanceof MvcMethod that)) return false;
+      return declaringClass.equals(that.declaringClass)
+          && name.equals(that.name)
+          && returnType.equals(that.returnType)
+          && Arrays.equals(parameterTypes, that.parameterTypes);
+    }
+
+    @Override
+    public int hashCode() {
+      int result = Objects.hash(declaringClass, name, returnType);
+      result = 31 * result + Arrays.hashCode(parameterTypes);
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "MvcMethod["
+          + "declaringClass="
+          + declaringClass
+          + ", name="
+          + name
+          + ", returnType="
+          + returnType
+          + ", parameterTypes="
+          + Arrays.toString(parameterTypes)
+          + ']';
+    }
   }
 
   /** Favicon handler as a silent 404 error. */
