@@ -67,14 +67,15 @@ public class VertxServer extends NettyServer {
   @Override
   public Server init(Jooby application) {
     if (this.vertx == null) {
-      var nThreads = getOptions().getIoThreads();
-      var options =
+      var options = getOptions();
+      var nThreads = options.getIoThreads();
+      var vertxOptions =
           new VertxOptions()
               .setPreferNativeTransport(true)
               .setEventLoopPoolSize(nThreads)
-              .setWorkerPoolSize(getOptions().getWorkerThreads());
+              .setWorkerPoolSize(options.getWorkerThreads());
 
-      this.vertx = Vertx.vertx(options);
+      this.vertx = Vertx.vertx(vertxOptions);
     }
 
     VertxRegistry.init(application.getServices(), vertx);
@@ -94,9 +95,12 @@ public class VertxServer extends NettyServer {
 
   @Override
   public synchronized Server stop() {
-    super.stop();
-    if (vertx != null) {
-      vertx.close().await();
+    try {
+      super.stop();
+    } finally {
+      if (vertx != null) {
+        vertx.close().await();
+      }
     }
     return this;
   }

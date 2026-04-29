@@ -122,6 +122,7 @@ class Pac4jSession implements Session {
         throw new Pac4jUntrustedDataFound(name);
       }
     }
-    return session.put(name, value);
+    session.put(name, value);
+    return this; // BUGFIX: Return 'this' to prevent raw session leakage on chained calls
   }
 }

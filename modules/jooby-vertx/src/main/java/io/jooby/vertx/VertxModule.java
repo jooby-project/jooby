@@ -8,6 +8,8 @@ package io.jooby.vertx;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.vertx.VertxRegistry;
@@ -40,7 +42,7 @@ import io.vertx.core.json.JsonObject;
  * @since 4.0.8
  */
 public class VertxModule implements Extension {
-  private VertxOptions options;
+  private @Nullable VertxOptions options;
   private final Function<VertxOptions, Future<Vertx>> vertxFactory;
 
   /**

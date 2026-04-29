@@ -32,12 +32,14 @@ public class VertxHandler implements Route.Reactive {
   private static class AsyncFileHandler {
     private final Context ctx;
     private final OutputStream out;
+    private final AsyncFile file;
     private boolean errored;
     private boolean closed;
 
-    public AsyncFileHandler(Context ctx) {
+    public AsyncFileHandler(Context ctx, AsyncFile file) {
       this.ctx = ctx;
       this.out = ctx.responseStream();
+      this.file = file;
     }
 
     public Handler<Buffer> toHandler() {
@@ -59,6 +61,8 @@ public class VertxHandler implements Route.Reactive {
           out.close();
         } catch (IOException ex) {
           handleError(ex);
+        } finally {
+          file.close();
         }
       }
     }
@@ -66,6 +70,11 @@ public class VertxHandler implements Route.Reactive {
     private void handleError(Throwable ex) {
       if (!errored) {
         errored = true;
+        try {
+          file.close();
+        } catch (Exception ignored) {
+          // Ignore close errors if we are already handling an exception
+        }
         ctx.sendError(ex);
       } else {
         ctx.getRouter().getLog().error("Async file write resulted in exception", ex);
@@ -114,7 +123,7 @@ public class VertxHandler implements Route.Reactive {
   }
 
   private Context bufferResult(Context ctx, Buffer buffer) {
-    return ctx.render(buffer);
+    return ctx.send(buffer.getBytes());
   }
 
   private static Context futureResult(Context ctx, Future<?> future) {
@@ -125,7 +134,7 @@ public class VertxHandler implements Route.Reactive {
             if (value instanceof Buffer buffer) {
               ctx.send(buffer.getBytes());
             } else if (value instanceof AsyncFile file) {
-              var handler = new AsyncFileHandler(ctx);
+              var handler = new AsyncFileHandler(ctx, file);
               file.handler(handler.toHandler());
               file.endHandler(handler.toEndHandler());
               file.exceptionHandler(handler.toErrorHandler());

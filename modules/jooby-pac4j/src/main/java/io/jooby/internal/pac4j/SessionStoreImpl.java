@@ -69,7 +69,7 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
   public Optional<Object> get(WebContext context, String key) {
     return getSessionOrEmpty(context)
         .map(session -> session.get(key))
-        .flatMap(value -> strToObject(context(context).require(Serializer.class), value));
+        .flatMap(value -> strToObject(context(context), value));
   }
 
   @Override
@@ -77,7 +77,7 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
     if (value == null || value.toString().isEmpty()) {
       getSessionOrEmpty(context).ifPresent(session -> session.remove(key));
     } else {
-      var encoded = objToStr(context(context).require(Serializer.class), value);
+      var encoded = objToStr(context(context), value);
       getSession(context).put(key, encoded);
     }
   }
@@ -110,26 +110,27 @@ public class SessionStoreImpl implements org.pac4j.core.context.session.SessionS
     return session.isPresent();
   }
 
-  static Optional<Object> strToObject(Serializer serializer, Value node) {
+  static Optional<Object> strToObject(Context ctx, Value node) {
     if (node.isMissing()) {
       return Optional.empty();
     }
     String value = node.value();
     if (value.startsWith(BIN)) {
-      return Optional.of(serializer.deserializeFromString(value.substring(BIN.length())));
+      return Optional.of(
+          ctx.require(Serializer.class).deserializeFromString(value.substring(BIN.length())));
     } else if (value.startsWith(PAC4J)) {
       return Optional.of(strToAction(value.substring(PAC4J.length())));
     }
     return Optional.of(value);
   }
 
-  static String objToStr(Serializer serializer, Object value) {
+  static String objToStr(Context ctx, Object value) {
     if (value instanceof CharSequence || value instanceof Number || value instanceof Boolean) {
       return value.toString();
     } else if (value instanceof HttpAction) {
       return actionToStr((HttpAction) value);
     } else {
-      return BIN + serializer.serializeToString(value);
+      return BIN + ctx.require(Serializer.class).serializeToString(value);
     }
   }
 

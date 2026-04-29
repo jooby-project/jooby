@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,18 +54,29 @@ public class WebContextImpl implements Pac4jContext {
   @Override
   public Map<String, String[]> getRequestParameters() {
     Map<String, String[]> all = new LinkedHashMap<>();
-    parameters(context.path().toMultimap(), all::put);
-    parameters(context.query().toMultimap(), all::put);
-    parameters(context.form().toMultimap(), all::put);
+    parameters(context.path().toMultimap(), all);
+    parameters(context.query().toMultimap(), all);
+    parameters(context.form().toMultimap(), all);
     return all;
   }
 
-  private void parameters(Map<String, List<String>> params, BiConsumer<String, String[]> consumer) {
-    params.forEach((k, v) -> consumer.accept(k, v.toArray(new String[0])));
+  private void parameters(Map<String, List<String>> params, Map<String, String[]> all) {
+    params.forEach(
+        (k, v) -> {
+          all.merge(
+              k,
+              v.toArray(new String[0]),
+              (oldVal, newVal) -> {
+                String[] merged = new String[oldVal.length + newVal.length];
+                System.arraycopy(oldVal, 0, merged, 0, oldVal.length);
+                System.arraycopy(newVal, 0, merged, oldVal.length, newVal.length);
+                return merged;
+              });
+        });
   }
 
   @Override
-  public Optional getRequestAttribute(String name) {
+  public Optional<Object> getRequestAttribute(String name) {
     Object value = context.getAttributes().get(name);
     return Optional.ofNullable(value);
   }

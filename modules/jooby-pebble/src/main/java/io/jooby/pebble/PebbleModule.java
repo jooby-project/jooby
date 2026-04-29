@@ -40,13 +40,13 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
  * <pre>{@code
  * {
  *
- *   install(new PebbleModule());
+ * install(new PebbleModule());
  *
- *   get("/", ctx -> {
- *     User user = ...;
- *     return new ModelAndView("index.peb")
- *         .put("user", user);
- *   });
+ * get("/", ctx -> {
+ * User user = ...;
+ * return new ModelAndView("index.peb")
+ * .put("user", user);
+ * });
  * }
  * }</pre>
  *
@@ -59,7 +59,7 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
  * <pre>{@code
  * {
  *
- *    install(new PebbleModule("mypath"));
+ * install(new PebbleModule("mypath"));
  *
  * }
  * }</pre>
@@ -74,7 +74,7 @@ import io.pebbletemplates.pebble.template.PebbleTemplate;
  * <pre>{@code
  * {
  *
- *   PebbleEngine.Builder builder = require(PebbleEngine.Builder.class);
+ * PebbleEngine.Builder builder = require(PebbleEngine.Builder.class);
  *
  * }
  * }</pre>
@@ -245,9 +245,6 @@ public class PebbleModule implements Extension {
   }
 
   private static String stripLeadingSlash(String value) {
-    if (value == null) {
-      return null;
-    }
     if (value.startsWith("/")) {
       return value.substring(1);
     }

@@ -328,7 +328,7 @@ class ProblemDetailsHandlerTest {
               assertThat(
                   actualHtml,
                   containsString(
-                      """
+"""
 <h2>type: about:blank</h2>
 <h2>title: Not Acceptable</h2>
 <h2>status: 406</h2>
@@ -435,6 +435,6 @@ class ProblemDetailsHandlerTest {
   }
 
   private RequestSpecification spec(ServerTestRunner runner) {
-    return given().spec(GENERIC_SPEC).port(runner.getAllocatedPort());
+    return given().spec(GENERIC_SPEC).port(runner.getAllocatedPort()).header("Connection", "close");
   }
 }
