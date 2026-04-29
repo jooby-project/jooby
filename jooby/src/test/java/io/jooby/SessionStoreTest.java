@@ -5,11 +5,7 @@
  */
 package io.jooby;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -240,5 +236,19 @@ public class SessionStoreTest {
       // Safely catch any internal downstream errors; the primary goal is executing
       // the lambdas instantiated by the `SessionStore.signed()` factory.
     }
+  }
+
+  @Test
+  @DisplayName("Verify unsupported session store")
+  void testUnsupportedStore() {
+    assertThrows(Usage.class, () -> SessionStore.UNSUPPORTED.newSession(ctx));
+    assertThrows(Usage.class, () -> SessionStore.UNSUPPORTED.findSession(ctx));
+    assertThrows(
+        Usage.class, () -> SessionStore.UNSUPPORTED.deleteSession(ctx, mock(Session.class)));
+    assertThrows(
+        Usage.class, () -> SessionStore.UNSUPPORTED.touchSession(ctx, mock(Session.class)));
+    assertThrows(Usage.class, () -> SessionStore.UNSUPPORTED.saveSession(ctx, mock(Session.class)));
+    assertThrows(
+        Usage.class, () -> SessionStore.UNSUPPORTED.renewSessionId(ctx, mock(Session.class)));
   }
 }

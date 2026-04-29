@@ -50,6 +50,7 @@ public class CompositeOutput implements BufferedOutput {
   public BufferedOutput clear() {
     chunks.forEach(ByteBuffer::clear);
     chunks.clear();
+    size = 0;
     return this;
   }
 

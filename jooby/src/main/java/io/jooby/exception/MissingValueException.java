@@ -36,14 +36,6 @@ public class MissingValueException extends BadRequestException {
     return name;
   }
 
-  /**
-   * Check if the given value is null and throw a {@link MissingValueException} exception.
-   *
-   * @param name Attribute's name.
-   * @param value Value to check.
-   * @param <T> Value type.
-   * @return Input value
-   */
   public static <T> T requireNonNull(String name, @Nullable T value) {
     if (value == null) {
       throw new MissingValueException(name);

@@ -18,7 +18,10 @@ public class OutputOptions {
 
   /** Creates a default options. */
   public OutputOptions() {
-    long maxMemory = Runtime.getRuntime().maxMemory();
+    this(Runtime.getRuntime().maxMemory());
+  }
+
+  protected OutputOptions(long maxMemory) {
     // smaller than 64mb of ram we use 512b buffers
     if (maxMemory < 64 * 1024 * 1024) {
       // use 512b buffers
