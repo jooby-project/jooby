@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.internal.x509;
+package io.jooby.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,8 +16,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import io.jooby.internal.IOUtils;
 
 /**
  * Reads a PEM file and converts it into a list of DERs.
