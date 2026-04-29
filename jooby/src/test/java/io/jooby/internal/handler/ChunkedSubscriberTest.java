@@ -146,12 +146,15 @@ public class ChunkedSubscriberTest {
     RuntimeException ex = new RuntimeException("encoder error");
     when(encoder.encode(ctx, item)).thenThrow(ex);
 
+    when(ctx.getMethod()).thenReturn("GET");
+    when(ctx.getRequestPath()).thenReturn("/path");
+
     ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
     sub.onSubscribe(subscription);
     sub.onNext(item);
 
+    verify(subscription).cancel();
     verify(ctx).sendError(ex);
-    verify(subscription).cancel(); // Automatically cancels on exception
   }
 
   @Test
@@ -160,6 +163,9 @@ public class ChunkedSubscriberTest {
     Output data = mock(Output.class);
     when(encoder.encode(ctx, item)).thenReturn(data);
     when(mediaType.isJson()).thenReturn(false);
+
+    when(ctx.getMethod()).thenReturn("GET");
+    when(ctx.getRequestPath()).thenReturn("/path");
 
     ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
     sub.onSubscribe(subscription);
@@ -170,11 +176,10 @@ public class ChunkedSubscriberTest {
 
     Exception ex = new Exception("write error");
 
-    // Simulate write failure (x != null)
     captor.getValue().onComplete(ctx, ex);
 
-    verify(ctx).sendError(ex);
     verify(subscription).cancel();
+    verify(ctx).sendError(ex);
   }
 
   @Test
@@ -265,6 +270,9 @@ public class ChunkedSubscriberTest {
     when(encoder.encode(ctx, item)).thenReturn(data);
     when(mediaType.isJson()).thenReturn(true);
 
+    when(ctx.getMethod()).thenReturn("GET");
+    when(ctx.getRequestPath()).thenReturn("/path");
+
     ChunkedSubscriber sub = new ChunkedSubscriber(ctx);
     sub.onSubscribe(subscription);
     sub.onNext(item);
@@ -276,6 +284,7 @@ public class ChunkedSubscriberTest {
     verify(sender).write(any(byte[].class), captor.capture());
 
     Exception err = new Exception("complete callback error");
+
     captor.getValue().onComplete(ctx, err);
 
     verify(ctx).sendError(err);
