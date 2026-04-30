@@ -42,12 +42,12 @@ import io.jooby.jsonrpc.instrumentation.OtelJsonRcpTracing;
  * {
  * install(new Jackson3Module());
  * install(new JsonRpcJackson3Module());
- * * install(new JsonRpcModule(new MyServiceRpc_())
+ * install(new JsonRpcModule(new MyServiceRpc_())
  * .invoker(new MyJsonRpcMiddleware()));
  * }
  * }</pre>
  *
- * @author Edgar Espina
+ * @author edgar
  * @since 4.0.17
  */
 public class JsonRpcModule implements Extension {
@@ -83,12 +83,14 @@ public class JsonRpcModule implements Extension {
   /**
    * Adds a {@link JsonRpcInvoker} middleware to the execution pipeline.
    *
-   * <p>Middlewares are composed together to form a {@link JsonRpcChain}. When multiple invokers are
-   * registered, they wrap around each other, meaning the first added invoker will execute first.
+   * <p>Execution order follows a First-In-First-Out (FIFO) pipeline. When multiple invokers are
+   * registered, they wrap around each other in the order they were added. <br>
+   * For example: {@code .invoker(A).invoker(B)} generates the pipeline {@code A -> B}.
    *
    * <p><strong>Tracing Priority:</strong> If the provided invoker is an instance of {@link
    * OtelJsonRcpTracing}, it is automatically promoted to the absolute head of the pipeline. This
-   * guarantees that OpenTelemetry spans encompass all other middlewares and the final execution.
+   * guarantees that OpenTelemetry spans encompass all other middlewares and the final execution
+   * regardless of the order it was added.
    *
    * @param invoker The middleware interceptor to add to the pipeline.
    * @return This module instance for fluent configuration chaining.
@@ -99,7 +101,8 @@ public class JsonRpcModule implements Extension {
       this.head = otel;
     } else {
       if (this.invoker != null) {
-        this.invoker = invoker.then(this.invoker);
+        // Appends to the chain to ensure First-In-First-Out (A -> B)
+        this.invoker = this.invoker.then(invoker);
       } else {
         this.invoker = invoker;
       }

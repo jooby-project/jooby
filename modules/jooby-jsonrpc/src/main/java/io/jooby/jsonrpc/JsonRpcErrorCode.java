@@ -5,6 +5,8 @@
  */
 package io.jooby.jsonrpc;
 
+import java.util.Objects;
+
 import io.jooby.StatusCode;
 
 /**
@@ -132,7 +134,7 @@ public enum JsonRpcErrorCode {
    */
   public static JsonRpcErrorCode of(StatusCode status) {
     for (var errorCode : values()) {
-      if (!errorCode.protocol && errorCode.statusCode.value() == status.value()) {
+      if (!errorCode.protocol && Objects.equals(errorCode.statusCode, status)) {
         return errorCode;
       }
     }

@@ -45,8 +45,6 @@ import io.opentelemetry.api.trace.Tracer;
  * @since 4.5.0
  */
 public class OtelJsonRcpTracing implements JsonRpcInvoker {
-  private final OpenTelemetry otel;
-
   private final Tracer tracer;
 
   private SneakyThrows.@Nullable Consumer3<Context, JsonRpcRequest, Span> onStart;
@@ -59,7 +57,6 @@ public class OtelJsonRcpTracing implements JsonRpcInvoker {
    * @param otel The OpenTelemetry instance used to obtain the tracer.
    */
   public OtelJsonRcpTracing(OpenTelemetry otel) {
-    this.otel = otel;
     tracer = otel.getTracer("io.jooby.jsonrpc");
   }
 
