@@ -35,12 +35,14 @@ public class NettyWriter extends Writer {
 
   @Override
   public void write(String str, int off, int len) throws IOException {
-    write(str.substring(off, len));
+    // FIX: Standard Java Writer contract defines 'len' as the number of characters, not endIndex
+    write(str.substring(off, off + len));
   }
 
   @Override
   public void write(int c) throws IOException {
-    out.write((char) c);
+    // FIX: Route through String to ensure the Charset properly encodes multi-byte characters
+    write(String.valueOf((char) c));
   }
 
   @Override
@@ -50,7 +52,8 @@ public class NettyWriter extends Writer {
 
   @Override
   public Writer append(char c) throws IOException {
-    out.write(c);
+    // FIX: Route through the fixed write(int) method to apply proper encoding
+    write(c);
     return this;
   }
 

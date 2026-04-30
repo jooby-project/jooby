@@ -35,7 +35,7 @@ public class UndertowWriter extends Writer {
 
   @Override
   public void write(String str, int off, int len) throws IOException {
-    write(str.substring(off, len));
+    write(str.substring(off, off + len));
   }
 
   @Override

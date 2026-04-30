@@ -105,6 +105,9 @@ public final class HeadersMultiMap extends HttpHeaders {
     int h = hashCode(name);
     int i = h & 0x0000000F;
     for (Object vstr : values) {
+      if (vstr == null) {
+        break;
+      }
       add0(h, i, name, toValidCharSequence(vstr));
     }
     return this;
@@ -549,7 +552,8 @@ public final class HeadersMultiMap extends HttpHeaders {
     public CharSequence setValue(CharSequence value) {
       Objects.requireNonNull(value, "value");
       if (validator != null) {
-        validator.accept("", value);
+        // BUGFIX: Pass the actual key instead of an empty string
+        validator.accept(this.key, value);
       }
       CharSequence oldValue = this.value;
       this.value = value;
