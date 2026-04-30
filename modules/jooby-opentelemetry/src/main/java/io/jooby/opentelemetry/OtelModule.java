@@ -182,7 +182,7 @@ public class OtelModule implements Extension {
     return () -> new Trace(tracer);
   }
 
-  private boolean isRunningInJoobyRun() {
+  boolean isRunningInJoobyRun() {
     return getClass()
         .getClassLoader()
         .getClass()
