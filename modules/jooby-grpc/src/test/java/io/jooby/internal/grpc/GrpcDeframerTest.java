@@ -3,7 +3,7 @@
  * Apache License Version 2.0 https://jooby.io/LICENSE.txt
  * Copyright 2014 Edgar Espina
  */
-package io.jooby.grpc;
+package io.jooby.internal.grpc;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -13,8 +13,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import io.jooby.internal.grpc.GrpcDeframer;
 
 public class GrpcDeframerTest {
 
