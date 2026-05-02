@@ -89,11 +89,11 @@ public class StreamableTransportProvider implements McpStreamableServerTransport
       ctx.setResponseType(TEXT_EVENT_STREAM);
       return ctx.upgrade(
           sse -> {
-            sse.onClose(
-                () -> log.debug("SSE connection closed by client for session: {}", sessionId));
             var sessionTransport = new StreamableMcpSessionTransport(sessionId, sse);
-
             if (ctx.header(HttpHeaders.LAST_EVENT_ID).isPresent()) {
+              sse.onClose(
+                  () -> log.debug("SSE connection closed by client for session: {}", sessionId));
+
               var lastId = ctx.header(HttpHeaders.LAST_EVENT_ID).value();
 
               // FIX: Replaced blocking .forEach with non-blocking .concatMap
