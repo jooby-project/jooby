@@ -24,7 +24,7 @@ import io.jooby.output.OutputOptions;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.dataformat.xml.XmlMapper;
 
-public class Jackson3JsonModuleTest {
+public class JacksonEncoderDecoderTest {
 
   @Test
   public void renderJson() {

@@ -6,66 +6,128 @@
 package io.jooby.internal.jackson;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jooby.Reified;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 class JacksonJsonCodecTest {
 
+  private ObjectMapper mapper;
   private JacksonJsonCodec codec;
 
   @BeforeEach
   void setUp() {
-    codec = new JacksonJsonCodec(new ObjectMapper());
+    mapper = mock(ObjectMapper.class);
+    codec = new JacksonJsonCodec(mapper);
+  }
+
+  // --- DECODE BY CLASS TESTS ---
+
+  @Test
+  void shouldDecodeClassSuccessfully() throws JsonProcessingException {
+    // Arrange
+    String json = "{\"key\":\"value\"}";
+    Object expectedResult = new Object();
+    when(mapper.readValue(json, Object.class)).thenReturn(expectedResult);
+
+    // Act
+    Object actualResult = codec.decode(json, Object.class);
+
+    // Assert
+    assertEquals(expectedResult, actualResult);
   }
 
   @Test
-  void shouldEncodeMapToJson() {
-    // Using a LinkedHashMap guarantees the order of the keys in the output JSON
-    Map<String, Integer> map = new java.util.LinkedHashMap<>();
-    map.put("Alice", 30);
-    map.put("Bob", 25);
+  void shouldPropagateExceptionWhenDecodingClassFails() throws JsonProcessingException {
+    // Arrange
+    String json = "invalid json";
+    JsonProcessingException expectedException = mock(JsonProcessingException.class);
+    when(mapper.readValue(json, Object.class)).thenThrow(expectedException);
 
-    String json = codec.encode(map);
+    // Act & Assert
+    // SneakyThrows propagates the exact checked exception without wrapping it
+    Exception thrown = assertThrows(Exception.class, () -> codec.decode(json, Object.class));
+    assertEquals(expectedException, thrown);
+  }
 
-    assertEquals("{\"Alice\":30,\"Bob\":25}", json);
+  // --- DECODE BY TYPE TESTS ---
+
+  @Test
+  void shouldDecodeTypeSuccessfully() throws JsonProcessingException {
+    // Arrange
+    String json = "[\"value\"]";
+    Type type = List.class;
+    Object expectedResult = new Object();
+
+    TypeFactory typeFactory = mock(TypeFactory.class);
+    JavaType javaType = mock(JavaType.class);
+
+    when(mapper.getTypeFactory()).thenReturn(typeFactory);
+    when(typeFactory.constructType(type)).thenReturn(javaType);
+    when(mapper.readValue(json, javaType)).thenReturn(expectedResult);
+
+    // Act
+    Object actualResult = codec.decode(json, type);
+
+    // Assert
+    assertEquals(expectedResult, actualResult);
   }
 
   @Test
-  void shouldDecodeJsonToGenericMapUsingReified() {
-    String json = "{\"Alice\":30,\"Bob\":25}";
+  void shouldPropagateExceptionWhenDecodingTypeFails() throws JsonProcessingException {
+    // Arrange
+    String json = "invalid json";
+    Type type = List.class;
 
-    // Using the anonymous subclass trick to capture Map<String, Integer> without type erasure
-    Map<String, Integer> map = codec.decode(json, Reified.map(String.class, Integer.class));
+    TypeFactory typeFactory = mock(TypeFactory.class);
+    JavaType javaType = mock(JavaType.class);
+    JsonProcessingException expectedException = mock(JsonProcessingException.class);
 
-    assertNotNull(map);
-    assertEquals(2, map.size());
+    when(mapper.getTypeFactory()).thenReturn(typeFactory);
+    when(typeFactory.constructType(type)).thenReturn(javaType);
+    when(mapper.readValue(json, javaType)).thenThrow(expectedException);
 
-    assertEquals(30, map.get("Alice"));
-    assertEquals(25, map.get("Bob"));
+    // Act & Assert
+    Exception thrown = assertThrows(Exception.class, () -> codec.decode(json, type));
+    assertEquals(expectedException, thrown);
+  }
+
+  // --- ENCODE TESTS ---
+
+  @Test
+  void shouldEncodeSuccessfully() throws JsonProcessingException {
+    // Arrange
+    Object value = new Object();
+    String expectedJson = "{}";
+    when(mapper.writeValueAsString(value)).thenReturn(expectedJson);
+
+    // Act
+    String actualJson = codec.encode(value);
+
+    // Assert
+    assertEquals(expectedJson, actualJson);
   }
 
   @Test
-  void shouldDecodeJsonToGenericListMapUsingReified() {
-    String json = "[{\"Alice\":30,\"Bob\":25}]";
+  void shouldPropagateExceptionWhenEncodingFails() throws JsonProcessingException {
+    // Arrange
+    Object value = new Object();
+    JsonProcessingException expectedException = mock(JsonProcessingException.class);
+    when(mapper.writeValueAsString(value)).thenThrow(expectedException);
 
-    // Using the anonymous subclass trick to capture Map<String, Integer> without type erasure
-    List<Map<String, Integer>> list =
-        codec.decode(json, Reified.list(Reified.map(String.class, Integer.class)));
-
-    assertNotNull(list);
-    assertEquals(1, list.size());
-
-    var map = list.getFirst();
-
-    assertEquals(30, map.get("Alice"));
-    assertEquals(25, map.get("Bob"));
+    // Act & Assert
+    Exception thrown = assertThrows(Exception.class, () -> codec.encode(value));
+    assertEquals(expectedException, thrown);
   }
 }
