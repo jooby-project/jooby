@@ -168,6 +168,56 @@ Additional integrations are provided via `OtelExtension` implementations. Many o
 **Lifecycle & Lazy Initialization:** Although `OtelModule` must be installed at the very beginning of your application, its extensions are **lazily initialized**. They defer their execution to the application's `onStarting` lifecycle hook. This ensures that all target components provided by other modules (like database connection pools or background schedulers) are fully configured and available in the service registry before the OpenTelemetry extensions attempt to instrument them.
 ====
 
+==== Apache Camel
+
+Seamlessly integrates OpenTelemetry with Apache Camel. By combining Camel's native OpenTelemetry component with Jooby's `OtelModule`, it automatically instruments your Camel routes. It ensures distributed trace contexts remain unbroken whether you are triggering routes synchronously from Jooby HTTP endpoints or consuming messages asynchronously from background brokers (like Kafka, ActiveMQ, or RabbitMQ).
+
+Required dependency:
+[dependency, groupId="org.apache.camel", artifactId="camel-opentelemetry2", version="${camel.version}"]
+.
+
+To activate the instrumentation, you must enable it in your application configuration:
+
+.application.conf
+[source, properties]
+----
+camel.opentelemetry2.enabled = true
+----
+
+.Camel Integration
+[source, java, role = "primary"]
+----
+import io.jooby.camel.CamelModule;
+import io.jooby.opentelemetry.OtelModule;
+
+{
+  install(new OtelModule());                               <1>
+  
+  install(new CamelModule(new MyCamelRoutes()));           <2>
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.camel.CamelModule
+import io.jooby.opentelemetry.OtelModule
+
+{
+  install(OtelModule())                                    <1>
+  
+  install(CamelModule(MyCamelRoutes()))                    <2>
+}
+----
+
+<1> Initializes the global OpenTelemetry SDK. It must be installed at the very beginning of your application setup.
+<2> Registers the Camel module. Because `camel.opentelemetry2.enabled` is set to true, Camel will automatically detect the active tracer provided by `OtelModule` and weave it into your route lifecycle.
+
+[NOTE]
+====
+Installation order is critical. `OtelModule` must be installed **before** `CamelModule` so that the global OpenTelemetry SDK is fully initialized before Camel attempts to attach its route interceptors.
+====
+
 ==== db-scheduler
 
 Automatically instruments the `db-scheduler` library. It tracks background task executions, measuring execution durations and recording successes and failures.
