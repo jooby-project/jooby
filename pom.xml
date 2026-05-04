@@ -61,33 +61,33 @@
     <handlebars.version>4.5.0</handlebars.version>
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>4.1.1</pebble.version>
-    <jackson.version>2.21.2</jackson.version>
-    <jackson3.version>3.1.2</jackson3.version>
+    <jackson.version>2.21.3</jackson.version>
+    <jackson3.version>3.1.3</jackson3.version>
     <gson.version>2.14.0</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
     <rocker.version>2.4.0</rocker.version>
     <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
-    <jte.version>3.2.3</jte.version>
+    <jte.version>3.2.4</jte.version>
 
     <!-- data -->
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
     <ebean.version>17.5.0</ebean.version>
-    <jdbi.version>3.52.1</jdbi.version>
+    <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
     <lettuce.version>7.5.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
     <kafka.version>4.2.0</kafka.version>
-    <caffeine.version>3.2.3</caffeine.version>
+    <caffeine.version>3.2.4</caffeine.version>
 
-    <config.version>1.4.6</config.version>
+    <config.version>1.4.7</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
-    <grpc.version>1.80.0</grpc.version>
+    <grpc.version>1.81.0</grpc.version>
 
     <!-- logging -->
     <logback-classic.version>1.5.32</logback-classic.version>
@@ -113,8 +113,8 @@
     <vertx.version>5.0.11</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.48</swagger.version>
-    <swagger-parser.version>2.1.40</swagger-parser.version>
+    <swagger.version>2.2.49</swagger.version>
+    <swagger-parser.version>2.1.41</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
