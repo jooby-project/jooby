@@ -15,7 +15,9 @@ import org.hibernate.validator.HibernateValidatorConfiguration;
 
 import io.jooby.*;
 import io.jooby.internal.hibernate.validator.CompositeConstraintValidatorFactory;
+import io.jooby.internal.hibernate.validator.ConstraintViolationMapper;
 import io.jooby.validation.BeanValidator;
+import io.jooby.validation.ValidationExceptionMapper;
 import jakarta.validation.ConstraintValidatorFactory;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -158,6 +160,8 @@ public class HibernateValidatorModule implements Extension {
     var validator = factory.getValidator();
     services.put(Validator.class, validator);
     services.put(BeanValidator.class, new BeanValidatorImpl(validator));
+    var mapper = new ConstraintViolationMapper(statusCode, title);
+    services.listOf(ValidationExceptionMapper.class).add(mapper);
     // Allow to access validator factory so hibernate can access later
     var constraintValidatorFactory = factory.getConstraintValidatorFactory();
     services.put(ConstraintValidatorFactory.class, constraintValidatorFactory);

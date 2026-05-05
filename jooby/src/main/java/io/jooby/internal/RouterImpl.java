@@ -43,6 +43,7 @@ import io.jooby.internal.handler.ServerSentEventHandler;
 import io.jooby.internal.handler.WebSocketHandler;
 import io.jooby.output.OutputFactory;
 import io.jooby.problem.ProblemDetailsHandler;
+import io.jooby.validation.ValidationExceptionMapper;
 import io.jooby.value.ValueFactory;
 
 public class RouterImpl implements Router {
@@ -551,6 +552,15 @@ public class RouterImpl implements Router {
     } else {
       err = err.then(globalErrHandler);
     }
+    // Validation mapper
+    var services = app.getServices();
+    List<ValidationExceptionMapper> validationExceptionMappers =
+        services.getOrNull(Reified.list(ValidationExceptionMapper.class));
+    var validationExceptionChain = new ValidationExceptionChain();
+    if (validationExceptionMappers != null) {
+      validationExceptionMappers.forEach(validationExceptionChain::add);
+    }
+    services.put(ValidationExceptionMapper.class, validationExceptionChain);
 
     ExecutionMode mode = app.getExecutionMode();
     for (Route route : routes) {

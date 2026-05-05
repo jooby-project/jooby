@@ -5,22 +5,15 @@
  */
 package io.jooby.avaje.validator;
 
-import static io.jooby.validation.ValidationResult.ErrorType.FIELD;
-import static io.jooby.validation.ValidationResult.ErrorType.GLOBAL;
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.avaje.validation.ConstraintViolation;
 import io.avaje.validation.ConstraintViolationException;
 import io.jooby.Context;
 import io.jooby.ErrorHandler;
 import io.jooby.StatusCode;
+import io.jooby.internal.avaje.validator.ConstraintViolationMapper;
+import io.jooby.validation.ValidationExceptionMapper;
 import io.jooby.validation.ValidationResult;
 
 /**
@@ -56,17 +49,16 @@ import io.jooby.validation.ValidationResult;
  * @since 3.2.10
  */
 public class ConstraintViolationHandler implements ErrorHandler {
-  private static final String ROOT_VIOLATIONS_PATH = "";
   private final Logger log = LoggerFactory.getLogger(getClass());
   private final StatusCode statusCode;
-  private final String title;
+  private final ValidationExceptionMapper mapper;
   private final boolean logException;
   private final boolean problemDetailsEnabled;
 
   public ConstraintViolationHandler(
       StatusCode statusCode, String title, boolean logException, boolean problemDetailsEnabled) {
     this.statusCode = statusCode;
-    this.title = title;
+    this.mapper = new ConstraintViolationMapper(statusCode, title);
     this.logException = logException;
     this.problemDetailsEnabled = problemDetailsEnabled;
   }
@@ -77,32 +69,9 @@ public class ConstraintViolationHandler implements ErrorHandler {
       if (logException) {
         log.error(ErrorHandler.errorMessage(ctx, code), cause);
       }
-      var violations = ex.violations();
-
-      var groupedByPath = violations.stream().collect(groupingBy(ConstraintViolation::path));
-      var errors = collectErrors(groupedByPath);
-
-      var result = new ValidationResult(title, statusCode.value(), errors);
+      var result = mapper.toResult(code, ex);
       renderOrPropagate(ctx, result, code);
     }
-  }
-
-  private List<ValidationResult.Error> collectErrors(
-      Map<String, List<ConstraintViolation>> groupedViolations) {
-    List<ValidationResult.Error> errors = new ArrayList<>();
-    for (var entry : groupedViolations.entrySet()) {
-      var path = entry.getKey();
-      if (ROOT_VIOLATIONS_PATH.equals(path)) {
-        errors.add(new ValidationResult.Error(null, extractMessages(entry.getValue()), GLOBAL));
-      } else {
-        errors.add(new ValidationResult.Error(path, extractMessages(entry.getValue()), FIELD));
-      }
-    }
-    return errors;
-  }
-
-  private List<String> extractMessages(List<ConstraintViolation> violations) {
-    return violations.stream().map(ConstraintViolation::message).toList();
   }
 
   private void renderOrPropagate(Context ctx, ValidationResult result, StatusCode code) {

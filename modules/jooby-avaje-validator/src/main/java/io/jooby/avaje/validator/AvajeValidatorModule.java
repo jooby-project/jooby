@@ -21,7 +21,9 @@ import io.jooby.Context;
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.StatusCode;
+import io.jooby.internal.avaje.validator.ConstraintViolationMapper;
 import io.jooby.validation.BeanValidator;
+import io.jooby.validation.ValidationExceptionMapper;
 
 /**
  * Avaje Validator Module: https://jooby.io/modules/avaje-validator.
@@ -157,9 +159,13 @@ public class AvajeValidatorModule implements Extension {
       configurer.accept(builder);
     }
 
+    var services = app.getServices();
     var validator = builder.build();
-    app.getServices().put(Validator.class, validator);
-    app.getServices().put(BeanValidator.class, new BeanValidatorImpl(validator));
+    services.put(Validator.class, validator);
+    services.put(BeanValidator.class, new BeanValidatorImpl(validator));
+    services
+        .listOf(ValidationExceptionMapper.class)
+        .add(new ConstraintViolationMapper(statusCode, title));
 
     if (!disableDefaultViolationHandler) {
       app.error(

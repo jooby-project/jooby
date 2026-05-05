@@ -78,6 +78,27 @@ public class ModelAndView<T> {
   }
 
   /**
+   * Creates a model and view based on the provided view name and model. If the model is null, a
+   * map-based model and view is created. If the model is an instance of {@code Map}, a map-based
+   * model and view is created using the provided map. Otherwise, a generic model and view is
+   * created with the specified view name and model.
+   *
+   * @param view The name of the view, which may include a file extension.
+   * @param model The data model to be associated with the view. This can be null, a {@code Map}, or
+   *     any other object.
+   * @return A {@code ModelAndView} instance corresponding to the specified view and model.
+   */
+  public static ModelAndView<Map<String, Object>> of(String view, Object model) {
+    if (model == null) {
+      return map(view);
+    }
+    if (model instanceof Map mapModel) {
+      return map(view, mapModel);
+    }
+    return new ModelAndView(view, model);
+  }
+
+  /**
    * Sets the locale used when rendering the view, if the template engine supports setting it.
    * Specifying {@code null} triggers a fallback to a locale determined by the current request.
    *
