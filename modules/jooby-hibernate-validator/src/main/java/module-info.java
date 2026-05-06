@@ -6,6 +6,7 @@
 /** Hibernate Validator Module. */
 module io.jooby.hibernate.validator {
   exports io.jooby.hibernate.validator;
+  exports io.jooby.internal.hibernate.validator;
 
   requires transitive io.jooby;
   requires static org.jspecify;

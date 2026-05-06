@@ -27,7 +27,9 @@ import io.jooby.Context;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
+import io.jooby.internal.hibernate.validator.ConstraintViolationMapper;
 import io.jooby.validation.BeanValidator;
+import io.jooby.validation.ValidationExceptionMapper;
 import jakarta.validation.ConstraintValidatorFactory;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -45,29 +47,35 @@ class HibernateValidatorModuleTest {
     when(app.getServices()).thenReturn(services);
     when(app.getConfig()).thenReturn(ConfigFactory.empty());
 
+    ServiceRegistry.MultiBinder<ValidationExceptionMapper> exceptionMappers =
+        mock(ServiceRegistry.MultiBinder.class);
+    when(services.listOf(ValidationExceptionMapper.class)).thenReturn(exceptionMappers);
+
     HibernateValidatorModule module = new HibernateValidatorModule();
     module.install(app);
 
-    // Verify services bindings
     verify(services).put(eq(Validator.class), any(Validator.class));
     verify(services).put(eq(BeanValidator.class), any(BeanValidator.class));
     verify(services)
         .put(eq(ConstraintValidatorFactory.class), any(ConstraintValidatorFactory.class));
 
-    // Verify default error handler is attached
+    verify(exceptionMappers).add(any(ConstraintViolationMapper.class));
+
     verify(app)
         .error(eq(ConstraintViolationException.class), any(ConstraintViolationHandler.class));
 
-    // Verify application stop hook registers the factory close
     verify(app).onStop(any(AutoCloseable.class));
   }
 
   @Test
   void shouldInstallWithConfigurationProperties() throws Exception {
     when(app.getServices()).thenReturn(services);
-    // Mimics the 'hibernate.validator' properties block
     var config = ConfigFactory.parseMap(Map.of("hibernate.validator.fail_fast", "true"));
     when(app.getConfig()).thenReturn(config);
+
+    ServiceRegistry.MultiBinder<ValidationExceptionMapper> exceptionMappers =
+        mock(ServiceRegistry.MultiBinder.class);
+    when(services.listOf(ValidationExceptionMapper.class)).thenReturn(exceptionMappers);
 
     HibernateValidatorModule module = new HibernateValidatorModule();
     module.install(app);
@@ -80,12 +88,16 @@ class HibernateValidatorModuleTest {
     when(app.getServices()).thenReturn(services);
     when(app.getConfig()).thenReturn(ConfigFactory.empty());
 
+    ServiceRegistry.MultiBinder<ValidationExceptionMapper> exceptionMappers =
+        mock(ServiceRegistry.MultiBinder.class);
+    when(services.listOf(ValidationExceptionMapper.class)).thenReturn(exceptionMappers);
+
     HibernateValidatorModule module =
         new HibernateValidatorModule()
             .statusCode(StatusCode.BAD_REQUEST)
             .validationTitle("Custom Validation Title")
             .logException()
-            .disableViolationHandler(); // This causes the error registration to be skipped
+            .disableViolationHandler();
 
     module.install(app);
   }
@@ -95,10 +107,13 @@ class HibernateValidatorModuleTest {
     when(app.getServices()).thenReturn(services);
     when(app.getConfig()).thenReturn(ConfigFactory.empty());
 
+    ServiceRegistry.MultiBinder<ValidationExceptionMapper> exceptionMappers =
+        mock(ServiceRegistry.MultiBinder.class);
+    when(services.listOf(ValidationExceptionMapper.class)).thenReturn(exceptionMappers);
+
     ConstraintValidatorFactory customFactory1 = mock(ConstraintValidatorFactory.class);
     ConstraintValidatorFactory customFactory2 = mock(ConstraintValidatorFactory.class);
 
-    // Chaining hits both `factories == null` and `factories != null` internal list initialization
     HibernateValidatorModule module =
         new HibernateValidatorModule().with(customFactory1).with(customFactory2);
 
@@ -119,7 +134,6 @@ class HibernateValidatorModuleTest {
     HibernateValidatorModule.BeanValidatorImpl beanValidator =
         new HibernateValidatorModule.BeanValidatorImpl(mockValidator);
 
-    // Assert that no exceptions are thrown when validation succeeds
     assertDoesNotThrow(() -> beanValidator.validate(mockCtx, testBean));
   }
 
@@ -135,7 +149,6 @@ class HibernateValidatorModuleTest {
     HibernateValidatorModule.BeanValidatorImpl beanValidator =
         new HibernateValidatorModule.BeanValidatorImpl(mockValidator);
 
-    // Assert that it bubbles up the ConstraintViolationException
     assertThrows(
         ConstraintViolationException.class, () -> beanValidator.validate(mockCtx, testBean));
   }

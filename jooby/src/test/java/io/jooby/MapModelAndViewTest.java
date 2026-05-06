@@ -5,9 +5,7 @@
  */
 package io.jooby;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -79,5 +77,20 @@ public class MapModelAndViewTest {
 
     assertSame(mav, result, "setLocale should return the current instance for fluent chaining");
     assertEquals(locale, mav.getLocale());
+  }
+
+  @Test
+  void testOfWithNullModel() {
+    assertInstanceOf(MapModelAndView.class, ModelAndView.of("index.html", null));
+  }
+
+  @Test
+  void testOfWithMapModel() {
+    assertInstanceOf(MapModelAndView.class, ModelAndView.of("index.html", Map.of()));
+  }
+
+  @Test
+  void testOfWithBeanModel() {
+    assertInstanceOf(ModelAndView.class, ModelAndView.of("index.html", new Object()));
   }
 }

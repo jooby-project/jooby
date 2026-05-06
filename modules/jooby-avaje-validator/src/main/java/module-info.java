@@ -6,6 +6,7 @@
 /** Avaje Validator Module. */
 module io.jooby.avaje.validator {
   exports io.jooby.avaje.validator;
+  exports io.jooby.internal.avaje.validator;
 
   requires transitive io.jooby;
   requires static org.jspecify;
