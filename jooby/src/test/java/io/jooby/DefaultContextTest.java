@@ -212,6 +212,13 @@ public class DefaultContextTest {
   }
 
   @Test
+  void sessionOrNullUnsupported() {
+    when(router.getSessionStore()).thenReturn(SessionStore.UNSUPPORTED);
+
+    assertNull(ctx.sessionOrNull());
+  }
+
+  @Test
   void sessionMissingValues() {
     // Session is null -> session(String) returns missing, session(String, String) returns default
     when(router.getSessionStore()).thenReturn(mock(SessionStore.class));

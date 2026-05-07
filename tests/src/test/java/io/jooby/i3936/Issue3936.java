@@ -40,7 +40,8 @@ class Issue3936 {
                                   "isError",
                                   true));
               app.install(new HtmxModule(globalErrorHandler));
-              app.install(new HandlebarsModule(TestUtil.userdir("src/test/resources/htmx")));
+              app.install(
+                  new HandlebarsModule(TestUtil.userdir("src", "test", "resources", "htmx")));
               app.install(new HibernateValidatorModule());
 
               app.mvc(new TaskUIHtmx_(new TaskRepo3936()));

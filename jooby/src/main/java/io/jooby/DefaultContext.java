@@ -167,6 +167,10 @@ public interface DefaultContext extends Context {
     if (session == null) {
       Router router = getRouter();
       SessionStore store = router.getSessionStore();
+      // edge-case: user ask for session or null, treat unsupported as null
+      if (store == SessionStore.UNSUPPORTED) {
+        return null;
+      }
       session = store.findSession(this);
       if (session != null) {
         getAttributes().put(Session.NAME, session);
