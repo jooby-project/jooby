@@ -58,7 +58,7 @@
 
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.34</freemarker.version>
-    <handlebars.version>4.5.0</handlebars.version>
+    <handlebars.version>4.5.1</handlebars.version>
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>4.1.1</pebble.version>
     <jackson.version>2.21.3</jackson.version>
@@ -74,7 +74,7 @@
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.0.4.Final</hibernate.version>
-    <ebean.version>17.5.0</ebean.version>
+    <ebean.version>17.6.0</ebean.version>
     <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
@@ -83,7 +83,7 @@
     <kafka.version>4.2.0</kafka.version>
     <caffeine.version>3.2.4</caffeine.version>
 
-    <config.version>1.4.7</config.version>
+    <config.version>1.4.8</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
@@ -108,8 +108,8 @@
 
     <!-- Server -->
     <undertow.version>2.4.0.RC4</undertow.version>
-    <jetty.version>12.1.8</jetty.version>
-    <netty.version>4.2.12.Final</netty.version>
+    <jetty.version>12.1.9</jetty.version>
+    <netty.version>4.2.13.Final</netty.version>
     <vertx.version>5.0.11</vertx.version>
 
     <!--OpenAPI-->
@@ -133,13 +133,13 @@
     <!-- Misc -->
     <okhttp.version>5.3.2</okhttp.version>
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
-    <pac4j.version>6.4.2</pac4j.version>
+    <pac4j.version>6.5.0</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
     <db-scheduler.version>16.7.1</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.18.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
-    <camel.version>4.19.0</camel.version>
+    <camel.version>4.20.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
     <opentelemetry.version>1.61.0</opentelemetry.version>
 
