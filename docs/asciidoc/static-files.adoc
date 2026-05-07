@@ -21,6 +21,7 @@ Static files are served using the javadoc:Router[assets, java.lang.String, java.
 <1> Maps all incoming requests starting with `/static/` to the `/source` location.
 
 For example:
+
 * `GET /static/index.html` => `/source/index.html`
 * `GET /static/js/file.js` => `/source/js/file.js`
 * `GET /static/css/styles.css` => `/source/css/styles.css`
@@ -101,6 +102,7 @@ The `assets` route can also serve full static websites (like generated documenta
 <2> Use the `/?*` mapping to enable automatic root resolution.
 
 The `/?*` syntax automatically resolves root paths to their underlying `index.html`:
+
 * `GET /docs` => `/docs/index.html`
 * `GET /docs/index.html` => `/docs/index.html`
 * `GET /docs/about.html` => `/docs/about.html`
