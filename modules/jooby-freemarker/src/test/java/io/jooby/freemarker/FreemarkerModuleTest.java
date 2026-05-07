@@ -7,6 +7,7 @@ package io.jooby.freemarker;
 
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +44,7 @@ import freemarker.template.Configuration;
 import io.jooby.*;
 import io.jooby.test.MockContext;
 
-public class FreemarkerModuleTest {
+class FreemarkerModuleTest {
 
   public static class MyModel {
     public String firstname;
@@ -89,6 +90,7 @@ public class FreemarkerModuleTest {
 
     when(app.getEnvironment()).thenReturn(env);
     when(app.getServices()).thenReturn(registry);
+
     when(env.getConfig()).thenReturn(config);
     when(config.hasPath("freemarker")).thenReturn(false);
     when(env.isActive("dev", "test")).thenReturn(false);
@@ -206,6 +208,14 @@ public class FreemarkerModuleTest {
 
     // prod mode defaults to soft cache
     assertEquals("freemarker.cache.MruCacheStorage", conf.getCacheStorage().getClass().getName());
+  }
+
+  @Test
+  void testBuilderWithNullTemplatesPathStringFallback() {
+    // Tests the Optional.ofNullable(this.templatesPathString).orElse(TemplateEngine.PATH) branch
+    Configuration conf = FreemarkerModule.create().setTemplatesPath((String) null).build(env);
+
+    assertNotNull(conf.getTemplateLoader());
   }
 
   // --- DEFAULT TEMPLATE LOADER RESOLUTION TESTS ---

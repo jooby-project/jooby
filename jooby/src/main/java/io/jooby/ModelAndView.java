@@ -88,12 +88,13 @@ public class ModelAndView<T> {
    *     any other object.
    * @return A {@code ModelAndView} instance corresponding to the specified view and model.
    */
-  public static ModelAndView<Map<String, Object>> of(String view, Object model) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public static <T> ModelAndView<T> of(String view, @Nullable Object model) {
     if (model == null) {
-      return map(view);
+      return (ModelAndView<T>) map(view);
     }
     if (model instanceof Map mapModel) {
-      return map(view, mapModel);
+      return (ModelAndView<T>) map(view, mapModel);
     }
     return new ModelAndView(view, model);
   }

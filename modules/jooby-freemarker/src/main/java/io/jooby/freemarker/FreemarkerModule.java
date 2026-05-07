@@ -273,7 +273,8 @@ public class FreemarkerModule implements Extension {
               .setTemplatesPath(templatesPath)
               .build(application.getEnvironment());
     }
-    application.encoder(new FreemarkerTemplateEngine(freemarker, EXT));
+    var templateEngine = new FreemarkerTemplateEngine(freemarker, EXT);
+    application.encoder(templateEngine);
 
     var services = application.getServices();
     services.put(Configuration.class, freemarker);

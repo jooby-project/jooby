@@ -130,17 +130,20 @@ public class JoobyProcessor extends AbstractProcessor {
         context.getRouters().forEach(it -> context.debug("  %s", it.getGeneratedType()));
         return false;
       } else {
-        // Discover all unique Controller classes
         var controllers = findControllers(annotations, roundEnv);
-
-        // Factory Pattern: Build specific routers for each class based on method annotations
         List<WebRouter<?>> activeRouters = new ArrayList<>();
+
         for (var controller : controllers) {
           if (controller.getModifiers().contains(Modifier.ABSTRACT)) continue;
 
-          var restRouter = RestRouter.parse(context, controller);
-          if (!restRouter.isEmpty()) {
-            activeRouters.add(restRouter);
+          // --- PASS 1: Specialized Routers & Claim Gathering ---
+          Set<String> masterClaimedRoutes = new HashSet<>();
+
+          // Parse HTMX first to claim route paths
+          var htmxRouter = io.jooby.internal.apt.htmx.HtmxRouter.parse(context, controller);
+          if (!htmxRouter.isEmpty()) {
+            activeRouters.add(htmxRouter);
+            masterClaimedRoutes.addAll(htmxRouter.getClaimedRoutes());
           }
 
           var jsonRpcRouter = JsonRpcRouter.parse(context, controller);
@@ -161,6 +164,13 @@ public class JoobyProcessor extends AbstractProcessor {
           var wsRouter = WsRouter.parse(context, controller);
           if (!wsRouter.isEmpty()) {
             activeRouters.add(wsRouter);
+          }
+
+          // --- PASS 2: Standard Rest Router (Fallback) ---
+          // Pass the claimed routes to RestRouter so it knows what to skip
+          var restRouter = RestRouter.parse(context, controller, masterClaimedRoutes);
+          if (!restRouter.isEmpty()) {
+            activeRouters.add(restRouter);
           }
         }
 
@@ -288,6 +298,20 @@ public class JoobyProcessor extends AbstractProcessor {
     supportedTypes.add("io.jooby.annotation.ws.OnClose");
     supportedTypes.add("io.jooby.annotation.ws.OnMessage");
     supportedTypes.add("io.jooby.annotation.ws.OnError");
+    // Add Htmx Annotations
+    supportedTypes.addAll(
+        Set.of(
+            "io.jooby.annotation.htmx.HxView",
+            "io.jooby.annotation.htmx.HxError",
+            "io.jooby.annotation.htmx.HxOob",
+            "io.jooby.annotation.htmx.HxOobs",
+            "io.jooby.annotation.htmx.HxPushUrl",
+            "io.jooby.annotation.htmx.HxRedirect",
+            "io.jooby.annotation.htmx.HxRefresh",
+            "io.jooby.annotation.htmx.HxSwap",
+            "io.jooby.annotation.htmx.HxTarget",
+            "io.jooby.annotation.htmx.HxTrigger",
+            "io.jooby.annotation.htmx.HxTriggers"));
     return supportedTypes;
   }
 

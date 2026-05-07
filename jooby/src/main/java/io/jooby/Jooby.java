@@ -776,6 +776,11 @@ public class Jooby implements Router, Registry {
     return this.router.getServices();
   }
 
+  @Override
+  public List<TemplateEngine> getTemplateEngines() {
+    return this.router.getTemplateEngines();
+  }
+
   /**
    * Get base application package. This is the package from where application was initialized or the
    * package of a Jooby application sub-class.

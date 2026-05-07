@@ -816,6 +816,10 @@ public class RouterImpl implements Router {
     return this;
   }
 
+  public List<TemplateEngine> getTemplateEngines() {
+    return Collections.unmodifiableList(encoder.getTemplateEngines());
+  }
+
   @Override
   public String toString() {
     StringBuilder buff = new StringBuilder();

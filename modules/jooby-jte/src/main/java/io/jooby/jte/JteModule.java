@@ -87,7 +87,9 @@ public class JteModule implements Extension {
     ServiceRegistry services = application.getServices();
     services.put(TemplateEngine.class, templateEngine);
     // model and view
-    application.encoder(MediaType.html, new JteTemplateEngine(templateEngine));
+    var jteTemplateEngine = new JteTemplateEngine(templateEngine);
+    application.encoder(MediaType.html, jteTemplateEngine);
+    services.listOf(io.jooby.TemplateEngine.class).add(jteTemplateEngine);
     // jte models
     application.encoder(new JteModelEncoder());
   }

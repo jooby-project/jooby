@@ -257,8 +257,9 @@ public class HandlebarsModule implements Extension {
               .setTemplatesPath(templatesPath)
               .build(application.getEnvironment());
     }
-    application.encoder(
-        new HandlebarsTemplateEngine(handlebars, resolvers.toArray(new ValueResolver[0]), EXT));
+    var templateEngine =
+        new HandlebarsTemplateEngine(handlebars, resolvers.toArray(new ValueResolver[0]), EXT);
+    application.encoder(templateEngine);
 
     var services = application.getServices();
     services.put(Handlebars.class, handlebars);

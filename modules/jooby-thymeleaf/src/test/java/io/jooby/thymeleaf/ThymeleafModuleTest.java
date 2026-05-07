@@ -45,10 +45,16 @@ class ThymeleafModuleTest {
   @Mock Environment env;
   @Mock ServiceRegistry registry;
 
+  private ServiceRegistry.MultiBinder<io.jooby.TemplateEngine> enginesBinder;
+
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void setup() {
+    enginesBinder = mock(ServiceRegistry.MultiBinder.class);
+
     lenient().when(app.getEnvironment()).thenReturn(env);
     lenient().when(app.getServices()).thenReturn(registry);
+    lenient().when(registry.listOf(io.jooby.TemplateEngine.class)).thenReturn(enginesBinder);
 
     // Make getProperty pass through the provided default value to simulate standard behavior
     lenient()
@@ -69,6 +75,7 @@ class ThymeleafModuleTest {
 
     verify(app).encoder(any(ThymeleafTemplateEngine.class));
     verify(registry).put(eq(TemplateEngine.class), any(TemplateEngine.class));
+    verify(enginesBinder).add(any(io.jooby.TemplateEngine.class));
   }
 
   @Test
@@ -79,6 +86,7 @@ class ThymeleafModuleTest {
 
     verify(app).encoder(any(ThymeleafTemplateEngine.class));
     verify(registry).put(eq(TemplateEngine.class), any(TemplateEngine.class));
+    verify(enginesBinder).add(any(io.jooby.TemplateEngine.class));
   }
 
   @Test
@@ -89,6 +97,7 @@ class ThymeleafModuleTest {
 
     verify(app).encoder(any(ThymeleafTemplateEngine.class));
     verify(registry).put(eq(TemplateEngine.class), any(TemplateEngine.class));
+    verify(enginesBinder).add(any(io.jooby.TemplateEngine.class));
   }
 
   @Test
@@ -103,6 +112,7 @@ class ThymeleafModuleTest {
 
     // Verify it registered the exact instance provided
     verify(registry).put(TemplateEngine.class, mockEngine);
+    verify(enginesBinder).add(any(io.jooby.TemplateEngine.class));
   }
 
   // --- BUILDER CONFIGURATION TESTS ---

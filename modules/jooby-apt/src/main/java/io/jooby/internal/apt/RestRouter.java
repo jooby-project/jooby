@@ -8,6 +8,7 @@ package io.jooby.internal.apt;
 import static io.jooby.internal.apt.CodeBlock.*;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.ElementKind;
@@ -19,7 +20,8 @@ public class RestRouter extends WebRouter<RestRoute> {
     super(context, clazz);
   }
 
-  public static RestRouter parse(MvcContext context, TypeElement controller) {
+  public static RestRouter parse(
+      MvcContext context, TypeElement controller, Set<String> claimedRoutes) {
     var router = new RestRouter(context, controller);
 
     for (var type : context.superTypes(controller)) {
@@ -36,6 +38,21 @@ public class RestRouter extends WebRouter<RestRoute> {
             var annoElement = (TypeElement) annoMirror.getAnnotationType().asElement();
 
             if (HttpMethod.hasAnnotation(annoElement)) {
+              // Check if the current route is claimed by a specialized router (e.g., HTMX)
+              var httpMethod =
+                  HttpMethod.findByAnnotationName(annoElement.getQualifiedName().toString());
+              var paths = context.path(controller, method, annoElement);
+
+              boolean isClaimed =
+                  paths.stream()
+                      .map(path -> httpMethod + WebRoute.leadingSlash(path))
+                      .anyMatch(claimedRoutes::contains);
+
+              // If HTMX claimed it, skip generating a REST route for it!
+              if (isClaimed) {
+                continue;
+              }
+
               var route = new RestRoute(router, method, annoElement);
               var uniqueKey = method.toString() + annoElement.getSimpleName();
               router.routes.putIfAbsent(uniqueKey, route);

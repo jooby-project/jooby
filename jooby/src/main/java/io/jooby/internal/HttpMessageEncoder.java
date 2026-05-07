@@ -106,4 +106,8 @@ public class HttpMessageEncoder implements MessageEncoder {
       return MessageEncoder.TO_STRING.encode(ctx, value);
     }
   }
+
+  public List<TemplateEngine> getTemplateEngines() {
+    return templateEngineList;
+  }
 }

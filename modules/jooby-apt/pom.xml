@@ -47,6 +47,13 @@
 
     <dependency>
       <groupId>io.jooby</groupId>
+      <artifactId>jooby-htmx</artifactId>
+      <version>${jooby.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.jooby</groupId>
       <artifactId>jooby-jsonrpc</artifactId>
       <version>${jooby.version}</version>
       <scope>test</scope>

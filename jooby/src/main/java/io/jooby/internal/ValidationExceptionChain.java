@@ -78,7 +78,7 @@ public class ValidationExceptionChain implements ValidationExceptionMapper {
     // Assume is a client error, provide a default result
     return new ValidationResult(
         "Validation failed",
-        suggestedCode.value(),
+        StatusCode.UNPROCESSABLE_ENTITY.value(),
         List.of(
             new ValidationResult.Error(
                 null,

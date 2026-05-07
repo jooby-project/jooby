@@ -880,6 +880,13 @@ public interface Router extends Registry {
   ValueFactory getValueFactory();
 
   /**
+   * Retrieves a list of available template engines.
+   *
+   * @return a list of TemplateEngine objects representing the available template engines.
+   */
+  List<TemplateEngine> getTemplateEngines();
+
+  /**
    * Set value factory, useful for custom value factory.
    *
    * @param valueFactory Value factory.

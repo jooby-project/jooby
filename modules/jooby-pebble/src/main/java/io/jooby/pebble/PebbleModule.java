@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 
+import org.jspecify.annotations.Nullable;
+
 import com.typesafe.config.Config;
 import io.jooby.Environment;
 import io.jooby.Extension;
@@ -253,7 +255,7 @@ public class PebbleModule implements Extension {
 
   private static final List<String> EXT = asList(".peb", ".pebble", ".html");
 
-  private PebbleEngine.Builder builder;
+  private PebbleEngine.@Nullable Builder builder;
 
   private String templatesPath;
 
@@ -286,7 +288,8 @@ public class PebbleModule implements Extension {
     if (builder == null) {
       builder = create().setTemplatesPath(templatesPath).build(application.getEnvironment());
     }
-    application.encoder(new PebbleTemplateEngine(builder, EXT));
+    var templateEngine = new PebbleTemplateEngine(builder, EXT);
+    application.encoder(templateEngine);
 
     ServiceRegistry services = application.getServices();
     services.put(PebbleEngine.Builder.class, builder);
