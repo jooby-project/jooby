@@ -58,7 +58,9 @@ public class HtmxModule implements Extension {
     if (errorHandler != null) {
       app.error(errorHandler.toErrorHandler());
     }
-
-    app.encoder(new HtmxTemplateEngine());
+    var htmxEngine = new HtmxTemplateEngine();
+    app.encoder(htmxEngine);
+    // validate and setup engines:
+    app.onStarting(() -> htmxEngine.init(app));
   }
 }

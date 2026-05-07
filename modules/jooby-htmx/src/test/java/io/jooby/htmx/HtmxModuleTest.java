@@ -36,6 +36,9 @@ class HtmxModuleTest {
 
     // Verify the template engine WAS registered
     verify(app).encoder(any(HtmxTemplateEngine.class));
+
+    // Verify the init lifecycle hook was registered
+    verify(app).onStarting(any());
   }
 
   @Test
@@ -54,5 +57,8 @@ class HtmxModuleTest {
 
     // 4. Verify the template engine WAS registered
     verify(app).encoder(any(HtmxTemplateEngine.class));
+
+    // 5. Verify the init lifecycle hook was registered
+    verify(app).onStarting(any());
   }
 }

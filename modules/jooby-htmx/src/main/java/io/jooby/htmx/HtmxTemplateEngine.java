@@ -5,6 +5,9 @@
  */
 package io.jooby.htmx;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import io.jooby.*;
@@ -23,12 +26,22 @@ import io.jooby.output.Output;
  * @author edgar
  * @since 4.5.0
  */
-public class HtmxTemplateEngine implements TemplateEngine {
+public class HtmxTemplateEngine implements TemplateEngine.OnTop {
+
+  private List<TemplateEngine> engines;
+
+  void init(Jooby app) {
+    engines = new ArrayList<>(app.getRouter().getTemplateEngines());
+    engines.remove(this);
+    if (engines.isEmpty()) {
+      throw new IllegalStateException("No template engines registered");
+    }
+  }
 
   @Override
   public Output render(Context ctx, ModelAndView<?> modelAndView) throws Exception {
     if (modelAndView instanceof HtmxModelAndView<?> htmxView) {
-      var engineEncoder = resolveTemplateEngine(ctx, htmxView);
+      var engineEncoder = resolveTemplateEngine(htmxView);
       if (engineEncoder == null) {
         throw new IllegalStateException(
             "No template engine registered to handle: " + htmxView.getView());
@@ -47,17 +60,16 @@ public class HtmxTemplateEngine implements TemplateEngine {
    * ModelAndView}. Iterates through the available template engines in the context, returning the
    * first one that supports the provided model and view.
    *
-   * @param ctx The web context containing the registered resources and state information.
    * @param mv The {@link ModelAndView} to be rendered. The method determines its compatibility with
    *     the available template engines.
    * @return The {@link TemplateEngine} capable of rendering the provided {@link ModelAndView}, or
    *     {@code null} if no suitable engine is found.
    */
-  private @Nullable TemplateEngine resolveTemplateEngine(Context ctx, ModelAndView mv) {
+  private @Nullable TemplateEngine resolveTemplateEngine(ModelAndView mv) {
     // Find the encoder that handles standard ModelAndView
-    for (var templateEngine : ctx.getRouter().getTemplateEngines()) {
-      if (templateEngine != this && templateEngine.supports(mv)) {
-        return templateEngine;
+    for (var engine : engines) {
+      if (engine.supports(mv)) {
+        return engine;
       }
     }
     return null;

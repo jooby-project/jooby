@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.jooby.Context;
+import io.jooby.Jooby;
 import io.jooby.ModelAndView;
 import io.jooby.Router;
 import io.jooby.TemplateEngine;
@@ -35,13 +36,29 @@ class HtmxTemplateEngineTest {
   private HtmxTemplateEngine engine;
   private Context ctx;
   private Router router;
+  private Jooby app;
 
   @BeforeEach
   void setUp() {
     engine = new HtmxTemplateEngine();
     ctx = mock(Context.class);
     router = mock(Router.class);
+    app = mock(Jooby.class);
+
     when(ctx.getRouter()).thenReturn(router);
+    when(app.getRouter()).thenReturn(router);
+  }
+
+  // --- Lifecycle / Init Tests ---
+
+  @Test
+  void shouldThrowIllegalStateExceptionWhenNoOtherTemplateEnginesRegistered() {
+    // Router only has the HtmxTemplateEngine registered, no underlying engines like Handlebars
+    when(router.getTemplateEngines()).thenReturn(List.of(engine));
+
+    IllegalStateException ex = assertThrows(IllegalStateException.class, () -> engine.init(app));
+
+    assertEquals("No template engines registered", ex.getMessage());
   }
 
   // --- Supports Tests ---
@@ -68,12 +85,17 @@ class HtmxTemplateEngineTest {
 
   @Test
   void shouldThrowIllegalStateExceptionWhenNoTemplateEngineFound() {
+    // 1. Setup incompatible engine and initialize the HtmxTemplateEngine
+    TemplateEngine incompatibleEngine = mock(TemplateEngine.class);
+    when(router.getTemplateEngines()).thenReturn(Arrays.asList(engine, incompatibleEngine));
+    engine.init(app); // Cache the engines
+
+    // 2. Setup the HTMX view
     HtmxModelAndView<?> htmxView = mock(HtmxModelAndView.class);
     when(htmxView.getView()).thenReturn("missing.hbs");
+    when(incompatibleEngine.supports(htmxView)).thenReturn(false);
 
-    // Router has no other engines registered
-    when(router.getTemplateEngines()).thenReturn(List.of(engine));
-
+    // 3. Execute and verify
     IllegalStateException ex =
         assertThrows(IllegalStateException.class, () -> engine.render(ctx, htmxView));
 
@@ -90,17 +112,18 @@ class HtmxTemplateEngineTest {
 
     when(htmxView.iterator()).thenReturn(views.iterator());
 
-    // 2. Mock a delegate Template Engine (e.g., Handlebars)
+    // 2. Mock Delegate Engines
     TemplateEngine delegateEngine = mock(TemplateEngine.class);
     when(delegateEngine.supports(htmxView)).thenReturn(true);
 
-    // Mock an incompatible engine to cover the "continue" branch inside resolveTemplateEngine
     TemplateEngine incompatibleEngine = mock(TemplateEngine.class);
     when(incompatibleEngine.supports(htmxView)).thenReturn(false);
 
-    // Register engines. We include `engine` (this) to ensure the `!= this` branch is hit.
+    // Register and initialize engines (HtmxTemplateEngine should remove itself from the cached
+    // list)
     when(router.getTemplateEngines())
         .thenReturn(Arrays.asList(engine, incompatibleEngine, delegateEngine));
+    engine.init(app);
 
     // 3. Mock the Output Pipeline
     OutputFactory outputFactory = mock(OutputFactory.class);
