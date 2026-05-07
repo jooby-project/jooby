@@ -6,6 +6,8 @@ The HTMX module provides a seamless bridge between modern, reactive Single Page 
 
 *Note:* `HtmxTemplateEngine` acts as a composite delegator. You must also install a backing template engine (like Handlebars, Freemarker, or Pebble) to actually render the views.
 
+Checkout the https://github.com/jooby-project/htmx-demo[demo project]
+
 === Usage
 
 1) Add the dependencies (HTMX and your preferred template engine):
