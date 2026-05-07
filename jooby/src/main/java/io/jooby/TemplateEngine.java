@@ -18,6 +18,8 @@ import io.jooby.output.Output;
  * @author edgar
  */
 public interface TemplateEngine extends MessageEncoder {
+  /** Just a template engine that is on top of the stack (run before all other engines). */
+  interface OnTop extends TemplateEngine {}
 
   /** Name of application property that defines the template path. */
   String TEMPLATE_PATH = "templates.path";

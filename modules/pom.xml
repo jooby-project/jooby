@@ -82,6 +82,7 @@
     <module>jooby-pebble</module>
     <module>jooby-rocker</module>
     <module>jooby-thymeleaf</module>
+    <module>jooby-htmx</module>
     <module>jooby-camel</module>
 
     <!-- validation -->

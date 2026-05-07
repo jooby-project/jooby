@@ -167,6 +167,12 @@ class HandlebarsModuleTest {
 
   @Test
   void testClassPathTemplateLoaderResourceResolution() throws IOException {
+    URL resourceUrl = new URL("file:///dummy");
+    ClassLoader classLoader = mock(ClassLoader.class);
+
+    when(env.getClassLoader()).thenReturn(classLoader);
+    when(classLoader.getResource(anyString())).thenReturn(resourceUrl);
+
     Handlebars hbs =
         HandlebarsModule.create()
             .setTemplatesPath("this_path_does_not_exist_on_file_system")
@@ -174,10 +180,14 @@ class HandlebarsModuleTest {
 
     ClassPathTemplateLoader loader = (ClassPathTemplateLoader) hbs.getLoader();
 
-    // Test the overridden getResource method uses the Environment's ClassLoader
-    URL resourceUrl = new URL("file:///dummy");
-    ClassLoader classLoader = mock(ClassLoader.class);
-    when(env.getClassLoader()).thenReturn(classLoader);
-    when(classLoader.getResource("test.hbs")).thenReturn(resourceUrl);
+    try {
+      loader.sourceAt("test");
+    } catch (Exception e) {
+      // It might throw an exception attempting to read "file:///dummy",
+      // but that's fine for this test since we only care about resolution.
+    }
+
+    verify(env).getClassLoader();
+    verify(classLoader).getResource(anyString());
   }
 }

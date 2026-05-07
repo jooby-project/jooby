@@ -1,0 +1,10 @@
+<div id="task-input-error" hx-swap-oob="true" class="text-red-500 text-sm mt-2 font-medium empty:hidden">
+    <p class="font-bold mb-1">{{validationResult.title}}</p>
+    <ul class="list-disc list-inside">
+        {{#each validationResult.errors}}
+        {{#each this.messages}}
+            <li>{{this}}</li>
+        {{/each}}
+        {{/each}}
+    </ul>
+</div>

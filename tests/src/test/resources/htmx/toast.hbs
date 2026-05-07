@@ -1,0 +1,11 @@
+<div hx-swap-oob="beforeend:#toast-container">
+
+    <div class="{{#if isError}}bg-red-600 border-red-700{{else}}bg-gray-800 border-gray-700{{/if}} text-white px-6 py-3 rounded-lg shadow-xl border flex items-center justify-between"
+         style="animation: fadeOutAndShrink 0.5s ease-out 3s forwards;"
+         onanimationend="this.remove()">
+
+        <span class="font-medium">{{message}}</span>
+
+    </div>
+
+</div>

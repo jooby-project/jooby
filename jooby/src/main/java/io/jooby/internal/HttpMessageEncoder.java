@@ -30,7 +30,12 @@ public class HttpMessageEncoder implements MessageEncoder {
   public HttpMessageEncoder add(MediaType type, MessageEncoder encoder) {
     if (encoder instanceof TemplateEngine engine) {
       // Media type is ignored for template engines. They have a custom object type
-      templateEngineList.add(engine);
+      if (engine instanceof TemplateEngine.OnTop) {
+        // need to go first
+        templateEngineList.addFirst(engine);
+      } else {
+        templateEngineList.add(engine);
+      }
     } else {
       if (encoders == null) {
         encoders = new LinkedHashMap<>();
@@ -105,5 +110,9 @@ public class HttpMessageEncoder implements MessageEncoder {
     } else {
       return MessageEncoder.TO_STRING.encode(ctx, value);
     }
+  }
+
+  public List<TemplateEngine> getTemplateEngines() {
+    return templateEngineList;
   }
 }

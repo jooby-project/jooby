@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import javax.tools.JavaFileObject;
@@ -23,17 +22,42 @@ import com.google.common.truth.Truth;
 import com.google.testing.compile.JavaFileObjects;
 import com.google.testing.compile.JavaSourcesSubjectFactory;
 import io.jooby.*;
-import io.jooby.internal.apt.MvcContext;
 
 public class ProcessorRunner {
+
+  enum RouterType {
+    Default,
+    Trpc,
+    Rpc,
+    Mcp,
+    Htmx,
+    Ws;
+
+    public String suffix() {
+      return name() + "_";
+    }
+
+    public static RouterType of(String filename) {
+      var extra = EnumSet.complementOf(EnumSet.of(Default));
+      for (RouterType generatedRouter : extra) {
+        if (filename.endsWith(generatedRouter.suffix())) {
+          return generatedRouter;
+        }
+      }
+      return Default;
+    }
+  }
+
+  record Router(RouterType type, String classname) {}
 
   private static class GeneratedSourceClassLoader extends ClassLoader {
     private final Map<String, JavaFileObject> classes = new LinkedHashMap<>();
 
-    public GeneratedSourceClassLoader(ClassLoader parent, Map<String, JavaFileObject> sources) {
+    public GeneratedSourceClassLoader(ClassLoader parent, Map<Router, JavaFileObject> sources) {
       super(parent);
       for (var e : sources.entrySet()) {
-        classes.put(e.getKey(), javac().compile(List.of(e.getValue())).generatedFiles().get(0));
+        classes.put(
+            e.getKey().classname, javac().compile(List.of(e.getValue())).generatedFiles().get(0));
       }
     }
 
@@ -52,8 +76,8 @@ public class ProcessorRunner {
   }
 
   private static class HookJoobyProcessor extends JoobyProcessor {
-    private Map<String, JavaFileObject> javaFiles = new LinkedHashMap<>();
-    private Map<String, String> kotlinFiles = new LinkedHashMap<>();
+    private Map<Router, JavaFileObject> javaFiles = new LinkedHashMap<>();
+    private Map<Router, String> kotlinFiles = new LinkedHashMap<>();
 
     public HookJoobyProcessor(Consumer<String> console) {
       super((kind, message) -> console.accept(message));
@@ -67,20 +91,14 @@ public class ProcessorRunner {
       return javaFiles.isEmpty() ? null : javaFiles.entrySet().iterator().next().getValue();
     }
 
-    public String getKotlinSource() {
-      return kotlinFiles.entrySet().iterator().next().getValue();
-    }
-
-    public MvcContext getContext() {
-      return context;
-    }
-
     @Override
     protected void onGeneratedSource(String classname, JavaFileObject source) {
-      javaFiles.put(classname, source);
+      javaFiles.put(new Router(RouterType.of(classname), classname), source);
       try {
         // Generate kotlin source code inside the compiler scope... avoid false positive errors
-        kotlinFiles.put(classname, context.getRouters().get(0).toSourceCode(true));
+        kotlinFiles.put(
+            new Router(RouterType.of(classname), classname),
+            context.getRouters().get(0).toSourceCode(true));
       } catch (IOException e) {
         SneakyThrows.propagate(e);
       }
@@ -175,41 +193,40 @@ public class ProcessorRunner {
   }
 
   public ProcessorRunner withMcpCode(SneakyThrows.Consumer<String> consumer) {
-    return withSourceCode(false, it -> it.endsWith("Mcp_"), consumer);
+    return withSourceCode(false, RouterType.Mcp, consumer);
   }
 
   public ProcessorRunner withTrpcCode(SneakyThrows.Consumer<String> consumer) {
-    return withSourceCode(false, it -> it.endsWith("Trpc_"), consumer);
+    return withSourceCode(false, RouterType.Trpc, consumer);
   }
 
   public ProcessorRunner withRpcCode(SneakyThrows.Consumer<String> consumer) {
-    return withSourceCode(false, it -> it.endsWith("Rpc_"), consumer);
+    return withSourceCode(false, RouterType.Rpc, consumer);
+  }
+
+  public ProcessorRunner withHtmxCode(SneakyThrows.Consumer<String> consumer) {
+    return withSourceCode(false, RouterType.Htmx, consumer);
   }
 
   public ProcessorRunner withWsCode(SneakyThrows.Consumer<String> consumer) {
-    return withSourceCode(false, it -> it.endsWith("Ws_"), consumer);
+    return withSourceCode(false, RouterType.Ws, consumer);
   }
 
   public ProcessorRunner withSourceCode(boolean kt, SneakyThrows.Consumer<String> consumer) {
-    consumer.accept(
-        kt
-            ? processor.kotlinFiles.values().iterator().next()
-            : Optional.ofNullable(processor.getSource()).map(Objects::toString).orElse(null));
-    return withSourceCode(
-        kt, it -> !it.endsWith("Trpc_") && !it.endsWith("Rpc_") && !it.endsWith("Mcp_"), consumer);
+    return withSourceCode(kt, RouterType.Default, consumer);
   }
 
   private ProcessorRunner withSourceCode(
-      boolean kt, Predicate<String> filter, SneakyThrows.Consumer<String> consumer) {
+      boolean kt, RouterType routerType, SneakyThrows.Consumer<String> consumer) {
     consumer.accept(
         kt
             ? processor.kotlinFiles.entrySet().stream()
-                .filter(it -> filter.test(it.getKey()))
+                .filter(it -> it.getKey().type().equals(routerType))
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse(null)
             : processor.javaFiles.entrySet().stream()
-                .filter(it -> filter.test(it.getKey()))
+                .filter(it -> it.getKey().type().equals(routerType))
                 .map(Map.Entry::getValue)
                 .map(Objects::toString)
                 .findFirst()

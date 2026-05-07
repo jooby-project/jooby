@@ -262,10 +262,12 @@ public class ThymeleafModule implements Extension {
               .build(application.getEnvironment());
     }
 
-    application.encoder(new ThymeleafTemplateEngine(templateEngine, EXT));
+    var thymeleafTE = new ThymeleafTemplateEngine(templateEngine, EXT);
+    application.encoder(thymeleafTE);
 
     ServiceRegistry services = application.getServices();
     services.put(TemplateEngine.class, templateEngine);
+    services.listOf(io.jooby.TemplateEngine.class).add(thymeleafTE);
   }
 
   /**

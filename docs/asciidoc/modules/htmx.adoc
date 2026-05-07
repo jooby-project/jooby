@@ -1,0 +1,191 @@
+== HTMX
+
+https://htmx.org[HTMX] first-class support for Jooby.
+
+The HTMX module provides a seamless bridge between modern, reactive Single Page Application (SPA) mechanics and traditional server-side rendering. It offers both a memory-safe Imperative Builder and a powerful Declarative Annotation API (via APT) to orchestrate HTMX responses without repetitive boilerplate.
+
+*Note:* `HtmxTemplateEngine` acts as a composite delegator. You must also install a backing template engine (like Handlebars, Freemarker, or Pebble) to actually render the views.
+
+=== Usage
+
+1) Add the dependencies (HTMX and your preferred template engine):
+
+[dependency, artifactId="jooby-htmx, jooby-handlebars:Handlebars Module"]
+.
+
+2) Write your templates inside the `views` folder. Notice how the layout dynamically embeds the requested partial using `childView`.
+
+.views/layout.hbs
+[source, html]
+----
+<!DOCTYPE html>
+<html>
+<body>
+  <nav>My App</nav>
+  <main>
+    {{> (lookup childView) }} 
+  </main>
+</body>
+</html>
+----
+
+.views/tasks.hbs
+[source, html]
+----
+<ul id="task-list">
+  {{#each tasks}}
+    <li>{{title}}</li>
+  {{/each}}
+</ul>
+----
+
+3) Install the module and write your controller.
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.htmx.HtmxModule;
+import io.jooby.handlebars.HandlebarsModule;
+import io.jooby.annotation.htmx.HxView;
+
+{
+  install(new HandlebarsModule());  <1>
+  install(new HtmxModule());        <2>
+
+  mvc(new TaskUIHtmx_());           <3>
+}
+
+public class TaskUI {
+  
+  @GET("/tasks")
+  @HxView(value = "tasks.hbs", layout = "layout.hbs")
+  public Map<String, Object> getTasks() {
+    return Map.of("tasks", List.of(new Task("Buy milk")));
+  }
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.htmx.HtmxModule
+import io.jooby.handlebars.HandlebarsModule
+import io.jooby.annotation.htmx.HxView
+
+{
+  install(HandlebarsModule())       <1>
+  install(HtmxModule())             <2>
+
+  mvc(TaskUIHtmx_())                <3>
+}
+
+class TaskUI {
+  
+  @GET("/tasks")
+  @HxView(value = "tasks.hbs", layout = "layout.hbs")
+  fun getTasks(): Map<String, Any> {
+    return mapOf("tasks" to listOf(Task("Buy milk")))
+  }
+}
+----
+
+<1> Install your base template engine
+<2> Install the HTMX engine
+<3> Add generated `Htmx_` controller
+
+=== The SPA Shell Layout Engine
+
+The `@HxView` annotation implements a secure, Fail-Fast Guard Clause for layout management.
+
+When you define a `layout` attribute, the framework intelligently checks the origin of the request:
+
+* **HTMX AJAX Requests:** The layout is ignored. The framework responds only with the fast, targeted partial view (`tasks.hbs`).
+* **Direct Browser Requests (F5 / Bookmarks):** The framework intercepts the request, blocks the raw fragment from rendering, and automatically injects the partial inside your defined `layout.hbs` (passed as the `childView` attribute).
+
+If a method returns a dynamic HTMX fragment but *lacks* a layout, direct browser access is automatically blocked via a `406 Not Acceptable` exception.
+
+=== Declarative API (Annotations)
+
+When using Jooby's MVC routes, you can orchestrate complex UI state entirely through annotations:
+
+.Java
+[source, java]
+----
+@POST("/tasks")
+@HxView("task_row.hbs")
+@HxOob("task_counter.hbs")         // Automatically appends an Out-Of-Band swap
+@HxTrigger("taskAdded")            // Triggers a client-side JS event
+@HxError("task_error.hbs")         // Scoped Error Handler: Catches validation errors
+public Task addTask(@Valid TaskDto dto) {
+    return db.save(dto);
+}
+----
+
+==== Scoped Error Handling & Validation
+The `@HxError` annotation acts as a "UI Janitor" for **Scoped Errors** (such as HTTP 400 Bad Request or 422 Unprocessable Entity). If Bean Validation fails, it catches the exception and renders your targeted error template.
+
+* **Validation Integration:** The model passed to your error template automatically includes a `validationResult` object that perfectly follows the `io.jooby.validation.ValidationResult` format. This allows seamless integration with Jooby's Jakarta validation modules (`hibernate-validator` or `avaje-validator`).
+* **Auto-Clearing:** Crucially, on a *successful* request, the framework automatically appends an empty OOB swap for the error template, instantly clearing the UI of any previous error messages.
+
+=== Imperative API (HtmxResponse)
+
+For scenarios lacking a primary view (like a `DELETE` operation), use the fluent `HtmxResponse` builder to explicitly chain events, headers, and OOB updates.
+
+.Java
+[source, java, role="primary"]
+----
+@DELETE("/tasks/{id}")
+public HtmxResponse deleteTask(@PathParam String id) {
+  db.delete(id);
+  
+  return HtmxResponse.empty()
+      .addOob("task_counter.hbs", Map.of("activeCount", db.getActiveCount()))
+      .triggerAfterSettle("showToast", Map.of("message", "Task deleted!"));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+@DELETE("/tasks/{id}")
+fun deleteTask(@PathParam id: String): HtmxResponse {
+  db.delete(id)
+  
+  return HtmxResponse.empty()
+      .addOob("task_counter.hbs", mapOf("activeCount" to db.getActiveCount()))
+      .triggerAfterSettle("showToast", mapOf("message" to "Task deleted!"))
+}
+----
+
+=== Global Error Handling
+
+While `@HxError` handles scoped validation, you can seamlessly convert **Global Application Errors** (like 500 Server Crashes) into graceful HTMX responses (like OOB toast notifications) by passing a custom `HtmxErrorHandler` to the module during installation.
+
+**Smart Interception:** This global handler is highly intelligent. It *only* intercepts requests that contain the `HX-Request: true` header. If a standard browser request crashes (e.g., a normal page load or hitting F5), this handler is safely bypassed, and the default Jooby global application error handler takes over to display a standard error page.
+
+.Java
+[source, java, role="primary"]
+----
+import io.jooby.htmx.HtmxModule;
+
+{
+  install(new HtmxModule((ctx, cause, code) -> {
+    // Convert the crash into a safe UI notification without breaking the DOM
+    return HtmxResponse.empty(code)
+        .addOob("toast.hbs", Map.of("error", cause.getMessage()));
+  }));
+}
+----
+
+.Kotlin
+[source, kt, role="secondary"]
+----
+import io.jooby.htmx.HtmxModule
+
+{
+  install(HtmxModule { ctx, cause, code -> 
+    HtmxResponse.empty(code)
+        .addOob("toast.hbs", mapOf("error" to cause.message))
+  })
+}
+----

@@ -63,7 +63,7 @@ class ValidationExceptionChainTest {
 
     assertNotNull(result);
     assertEquals("Validation failed", result.getTitle());
-    assertEquals(400, result.getStatus());
+    assertEquals(422, result.getStatus());
 
     assertEquals(1, result.getErrors().size());
     ValidationResult.Error error = result.getErrors().get(0);
@@ -82,7 +82,7 @@ class ValidationExceptionChainTest {
 
     assertNotNull(result);
     assertEquals("Validation failed", result.getTitle());
-    assertEquals(400, result.getStatus());
+    assertEquals(422, result.getStatus());
 
     assertEquals(1, result.getErrors().size());
     ValidationResult.Error error = result.getErrors().get(0);

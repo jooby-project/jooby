@@ -31,6 +31,7 @@ import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ModelAndView;
 import io.jooby.ServiceRegistry;
+import io.jooby.TemplateEngine;
 import io.jooby.output.Output;
 import io.jooby.test.MockContext;
 import io.pebbletemplates.pebble.PebbleEngine;
@@ -141,14 +142,18 @@ public class PebbleModuleTest {
   // --- Branch and Line Coverage Tests ---
 
   @Test
+  @SuppressWarnings("unchecked")
   public void installDefault() throws Exception {
     Jooby app = mock(Jooby.class);
     Environment env = mock(Environment.class);
     Config config = mock(Config.class);
     ServiceRegistry registry = mock(ServiceRegistry.class);
+    ServiceRegistry.MultiBinder<TemplateEngine> enginesBinder =
+        mock(ServiceRegistry.MultiBinder.class);
 
     when(app.getEnvironment()).thenReturn(env);
     when(app.getServices()).thenReturn(registry);
+    when(registry.listOf(TemplateEngine.class)).thenReturn(enginesBinder);
     when(env.getConfig()).thenReturn(config);
     when(env.isActive("dev", "test")).thenReturn(false);
 
@@ -160,10 +165,15 @@ public class PebbleModuleTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void installCustomBuilderConstructor() throws Exception {
     Jooby app = mock(Jooby.class);
     ServiceRegistry registry = mock(ServiceRegistry.class);
+    ServiceRegistry.MultiBinder<TemplateEngine> enginesBinder =
+        mock(ServiceRegistry.MultiBinder.class);
+
     when(app.getServices()).thenReturn(registry);
+    when(registry.listOf(TemplateEngine.class)).thenReturn(enginesBinder);
 
     PebbleEngine.Builder engineBuilder = new PebbleEngine.Builder();
     PebbleModule module = new PebbleModule(engineBuilder);
