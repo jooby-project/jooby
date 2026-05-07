@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTMX Task Board</title>
+
+    <!-- Load HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* The HTMX Animation Magic! */
+        .task-row {
+            transition: all 0.4s ease-out;
+            opacity: 1;
+        }
+        /* When an element is being swapped/deleted, it fades and slides right */
+        .task-row.htmx-swapping {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        /* Automatically hide the empty state message if there are other task rows present */
+        #task-list:not(:empty) #empty-state {
+            display: none;
+        }
+
+        /* A simple CSS animation to fade the toast out automatically */
+        @keyframes fadeOutAndShrink {
+            0% { opacity: 1; transform: scale(1); margin-top: 0; }
+            80% { opacity: 0; transform: scale(0.9); margin-top: 0; }
+            100% { opacity: 0; transform: scale(0); margin-top: -50px; display: none; }
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <script>
+        // Listen for the custom trigger from our backend!
+        // When a task is added, clear the input field.
+        document.addEventListener('taskAdded', function() {
+            document.getElementById('new-task-input').value = '';
+        });
+
+        // Tell Sortable to initialize whenever HTMX loads or swaps new content!
+        htmx.onLoad(function(content) {
+            var sortables = content.querySelectorAll(".sortable");
+            for (var i = 0; i < sortables.length; i++) {
+                new Sortable(sortables[i], {
+                    animation: 150,
+                    ghostClass: 'opacity-50' // Makes the item transparent while dragging
+                });
+            }
+        });
+
+        document.addEventListener('htmx:beforeSwap', e => {
+            if (e.detail.xhr.status >= 400) {
+                e.detail.shouldSwap = true;
+                e.detail.isError = false; // Prevents HTMX from aborting the swap
+            }
+        });
+
+        // 2. Clone the HTML template if the network drops completely
+        document.addEventListener('htmx:sendError', () => {
+            const toast = document.getElementById('offline-toast-template').content.cloneNode(true);
+            document.getElementById('toast-container').appendChild(toast);
+        });
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-8">
+
+<div class="max-w-2xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden">
+    <div hx-get="/tasks" hx-trigger="load" hx-swap="innerHTML">
+        <div class="p-12 text-center text-gray-400 animate-pulse">
+            Loading Task Board...
+        </div>
+    </div>
+</div>
+
+<div class="max-w-2xl mx-auto mt-8 bg-blue-50 text-blue-800 rounded-xl shadow-sm border border-blue-200 overflow-hidden">
+    <div class="px-6 py-3 border-b border-blue-200 font-bold bg-blue-100 flex items-center gap-2">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Error Handling Sandbox
+    </div>
+    <div class="p-6 space-y-5 text-sm">
+
+        <div class="flex items-start gap-4">
+            <span class="bg-red-100 border border-red-200 text-red-700 font-mono px-2.5 py-1 rounded text-xs font-bold mt-0.5 shrink-0 shadow-sm">HTTP 400</span>
+            <div>
+                <p class="font-bold text-blue-900 text-base">Scoped Validation Error</p>
+                <p class="opacity-90 mt-1">Try to submit a task that is <b>completely blank</b>, <b>less than 3 characters</b>, or <b>more than 25 characters</b>. This triggers standard Java Bean Validation (<code class="bg-blue-100 px-1 rounded text-blue-700">@Valid</code>) to fail, automatically injecting the specific constraint error message directly beneath the input field without losing your current page state.</p>
+            </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+            <span class="bg-red-600 text-white font-mono px-2.5 py-1 rounded text-xs font-bold mt-0.5 shrink-0 shadow-sm">HTTP 500</span>
+            <div>
+                <p class="font-bold text-blue-900 text-base">Global System Error</p>
+                <p class="opacity-90 mt-1">The backend is rigged to crash on <b>every 3rd task creation</b>. Rapidly add a few tasks to simulate a database failure. This triggers the global application handler, bypassing the form entirely to show a global red toast notification.</p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3"></div>
+
+<template id="offline-toast-template">
+    <div class="bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl border border-red-700 flex items-center justify-between"
+         style="animation: fadeOutAndShrink 0.5s ease-out 3s forwards;"
+         onanimationend="this.remove()">
+        <span class="font-medium">Network Error: Server unreachable.</span>
+    </div>
+</template>
+
+</body>
+</html>

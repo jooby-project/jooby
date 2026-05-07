@@ -1,0 +1,34 @@
+<!-- Header Area -->
+<div class="bg-indigo-600 p-6 text-white flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Tasks</h1>
+
+    <span id="task-counter" class="bg-indigo-800 px-3 py-1 rounded-full text-sm font-semibold shadow-inner">
+      {{activeCount}} Tasks Remaining
+    </span>
+</div>
+
+<div class="p-6">
+    <!-- Add Task Form -->
+    <form hx-post="/tasks" hx-target="#task-list" hx-swap="beforeend" class="mb-6">
+        <div class="flex gap-3">
+            <input type="text" id="new-task-input" name="title" placeholder="What needs to be done?"
+                   class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                Add Task
+            </button>
+        </div>
+
+        <div id="task-input-error" class="text-red-500 text-sm mt-2 font-medium empty:hidden"></div>
+    </form>
+
+    <!-- The List Container -->
+    <form hx-post="/tasks/reorder" hx-trigger="end" hx-swap="none">
+        <div id="task-list" class="divide-y divide-gray-100 sortable">
+            {{#each tasks}}
+                {{> task_row.hbs}}
+            {{else}}
+                <div class="py-8 text-gray-400 text-center italic" id="empty-state">No tasks yet.</div>
+            {{/each}}
+        </div>
+    </form>
+</div>

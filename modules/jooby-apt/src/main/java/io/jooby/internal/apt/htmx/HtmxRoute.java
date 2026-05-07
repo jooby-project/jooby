@@ -216,10 +216,13 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
             indent(indent + 2),
             "errorModel_.put(\"validationResult\", validationResult_)",
             semicolon(kt)));
+    var inferType = kt ? "<Any>" : "";
     buffer.add(
         statement(
             indent(indent + 2),
-            "return io.jooby.ModelAndView.of(\"" + errorView + "\", errorModel_)",
+            "return io.jooby.ModelAndView.of",
+            inferType,
+            "(\"" + errorView + "\", errorModel_)",
             semicolon(kt)));
 
     buffer.add(statement(indent(indent), "}"));
@@ -355,10 +358,13 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
       return;
     }
 
+    var inferType = kt ? "<Any>" : "";
     buffer.add(
         statement(
             indent(indent),
-            "return io.jooby.ModelAndView.of(",
+            "return io.jooby.ModelAndView.of",
+            inferType,
+            "(",
             viewStr,
             ", ",
             modelStr,
