@@ -118,7 +118,7 @@ jobs:
             --json number,labels \
             --jq '
               [ .[] as $issue | $issue.labels[].name |
-              select(. != "bug" and . != "enhancement" and . != "feature" and . != "feedback" and . != "break-change" and . != "api-change" and . != "dependencies" and . != "deprecated") |
+              select(. != "bug" and . != "documentation" and . != "question" and . != "enhancement" and . != "feature" and . != "feedback" and . != "break-change" and . != "api-change" and . != "dependencies" and . != "deprecated") |
               {name: ., number: $issue.number} ] |
               group_by(.name) |
               map({
@@ -126,6 +126,7 @@ jobs:
                 count: length,
                 issues: map("#\(.number)") | join(", ")
               }) |
+              map(select(.count > 1)) |
               sort_by(-.count) |
               if length > 0 then
                 "| Component | Count | Issues |\n|---|---|---|\n" + (map("| \(.name) | \(.count) | \(.issues) |") | join("\n"))
