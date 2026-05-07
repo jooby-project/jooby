@@ -93,11 +93,12 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
                 .findFirst()
                 .orElse(null)
             : null;
-
-    // Strip quotes from APT extraction so string() works correctly below
-    if (errorView != null) {
-      errorView = errorView.replace("\"", "");
-    }
+    String layoutView =
+        hxView != null
+            ? AnnotationSupport.findAnnotationValue(hxView, "layout"::equals).stream()
+                .findFirst()
+                .orElse(null)
+            : null;
 
     boolean isDynamicResponse =
         getReturnType().getRawType().toString().equals("io.jooby.htmx.HtmxResponse");
@@ -108,15 +109,29 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
       buffer.add(statement(indent(indent), "try {"));
       indent += 2;
     }
-
-    buffer.add(statement(indent(indent), var(kt), "result_ = ", call, semicolon(kt)));
-
-    appendDeclarativeHeaders(buffer, kt, indent);
-
     // 5. Response Processing
     if (isDynamicResponse) {
+      // Guard for dynamic responses (e.g. POST/DELETE endpoints)
+      buffer.add(
+          statement(indent(indent), "if (!ctx.header(\"HX-Request\").booleanValue(false)) {"));
+      if (kt) {
+        buffer.add(
+            statement(
+                indent(indent + 2),
+                "throw io.jooby.exception.BadRequestException(\"Direct browser access to this HTMX"
+                    + " fragment is not allowed.\")"));
+      } else {
+        buffer.add(
+            statement(
+                indent(indent + 2),
+                "throw new io.jooby.exception.BadRequestException(\"Direct browser access to this"
+                    + " HTMX fragment is not allowed.\");"));
+      }
+      buffer.add(statement(indent(indent), "}"));
+
+      buffer.add(statement(indent(indent), var(kt), "result_ = ", call, semicolon(kt)));
+
       if (errorView != null) {
-        // USE IDIOMATIC KOTLIN MAPS
         String emptyMap = kt ? "mapOf<String, Any>()" : "java.util.Map.of()";
         buffer.add(
             statement(
@@ -128,10 +143,13 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
                 ")",
                 semicolon(kt)));
       }
+
+      appendDeclarativeHeaders(buffer, kt, indent);
+
       buffer.add(statement(indent(indent), "return result_.send(ctx)", semicolon(kt)));
     } else {
       generateModelAndViewReturn(
-          buffer, kt, indent, string(primaryView).toString(), "result_", errorView);
+          buffer, kt, indent, string(primaryView).toString(), call, errorView, layoutView);
     }
 
     // 6. Error Handling block
@@ -156,8 +174,14 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
   private void generateErrorCatchBlock(
       List<String> buffer, boolean kt, int indent, String errorView, String errorTarget) {
     if (kt) {
+      buffer.add(
+          statement(indent(indent), "} catch (ex: io.jooby.htmx.HtmxDirectAccessException) {"));
+      buffer.add(statement(indent(indent + 2), "throw ex"));
       buffer.add(statement(indent(indent), "} catch (ex: Exception) {"));
     } else {
+      buffer.add(
+          statement(indent(indent), "} catch (io.jooby.htmx.HtmxDirectAccessException ex) {"));
+      buffer.add(statement(indent(indent + 2), "throw ex;"));
       buffer.add(statement(indent(indent), "} catch (Exception ex) {"));
     }
 
@@ -222,7 +246,9 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
             indent(indent + 2),
             "return io.jooby.ModelAndView.of",
             inferType,
-            "(\"" + errorView + "\", errorModel_)",
+            "(",
+            string(errorView),
+            ", errorModel_)",
             semicolon(kt)));
 
     buffer.add(statement(indent(indent), "}"));
@@ -306,14 +332,104 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
       boolean kt,
       int indent,
       String viewStr,
-      String modelStr,
-      String errorView) {
-    boolean isView =
+      String call,
+      String errorView,
+      String layoutView) {
+    boolean isStandardView =
         getReturnType().is("io.jooby.ModelAndView")
-            || getReturnType().is("io.jooby.MapModelAndView")
-            || getReturnType().is("io.jooby.htmx.HtmxModelAndView");
+            || getReturnType().is("io.jooby.MapModelAndView");
+    boolean isHtmxView = getReturnType().is("io.jooby.htmx.HtmxModelAndView");
+    boolean isView = isStandardView || isHtmxView;
+
+    // Check if the developer explicitly added @HxView
+    boolean hasHxView =
+        io.jooby.internal.apt.AnnotationSupport.findAnnotationByName(
+                method, "io.jooby.annotation.htmx.HxView")
+            != null;
+
+    // RULE: We apply the HTMX Guard Clause to EVERYTHING EXCEPT standard views lacking the @HxView
+    // annotation.
+    boolean requiresGuard = !isStandardView || hasHxView;
+
+    var modelStr = "result_";
+
+    // ==========================================
+    // 1. THE BROWSER FULL-REFRESH GUARD
+    // ==========================================
+    if (requiresGuard) {
+      buffer.add(
+          statement(indent(indent), "if (!ctx.header(\"HX-Request\").booleanValue(false)) {"));
+      if (layoutView != null && !layoutView.isEmpty()) {
+        buffer.add(statement(indent(indent + 2), var(kt), "result_ = ", call, semicolon(kt)));
+
+        // Inject the child view name as a request attribute (Safe for ANY model type: Map, Record,
+        // POJO)
+        buffer.add(
+            statement(
+                indent(indent + 2),
+                "ctx.setAttribute(\"childView\", ",
+                viewStr,
+                ")",
+                semicolon(kt)));
+
+        // Extract the data model. If the controller returned a ModelAndView, unwrap it using
+        // .getModel()
+        String targetModel = isView ? modelStr + ".getModel()" : modelStr;
+
+        // Return a BRAND NEW immutable ModelAndView pointing to the layout
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(indent + 2),
+                  "return io.jooby.ModelAndView.of<Any>(",
+                  string(layoutView),
+                  ", ",
+                  targetModel,
+                  ")",
+                  semicolon(kt)));
+        } else {
+          buffer.add(
+              statement(
+                  indent(indent + 2),
+                  "return io.jooby.ModelAndView.of(",
+                  string(layoutView),
+                  ", ",
+                  targetModel,
+                  ")",
+                  semicolon(kt)));
+        }
+
+      } else {
+        // No layout defined: Reject direct access
+        if (kt) {
+          buffer.add(
+              statement(
+                  indent(indent + 2),
+                  "throw io.jooby.htmx.HtmxDirectAccessException(\"Direct browser access to this"
+                      + " HTMX fragment is not allowed.\")"));
+        } else {
+          buffer.add(
+              statement(
+                  indent(indent + 2),
+                  "throw new io.jooby.htmx.HtmxDirectAccessException(\"Direct browser access to"
+                      + " this HTMX fragment is not allowed.\");"));
+        }
+      }
+      buffer.add(statement(indent(indent), "}"));
+    }
+
+    // Execute the controller method if it wasn't already handled and returned by the layout block
+    // above
+    buffer.add(statement(indent(indent), var(kt), "result_ = ", call, semicolon(kt)));
+
+    appendDeclarativeHeaders(buffer, kt, indent);
+
+    // ==========================================
+    // 2. THE HTMX AJAX PIPELINE
+    // ==========================================
 
     if (isView) {
+      // Controller handled its own view creation
       buffer.add(statement(indent(indent), "return ", modelStr, semicolon(kt)));
       return;
     }
@@ -323,25 +439,37 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
             "io.jooby.annotation.htmx.HxOob", "io.jooby.annotation.htmx.HxOobs");
 
     if (!oobViews.isEmpty() || errorView != null) {
-      buffer.add(
-          statement(
-              indent(indent),
-              var(kt),
-              "mv_ = ",
-              kt ? "" : "new ",
-              "io.jooby.htmx.HtmxModelAndView(",
-              viewStr,
-              ", ",
-              modelStr,
-              ")",
-              semicolon(kt)));
+      // Upgrade to HtmxModelAndView to support OOB responses
+      if (kt) {
+        buffer.add(
+            statement(
+                indent(indent),
+                var(kt),
+                "mv_ = io.jooby.htmx.HtmxModelAndView<Any>(",
+                viewStr,
+                ", ",
+                modelStr,
+                ")",
+                semicolon(kt)));
+      } else {
+        buffer.add(
+            statement(
+                indent(indent),
+                var(kt),
+                "mv_ = new io.jooby.htmx.HtmxModelAndView<>(",
+                viewStr,
+                ", ",
+                modelStr,
+                ")",
+                semicolon(kt)));
+      }
 
       for (var oobView : oobViews) {
         buffer.add(statement(indent(indent), "mv_.addOob(", string(oobView), ")", semicolon(kt)));
       }
 
-      // MAGIC REPAIRED: Add the empty map parameter correctly!
       if (errorView != null) {
+        buffer.add(statement(indent(indent), "// clear error: ", errorView));
         String emptyMap = kt ? "mapOf<String, Any>()" : "java.util.Map.of()";
         buffer.add(
             statement(
@@ -358,18 +486,28 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
       return;
     }
 
-    var inferType = kt ? "<Any>" : "";
-    buffer.add(
-        statement(
-            indent(indent),
-            "return io.jooby.ModelAndView.of",
-            inferType,
-            "(",
-            viewStr,
-            ", ",
-            modelStr,
-            ")",
-            semicolon(kt)));
+    // Fallback: Standard Jooby ModelAndView
+    if (kt) {
+      buffer.add(
+          statement(
+              indent(indent),
+              "return io.jooby.ModelAndView.of<Any>(",
+              viewStr,
+              ", ",
+              modelStr,
+              ")",
+              semicolon(kt)));
+    } else {
+      buffer.add(
+          statement(
+              indent(indent),
+              "return io.jooby.ModelAndView.of(",
+              viewStr,
+              ", ",
+              modelStr,
+              ")",
+              semicolon(kt)));
+    }
   }
 
   private void appendDeclarativeHeaders(List<String> buffer, boolean kt, int indent) {

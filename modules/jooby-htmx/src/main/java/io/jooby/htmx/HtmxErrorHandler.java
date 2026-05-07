@@ -16,7 +16,9 @@ public interface HtmxErrorHandler {
 
   default ErrorHandler toErrorHandler() {
     return (ctx, cause, code) -> {
-      if (ctx.header("HX-Request").booleanValue(false)) {
+      // error is thrown on bad Htmx request, ignore we can't handle it.
+      if (!(cause instanceof HtmxDirectAccessException)
+          && ctx.header("HX-Request").booleanValue(false)) {
         var log = ctx.getRouter().getLog();
         var level = code.value() < 500 ? Level.DEBUG : Level.ERROR;
         log.atLevel(level).log(ErrorHandler.errorMessage(ctx, code), cause);

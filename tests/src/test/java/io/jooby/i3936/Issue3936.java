@@ -54,8 +54,24 @@ class Issue3936 {
                     assertEquals(200, rsp.code());
                   });
 
+              // No header => 406
+              http.header("Content-Type", "application/x-www-form-urlencoded");
+              http.post(
+                  "/tasks",
+                  new FormBody.Builder().add("title", "Buy groceries").build(),
+                  rsp -> {
+                    assertEquals(406, rsp.code());
+                    assertThat(rsp.body().string())
+                        .containsIgnoringWhitespaces(
+                            """
+                            <h2>message: Direct browser access to this HTMX fragment is not allowed.</h2>
+                            <h2>status code: 406</h2>
+                            """);
+                  });
+
               // 2. Add Task - Success Path
               http.header("Content-Type", "application/x-www-form-urlencoded");
+              http.header("Hx-Request", "true");
               http.post(
                   "/tasks",
                   new FormBody.Builder().add("title", "Buy groceries").build(),
@@ -104,23 +120,8 @@ class Issue3936 {
                             """);
                   });
 
-              // 3.b simulate a network error => 500 response with default error handler (no
-              // Hx-Request header)
-              http.header("Content-Type", "application/x-www-form-urlencoded");
-              http.post(
-                  "/tasks",
-                  new FormBody.Builder().add("title", "Wont save").build(),
-                  rsp -> {
-                    assertEquals(500, rsp.code());
-                    assertThat(rsp.body().string())
-                        .containsIgnoringWhitespaces(
-                            """
-                            <h2>message: Connection error! Please try again.</h2>
-                            <h2>status code: 500</h2>
-                            """);
-                  });
-
               // 4. Load the initial board
+              http.header("Hx-Request", "true");
               http.get(
                   "/tasks",
                   rsp -> {
@@ -140,6 +141,7 @@ class Issue3936 {
               // Should fail @Valid (e.g., title too short/blank) and return 422
               // as orchestrated by the @HxError class-level annotation
               http.header("Content-Type", "application/x-www-form-urlencoded");
+              http.header("Hx-Request", "true");
               http.post(
                   "/tasks",
                   new FormBody.Builder().add("title", "a").build(),
@@ -154,6 +156,7 @@ class Issue3936 {
 
               // 6. Delete a task
               // Returns an empty HtmxResponse but HTTP status should be 200 OK
+              http.header("Hx-Request", "true");
               http.delete(
                   "/tasks/123",
                   rsp -> {
@@ -168,6 +171,7 @@ class Issue3936 {
               // 7. Reorder tasks
               // Verifies passing a list of IDs via form parameters
               http.header("Content-Type", "application/x-www-form-urlencoded");
+              http.header("Hx-Request", "true");
               http.post(
                   "/tasks/reorder",
                   new FormBody.Builder()
