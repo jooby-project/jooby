@@ -109,9 +109,7 @@ jobs:
             --json title,number \
             --jq '.[] | "- \(.title) #\(.number)"' > other_issues.md
 
-          # 4.5 Fetch Component Summary (Group, Count, and Link Labels)
-          # We grab labels and issue numbers, filter structural labels, group them,
-          # count them, join the issue numbers, and output a Markdown table.
+          # 5. Fetch Component Summary (Group, Count, and Link Labels)
           gh issue list \
             --repo ${{ github.repository }} \
             --search "milestone:\"$VERSION_NUM\"" \
@@ -136,10 +134,10 @@ jobs:
               end
             ' > label_summary.md
 
-          # 5. Initialize the changelog file
+          # 6. Initialize the changelog file
           > changelog.md
 
-          # 6. Conditionally add "Breaking Changes"
+          # 7. Conditionally add "Breaking Changes"
           if [ -s breaking_issues.md ]; then
             echo "## ⚠️ Breaking Changes" >> changelog.md
             echo "" >> changelog.md
@@ -147,7 +145,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 7. Conditionally add "What's New"
+          # 8. Conditionally add "What's New"
           if [ -s new_issues.md ]; then
             echo "## 🚀 What's New" >> changelog.md
             echo "" >> changelog.md
@@ -155,15 +153,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 7.5 Conditionally add "Component Summary" Table
-          if [ -s label_summary.md ]; then
-            echo "## 📊 Component Updates" >> changelog.md
-            echo "" >> changelog.md
-            cat label_summary.md >> changelog.md
-            echo "" >> changelog.md
-          fi
-
-          # 8. Conditionally add "Other Changes"
+          # 9. Conditionally add "Other Changes"
           if [ -s other_issues.md ]; then
             echo "## 🛠️ Changes" >> changelog.md
             echo "" >> changelog.md
@@ -171,7 +161,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 9. Conditionally add "Deprecated"
+          # 10. Conditionally add "Deprecated"
           if [ -s deprecated_issues.md ]; then
             echo "## 🗑️ Deprecated" >> changelog.md
             echo "" >> changelog.md
@@ -179,7 +169,20 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 10. Build the rest of the changelog (Links & Sponsors)
+          # 11. Conditionally add "Component Summary" Table inside a collapsible section
+          if [ -s label_summary.md ]; then
+            echo "## 📊 Component Updates" >> changelog.md
+            echo "" >> changelog.md
+            echo "<details>" >> changelog.md
+            echo "<summary><strong>Click to expand component details</strong></summary>" >> changelog.md
+            echo "" >> changelog.md
+            cat label_summary.md >> changelog.md
+            echo "" >> changelog.md
+            echo "</details>" >> changelog.md
+            echo "" >> changelog.md
+          fi
+
+          # 12. Build the rest of the changelog (Links & Sponsors)
           cat << EOF >> changelog.md
           ## 🔗 Links & Resources
           - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
