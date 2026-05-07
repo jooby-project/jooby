@@ -15,6 +15,14 @@ import io.jooby.Context;
 import io.jooby.StatusCode;
 import io.jooby.json.JsonEncoder;
 
+/**
+ * An imperative builder for constructing HTMX responses safely and fluently.
+ *
+ * <p>This class allows developers to explicitly orchestrate complex HTMX interactions directly from
+ * the controller, such as triggering client-side events, chaining Out-Of-Band (OOB) template swaps,
+ * and managing HTTP status code behaviors (e.g., automatically upgrading a 204 No Content to a 200
+ * OK if HTML views are attached).
+ */
 public class HtmxResponse {
 
   private final @Nullable String view;
@@ -45,7 +53,7 @@ public class HtmxResponse {
   }
 
   /**
-   * Creates an HtmxResponse that renders a specific view template with the provided model.
+   * Creates an HtmxResponse that renders a specific view template with an empty model.
    *
    * @param view The classpath location of the template.
    * @return A new HtmxResponse instance.
@@ -67,11 +75,9 @@ public class HtmxResponse {
   }
 
   /**
-   * Creates an empty action-only response.
+   * Creates an empty action-only response with a specific status code.
    *
-   * <p>Defaults the HTTP status to {@link StatusCode#NO_CONTENT} (204). HTMX interprets a 204 as a
-   * successful request but will not attempt to swap any content into the DOM.
-   *
+   * @param status The status code to return.
    * @return A new HtmxResponse instance.
    */
   public static HtmxResponse empty(StatusCode status) {
@@ -109,7 +115,7 @@ public class HtmxResponse {
    * header.
    *
    * @param eventName The name of the event to trigger.
-   * @param jsonPayload The event detail.
+   * @param jsonPayload The event detail to be serialized into JSON.
    * @return This builder instance.
    */
   public HtmxResponse trigger(String eventName, Object jsonPayload) {
@@ -121,9 +127,10 @@ public class HtmxResponse {
    * Triggers a client-side event after the settling phase using {@code HX-Trigger-After-Settle}.
    *
    * @param eventName The name of the event to trigger.
+   * @param value The event detail to be serialized into JSON, or null.
    * @return This builder instance.
    */
-  public HtmxResponse triggerAfterSettle(String eventName, Object value) {
+  public HtmxResponse triggerAfterSettle(String eventName, @Nullable Object value) {
     this.triggersAfterSettle.put(eventName, value);
     return this;
   }
@@ -132,9 +139,10 @@ public class HtmxResponse {
    * Triggers a client-side event after the swap phase using {@code HX-Trigger-After-Swap}.
    *
    * @param eventName The name of the event to trigger.
+   * @param value The event detail to be serialized into JSON, or null.
    * @return This builder instance.
    */
-  public HtmxResponse triggerAfterSwap(String eventName, Object value) {
+  public HtmxResponse triggerAfterSwap(String eventName, @Nullable Object value) {
     this.triggersAfterSwap.put(eventName, value);
     return this;
   }
@@ -205,7 +213,7 @@ public class HtmxResponse {
 
   /**
    * Instructs HTMX to render an out-of-band (OOB) swap using the specified view template. The model
-   * provided to this response will be shared with the OOB template.
+   * provided to the main response will be automatically shared with this OOB template.
    *
    * @param oobView The classpath location of the OOB template.
    * @return This builder instance.
@@ -221,9 +229,9 @@ public class HtmxResponse {
    *
    * @param oobView The classpath location of the OOB view template.
    * @param model The data model to associate with the OOB view template.
-   * @return This HtmxResponse instance.
+   * @return This builder instance.
    */
-  public HtmxResponse addOob(String oobView, Object model) {
+  public HtmxResponse addOob(String oobView, @Nullable Object model) {
     this.oobs.put(oobView, ofNullable(model).orElse(Map.of()));
     return this;
   }
@@ -251,7 +259,7 @@ public class HtmxResponse {
       }
     }
     if (hasViews) {
-      HtmxModelAndView htmxView;
+      HtmxModelAndView<?> htmxView;
       if (view == null) {
         var oobIter = oobs.entrySet().iterator();
         var firstOob = oobIter.next();
@@ -272,8 +280,7 @@ public class HtmxResponse {
   }
 
   /**
-   * Called by the APT-generated Route.Handler to safely encode and write all headers directly to
-   * the Jooby Context.
+   * Called internally to safely encode and write all headers directly to the Jooby Context.
    *
    * @param ctx The active request context.
    */

@@ -43,5 +43,12 @@
  * @since 4.5.0
  * @author edgar
  */
-@org.jspecify.annotations.NullMarked
-package io.jooby.htmx;
+module io.jooby.htmx {
+  exports io.jooby.annotation.htmx;
+  exports io.jooby.htmx;
+
+  requires io.jooby;
+  requires static org.jspecify;
+  requires typesafe.config;
+  requires org.slf4j;
+}

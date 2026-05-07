@@ -28,14 +28,6 @@ public @interface HxTrigger {
   String value();
 
   /**
-   * An optional JSON payload string to pass with the event. Example: {@code "{\"level\":
-   * \"info\"}"}
-   *
-   * @return The JSON payload, or empty string if none.
-   */
-  String payload() default "";
-
-  /**
    * The lifecycle phase at which the event should be triggered.
    *
    * @return The trigger phase. Defaults to {@link Phase#TRIGGER}.

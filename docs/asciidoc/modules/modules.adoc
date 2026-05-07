@@ -55,10 +55,11 @@ Modules are distributed as separate dependencies. Below is the catalog of offici
   * link:{uiVersion}/modules/openapi[OpenAPI]: OpenAPI supports.
 
 ==== Template Engine
+  * link:{uiVersion}/modules/freemarker[Freemarker]: Freemarker template engine.
   * link:{uiVersion}/modules/handlebars[Handlebars]: Handlebars template engine.
+  * link:{uiVersion}/modules/htmx[HTMX]: First-class HTMX support with declarative annotations and SPA layout management.
   * link:{uiVersion}/modules/jstachio[JStachio]: JStachio template engine.
   * link:{uiVersion}/modules/jte[jte]: jte template engine.
-  * link:{uiVersion}/modules/freemarker[Freemarker]: Freemarker template engine.
   * link:{uiVersion}/modules/pebble[Pebble]: Pebble template engine.
   * link:{uiVersion}/modules/rocker[Rocker]: Rocker template engine.
   * link:{uiVersion}/modules/thymeleaf[Thymeleaf]: Thymeleaf template engine.

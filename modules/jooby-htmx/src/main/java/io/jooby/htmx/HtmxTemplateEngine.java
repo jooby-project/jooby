@@ -13,6 +13,15 @@ import io.jooby.output.Output;
 /**
  * Intercepts {@link HtmxModelAndView} returns and streams multiple templates sequentially to the
  * HTMX client.
+ *
+ * <p><b>Note:</b> This class is not a standalone template engine (such as Handlebars or
+ * Freemarker). Instead, it acts as a composite delegator. When an {@link HtmxModelAndView} is
+ * detected, this engine resolves the actual, registered {@link TemplateEngine} capable of handling
+ * the views. It then uses that underlying engine to render both the primary view and all attached
+ * Out-Of-Band (OOB) views, concatenating their output into a single HTTP response payload.
+ *
+ * @author edgar
+ * @since 4.5.0
  */
 public class HtmxTemplateEngine implements TemplateEngine {
 

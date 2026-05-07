@@ -130,6 +130,29 @@ public class HtmxTest {
   }
 
   @Test
+  public void shouldGenerateTriggers() throws Exception {
+    new ProcessorRunner(new TriggersHx())
+        .withHtmxCode(
+            source -> {
+              assertThat(source)
+                  .containsIgnoringWhitespaces(
+                      """
+                      public Object triggers(io.jooby.Context ctx) throws Exception {
+                        var c = this.factory.apply(ctx);
+                        if (!ctx.header("HX-Request").booleanValue(false)) {
+                          throw new io.jooby.htmx.HtmxDirectAccessException("Direct browser access to this HTMX fragment is not allowed.");
+                        }
+                        var result_ = c.triggers();
+                        ctx.setResponseHeader("HX-Trigger", "t1");
+                        ctx.setResponseHeader("HX-Trigger-After-Settle", "t2");
+                        ctx.setResponseHeader("HX-Trigger-After-Swap", "t3");
+                        return io.jooby.ModelAndView.of("users/profile.hbs", result_);
+                      }
+                      """);
+            });
+  }
+
+  @Test
   public void shouldDoDynamicResponse() throws Exception {
     new ProcessorRunner(new DynamicResponseHx())
         .withHtmxCode(

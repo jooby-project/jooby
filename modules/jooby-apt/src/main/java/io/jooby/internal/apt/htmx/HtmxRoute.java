@@ -527,22 +527,83 @@ public class HtmxRoute extends WebRoute<HtmxRouter> {
               semicolon(kt)));
     }
 
-    List<String> triggers =
-        extractRepeatableValues(
-            "io.jooby.annotation.htmx.HxTrigger", "io.jooby.annotation.htmx.HxTriggers");
+    // NEW: Specialized trigger extraction
+    appendTriggers(buffer, kt, indent);
+  }
 
-    if (!triggers.isEmpty()) {
-      String combinedTriggers = String.join(", ", triggers);
+  private void appendTriggers(List<String> buffer, boolean kt, int indent) {
+    // Use LinkedHashMap to ensure deterministic code generation order
+    java.util.Map<String, List<String>> triggersByHeader = new java.util.LinkedHashMap<>();
+
+    // 1. Process Single Annotation
+    var singleMirror =
+        AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.htmx.HxTrigger");
+    if (singleMirror != null) {
+      extractTriggerData(singleMirror, triggersByHeader);
+    }
+
+    // 2. Process Repeatable Container
+    var containerMirror =
+        AnnotationSupport.findAnnotationByName(method, "io.jooby.annotation.htmx.HxTriggers");
+    if (containerMirror != null) {
+      for (var entry : containerMirror.getElementValues().entrySet()) {
+        if (entry.getKey().getSimpleName().contentEquals("value")) {
+          var nestedList =
+              (java.util.List<? extends javax.lang.model.element.AnnotationValue>)
+                  entry.getValue().getValue();
+
+          for (var nestedItem : nestedList) {
+            if (nestedItem.getValue()
+                instanceof javax.lang.model.element.AnnotationMirror nestedMirror) {
+              extractTriggerData(nestedMirror, triggersByHeader);
+            }
+          }
+        }
+      }
+    }
+
+    // 3. Write out the grouped headers
+    for (var entry : triggersByHeader.entrySet()) {
+      String headerName = entry.getKey();
+      String combinedValues = String.join(", ", entry.getValue());
       buffer.add(
           statement(
               indent(indent),
               "ctx.setResponseHeader(",
-              string("HX-Trigger"),
+              string(headerName),
               ", ",
-              string(combinedTriggers),
+              string(combinedValues),
               ")",
               semicolon(kt)));
     }
+  }
+
+  private void extractTriggerData(
+      AnnotationMirror mirror, java.util.Map<String, List<String>> map) {
+    String eventName =
+        AnnotationSupport.findAnnotationValue(mirror, "value"::equals).stream()
+            .map(Object::toString)
+            .findFirst()
+            .orElse("");
+
+    if (eventName.isEmpty()) return;
+
+    // Default header if phase is omitted
+    var headerName = "HX-Trigger";
+
+    // Extract the phase enum if present
+    var phaseValues = AnnotationSupport.findAnnotationValue(mirror, "phase"::equals);
+    if (!phaseValues.isEmpty()) {
+      var phaseRaw = phaseValues.getFirst();
+
+      if (phaseRaw.endsWith("AFTER_SETTLE")) {
+        headerName = "HX-Trigger-After-Settle";
+      } else if (phaseRaw.endsWith("AFTER_SWAP")) {
+        headerName = "HX-Trigger-After-Swap";
+      }
+    }
+
+    map.computeIfAbsent(headerName, k -> new ArrayList<>()).add(eventName);
   }
 
   private void writeStringHeader(
