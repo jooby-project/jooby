@@ -14,11 +14,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -51,19 +53,24 @@ public class JoobyRun {
   private record Event(Path path, long time, Supplier<Boolean> compileTask) {}
 
   private static class AppModule {
+
+    private enum State {
+      CLOSED,
+      UNLOADING,
+      UNLOADED,
+      STARTING,
+      RESTART,
+      RUNNING,
+      FAILED
+    }
+
     private final Logger logger;
     private final JoobyModuleLoader loader;
     private final JoobyRunOptions conf;
     private Module module;
-    private ClassLoader contextClassLoader;
+    private final ClassLoader contextClassLoader;
     private int counter;
-    private final AtomicInteger state = new AtomicInteger(CLOSED);
-    private static final int CLOSED = 1 << 0;
-    private static final int UNLOADING = 1 << 1;
-    private static final int UNLOADED = 1 << 2;
-    private static final int STARTING = 1 << 3;
-    private static final int RESTART = 1 << 4;
-    private static final int RUNNING = 1 << 5;
+    private final AtomicReference<State> state = new AtomicReference<>(State.CLOSED);
 
     AppModule(
         Logger logger,
@@ -77,10 +84,14 @@ public class JoobyRun {
     }
 
     public Exception start() {
-      if (!(state.compareAndSet(CLOSED, STARTING) || state.compareAndSet(UNLOADED, STARTING))) {
+      if (!(state.compareAndSet(State.CLOSED, State.STARTING)
+          || state.compareAndSet(State.UNLOADED, State.STARTING))) {
         debugState("Jooby already starting.");
         return null;
       }
+
+      boolean success = false;
+
       try {
         module = loader.loadModule(conf.getProjectName());
         ModuleClassLoader classLoader = module.getClassLoader();
@@ -103,6 +114,7 @@ public class JoobyRun {
           args.add("server.port=" + port);
         }
         module.run(conf.getMainClass(), args.toArray(new String[0]));
+        success = true; // Execution reached the end without throwing
       } catch (ClassNotFoundException x) {
         String message = x.getMessage();
         if (message.trim().startsWith(conf.getMainClass())) {
@@ -119,8 +131,13 @@ public class JoobyRun {
       } catch (Throwable x) {
         printErr(x);
       } finally {
-        if (state.compareAndSet(STARTING, RUNNING)) {
-          debugState("Jooby is now");
+        if (success) {
+          if (state.compareAndSet(State.STARTING, State.RUNNING)) {
+            debugState("Jooby is now");
+          }
+        } else {
+          state.set(State.FAILED);
+          debugState("Jooby start failed");
         }
         Thread.currentThread().setContextClassLoader(contextClassLoader);
       }
@@ -159,22 +176,28 @@ public class JoobyRun {
     }
 
     public boolean isStarting() {
-      long s = state.longValue();
-      return s > CLOSED && s < RUNNING;
+      State s = state.get();
+      return s == State.UNLOADING
+          || s == State.UNLOADED
+          || s == State.STARTING
+          || s == State.RESTART;
     }
 
     public void restart(boolean unload) {
-      if (state.compareAndSet(RUNNING, RESTART)) {
-        // Shutdown
+      // Allow restart if it's currently running OR if it previously failed to start
+      if (state.compareAndSet(State.RUNNING, State.RESTART)
+          || state.compareAndSet(State.FAILED, State.RESTART)) {
+        // Shutdown old state
         closeServer();
         if (unload) {
-          // unload only when a class has changed
           unloadModule();
         }
-        // Start
+
+        // Start new state
         start();
-        // Run gc
-        System.gc();
+
+        // Run gc asynchronously to clear discarded classloaders without blocking the thread
+        CompletableFuture.runAsync(System::gc);
       } else {
         debugState("Already restarting.");
       }
@@ -195,7 +218,7 @@ public class JoobyRun {
     }
 
     private void unloadModule() {
-      if (!state.compareAndSet(CLOSED, UNLOADING)) {
+      if (!state.compareAndSet(State.CLOSED, State.UNLOADING)) {
         debugState("Cannot unload as server isn't closed.");
         return;
       }
@@ -206,7 +229,7 @@ public class JoobyRun {
       } catch (Exception x) {
         logger.debug("unload module resulted in exception", x);
       } finally {
-        state.compareAndSet(UNLOADING, UNLOADED);
+        state.compareAndSet(State.UNLOADING, State.UNLOADED);
         module = null;
       }
     }
@@ -214,41 +237,20 @@ public class JoobyRun {
     private void closeServer() {
       try {
         debugState("Closing server.");
-        Class<?> ref = module.getClassLoader().loadClass(SERVER_REF);
-        ref.getDeclaredMethod(SERVER_REF_STOP).invoke(null);
+        if (module != null) {
+          Class<?> ref = module.getClassLoader().loadClass(SERVER_REF);
+          ref.getDeclaredMethod(SERVER_REF_STOP).invoke(null);
+        }
       } catch (Exception x) {
         logger.error("Application shutdown resulted in exception", withoutReflection(x));
       } finally {
-        state.set(CLOSED);
+        state.set(State.CLOSED);
       }
     }
 
     private void debugState(String message) {
       if (logger.isDebugEnabled()) {
-        String name;
-        switch (state.get()) {
-          case CLOSED:
-            name = "CLOSED";
-            break;
-          case UNLOADING:
-            name = "UNLOADING";
-            break;
-          case UNLOADED:
-            name = "UNLOADED";
-            break;
-          case STARTING:
-            name = "STARTING";
-            break;
-          case RESTART:
-            name = "RESTART";
-            break;
-          case RUNNING:
-            name = "RUNNING";
-            break;
-          default:
-            throw new IllegalStateException("BUG");
-        }
-        logger.debug("{} state: {}", message, name);
+        logger.debug("{} state: {}", message, state.get().name());
       }
     }
   }
@@ -275,12 +277,14 @@ public class JoobyRun {
 
   private final ConcurrentLinkedQueue<Event> queue = new ConcurrentLinkedQueue<>();
 
+  // Executor and task tracking for the sliding-window debouncer
+  private ScheduledExecutorService se;
+  private volatile ScheduledFuture<?> scheduledRestart;
+
   /*
    * How long we wait after the last change before restart
    */
   private final long waitTimeBeforeRestartMillis;
-
-  private final long initialDelayBeforeFirstRestartMillis;
 
   /**
    * Creates a new instances with the given options.
@@ -291,8 +295,6 @@ public class JoobyRun {
     this.options = options;
     clock = Clock.systemUTC(); // Possibly change for unit test
     waitTimeBeforeRestartMillis = options.getWaitTimeBeforeRestart();
-    // this might not need to be configurable
-    initialDelayBeforeFirstRestartMillis = JoobyRunOptions.INITIAL_DELAY_BEFORE_FIRST_RESTART;
   }
 
   /**
@@ -389,19 +391,16 @@ public class JoobyRun {
               new JoobyModuleLoader(finder),
               Thread.currentThread().getContextClassLoader(),
               options);
-      ScheduledExecutorService se;
+
       Exception error = module.start();
       if (error == null) {
         se = Executors.newScheduledThreadPool(1);
-        se.scheduleAtFixedRate(
-            this::actualRestart,
-            initialDelayBeforeFirstRestartMillis,
-            waitTimeBeforeRestartMillis,
-            TimeUnit.MILLISECONDS);
         try {
           watcher.watch();
         } finally {
-          se.shutdownNow();
+          if (se != null) {
+            se.shutdownNow();
+          }
         }
       } else {
         // exit
@@ -419,35 +418,50 @@ public class JoobyRun {
   }
 
   public void restart(Path path, Supplier<Boolean> compileTask) {
+    // 1. Queue the event
     queue.offer(new Event(path, clock.millis(), compileTask));
+
+    // 2. Cancel the pending restart if it hasn't executed yet (Sliding Window)
+    if (scheduledRestart != null && !scheduledRestart.isDone()) {
+      scheduledRestart.cancel(false);
+    }
+
+    // 3. Schedule a new restart after the wait period has elapsed since the LAST file change
+    if (se != null && !se.isShutdown()) {
+      scheduledRestart =
+          se.schedule(
+              this::processQueueAndRestart, waitTimeBeforeRestartMillis, TimeUnit.MILLISECONDS);
+    }
   }
 
-  private synchronized void actualRestart() {
-    if (module.isStarting()) {
-      return; // We don't empty the queue. This is the case a change was made while starting.
+  private void processQueueAndRestart() {
+    if (module == null || module.isStarting()) {
+      return;
     }
-    long t = clock.millis();
-    Event e = queue.peek();
-    if (e == null) {
-      return; // queue was empty
-    }
-    var unload = false;
+
+    Event e;
+    boolean unload = false;
     Supplier<Boolean> compileTask = null;
-    for (; e != null && (t - e.time) > waitTimeBeforeRestartMillis; e = queue.peek()) {
-      // unload on source code changes (.java, .kt) or binary changes (.class)
+    boolean hasEvents = false;
+
+    // Drain the entire queue as a single batch
+    while ((e = queue.poll()) != null) {
+      hasEvents = true;
       unload = unload || options.isCompileExtension(e.path) || options.isClass(e.path);
       compileTask = Optional.ofNullable(compileTask).orElse(e.compileTask);
-      queue.poll();
     }
-    // e will be null if the queue is empty which means all events were old enough
-    if (e == null) {
-      var restart = true;
-      if (compileTask != null) {
-        restart = compileTask.get();
-      }
-      if (restart) {
-        module.restart(unload);
-      }
+
+    if (!hasEvents) {
+      return;
+    }
+
+    boolean restart = true;
+    if (compileTask != null) {
+      restart = compileTask.get();
+    }
+
+    if (restart) {
+      module.restart(unload);
     }
   }
 
@@ -456,6 +470,10 @@ public class JoobyRun {
     if (module != null) {
       module.close();
       module = null;
+    }
+
+    if (se != null) {
+      se.shutdownNow();
     }
 
     if (watcher != null) {

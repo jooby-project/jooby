@@ -5,6 +5,7 @@
  */
 package io.jooby.run;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +30,9 @@ public class JoobyRunOptions {
   private Integer port = null;
   private Path basedir;
 
-  private Long waitTimeBeforeRestart = DEFAULT_WAIT_TIME_BEFORE_RESTART;
+  private Long waitTimeBeforeRestart = null;
 
   private boolean useSingleClassLoader;
-
-  private static final long DEFAULT_WAIT_TIME_BEFORE_RESTART = 500L;
-
-  static final long INITIAL_DELAY_BEFORE_FIRST_RESTART = 5000L;
 
   /**
    * Project name.
@@ -100,11 +97,30 @@ public class JoobyRunOptions {
   }
 
   /**
-   * How long to wait after last file change to restart. Default is: <code>500</code> milliseconds.
+   * How long to wait after last file change to restart. Default is: <code>200</code> milliseconds,
+   * or <code>500</code> milliseconds for Eclipse projects.
    *
    * @return Wait time in milliseconds.
    */
   public Long getWaitTimeBeforeRestart() {
+    // If the user explicitly configured a time, always honor it
+    if (waitTimeBeforeRestart != null) {
+      return waitTimeBeforeRestart;
+    }
+
+    // Eclipse's aggressive compiler touches multiple files in a row, requiring a longer debounce
+    // window.
+    if (basedir != null) {
+      if (Files.exists(basedir.resolve(".classpath"))
+          || Files.exists(basedir.resolve(".project"))) {
+        waitTimeBeforeRestart = 500L;
+      }
+    }
+    if (waitTimeBeforeRestart == null) {
+      // Blazing fast default for IntelliJ / VSCode / CLI users
+      waitTimeBeforeRestart = 200L;
+    }
+
     return waitTimeBeforeRestart;
   }
 
@@ -172,7 +188,7 @@ public class JoobyRunOptions {
   }
 
   public boolean isClass(Path path) {
-    return containsExtension(List.of("class"), path);
+    return containsExtension(Arrays.asList("class"), path);
   }
 
   /**
