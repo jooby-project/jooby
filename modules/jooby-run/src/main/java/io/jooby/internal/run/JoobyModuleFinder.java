@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 import org.jboss.modules.*;
 import org.jboss.modules.filter.PathFilters;
@@ -29,6 +30,10 @@ import org.jboss.modules.filter.PathFilters;
 import io.jooby.run.JoobyRun;
 
 public abstract class JoobyModuleFinder implements ModuleFinder {
+  // Matches logback, log4j, and application config files with optional environment suffixes
+  private static final Pattern EXCLUDE_CONFIG =
+      Pattern.compile(
+          "^(logback.*\\.xml|log4j.*\\.(xml|properties|yaml|yml|json)|application.*\\.(conf|properties|yaml|yml|json))$");
   protected static final String JARS = "jars";
   protected static final String RESOURCES = "resources";
   protected final Set<Path> classes;
@@ -100,14 +105,7 @@ public abstract class JoobyModuleFinder implements ModuleFinder {
           if (main.equals(name)) {
             resourceLoader =
                 createFilteredResourceLoader(
-                    not(
-                        it ->
-                            // remove duplicated log configuration
-                            (it.startsWith("logback") || it.startsWith("log4j"))
-                                    && it.endsWith(".xml")
-                                // remove duplicated configuration
-                                || (it.startsWith("application") && it.endsWith(".conf"))),
-                    resourceLoader);
+                    not(it -> EXCLUDE_CONFIG.matcher(it).matches()), resourceLoader);
           }
           builder.addResourceRoot(ResourceLoaderSpec.createResourceLoaderSpec(resourceLoader));
         } else {
