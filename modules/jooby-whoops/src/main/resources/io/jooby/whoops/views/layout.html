@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title>{{title}}</title>
     <link rel="stylesheet" type="text/css" href="{{stylesheet}}">
-    <style> echo $prismCss </style>
+    <link rel="stylesheet" type="text/css" href="{{prismCss}}">
   </head>
   <body>
     <div class="Whoops container">
@@ -15,7 +15,7 @@
         {% include "panel_details_outer" %}
       </div>
     </div>
-    <script data-manual> echo $prismJs </script>
+    <script src="{{prism}}"></script>
     <script src="{{zepto}}"></script>
     <script src="{{clipboard}}"></script>
     <script src="{{javascript}}"></script>

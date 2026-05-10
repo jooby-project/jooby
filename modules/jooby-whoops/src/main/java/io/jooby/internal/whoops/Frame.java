@@ -8,15 +8,35 @@ package io.jooby.internal.whoops;
 import static java.util.Optional.ofNullable;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Frame {
   private static final int SAMPLE_SIZE = 10;
+
+  private static final Set<String> VENDOR_PACKAGES =
+      new HashSet<>(
+          Arrays.asList(
+              "java.",
+              "javax.",
+              "jakarta.",
+              "sun.",
+              "com.sun.",
+              "org.eclipse.",
+              "io.netty.",
+              "org.hibernate.",
+              "com.fasterxml.",
+              "tools.jackson.",
+              "org.slf4j",
+              "io.undertow.",
+              "io.jooby."));
 
   private String fileName;
 
@@ -75,7 +95,15 @@ public class Frame {
   }
 
   public boolean hasSource() {
-    return source != null && source.length() > 0;
+    return source != null && !source.isEmpty();
+  }
+
+  public boolean shouldScan() {
+    return VENDOR_PACKAGES.stream().noneMatch(it -> getClassName().startsWith(it));
+  }
+
+  public boolean isApplication() {
+    return hasSource();
   }
 
   public static List<Frame> toFrames(SourceLocator locator, Throwable cause) {
@@ -89,8 +117,7 @@ public class Frame {
 
     Stream.of(head.getStackTrace()).map(e -> toFrame(locator, head, e)).forEach(frames::add);
 
-    // Keep application frames (ignore all others)
-    return frames.stream().filter(Frame::hasSource).collect(Collectors.toList());
+    return frames.stream().toList();
   }
 
   static Frame toFrame(
@@ -100,28 +127,37 @@ public class Frame {
     String[] names = className.split("\\.");
     String filename = ofNullable(e.getFileName()).orElse(names[names.length - 1]);
 
-    StringBuilder path = new StringBuilder();
-    Stream.of(names).limit(names.length - 1).forEach(it -> path.append(it).append(File.separator));
-    path.append(names[names.length - 1]);
-    SourceLocator.Source source = locator.source(path.toString());
-    SourceLocator.Preview preview = source.preview(line, SAMPLE_SIZE);
-
     Frame frame = new Frame();
     frame.fileName = filename;
     frame.methodName = ofNullable(e.getMethodName()).orElse("~unknown");
-    frame.lineStart = preview.getLineStart();
     frame.line = line;
-    frame.location =
-        Files.exists(source.getPath())
-            ? locator.getBasedir().relativize(source.getPath()).toString()
-            : filename;
-    frame.source = preview.getCode();
-    frame.open = false;
     frame.className =
         className
             // clean up kotlin generated class name: App$1$1 => App
             .replaceAll("\\$\\d+", "");
     frame.comments = Collections.singletonList(cause);
+
+    if (frame.shouldScan()) {
+      StringBuilder path = new StringBuilder();
+      Stream.of(names)
+          .limit(names.length - 1)
+          .forEach(it -> path.append(it).append(File.separator));
+      path.append(names[names.length - 1]);
+      SourceLocator.Source source = locator.source(path.toString());
+      SourceLocator.Preview preview = source.preview(line, SAMPLE_SIZE);
+
+      frame.lineStart = preview.getLineStart();
+      Path sourcePath = source.getPath();
+      frame.location =
+          sourcePath != null && sourcePath.isAbsolute()
+              ? locator.getBasedir().relativize(sourcePath).toString()
+              : filename;
+      frame.source = preview.getCode();
+    } else {
+      frame.location = filename;
+    }
+
+    frame.open = false;
     return frame;
   }
 
