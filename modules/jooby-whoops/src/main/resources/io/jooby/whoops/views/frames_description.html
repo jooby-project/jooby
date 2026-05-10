@@ -1,14 +1,14 @@
-<div class="frames-description {{framesDescriptionTab}}">
+<div class="frames-description {% if hasFrameTabs %}frames-description-application{% endif %}">
   {% if hasFrameTabs %}
-    <a href="#" id="application-frames-tab" class="frames-tab {{activeFramesTab}}">
-        Application frames (<?php echo $frames->countIsApplication() ?>)
-    </a>
-    <a href="#" id="all-frames-tab" class="frames-tab {{activeFramesTab}}">
-      All frames ({{frames.size}})
-    </a>
+  <a href="#" id="application-frames-tab" class="frames-tab {% if activeFramesTab == 'application' %}frames-tab-active{% endif %}">
+    Application frames ({{ appFramesCount }})
+  </a>
+  <a href="#" id="all-frames-tab" class="frames-tab {% if activeFramesTab == 'all' %}frames-tab-active{% endif %}">
+    All frames ({{ frames | length }})
+  </a>
   {% else %}
-    <span>
-        Stack frames ({{frames.size}})
+  <span>
+        Stack frames ({{ frames | length }})
     </span>
   {% endif %}
 </div>

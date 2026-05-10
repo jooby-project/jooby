@@ -5,6 +5,8 @@
  */
 package io.jooby.internal.whoops;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Test;
 
 import io.pebbletemplates.pebble.PebbleEngine;
@@ -12,7 +14,7 @@ import io.pebbletemplates.pebble.PebbleEngine;
 public class WhoopsTest {
 
   @Test
-  public void shouldParseTemplates() {
+  public void shouldParseTemplates() throws IOException {
     PebbleEngine engine = Whoops.engine();
     String[] templates = {
       "env_details",

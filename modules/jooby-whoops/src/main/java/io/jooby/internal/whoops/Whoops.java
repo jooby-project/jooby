@@ -12,13 +12,7 @@ import static io.jooby.internal.whoops.Utils.multimap;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import org.slf4j.Logger;
@@ -119,9 +113,10 @@ public class Whoops implements ErrorHandler {
         cpath = "";
       }
       model.put("stylesheet", cpath + "/whoops/css/whoops.base.css");
-      model.put("prettify", cpath + "/whoops/js/prettify.min.js");
+      model.put("prismCss", cpath + "/whoops/css/prism.css");
       model.put("clipboard", cpath + "/whoops/js/clipboard.min.js");
       model.put("zepto", cpath + "/whoops/js/zepto.min.js");
+      model.put("prism", cpath + "/whoops/js/prism.js");
       model.put("javascript", cpath + "/whoops/js/whoops.base.js");
 
       model.put("frames", frames);
@@ -129,6 +124,20 @@ public class Whoops implements ErrorHandler {
       model.put("causeName", Arrays.asList(cause.getClass().getName().split("\\.")));
       model.put("stacktrace", stacktrace.toString());
       model.put("code", code);
+      model.put("title", cause.getClass().getSimpleName() + " - Whoops!");
+      model.put("hasFrameTabs", true); // Or false if you only ever show one list
+      model.put("activeFramesTab", "application"); // "application" or "all"
+      long appFramesCount = frames.stream().filter(Frame::isApplication).count();
+      model.put("appFramesCount", appFramesCount);
+
+      List<String> previousMessages = new ArrayList<>();
+      var current = cause.getCause();
+      while (current != null) {
+        previousMessages.add(
+            Optional.ofNullable(current.getMessage()).orElse(current.getClass().getName()));
+        current = current.getCause();
+      }
+      model.put("previousMessages", previousMessages);
 
       // environment
       model.put("env", environment(ctx, code));

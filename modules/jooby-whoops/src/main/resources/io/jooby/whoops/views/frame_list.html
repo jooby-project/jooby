@@ -1,13 +1,14 @@
 {% for frame in frames %}
-  <div class="frame {% if loop.index == 0 %}active{% endif %}{% if frame.source != null %} source{% endif %}" id="frame-line-{{loop.index}}">
-      <span class="frame-index">{{ loop.length - loop.index - 1 }}</span>
-      <div class="frame-method-info">
-        <span class="frame-class">{{frame.className}}</span>
-        <span class="frame-function">{{frame.method}}</span>
-      </div>
-    <div class="frame-file">
-        {{frame.location}}<!--
-   --><span class="frame-line">{{frame.line}}</span>
-    </div>
+<div class="frame {% if loop.index == 0 %}active{% endif %} {% if frame.application %}frame-application{% endif %}" id="frame-line-{{ loop.index }}">
+  {# loop.revindex is 1-indexed, subtracting 1 matches the 0-indexed PHP count logic #}
+  <span class="frame-index">{{ loop.revindex - 1 }}</span>
+  <div class="frame-method-info">
+    <span class="frame-class">{{ frame.className | escape }}</span>
+    <span class="frame-function">{{ frame.methodName | escape }}</span>
   </div>
+
+  <div class="frame-file">
+    {{ frame.location | default('<#unknown>') | escape }}<span class="frame-line">:{{ frame.line }}</span>
+  </div>
+</div>
 {% endfor %}
