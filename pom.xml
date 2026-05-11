@@ -62,11 +62,11 @@
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>3.2.4</pebble.version>
     <jackson.version>2.21.3</jackson.version>
-    <gson.version>2.13.2</gson.version>
+    <gson.version>2.14.0</gson.version>
     <jakarta.json.bind-api.version>3.0.1</jakarta.json.bind-api.version>
     <yasson.version>3.0.4</yasson.version>
     <rocker.version>2.4.0</rocker.version>
-    <thymeleaf.version>3.1.3.RELEASE</thymeleaf.version>
+    <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
     <jte.version>3.2.1</jte.version>
 
     <!-- data -->
@@ -74,12 +74,12 @@
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>6.6.33.Final</hibernate.version>
     <ebean.version>15.11.0</ebean.version>
-    <jdbi.version>3.51.0</jdbi.version>
+    <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.15.0</flyway.version>
     <graphql-java.version>24.1</graphql-java.version>
     <lettuce.version>6.7.1.RELEASE</lettuce.version>
     <commons-pool2.version>2.12.1</commons-pool2.version>
-    <kafka.version>4.1.0</kafka.version>
+    <kafka.version>4.2.0</kafka.version>
     <caffeine.version>3.2.4</caffeine.version>
 
     <config.version>1.4.8</config.version>
@@ -99,7 +99,7 @@
     <metrics.version>4.2.38</metrics.version>
 
     <!-- jboss modules -->
-    <jboss-modules.version>2.2.0.Final</jboss-modules.version>
+    <jboss-modules.version>2.3.0</jboss-modules.version>
 
     <!-- ASM -->
     <asm.version>9.9.1</asm.version>
@@ -151,7 +151,7 @@
     <junit.version>6.0.0</junit.version>
     <rest-assured.version>5.5.6</rest-assured.version>
     <assertj-core.version>3.27.3</assertj-core.version>
-    <mockito.version>5.20.0</mockito.version>
+    <mockito.version>5.23.0</mockito.version>
     <guava.version>33.5.0-jre</guava.version>
 
     <compile-testing.version>0.23.0</compile-testing.version>
@@ -186,10 +186,10 @@
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
-    <plexus-utils.version>4.0.2</plexus-utils.version>
+    <plexus-utils.version>4.0.3</plexus-utils.version>
     <stork-maven-plugin.version>3.2.0</stork-maven-plugin.version>
     <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
-    <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
+    <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
     <node.version>v20.11.0</node.version>
@@ -1339,7 +1339,7 @@
             <dependency>
               <groupId>org.apache.ant</groupId>
               <artifactId>ant</artifactId>
-              <version>1.10.15</version>
+              <version>1.10.17</version>
             </dependency>
           </dependencies>
         </plugin>
