@@ -7,6 +7,8 @@ package io.jooby.i2525;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Map;
+
 import io.jooby.jackson.JacksonModule;
 import io.jooby.junit.ServerTest;
 import io.jooby.junit.ServerTestRunner;
@@ -36,8 +38,16 @@ public class Issue2525 {
                   rsp -> {
                     assertEquals("[]", rsp.body().string());
                   });
+              Map<String, Object> queryParams =
+                  Map.of(
+                      "foo[0][a]", 10,
+                      "foo[0][b]", 20,
+                      "foo[1][a]", 30,
+                      "foo[1][b]", 40,
+                      "something", "else");
               http.get(
-                  "/2525?foo[0][a]=10&foo[0][b]=20&foo[1][a]=30&foo[1][b]=40&something=else",
+                  "/2525",
+                  queryParams,
                   rsp -> {
                     assertEquals("[{\"a\":10,\"b\":20},{\"a\":30,\"b\":40}]", rsp.body().string());
                   });

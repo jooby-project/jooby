@@ -5,6 +5,8 @@
  */
 package io.jooby.test;
 
+import static okhttp3.RequestBody.create;
+
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
@@ -14,6 +16,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -23,20 +26,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
-import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Server;
 import io.jooby.ServerSentMessage;
 import io.jooby.SneakyThrows;
 import io.jooby.WebSocketCloseStatus;
-import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
+import okhttp3.*;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -59,18 +55,17 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onOpen(@NotNull WebSocket webSocket, @NotNull Response response) {
+    public void onOpen(WebSocket webSocket, Response response) {
       opened.countDown();
     }
 
     @Override
-    public void onClosed(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+    public void onClosed(WebSocket webSocket, int code, String reason) {
       closed.set(true);
     }
 
     @Override
-    public void onFailure(
-        @NotNull WebSocket webSocket, @NotNull Throwable e, @Nullable Response response) {
+    public void onFailure(WebSocket webSocket, Throwable e, @Nullable Response response) {
       if (!Server.connectionLost(e)) {
         System.err.println("Unexpected web socket error: " + testName);
         e.printStackTrace();
@@ -78,12 +73,12 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+    public void onMessage(WebSocket webSocket, String text) {
       messages.offer(text);
     }
 
     @Override
-    public void onMessage(@NonNull WebSocket webSocket, @NonNull ByteString bytes) {
+    public void onMessage(WebSocket webSocket, ByteString bytes) {
       messages.offer(new String(bytes.toByteArray(), StandardCharsets.UTF_8));
     }
 
@@ -96,7 +91,7 @@ public class WebClient implements AutoCloseable {
     }
 
     @Override
-    public void onClosing(@NotNull WebSocket webSocket, int code, @NotNull String reason) {
+    public void onClosing(WebSocket webSocket, int code, String reason) {
       super.onClosing(webSocket, code, reason);
     }
   }
@@ -232,10 +227,16 @@ public class WebClient implements AutoCloseable {
   }
 
   public Request invoke(String method, String path, RequestBody body) {
-    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    return invoke(method, path, Map.of(), body);
+  }
+
+  public Request invoke(String method, String path, Map<String, Object> query, RequestBody body) {
+    var req = new okhttp3.Request.Builder();
     req.method(method, body);
     setRequestHeaders(req);
-    req.url(scheme + "://localhost:" + port + path);
+    var url = HttpUrl.parse(scheme + "://localhost:" + port + path).newBuilder();
+    query.forEach((name, value) -> url.addQueryParameter(name, value.toString()));
+    req.url(url.build());
     return new Request(req);
   }
 
@@ -252,7 +253,11 @@ public class WebClient implements AutoCloseable {
   }
 
   public Request get(String path) {
-    return invoke("GET", path, null);
+    return get(path, Map.of());
+  }
+
+  public Request get(String path, Map<String, Object> query) {
+    return invoke("GET", path, query, null);
   }
 
   public ServerSentMessageIterator sse(String path) {
@@ -266,16 +271,16 @@ public class WebClient implements AutoCloseable {
             req.build(),
             new EventSourceListener() {
               @Override
-              public void onClosed(@NotNull EventSource eventSource) {
+              public void onClosed(EventSource eventSource) {
                 eventSource.cancel();
               }
 
               @Override
               public void onEvent(
-                  @NotNull EventSource eventSource,
+                  EventSource eventSource,
                   @Nullable String id,
                   @Nullable String type,
-                  @NotNull String data) {
+                  String data) {
                 // retry is not part of public API
                 ServerSentMessage message = new ServerSentMessage(data).setId(id).setEvent(type);
                 messages.offer(message);
@@ -283,14 +288,12 @@ public class WebClient implements AutoCloseable {
 
               @Override
               public void onFailure(
-                  @NotNull EventSource eventSource,
-                  @Nullable Throwable t,
-                  @Nullable Response response) {
+                  EventSource eventSource, @Nullable Throwable t, @Nullable Response response) {
                 super.onFailure(eventSource, t, response);
               }
 
               @Override
-              public void onOpen(@NotNull EventSource eventSource, @NotNull Response response) {
+              public void onOpen(EventSource eventSource, Response response) {
                 super.onOpen(eventSource, response);
               }
             });
@@ -299,6 +302,11 @@ public class WebClient implements AutoCloseable {
 
   public void get(String path, SneakyThrows.Consumer<Response> callback) {
     get(path).execute(callback);
+  }
+
+  public void get(
+      String path, Map<String, Object> query, SneakyThrows.Consumer<Response> callback) {
+    get(path, query).execute(callback);
   }
 
   public void syncWebSocket(String path, SneakyThrows.Consumer<BlockingWebSocket> consumer) {
@@ -316,6 +324,14 @@ public class WebClient implements AutoCloseable {
     BlockingWebSocket blockingWebSocket = new BlockingWebSocket(webSocket, listener);
     consumer.accept(blockingWebSocket);
     blockingWebSocket.close();
+  }
+
+  public WebSocket webSocket(String path, WebSocketListener listener) {
+    okhttp3.Request.Builder req = new okhttp3.Request.Builder();
+    req.url("ws://localhost:" + port + path);
+    setRequestHeaders(req);
+    okhttp3.Request r = req.build();
+    return client.newWebSocket(r, listener);
   }
 
   public Request options(String path) {
@@ -356,6 +372,10 @@ public class WebClient implements AutoCloseable {
 
   public void post(String path, RequestBody form, SneakyThrows.Consumer<Response> callback) {
     post(path, form).execute(callback);
+  }
+
+  public void postJson(String path, String json, SneakyThrows.Consumer<Response> callback) {
+    post(path, create(json, MediaType.parse("application/json"))).execute(callback);
   }
 
   public Request put(String path) {
