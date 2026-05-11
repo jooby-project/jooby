@@ -52,7 +52,7 @@ public class UndertowHandler implements HttpHandler {
     if (context.isHttpGet()) {
       router.match(context).execute(context);
     } else {
-      // possibly  HTTP body
+      // possibly HTTP body
       HeaderMap headers = exchange.getRequestHeaders();
       long len = parseLen(headers.getFirst(Headers.CONTENT_LENGTH));
       String chunked = headers.getFirst(Headers.TRANSFER_ENCODING);

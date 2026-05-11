@@ -68,8 +68,10 @@ public abstract class AbstractTrpcProtocolTest {
                   });
 
               // Search (Multi-Argument Tuple)
+              Map<String, Object> queryMap = Map.of("input", "[\"Pulp Fiction\", 1994]");
               http.get(
-                  "/trpc/movies.search?input=[\"Pulp Fiction\", 1994]",
+                  "/trpc/movies.search",
+                  queryMap,
                   rsp -> {
                     assertThat(rsp.code()).isEqualTo(200);
                     assertThat(rsp.body().string())
@@ -195,8 +197,10 @@ public abstract class AbstractTrpcProtocolTest {
         .ready(
             http -> {
               // Validating a nullable parameter is accepted (Integer)
+              Map<String, Object> input = Map.of("input", "[\"The Godfather\", null]");
               http.get(
-                  "/trpc/movies.search?input=[\"The Godfather\", null]",
+                  "/trpc/movies.search",
+                  input,
                   rsp -> {
                     assertThat(rsp.code()).isEqualTo(200);
                     assertThat(rsp.body().string()).contains("\"The Godfather\"");
