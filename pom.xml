@@ -91,7 +91,7 @@
 
     <!-- logging -->
     <logback-classic.version>1.5.32</logback-classic.version>
-    <log4j.version>2.25.4</log4j.version>
+    <log4j.version>2.26.0</log4j.version>
     <slf4j.version>2.0.17</slf4j.version>
 
     <!-- communication -->
@@ -107,10 +107,10 @@
     <asm.version>9.9.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.4.0.RC4</undertow.version>
+    <undertow.version>2.4.0.Final</undertow.version>
     <jetty.version>12.1.9</jetty.version>
     <netty.version>4.2.13.Final</netty.version>
-    <vertx.version>5.0.11</vertx.version>
+    <vertx.version>5.0.12</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.49</swagger.version>
@@ -135,19 +135,19 @@
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.5.0</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
-    <db-scheduler.version>16.7.1</db-scheduler.version>
+    <db-scheduler.version>16.8.1</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
     <bucket4j-core.version>8.18.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.20.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
-    <opentelemetry.version>1.61.0</opentelemetry.version>
+    <opentelemetry.version>1.62.0</opentelemetry.version>
 
     <commons-io.version>2.22.0</commons-io.version>
 
     <!-- Kotlin -->
     <kotlin.version>2.3.21</kotlin.version>
-    <kotlinx-coroutines-core.version>1.10.2</kotlinx-coroutines-core.version>
+    <kotlinx-coroutines-core.version>1.11.0</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.14</jacoco.version>
