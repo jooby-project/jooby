@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
 
 /**
  * Application environment contains configuration object and active environment names.
@@ -239,7 +240,17 @@ public class Environment {
    * @return Configuration object.
    */
   public static Config systemProperties() {
-    return ConfigFactory.systemProperties();
+    var systemPropertiesCopy = new Properties();
+    for (var entry : System.getProperties().entrySet()) {
+      // Java 11 introduces 'java.version.date', but we don't want that to
+      // overwrite 'java.version'
+      if (!entry.getKey().toString().startsWith("java.version.")) {
+        systemPropertiesCopy.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return ConfigFactory.parseProperties(
+        systemPropertiesCopy,
+        ConfigParseOptions.defaults().setOriginDescription("system properties"));
   }
 
   /**

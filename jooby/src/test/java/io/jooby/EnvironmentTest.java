@@ -276,7 +276,6 @@ public class EnvironmentTest {
   @Test
   public void testSystemPropertiesAndEnv() {
     Config props = Environment.systemProperties();
-    System.out.println(props.getAnyRef("java.version"));
     assertEquals(System.getProperty("java.version"), props.getString("java.version"));
 
     Config env = Environment.systemEnv();
