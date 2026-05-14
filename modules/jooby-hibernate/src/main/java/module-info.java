@@ -16,4 +16,5 @@ module io.jooby.hibernate {
   requires jakarta.inject;
   requires jakarta.persistence;
   requires java.naming;
+  requires org.hibernate.orm.scan.jandex;
 }

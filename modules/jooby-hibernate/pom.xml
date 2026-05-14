@@ -24,6 +24,12 @@
       <artifactId>hibernate-core</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-scan-jandex</artifactId>
+      <version>${hibernate.version}</version>
+    </dependency>
+
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
