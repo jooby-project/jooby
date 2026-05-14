@@ -865,7 +865,7 @@ public class DefaultContextTest {
     doThrow(new RuntimeException("Handler crashed")).when(errorHandler).apply(any(), any(), any());
 
     ctx.sendError(cause);
-    verify(log).error(anyString(), anyString(), any(RuntimeException.class));
+    verify(log).error(anyString(), any(RuntimeException.class));
   }
 
   @Test

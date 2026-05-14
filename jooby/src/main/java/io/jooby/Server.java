@@ -93,6 +93,17 @@ public interface Server {
 
     private final AtomicBoolean stopping = new AtomicBoolean();
 
+    /**
+     * Clears custom connection lost listeners. Intended for internal testing use to prevent static
+     * state leakage between tests. Internal usage only.
+     */
+    static void clearState() {
+      connectionLostListeners.clear();
+      connectionLostListeners.add(Base.CONNECTION_LOST);
+      addressInUseListeners.clear();
+      addressInUseListeners.add(Base.ADDRESS_IN_USE);
+    }
+
     protected void fireStart(List<Jooby> applications, Executor defaultWorker) {
       for (Jooby app : applications) {
         app.setDefaultWorker(defaultWorker).start(this);
