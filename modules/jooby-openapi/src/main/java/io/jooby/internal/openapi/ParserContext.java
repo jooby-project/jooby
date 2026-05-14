@@ -426,7 +426,14 @@ public class ParserContext {
     if (schema != null) {
       return schema.toSchema();
     }
-    return schema(javaType(type));
+    return switch (type) {
+      // open-api types:
+      case "string" -> new StringSchema();
+      case "boolean" -> new BooleanSchema();
+      case "number" -> new NumberSchema();
+      case "integer" -> new IntegerSchema();
+      default -> schema(javaType(type));
+    };
   }
 
   public JavaType javaType(String type) {

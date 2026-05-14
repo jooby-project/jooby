@@ -19,13 +19,7 @@ import static io.jooby.internal.openapi.AsmUtils.stringValueOrNull;
 import static io.jooby.internal.openapi.AsmUtils.toMap;
 import static java.util.Collections.singletonList;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -517,24 +511,28 @@ public class OpenAPIParser {
   private static void parameter(
       ParserContext ctx, OperationExt operation, int index, Map<String, Object> parameterMap) {
     String name = (String) parameterMap.get("name");
-    io.swagger.v3.oas.models.parameters.Parameter parameter;
+    io.swagger.v3.oas.models.parameters.Parameter existingParameter;
     if (name != null) {
-      parameter =
+      existingParameter =
           operation.getParameters().stream()
               .filter(it -> it.getName().equals(name))
               .findFirst()
               .orElseGet(() -> operation.getParameter(index));
     } else {
-      parameter = operation.getParameter(index);
+      existingParameter = operation.getParameter(index);
     }
-    if (parameter == null) {
-      throw new IllegalArgumentException(
-          "Parameter not found: "
-              + name
-              + " at  position: "
-              + index
-              + " for annotation: "
-              + parameterMap);
+    io.swagger.v3.oas.models.parameters.Parameter parameter;
+    if (existingParameter == null) {
+      // Trust user, create a new parameter;
+      var parameterExt = new ParameterExt();
+      arrayOrSchema(ctx, parameterMap).ifPresent(parameterExt::setSchema);
+      parameter = parameterExt;
+      var parameters =
+          new ArrayList<>(Optional.ofNullable(operation.getParameters()).orElse(List.of()));
+      parameters.add(index, parameter);
+      operation.setParameters(parameters);
+    } else {
+      parameter = existingParameter;
     }
     Optional.ofNullable(name).ifPresent(parameter::setName);
     stringValue(parameterMap, "description", parameter::setDescription);
@@ -708,8 +706,11 @@ public class OpenAPIParser {
     schemaType(ctx, annotation, "anyOf", schemaMap::put);
     schemaType(ctx, annotation, "oneOf", schemaMap::put);
     schemaType(ctx, annotation, "allOf", schemaMap::put);
-
     if (schemaMap.isEmpty()) {
+      var type = (String) annotation.get("type");
+      if (type != null) {
+        return Optional.ofNullable(ctx.schema(type));
+      }
       return Optional.empty();
     }
 
