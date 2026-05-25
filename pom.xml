@@ -73,14 +73,14 @@
     <!-- data -->
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.3.5.Final</hibernate.version>
+    <hibernate.version>7.3.6.Final</hibernate.version>
     <ebean.version>17.6.0</ebean.version>
     <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
     <lettuce.version>7.5.2.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
-    <kafka.version>4.2.0</kafka.version>
+    <kafka.version>4.3.0</kafka.version>
     <caffeine.version>3.2.4</caffeine.version>
 
     <config.version>1.4.8</config.version>
@@ -104,12 +104,12 @@
     <jboss-modules.version>2.3.0</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.10</asm.version>
+    <asm.version>9.10.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.4.0.Final</undertow.version>
+    <undertow.version>2.4.1.Final</undertow.version>
     <jetty.version>12.1.9</jetty.version>
-    <netty.version>4.2.13.Final</netty.version>
+    <netty.version>4.2.14.Final</netty.version>
     <vertx.version>5.0.12</vertx.version>
 
     <!--OpenAPI-->
@@ -135,9 +135,9 @@
     <jsonwebtoken.version>0.13.0</jsonwebtoken.version>
     <pac4j.version>6.5.0</pac4j.version>
     <quartz.version>2.5.2</quartz.version>
-    <db-scheduler.version>16.9.0</db-scheduler.version>
+    <db-scheduler.version>16.10.0</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.18.0</bucket4j-core.version>
+    <bucket4j-core.version>8.19.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.20.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
@@ -151,7 +151,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.14</jacoco.version>
-    <junit.version>6.0.3</junit.version>
+    <junit.version>6.1.0</junit.version>
     <rest-assured.version>6.0.0</rest-assured.version>
     <assertj-core.version>3.27.7</assertj-core.version>
     <mockito.version>5.23.0</mockito.version>
@@ -176,7 +176,7 @@
     <maven-tiles-plugin.version>2.44</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.16</maven-core.version>
-    <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -265,7 +265,7 @@
       <dependency>
         <groupId>io.modelcontextprotocol.sdk</groupId>
         <artifactId>mcp-bom</artifactId>
-        <version>1.1.2</version>
+        <version>1.1.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
