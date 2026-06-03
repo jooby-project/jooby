@@ -67,7 +67,7 @@ public class Jooby implements Router, Registry {
   static final String APP_NAME = "___app_name__";
 
   private static final String JOOBY_RUN_HOOK = "___jooby_run_hook__";
-  private static final Logger log = LoggerFactory.getLogger(Jooby.class);
+  private final Logger log = LoggerFactory.getLogger(Jooby.class);
 
   private final transient AtomicBoolean started = new AtomicBoolean(true);
 
