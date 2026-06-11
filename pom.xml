@@ -74,7 +74,7 @@
     <HikariCP.version>7.0.2</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
     <hibernate.version>7.4.0.Final</hibernate.version>
-    <ebean.version>17.6.0</ebean.version>
+    <ebean.version>17.8.0</ebean.version>
     <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
@@ -83,14 +83,14 @@
     <kafka.version>4.3.0</kafka.version>
     <caffeine.version>3.2.4</caffeine.version>
 
-    <config.version>1.4.8</config.version>
+    <config.version>1.4.9</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
     <grpc.version>1.81.0</grpc.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.33</logback-classic.version>
+    <logback-classic.version>1.5.34</logback-classic.version>
     <log4j.version>2.26.0</log4j.version>
     <slf4j.version>2.0.18</slf4j.version>
 
@@ -108,9 +108,9 @@
 
     <!-- Server -->
     <undertow.version>2.4.1.Final</undertow.version>
-    <jetty.version>12.1.9</jetty.version>
-    <netty.version>4.2.14.Final</netty.version>
-    <vertx.version>5.1.0</vertx.version>
+    <jetty.version>12.1.10</jetty.version>
+    <netty.version>4.2.15.Final</netty.version>
+    <vertx.version>5.1.1</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.50</swagger.version>
@@ -121,8 +121,8 @@
     <conscrypt.version>2.5.2</conscrypt.version>
 
     <!-- avaje -->
-    <avaje.inject.version>12.5</avaje.inject.version>
-    <avaje.jsonb.version>3.13</avaje.jsonb.version>
+    <avaje.inject.version>12.6</avaje.inject.version>
+    <avaje.jsonb.version>3.14</avaje.jsonb.version>
     <avaje.validator.version>2.17</avaje.validator.version>
 
     <!-- jakarta -->
@@ -141,16 +141,16 @@
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.20.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
-    <opentelemetry.version>1.62.0</opentelemetry.version>
+    <opentelemetry.version>1.63.0</opentelemetry.version>
 
     <commons-io.version>2.22.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.3.21</kotlin.version>
+    <kotlin.version>2.4.0</kotlin.version>
     <kotlinx-coroutines-core.version>1.11.0</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
-    <jacoco.version>0.8.14</jacoco.version>
+    <jacoco.version>0.8.15</jacoco.version>
     <junit.version>6.1.0</junit.version>
     <rest-assured.version>6.0.0</rest-assured.version>
     <assertj-core.version>3.27.7</assertj-core.version>
