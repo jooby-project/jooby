@@ -8,7 +8,6 @@ package i3863
 import io.jooby.annotation.trpc.Trpc
 import io.jooby.i3863.Metadata
 import io.jooby.i3863.Movie
-import java.util.stream.Collectors
 
 @Trpc("movies")
 class KMovieService {
@@ -27,10 +26,7 @@ class KMovieService {
   /** Procedure: movies.bulkCreate Takes a List of complex objects. */
   @Trpc.Query
   fun bulkCreate(movies: List<Movie>): List<String> {
-    return movies
-      .stream()
-      .map<String?> { m: Movie -> "Created: " + m.title }
-      .collect(Collectors.toList())
+    return movies.map { m: Movie -> "Created: " + m.title }
   }
 
   /** Procedure: movies.ping */
