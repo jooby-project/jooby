@@ -29,7 +29,7 @@
     <dependency>
       <groupId>com.puppycrawl.tools</groupId>
       <artifactId>checkstyle</artifactId>
-      <version>13.5.0</version>
+      <version>13.6.0</version>
       <exclusions>
         <exclusion>
           <groupId>org.codehaus.plexus</groupId>
