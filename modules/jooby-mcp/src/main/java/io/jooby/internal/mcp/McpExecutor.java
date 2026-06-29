@@ -41,19 +41,20 @@ public class McpExecutor implements McpInvoker {
       if (SneakyThrows.isFatal(cause)) {
         throw SneakyThrows.propagate(cause);
       }
+      var errorMessage =
+          cause.getMessage() != null
+              ? cause.getMessage()
+              : "execution of " + operation.getId() + " resulted in exception";
       var code = toMcpErrorCode(cause);
       if (operation.isTool()) {
         // Tool error
-        var errorMessage =
-            cause.getMessage() != null ? cause.getMessage() : "Unknown error occurred";
-        var textContent = new McpSchema.TextContent(errorMessage);
+        var textContent = McpSchema.TextContent.builder(errorMessage).build();
         return McpSchema.CallToolResult.builder().addContent(textContent).isError(true).build();
       }
       if (cause instanceof McpError mcpError) {
         throw mcpError;
       } else {
-        throw new McpError(
-            new McpSchema.JSONRPCResponse.JSONRPCError(code, cause.getMessage(), null));
+        throw new McpError(new McpSchema.JSONRPCResponse.JSONRPCError(code, errorMessage, null));
       }
     }
   }

@@ -48,7 +48,7 @@ class SendErrorTest {
 
     McpSchema.JSONRPCResponse response = captor.getValue();
     assertEquals(McpSchema.JSONRPC_VERSION, response.jsonrpc());
-    assertNull(response.id());
+    assertEquals(expectedErrorCode, response.id());
     assertNull(response.result());
 
     assertNotNull(response.error());

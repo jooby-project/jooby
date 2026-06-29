@@ -127,7 +127,7 @@ class SendError {
   }
 
   private static McpSchema.JSONRPCResponse err(McpSchema.JSONRPCResponse.JSONRPCError err) {
-    return new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, null, null, err);
+    return new McpSchema.JSONRPCResponse(McpSchema.JSONRPC_VERSION, err.code(), null, err);
   }
 
   private static Context send(Context ctx, McpSchema.JSONRPCResponse err) {
