@@ -386,7 +386,7 @@ public class HikariModuleTest {
     assertEquals("foo", HikariModule.databaseType("foo"));
   }
 
-  private Config mapOf(String... values) {
+  public static Config mapOf(String... values) {
     Map<String, String> hash = new HashMap<>();
     for (int i = 0; i < values.length; i += 2) {
       hash.put(values[i], values[i + 1]);

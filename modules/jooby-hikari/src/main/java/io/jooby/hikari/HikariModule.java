@@ -309,7 +309,7 @@ public class HikariModule implements Extension {
           defaults.put("dataSourceClassName", "org.hsqldb.jdbc.JDBCDataSource");
       case "mariadb" ->
           // url jdbc:mariadb://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
-          defaults.put("dataSourceClassName", "org.mariadb.jdbc.MySQLDataSource");
+          defaults.put("dataSourceClassName", "org.mariadb.jdbc.MariaDbDataSource");
       case "mysql" -> {
         // url jdbc:mysql://<host>:<port>/<database>?<key1>=<value1>&<key2>=<value2>...
         // 6.x
