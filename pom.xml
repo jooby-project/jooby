@@ -58,7 +58,7 @@
 
     <!-- Parser and Renderer -->
     <freemarker.version>2.3.34</freemarker.version>
-    <handlebars.version>4.5.1</handlebars.version>
+    <handlebars.version>4.5.2</handlebars.version>
     <jstachio.version>1.3.7</jstachio.version>
     <pebble.version>4.1.2</pebble.version>
     <jackson.version>2.22.0</jackson.version>
@@ -73,24 +73,24 @@
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.4.1.Final</hibernate.version>
-    <ebean.version>17.11.0</ebean.version>
+    <hibernate.version>7.4.3.Final</hibernate.version>
+    <ebean.version>19.0.0</ebean.version>
     <jdbi.version>3.53.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
     <lettuce.version>7.6.0.RELEASE</lettuce.version>
     <commons-pool2.version>2.13.1</commons-pool2.version>
-    <kafka.version>4.3.0</kafka.version>
+    <kafka.version>4.3.1</kafka.version>
     <caffeine.version>3.2.4</caffeine.version>
 
     <config.version>1.4.9</config.version>
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
-    <grpc.version>1.82.0</grpc.version>
+    <grpc.version>1.82.1</grpc.version>
 
     <!-- logging -->
-    <logback-classic.version>1.5.34</logback-classic.version>
+    <logback-classic.version>1.5.37</logback-classic.version>
     <log4j.version>2.26.0</log4j.version>
     <slf4j.version>2.0.18</slf4j.version>
 
@@ -107,14 +107,14 @@
     <asm.version>9.10.1</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.4.1.Final</undertow.version>
+    <undertow.version>2.4.2.Final</undertow.version>
     <jetty.version>12.1.10</jetty.version>
     <netty.version>4.2.15.Final</netty.version>
-    <vertx.version>5.1.2</vertx.version>
+    <vertx.version>5.1.3</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.51</swagger.version>
-    <swagger-parser.version>2.1.44</swagger-parser.version>
+    <swagger.version>2.2.52</swagger.version>
+    <swagger-parser.version>2.1.45</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
@@ -151,7 +151,7 @@
 
     <!-- Test dependencies -->
     <jacoco.version>0.8.15</jacoco.version>
-    <junit.version>6.1.0</junit.version>
+    <junit.version>6.1.1</junit.version>
     <rest-assured.version>6.0.0</rest-assured.version>
     <assertj-core.version>3.27.7</assertj-core.version>
     <mockito.version>5.23.0</mockito.version>
@@ -1599,7 +1599,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.6.0</version>
+            <version>3.7.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
@@ -1808,7 +1808,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.10.0</version>
+            <version>0.11.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>
