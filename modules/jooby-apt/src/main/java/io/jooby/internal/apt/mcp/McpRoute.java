@@ -723,18 +723,24 @@ public class McpRoute extends WebRoute<McpRouter> {
       buffer.add(
           statement(
               indent(6),
-              "return io.modelcontextprotocol.spec.McpSchema.Tool(",
+              "return io.modelcontextprotocol.spec.McpSchema.Tool.builder(",
               string(toolName),
-              ", ",
+              ", this.json.convertValue(schema, java.util.Map::class.java) as java.util.Map<String,"
+                  + " Any>)",
+              ".title(",
               titleArg,
-              ", ",
+              ")",
+              ".description(",
               string(description),
-              ", this.json.convertValue(schema,"
-                  + " io.modelcontextprotocol.spec.McpSchema.JsonSchema::class.java), ",
+              ")",
+              ".outputSchema(",
               outputSchemaArg,
-              ", ",
+              ")",
+              ".annotations(",
               annotationsArg,
-              ", null)"));
+              ")",
+              ".build()"));
+
     } else {
       if (toolAnnotation != null) {
         annotationsArg = "annotations";
@@ -760,18 +766,22 @@ public class McpRoute extends WebRoute<McpRouter> {
       buffer.add(
           statement(
               indent(6),
-              "return new io.modelcontextprotocol.spec.McpSchema.Tool(",
+              "return io.modelcontextprotocol.spec.McpSchema.Tool.builder(",
               string(toolName),
-              ", ",
+              ", this.json.convertValue(schema, java.util.Map.class))",
+              ".title(",
               titleArg,
-              ", ",
+              ")",
+              ".description(",
               string(description),
-              ", this.json.convertValue(schema,"
-                  + " io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), ",
+              ")",
+              ".outputSchema(",
               outputSchemaArg,
-              ", ",
+              ")",
+              ".annotations(",
               annotationsArg,
-              ", null)",
+              ")",
+              ".build()",
               semicolon(kt)));
     }
     buffer.add(statement(indent(4), "}\n"));

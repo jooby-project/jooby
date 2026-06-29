@@ -356,6 +356,7 @@ class StreamableTransportProviderTest {
     when(body.valueOrNull()).thenReturn("body");
 
     McpSchema.JSONRPCRequest req = mock(McpSchema.JSONRPCRequest.class);
+    when(req.id()).thenReturn("operation-1");
     when(req.method()).thenReturn(McpSchema.METHOD_INITIALIZE);
 
     try (MockedStatic<McpSchema> schema = mockStatic(McpSchema.class)) {
@@ -375,6 +376,7 @@ class StreamableTransportProviderTest {
       Object res = postHandler.apply(ctx);
 
       assertTrue(res instanceof McpSchema.JSONRPCResponse);
+      assertEquals("operation-1", ((McpSchema.JSONRPCResponse) res).id());
       verify(ctx).setResponseHeader(HttpHeaders.MCP_SESSION_ID, "sess-init");
     }
   }

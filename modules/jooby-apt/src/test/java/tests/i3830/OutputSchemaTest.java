@@ -28,7 +28,7 @@ public class OutputSchemaTest {
                         schema.put("properties", props);
                         var req = new java.util.ArrayList<String>();
                         schema.put("required", req);
-                        return new io.modelcontextprotocol.spec.McpSchema.Tool("schemaOff", null, null, this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), null, null, null);
+                        return io.modelcontextprotocol.spec.McpSchema.Tool.builder("schemaOff", this.json.convertValue(schema, java.util.Map.class)).title(null).description(null).outputSchema(null).annotations(null).build();
                       }
                       """);
             });
@@ -56,7 +56,7 @@ public class OutputSchemaTest {
                         schemaMapOutputSchemaWrapped.put("type", "object");
                         schemaMapOutputSchemaWrapped.put("additionalProperties", schemaMapOutputSchemaMap);
                         schemaMapOutputSchema = schemaMapOutputSchemaWrapped;
-                        return new io.modelcontextprotocol.spec.McpSchema.Tool("schemaMap", null, null, this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), schemaMapOutputSchema, null, null);
+                        return io.modelcontextprotocol.spec.McpSchema.Tool.builder("schemaMap", this.json.convertValue(schema, java.util.Map.class)).title(null).description(null).outputSchema(schemaMapOutputSchema).annotations(null).build();
                       }
                       """);
             });
@@ -84,7 +84,7 @@ public class OutputSchemaTest {
                         schemaListOutputSchemaWrapped.put("type", "array");
                         schemaListOutputSchemaWrapped.put("items", schemaListOutputSchemaMap);
                         schemaListOutputSchema = schemaListOutputSchemaWrapped;
-                        return new io.modelcontextprotocol.spec.McpSchema.Tool("schemaList", null, null, this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), schemaListOutputSchema, null, null);
+                        return io.modelcontextprotocol.spec.McpSchema.Tool.builder("schemaList", this.json.convertValue(schema, java.util.Map.class)).title(null).description(null).outputSchema(schemaListOutputSchema).annotations(null).build();
                       }
                       """);
             });
@@ -109,7 +109,7 @@ public class OutputSchemaTest {
                         var explicitSchemaOutputSchemaNode = schemaGenerator.generateSchema(tests.i3830.Pet.class);
                         var explicitSchemaOutputSchemaMap = this.json.convertValue(explicitSchemaOutputSchemaNode, java.util.Map.class);
                         explicitSchemaOutputSchema = explicitSchemaOutputSchemaMap;
-                        return new io.modelcontextprotocol.spec.McpSchema.Tool("explicitSchema", null, null, this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), explicitSchemaOutputSchema, null, null);
+                        return io.modelcontextprotocol.spec.McpSchema.Tool.builder("explicitSchema", this.json.convertValue(schema, java.util.Map.class)).title(null).description(null).outputSchema(explicitSchemaOutputSchema).annotations(null).build();
                       }
                       """);
             });
@@ -136,7 +136,7 @@ public class OutputSchemaTest {
                           var defaultSchemaOutputSchemaMap = this.json.convertValue(defaultSchemaOutputSchemaNode, java.util.Map.class);
                           defaultSchemaOutputSchema = defaultSchemaOutputSchemaMap;
                         }
-                        return new io.modelcontextprotocol.spec.McpSchema.Tool("defaultSchema", null, null, this.json.convertValue(schema, io.modelcontextprotocol.spec.McpSchema.JsonSchema.class), defaultSchemaOutputSchema, null, null);
+                        return io.modelcontextprotocol.spec.McpSchema.Tool.builder("defaultSchema", this.json.convertValue(schema, java.util.Map.class)).title(null).description(null).outputSchema(defaultSchemaOutputSchema).annotations(null).build();
                       }
                       """);
             });

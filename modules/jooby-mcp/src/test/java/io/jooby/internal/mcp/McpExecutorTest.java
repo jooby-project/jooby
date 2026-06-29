@@ -125,7 +125,8 @@ public class McpExecutorTest {
     Object result = executor.invoke(null, transportContext, operation, chain);
     McpSchema.CallToolResult toolResult = (McpSchema.CallToolResult) result;
     assertEquals(
-        "Unknown error occurred", ((McpSchema.TextContent) toolResult.content().get(0)).text());
+        "execution of test-op resulted in exception",
+        ((McpSchema.TextContent) toolResult.content().get(0)).text());
   }
 
   private void checkMapping(Throwable t, StatusCode joobyCode, int expectedMcpCode)
