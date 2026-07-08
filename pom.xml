@@ -73,9 +73,9 @@
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.4.3.Final</hibernate.version>
-    <ebean.version>19.1.0</ebean.version>
-    <jdbi.version>3.53.0</jdbi.version>
+    <hibernate.version>7.4.4.Final</hibernate.version>
+    <ebean.version>19.2.0</ebean.version>
+    <jdbi.version>3.54.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
     <graphql-java.version>26.0</graphql-java.version>
     <lettuce.version>7.6.0.RELEASE</lettuce.version>
@@ -91,7 +91,7 @@
 
     <!-- logging -->
     <logback-classic.version>1.5.37</logback-classic.version>
-    <log4j.version>2.26.0</log4j.version>
+    <log4j.version>2.26.1</log4j.version>
     <slf4j.version>2.0.18</slf4j.version>
 
     <!-- communication -->
@@ -1599,7 +1599,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.7.0</version>
+            <version>3.8.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
