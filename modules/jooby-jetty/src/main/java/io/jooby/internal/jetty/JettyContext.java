@@ -737,7 +737,7 @@ public class JettyContext implements DefaultContext, Callback {
     } catch (Exception ex) {
       if (ex instanceof IllegalStateException
           && ex.getMessage() != null
-          && ex.getMessage().startsWith("form with too many")) {
+          && ex.getMessage().contains("form with too many")) {
         this.setAttribute("__too_many_fields", ex);
         try {
           Route.FORM_DECODER_HANDLER.apply(this);

@@ -157,7 +157,7 @@
     <mockito.version>5.23.0</mockito.version>
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
-    <argLine>-javaagent:${maven.m2.repo}${file.separator}${mockito.agent}</argLine>
+    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
     <guava.version>33.6.0-jre</guava.version>
 
     <compile-testing.version>0.23.0</compile-testing.version>
