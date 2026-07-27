@@ -133,9 +133,17 @@ To avoid this behaviour you can specify maven build phase which suits your needs
 |Copy the generated OpenAPI spec to the given file in the project repository. The format is
 determined by the file extension: `.yaml`, `.yml` or `.json`. Example:
 
+.Maven:
+
     <copyOpenApiSpecTo>${project.basedir}/docs/openapi.yaml</copyOpenApiSpecTo>
 
-|`===
+.Gradle:
+
+    {
+      copyOpenApiSpecTo = file("$projectDir/docs/openapi.yaml")
+    }
+
+|===
 
 === Usage
 
