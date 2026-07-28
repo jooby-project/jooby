@@ -15,8 +15,13 @@ import org.gradle.api.tasks.TaskAction;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -44,6 +49,8 @@ public class OpenAPITask extends BaseTask {
 
   private String javadoc;
 
+  private File copyOpenApiSpecTo;
+
   /**
    * Creates an OpenAPI task.
    */
@@ -58,7 +65,7 @@ public class OpenAPITask extends BaseTask {
   public void generate() throws Throwable {
     List<Project> projects = getProjects();
 
-    String mainClass = Optional.ofNullable(this.mainClass)
+    String mainClass = ofNullable(this.mainClass)
         .orElseGet(() -> computeMainClassName(projects));
     var sources = projects.stream()
         .flatMap(project -> {
@@ -94,10 +101,48 @@ public class OpenAPITask extends BaseTask {
     OpenAPI result = tool.generate(mainClass);
 
     var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
+    var written = new ArrayList<Path>();
     for (var format : OpenAPIGenerator.Format.values()) {
-      tool.export(result, format, Map.of("adoc", adocPath))
-          .forEach(output -> getLogger().info("  writing: " + output));
+      written.addAll(tool.export(result, format, Map.of("adoc", adocPath)));
     }
+    written.forEach(output -> getLogger().info("  writing: " + output));
+
+    if (copyOpenApiSpecTo != null) {
+      var destination = copyOpenApiSpecTo.toPath();
+      copySpec(written, destination);
+      getLogger().info("  copying: " + destination);
+    }
+  }
+
+  static void copySpec(List<Path> written, Path destination) throws IOException {
+    var format = specFormat(destination);
+    var source =
+        written.stream()
+            .filter(path -> path.getFileName().toString().endsWith("." + format.extension()))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IOException(
+                        String.format(
+                            "OpenAPI %s output not found for copyOpenApiSpecTo: %s",
+                            format.name(), destination)));
+    var parent = destination.getParent();
+    if (parent != null) {
+      Files.createDirectories(parent);
+    }
+    Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  static OpenAPIGenerator.Format specFormat(Path destination) {
+    var name = destination.getFileName().toString().toLowerCase(Locale.ROOT);
+    if (name.endsWith(".json")) {
+      return OpenAPIGenerator.Format.JSON;
+    }
+    if (name.endsWith(".yaml") || name.endsWith(".yml")) {
+      return OpenAPIGenerator.Format.YAML;
+    }
+    throw new IllegalArgumentException(
+        "copyOpenApiSpecTo must end with .yaml, .yml or .json: " + destination);
   }
 
   /**
@@ -241,6 +286,36 @@ public class OpenAPITask extends BaseTask {
    */
   public void setAdoc(List<File> adoc) {
     this.adoc = adoc;
+  }
+
+  /**
+   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
+   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   *
+   * @return Destination file.
+   */
+  @Input
+  @org.gradle.api.tasks.Optional
+  public @Nullable File getCopyOpenApiSpecTo() {
+    return copyOpenApiSpecTo;
+  }
+
+  /**
+   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
+   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * openAPI {
+   *   copyOpenApiSpecTo = file("$projectDir/docs/openapi.yaml")
+   * }
+   * }</pre>
+   *
+   * @param copyOpenApiSpecTo Destination file.
+   */
+  public void setCopyOpenApiSpecTo(@Nullable File copyOpenApiSpecTo) {
+    this.copyOpenApiSpecTo = copyOpenApiSpecTo;
   }
 
   private Optional<String> trim(String value) {

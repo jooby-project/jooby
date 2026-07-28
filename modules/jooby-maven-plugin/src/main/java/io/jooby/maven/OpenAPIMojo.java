@@ -10,9 +10,14 @@ import static org.apache.maven.plugins.annotations.LifecyclePhase.PROCESS_CLASSE
 import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,6 +58,9 @@ public class OpenAPIMojo extends BaseMojo {
 
   @Parameter private List<File> adoc;
 
+  @Parameter(property = "openAPI.copyOpenApiSpecTo")
+  private File copyOpenApiSpecTo;
+
   @Override
   protected void doExecute(List<MavenProject> projects, String mainClass) throws Exception {
     ClassLoader classLoader = createClassLoader(projects);
@@ -84,10 +92,48 @@ public class OpenAPIMojo extends BaseMojo {
     var result = tool.generate(mainClass);
 
     var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
+    var written = new ArrayList<Path>();
     for (var format : OpenAPIGenerator.Format.values()) {
-      tool.export(result, format, Map.of("adoc", adocPath))
-          .forEach(output -> getLog().info("  writing: " + output));
+      written.addAll(tool.export(result, format, Map.of("adoc", adocPath)));
     }
+    written.forEach(output -> getLog().info("  writing: " + output));
+
+    if (copyOpenApiSpecTo != null) {
+      var destination = copyOpenApiSpecTo.toPath();
+      copySpec(written, destination);
+      getLog().info("  copying: " + destination);
+    }
+  }
+
+  public static void copySpec(List<Path> written, Path destination) throws IOException {
+    var format = specFormat(destination);
+    var source =
+        written.stream()
+            .filter(path -> path.getFileName().toString().endsWith("." + format.extension()))
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new IOException(
+                        String.format(
+                            "OpenAPI %s output not found for copyOpenApiSpecTo: %s",
+                            format.name(), destination)));
+    var parent = destination.getParent();
+    if (parent != null) {
+      Files.createDirectories(parent);
+    }
+    Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  public static OpenAPIGenerator.Format specFormat(Path destination) {
+    var name = destination.getFileName().toString().toLowerCase(Locale.ROOT);
+    if (name.endsWith(".json")) {
+      return OpenAPIGenerator.Format.JSON;
+    }
+    if (name.endsWith(".yaml") || name.endsWith(".yml")) {
+      return OpenAPIGenerator.Format.YAML;
+    }
+    throw new IllegalArgumentException(
+        "copyOpenApiSpecTo must end with .yaml, .yml or .json: " + destination);
   }
 
   private Optional<String> trim(String value) {
@@ -185,5 +231,31 @@ public class OpenAPIMojo extends BaseMojo {
    */
   public String getJavadoc() {
     return javadoc;
+  }
+
+  /**
+   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
+   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   *
+   * @return Destination file.
+   */
+  public @Nullable File getCopyOpenApiSpecTo() {
+    return copyOpenApiSpecTo;
+  }
+
+  /**
+   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
+   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * <copyOpenApiSpecTo>${project.basedir}/docs/openapi.yaml</copyOpenApiSpecTo>
+   * }</pre>
+   *
+   * @param copyOpenApiSpecTo Destination file.
+   */
+  public void setCopyOpenApiSpecTo(@Nullable File copyOpenApiSpecTo) {
+    this.copyOpenApiSpecTo = copyOpenApiSpecTo;
   }
 }
