@@ -60,6 +60,11 @@ public class OpenAPIGenerator {
           OpenAPIGenerator tool, OpenAPI result, Map<String, Object> options) {
         return tool.toYaml(result);
       }
+
+      @Override
+      public List<String> extension() {
+        return List.of("yaml", "yml");
+      }
     },
 
     ADOC {
@@ -95,12 +100,35 @@ public class OpenAPIGenerator {
     };
 
     /**
+     * True when format is a supported openAPI file format.
+     *
+     * @return True when format is a supported openAPI file format.
+     */
+    public boolean isOpenApiSpec() {
+      return this == JSON || this == YAML;
+    }
+
+    /**
      * File extension.
      *
      * @return File extension.
      */
-    public String extension() {
-      return name().toLowerCase();
+    public List<String> extension() {
+      return List.of(name().toLowerCase());
+    }
+
+    public boolean matches(Path path) {
+      return extension().stream()
+          .anyMatch(ext -> path.getFileName().toString().endsWith("." + ext));
+    }
+
+    public static Format from(Path path) {
+      for (var format : values()) {
+        if (format.matches(path)) {
+          return format;
+        }
+      }
+      return null;
     }
 
     /**
@@ -151,6 +179,8 @@ public class OpenAPIGenerator {
 
   private boolean javadoc = true;
 
+  private List<Path> copyOpenApiSpecTo;
+
   /** Default constructor. */
   public OpenAPIGenerator() {}
 
@@ -174,7 +204,7 @@ public class OpenAPIGenerator {
       if (appname.endsWith("Kt")) {
         appname = appname.substring(0, appname.length() - 2);
       }
-      output = output.resolve(appname + "." + format.extension());
+      output = output.resolve(appname + "." + format.extension().getFirst());
     } else {
       throw new ClassCastException(openAPI.getClass() + " is not a " + OpenAPIExt.class);
     }
@@ -182,10 +212,40 @@ public class OpenAPIGenerator {
     if (!Files.exists(output.getParent())) {
       Files.createDirectories(output.getParent());
     }
-    var allOptions = new HashMap<>(options);
-    allOptions.put("output", output);
-    allOptions.put("outputDir", output.getParent());
-    return format.write(this, openAPI, allOptions);
+    var outputs = new ArrayList<Path>();
+    outputs.add(output);
+    if (format.isOpenApiSpec() && copyOpenApiSpecTo != null && !copyOpenApiSpecTo.isEmpty()) {
+      var defaultFileName = output.getFileName().toString();
+      for (var copyTo : copyOpenApiSpecTo) {
+        if (format.matches(copyTo)) {
+          outputs.add(copyTo);
+        } else {
+          if (Format.from(copyTo) == null) {
+            // must be a directory
+            outputs.add(copyTo.resolve(defaultFileName));
+          }
+        }
+      }
+    }
+    var result = new ArrayList<Path>();
+    for (var outputPath : outputs) {
+      var outputDir = outputPath.getParent();
+      if (!Files.exists(outputDir)) {
+        Files.createDirectories(outputDir);
+      }
+      var allOptions = new HashMap<>(options);
+      allOptions.put("output", outputPath);
+      allOptions.put("outputDir", outputDir);
+      result.addAll(format.write(this, openAPI, allOptions));
+    }
+    return result;
+  }
+
+  private Path resolveOutputPath(Path path, String defaultFileName) {
+    if (Files.isDirectory(path)) {
+      return path.resolve(defaultFileName);
+    }
+    return path;
   }
 
   /**
@@ -551,6 +611,24 @@ public class OpenAPIGenerator {
         throw new IllegalArgumentException(
             "Invalid spec version: " + version + ". Supported version: [3.0.1, 3.1.0]");
     }
+  }
+
+  /**
+   * List directories or files where the openAPI spec must be copied.
+   *
+   * @return List directories or files where the openAPI spec must be copied.
+   */
+  public List<Path> getCopyOpenApiSpecTo() {
+    return copyOpenApiSpecTo;
+  }
+
+  /**
+   * Copy open API files to either an output location or specific file.
+   *
+   * @param copyOpenApiSpecTo Output directory or file.
+   */
+  public void setCopyOpenApiSpecTo(List<Path> copyOpenApiSpecTo) {
+    this.copyOpenApiSpecTo = copyOpenApiSpecTo;
   }
 
   /**

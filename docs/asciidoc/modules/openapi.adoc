@@ -108,6 +108,25 @@ To avoid this behaviour you can specify maven build phase which suits your needs
 | `${project.dir}`
 |Set base directory used it for loading openAPI template file name.
 
+|`copyOpenApiSpecTo`
+|
+|Copy the generated OpenAPI spec to the given file in the project repository. It must be one or 
+more directories or file names. In case of directory both the `.json` and `.yaml` file are copy.
+Example:
+
+.Maven:
+
+    <copyOpenApiSpecTo>
+      <file>${project.basedir}/spec<file>
+      <file>${project.basedir}/docs/openapi.yaml<file>
+    </copyOpenApiSpecTo>
+
+.Gradle:
+
+    {
+      copyOpenApiSpecTo = ["${project.basedir}/spec", "$projectDir/docs/openapi.yaml"]
+    }
+
 |`excludes`
 |
 |Regular expression used to excludes route. Example: `/web`.
@@ -127,21 +146,6 @@ To avoid this behaviour you can specify maven build phase which suits your needs
 |`templateName`
 |`openapi.yaml`
 |Set openAPI template file path.
-
-|`copyOpenApiSpecTo`
-|
-|Copy the generated OpenAPI spec to the given file in the project repository. The format is
-determined by the file extension: `.yaml`, `.yml` or `.json`. Example:
-
-.Maven:
-
-    <copyOpenApiSpecTo>${project.basedir}/docs/openapi.yaml</copyOpenApiSpecTo>
-
-.Gradle:
-
-    {
-      copyOpenApiSpecTo = file("$projectDir/docs/openapi.yaml")
-    }
 
 |===
 
