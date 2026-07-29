@@ -49,7 +49,7 @@ public class OpenAPITask extends BaseTask {
 
   private String javadoc;
 
-  private File copyOpenApiSpecTo;
+  private List<File> copyOpenApiSpecTo;
 
   /**
    * Creates an OpenAPI task.
@@ -89,6 +89,7 @@ public class OpenAPITask extends BaseTask {
     tool.setClassLoader(classLoader);
     tool.setOutputDir(outputDir);
     tool.setSources(sources);
+    tool.setCopyOpenApiSpecTo(copyOpenApiSpecTo == null ? null : copyOpenApiSpecTo.stream().map(File::toPath).toList());
     if (specVersion != null) {
       tool.setSpecVersion(specVersion);
     }
@@ -101,48 +102,10 @@ public class OpenAPITask extends BaseTask {
     OpenAPI result = tool.generate(mainClass);
 
     var adocPath = ofNullable(adoc).orElse(List.of()).stream().map(File::toPath).toList();
-    var written = new ArrayList<Path>();
     for (var format : OpenAPIGenerator.Format.values()) {
-      written.addAll(tool.export(result, format, Map.of("adoc", adocPath)));
+      tool.export(result, format, Map.of("adoc", adocPath))
+          .forEach(output -> getLogger().info("  writing: " + output));
     }
-    written.forEach(output -> getLogger().info("  writing: " + output));
-
-    if (copyOpenApiSpecTo != null) {
-      var destination = copyOpenApiSpecTo.toPath();
-      copySpec(written, destination);
-      getLogger().info("  copying: " + destination);
-    }
-  }
-
-  static void copySpec(List<Path> written, Path destination) throws IOException {
-    var format = specFormat(destination);
-    var source =
-        written.stream()
-            .filter(path -> path.getFileName().toString().endsWith("." + format.extension()))
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new IOException(
-                        String.format(
-                            "OpenAPI %s output not found for copyOpenApiSpecTo: %s",
-                            format.name(), destination)));
-    var parent = destination.getParent();
-    if (parent != null) {
-      Files.createDirectories(parent);
-    }
-    Files.copy(source, destination, StandardCopyOption.REPLACE_EXISTING);
-  }
-
-  static OpenAPIGenerator.Format specFormat(Path destination) {
-    var name = destination.getFileName().toString().toLowerCase(Locale.ROOT);
-    if (name.endsWith(".json")) {
-      return OpenAPIGenerator.Format.JSON;
-    }
-    if (name.endsWith(".yaml") || name.endsWith(".yml")) {
-      return OpenAPIGenerator.Format.YAML;
-    }
-    throw new IllegalArgumentException(
-        "copyOpenApiSpecTo must end with .yaml, .yml or .json: " + destination);
   }
 
   /**
@@ -289,32 +252,22 @@ public class OpenAPITask extends BaseTask {
   }
 
   /**
-   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
-   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   * List directories or files where the openAPI spec must be copied.
    *
-   * @return Destination file.
+   * @return List directories or files where the openAPI spec must be copied.
    */
   @Input
   @org.gradle.api.tasks.Optional
-  public @Nullable File getCopyOpenApiSpecTo() {
+  public @Nullable List<File> getCopyOpenApiSpecTo() {
     return copyOpenApiSpecTo;
   }
 
   /**
-   * Copy the generated OpenAPI spec to the given file. The format is determined by the file
-   * extension: <code>.yaml</code>, <code>.yml</code> or <code>.json</code>.
+   * Copy open API files to either an output location or specific file.
    *
-   * <p>Example:
-   *
-   * <pre>{@code
-   * openAPI {
-   *   copyOpenApiSpecTo = file("$projectDir/docs/openapi.yaml")
-   * }
-   * }</pre>
-   *
-   * @param copyOpenApiSpecTo Destination file.
+   * @param copyOpenApiSpecTo Output directory or file.
    */
-  public void setCopyOpenApiSpecTo(@Nullable File copyOpenApiSpecTo) {
+  public void setCopyOpenApiSpecTo(@Nullable List<File> copyOpenApiSpecTo) {
     this.copyOpenApiSpecTo = copyOpenApiSpecTo;
   }
 
