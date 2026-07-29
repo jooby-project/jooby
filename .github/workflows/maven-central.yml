@@ -191,12 +191,6 @@ jobs:
           - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
           - [Dependency Updates](https://github.com/jooby-project/jooby/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
 
-          ## 💖 Support my work
-          - [Sponsor Jooby](https://github.com/sponsors/jknack)
-
-          ### 🏆 Sponsors
-          - [@premium-minds](https://github.com/premium-minds)
-          - [@tipsy](https://github.com/tipsy)
           EOF
 
           # Overwrite the existing release notes

@@ -67,10 +67,6 @@ help
 =====
 [Discord](https://discord.gg/JmyxrKPvjY)
 
-support my work
-=====
-- [Sponsor](https://github.com/sponsors/jknack)
-
 sponsors
 ======
 
