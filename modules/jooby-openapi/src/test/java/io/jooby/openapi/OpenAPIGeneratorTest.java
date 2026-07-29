@@ -11,13 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.fasterxml.jackson.databind.JavaType;
 import examples.ABean;
 import examples.Letter;
+import examples.MediaTypeSchemaApp;
 import examples.MvcApp;
 import examples.MvcAppWithRoutes;
 import examples.MvcInstanceApp;
@@ -33,6 +36,7 @@ import examples.RoutePatternIdioms;
 import examples.RouteQueryArgs;
 import examples.RouteReturnTypeApp;
 import examples.RouterProduceConsume;
+import io.jooby.internal.openapi.OpenAPIExt;
 import io.jooby.internal.openapi.RequestBodyExt;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.BooleanSchema;
@@ -1635,5 +1639,28 @@ public class OpenAPIGeneratorTest {
               assertEquals("getWelcome", route.getOperationId());
             })
         .verify();
+  }
+
+  /**
+   * Check that the schema property order is stable across repeated OpenAPI
+   * generations.
+   *
+   * <p>For example, the static field {@code MediaType.json} and boolean getter {@code isJson()}
+   * resolve to the same OpenAPI property name {@code json}. Without stabilizing property order from
+   * class-file declaration order, {@code json} (and other boolean properties like {@code textual})
+   * can jump between builds.
+   */
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  @OpenAPITest(MediaTypeSchemaApp.class)
+  public void mediaTypePropertiesOrderIsReproducible(OpenAPIExt openApi) {
+    var mediaType = openApi.getComponents().getSchemas().get("MediaType");
+
+    assertNotNull(mediaType);
+
+    // Declaration order: instance fields (charset, value), then getters (quality, textual, json,
+    // type, subtype). Static MediaType.json must not displace isJson()'s property.
+    assertEquals(
+        List.of("charset", "value", "quality", "textual", "json", "type", "subtype"),
+        new ArrayList<>(mediaType.getProperties().keySet()));
   }
 }

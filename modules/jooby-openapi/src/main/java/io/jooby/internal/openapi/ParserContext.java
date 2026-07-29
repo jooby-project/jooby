@@ -274,6 +274,7 @@ public class ParserContext {
           new SchemaRef(
               resolvedSchema.schema, RefUtils.constructRef(resolvedSchema.schema.getName()));
       schemas.put(type.getName(), schemaRef);
+      stabilizeProperties(type, resolvedSchema.schema);
       document(type, resolvedSchema.schema, resolvedSchema);
       if (resolvedSchema.referencedSchemas != null) {
         for (var e : resolvedSchema.referencedSchemas.entrySet()) {
@@ -286,6 +287,7 @@ public class ParserContext {
         for (var e : resolvedSchema.referencedSchemasByType.entrySet()) {
           var qualifiedTypeName = toClass(e.getKey());
           if (qualifiedTypeName instanceof Class<?> classType) {
+            stabilizeProperties(classType, e.getValue());
             document(classType, e.getValue(), resolvedSchema);
           }
         }
@@ -302,6 +304,14 @@ public class ParserContext {
       return simpleType.getRawClass();
     }
     return type;
+  }
+
+  private void stabilizeProperties(Class<?> type, Schema schema) {
+    if (schema == null || schema.getProperties() == null || schema.getProperties().isEmpty()) {
+      return;
+    }
+    var node = classNodeOrNull(Type.getType(type));
+    SchemaPropertyOrder.stabilize(node, schema, this::classNodeOrNull);
   }
 
   private void document(Class typeName, Schema schema, ResolvedSchemaExt resolvedSchema) {
