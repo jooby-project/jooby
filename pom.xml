@@ -87,7 +87,7 @@
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
-    <grpc.version>1.83.0</grpc.version>
+    <grpc.version>1.83.1</grpc.version>
 
     <!-- logging -->
     <logback-classic.version>1.6.1</logback-classic.version>
@@ -173,7 +173,7 @@
     <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
-    <maven-tiles-plugin.version>2.44</maven-tiles-plugin.version>
+    <maven-tiles-plugin.version>2.45</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.16</maven-core.version>
     <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
@@ -196,7 +196,7 @@
     <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     <exec-maven-plugin.version>3.6.3</exec-maven-plugin.version>
     <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
-    <frontend-maven-plugin.version>2.0.1</frontend-maven-plugin.version>
+    <frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
     <node.version>v22.20.0</node.version>
     <npm.version>10.9.3</npm.version>
 
@@ -950,7 +950,7 @@
       <dependency>
         <groupId>org.jspecify</groupId>
         <artifactId>jspecify</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
       </dependency>
 
       <!-- SSL -->
@@ -1599,7 +1599,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.8.0</version>
+            <version>3.9.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
