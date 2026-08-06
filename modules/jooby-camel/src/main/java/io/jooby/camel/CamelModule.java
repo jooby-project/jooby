@@ -159,7 +159,7 @@ public class CamelModule implements Extension {
 
     SimpleMain main = new SimpleMain(camel);
 
-    // dump configuration as initial properties
+    // dump configuration as initial properties, enabled camel auto-configuration
     var config = application.getConfig();
     if (config.hasPath("camel")) {
       for (var prop : config.getConfig("camel").entrySet()) {
