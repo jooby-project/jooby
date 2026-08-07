@@ -17,10 +17,12 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.main.SimpleMain;
+import org.apache.camel.spi.EventNotifier;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
 import io.jooby.Extension;
 import io.jooby.Jooby;
+import io.jooby.Reified;
 import io.jooby.ServiceRegistry;
 import io.jooby.internal.camel.JoobyCamelContext;
 import io.jooby.internal.camel.SingletonProvider;
@@ -159,16 +161,16 @@ public class CamelModule implements Extension {
 
     SimpleMain main = new SimpleMain(camel);
 
-    // dump configuration as initial properties, enabled camel auto-configuration
-    var config = application.getConfig();
-    if (config.hasPath("camel")) {
-      for (var prop : config.getConfig("camel").entrySet()) {
-        main.addInitialProperty("camel." + prop.getKey(), prop.getValue().unwrapped().toString());
-      }
-    }
-
     application.onStarting(
         () -> {
+          // dump configuration as initial properties, enabled camel auto-configuration
+          var config = application.getConfig();
+          if (config.hasPath("camel")) {
+            for (var prop : config.getConfig("camel").entrySet()) {
+              main.addInitialProperty(
+                  "camel." + prop.getKey(), prop.getValue().unwrapped().toString());
+            }
+          }
           // build camel
           main.init();
 
@@ -177,6 +179,14 @@ public class CamelModule implements Extension {
             List<RouteBuilder> routeList = routes.apply(camel);
             for (RouteBuilder route : routeList) {
               camel.addRoutes(route);
+            }
+          }
+          // Do events
+          Reified<List<EventNotifier>> eventType = Reified.list(EventNotifier.class);
+          var events = application.getServices().getOrNull(eventType);
+          if (events != null) {
+            for (var event : events) {
+              camel.getManagementStrategy().addEventNotifier(event);
             }
           }
           // Start camel:
