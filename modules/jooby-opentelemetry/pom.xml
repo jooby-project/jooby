@@ -165,6 +165,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>io.opentelemetry</groupId>
+        <artifactId>opentelemetry-bom-alpha</artifactId>
+        <version>${opentelemetry.version}-alpha</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>io.opentelemetry.instrumentation</groupId>
         <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
         <version>2.30.0-alpha</version>
