@@ -20,7 +20,7 @@
     <dependency>
       <groupId>io.github.classgraph</groupId>
       <artifactId>classgraph</artifactId>
-      <version>4.8.192</version>
+      <version>4.8.193</version>
     </dependency>
 
     <dependency>
@@ -84,7 +84,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
-      <version>3.8.6</version>
+      <version>3.8.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
