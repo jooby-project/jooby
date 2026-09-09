@@ -5,7 +5,7 @@
  */
 package io.jooby.internal.opentelemetry;
 
-import static io.opentelemetry.context.Context.root;
+import static io.opentelemetry.context.Context.current;
 
 import org.jspecify.annotations.NonNull;
 
@@ -30,7 +30,7 @@ public class DefaultOtelContextExtractor implements OtelContextExtractor {
       // 2. Secondary: If middleware is missing, manually parse the W3C headers
       var propagator = otel.getPropagators().getTextMapPropagator();
       // Extracts W3C headers (if present) or returns Context.current() as a safe fallback
-      result = propagator.extract(root(), ctx, Headers.INSTANCE);
+      result = propagator.extract(current(), ctx, Headers.INSTANCE);
       // Cache it to avoid re-parsing headers on subsequent calls in the same request
       ctx.setAttribute(Context.class.getName(), result);
     }
