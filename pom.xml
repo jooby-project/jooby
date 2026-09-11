@@ -73,7 +73,7 @@
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.4.6.Final</hibernate.version>
+    <hibernate.version>7.4.7.Final</hibernate.version>
     <ebean.version>19.5.0</ebean.version>
     <jdbi.version>3.54.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
@@ -87,7 +87,7 @@
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
-    <grpc.version>1.83.1</grpc.version>
+    <grpc.version>1.84.0</grpc.version>
 
     <!-- logging -->
     <logback-classic.version>1.6.3</logback-classic.version>
@@ -98,7 +98,7 @@
     <commons-email.version>1.6.0</commons-email.version>
 
     <!-- util -->
-    <metrics.version>4.2.39</metrics.version>
+    <metrics.version>4.2.40</metrics.version>
 
     <!-- jboss modules -->
     <jboss-modules.version>2.3.0</jboss-modules.version>
@@ -110,19 +110,19 @@
     <undertow.version>2.4.3.Final</undertow.version>
     <jetty.version>12.1.12</jetty.version>
     <netty.version>4.2.17.Final</netty.version>
-    <vertx.version>5.1.6</vertx.version>
+    <vertx.version>5.1.7</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.54</swagger.version>
-    <swagger-parser.version>2.1.47</swagger-parser.version>
+    <swagger.version>2.2.55</swagger.version>
+    <swagger-parser.version>2.1.48</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
     <!-- SSL -->
-    <conscrypt.version>2.6.3</conscrypt.version>
+    <conscrypt.version>2.7.0</conscrypt.version>
 
     <!-- avaje -->
     <avaje.inject.version>12.6</avaje.inject.version>
-    <avaje.jsonb.version>3.14</avaje.jsonb.version>
+    <avaje.jsonb.version>3.15</avaje.jsonb.version>
     <avaje.validator.version>2.17</avaje.validator.version>
 
     <!-- jakarta -->
@@ -174,7 +174,7 @@
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
     <maven-tiles-plugin.version>2.45</maven-tiles-plugin.version>
-    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.16</maven-core.version>
     <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
@@ -189,7 +189,7 @@
     <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
     <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-    <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
     <mojo-executor.version>2.3.1</mojo-executor.version>
     <plexus-utils.version>4.1.0</plexus-utils.version>
     <stork-maven-plugin.version>3.3.0</stork-maven-plugin.version>
@@ -1336,7 +1336,7 @@
             <dependency>
               <groupId>org.apache.ant</groupId>
               <artifactId>ant</artifactId>
-              <version>1.10.17</version>
+              <version>1.10.18</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -1560,7 +1560,7 @@
                 <dependency>
                   <groupId>de.skuzzle.enforcer</groupId>
                   <artifactId>restrict-imports-enforcer-rule</artifactId>
-                  <version>3.0.1</version>
+                  <version>3.0.2</version>
                 </dependency>
             </dependencies>
           </plugin>
