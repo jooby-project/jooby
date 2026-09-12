@@ -86,6 +86,7 @@ public class JoobyExtension
       }
     } else {
       app = fromFactoryMethod(context, metadata, factoryMethod);
+      server.init(app);
       server.start(app);
     }
     ExtensionContext.Store store = getStore(context);
