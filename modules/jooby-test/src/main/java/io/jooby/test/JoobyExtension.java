@@ -77,6 +77,7 @@ public class JoobyExtension
       var defaultEnv = System.getProperty("application.env");
       System.setProperty("application.env", metadata.environment());
       app = Jooby.createApp(server, metadata.executionMode(), reflectionProvider(metadata.value()));
+      server.init(app);
       server.start(app);
       if (defaultEnv != null) {
         System.setProperty("application.env", defaultEnv);
