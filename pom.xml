@@ -92,7 +92,7 @@
     <!-- logging -->
     <logback-classic.version>1.6.3</logback-classic.version>
     <log4j.version>2.26.1</log4j.version>
-    <slf4j.version>2.0.18</slf4j.version>
+    <slf4j.version>2.0.19</slf4j.version>
 
     <!-- communication -->
     <commons-email.version>1.6.0</commons-email.version>
@@ -108,9 +108,9 @@
 
     <!-- Server -->
     <undertow.version>2.4.3.Final</undertow.version>
-    <jetty.version>12.1.12</jetty.version>
-    <netty.version>4.2.17.Final</netty.version>
-    <vertx.version>5.1.7</vertx.version>
+    <jetty.version>12.1.13</jetty.version>
+    <netty.version>4.2.18.Final</netty.version>
+    <vertx.version>5.1.8</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.55</swagger.version>
@@ -146,7 +146,7 @@
     <commons-io.version>2.22.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.4.10</kotlin.version>
+    <kotlin.version>2.4.20</kotlin.version>
     <kotlinx-coroutines-core.version>1.11.0</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
@@ -173,7 +173,7 @@
     <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
     <maven-archetype-plugin.version>3.2.0</maven-archetype-plugin.version>
     <maven-assembly-plugin.version>3.8.0</maven-assembly-plugin.version>
-    <maven-tiles-plugin.version>2.45</maven-tiles-plugin.version>
+    <maven-tiles-plugin.version>2.45.1</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     <maven-core.version>3.9.16</maven-core.version>
     <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
@@ -181,9 +181,9 @@
     <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <archetype-packaging.version>3.2.1</archetype-packaging.version>
-    <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
+    <maven-plugin-annotations.version>3.16.0</maven-plugin-annotations.version>
     <maven-plugin-api.version>3.9.16</maven-plugin-api.version>
-    <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
+    <maven-plugin-plugin.version>3.16.0</maven-plugin-plugin.version>
     <maven-project.version>2.2.1</maven-project.version>
     <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
     <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
@@ -1599,7 +1599,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.10.1</version>
+            <version>3.10.2</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
