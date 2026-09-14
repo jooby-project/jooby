@@ -106,6 +106,7 @@ public class ServerTestRunner {
       if (options.isSSLEnabled()) {
         options.setSecurePort(0);
       }
+      server.init(app);
       WebClient https = null;
       try {
         MutedServer.mute(server).start(app);
