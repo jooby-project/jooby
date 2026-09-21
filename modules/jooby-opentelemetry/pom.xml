@@ -167,7 +167,7 @@
       <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-bom-alpha</artifactId>
-        <version>${opentelemetry.version}-alpha</version>
+        <version>${opentelemetry.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
