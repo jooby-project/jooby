@@ -752,7 +752,7 @@ The family of send methods includes:
 
 * javadoc:Context[send, byte[\]]
 * javadoc:Context[send, byte[\]...]
-* javadoc:Context[send, io.jooby.buffer.DataBuffer]
+* javadoc:Context[send, io.jooby.output.Output]
 * javadoc:Context[send, io.jooby.FileDownload]
 * javadoc:Context[send, io.jooby.StatusCode]
 * javadoc:Context[send, java.io.InputStream]

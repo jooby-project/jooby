@@ -123,7 +123,7 @@ fun main(args: Array<String>) {
 }
 ----
 
-The javadoc:Jooby[mvc, io.jooby.MvcExtension] method installs the MVC routes. You can pass an instance directly, or if the controller constructor is annotated with `@Inject` (e.g., `jakarta.inject.Inject`), the generated code will attempt to resolve the dependencies from the registry.
+The javadoc:Jooby[mvc, io.jooby.Extension] method installs the MVC routes. You can pass an instance directly, or if the controller constructor is annotated with `@Inject` (e.g., `jakarta.inject.Inject`), the generated code will attempt to resolve the dependencies from the registry.
 
 ==== Parameters
 
