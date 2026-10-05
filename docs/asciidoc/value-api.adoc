@@ -389,9 +389,9 @@ The javadoc:value.ValueFactory[] allows you to register new type conversions or 
     valueFactory.put(MyBean.class, new MyBeanConverter());
 }
 
-import io.jooby.value.ValueConverter;
+import io.jooby.value.Converter;
   
-class MyBeanConverter implements ValueConverter {
+class MyBeanConverter implements Converter {
   @Override
   public Object convert(Type type, Value node, ConversionHint hint) {
     // Logic to convert the 'node' into MyBean.class
@@ -407,9 +407,9 @@ class MyBeanConverter implements ValueConverter {
     valueFactory.put(MyBean::class.java, MyBeanConverter())
 }
 
-import io.jooby.value.ValueConverter
+import io.jooby.value.Converter
   
-class MyBeanConverter : ValueConverter {
+class MyBeanConverter : Converter {
   override fun convert(type: Type, node: Value, hint: ConversionHint): Any {
     // Logic to convert the 'node' into MyBean::class.java
     return MyBean()
