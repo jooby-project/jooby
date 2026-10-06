@@ -131,9 +131,6 @@ public class Jooby implements Router, Registry {
     } else {
       copyState(owner, this);
     }
-    if (BOOT_SERVER != null) {
-      BOOT_SERVER.init(this);
-    }
   }
 
   @Override
@@ -1241,6 +1238,9 @@ public class Jooby implements Router, Registry {
       // Override when there is something and server options were not set
       if (server.getOptions().defaults && appServerOptions != null) {
         server.setOptions(appServerOptions);
+      }
+      for (var app : apps) {
+        server.init(app);
       }
       targetServer.start(apps.toArray(new Jooby[0]));
     } catch (Throwable startupError) {
