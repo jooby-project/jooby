@@ -73,7 +73,7 @@
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.4.11.Final</hibernate.version>
+    <hibernate.version>7.4.12.Final</hibernate.version>
     <ebean.version>19.6.0</ebean.version>
     <jdbi.version>3.55.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
@@ -87,7 +87,7 @@
 
     <!-- dependency injection -->
     <guice.version>7.0.0</guice.version>
-    <grpc.version>1.84.0</grpc.version>
+    <grpc.version>1.84.2</grpc.version>
 
     <!-- logging -->
     <logback-classic.version>1.6.5</logback-classic.version>
@@ -104,13 +104,13 @@
     <jboss-modules.version>2.3.0</jboss-modules.version>
 
     <!-- ASM -->
-    <asm.version>9.10.1</asm.version>
+    <asm.version>9.11</asm.version>
 
     <!-- Server -->
-    <undertow.version>2.4.3.Final</undertow.version>
-    <jetty.version>12.1.13</jetty.version>
-    <netty.version>4.2.18.Final</netty.version>
-    <vertx.version>5.2.0</vertx.version>
+    <undertow.version>2.4.4.Final</undertow.version>
+    <jetty.version>12.1.14</jetty.version>
+    <netty.version>4.2.19.Final</netty.version>
+    <vertx.version>5.2.1</vertx.version>
 
     <!--OpenAPI-->
     <swagger.version>2.2.55</swagger.version>
@@ -137,18 +137,18 @@
     <quartz.version>2.5.2</quartz.version>
     <db-scheduler.version>16.12.0</db-scheduler.version>
     <cron-utils.version>9.2.1</cron-utils.version>
-    <bucket4j-core.version>8.20.0</bucket4j-core.version>
+    <bucket4j-core.version>8.21.0</bucket4j-core.version>
     <aws-java-sdk.version>1.12.797</aws-java-sdk.version>
     <camel.version>4.21.0</camel.version>
     <jasypt.version>1.9.3</jasypt.version>
     <opentelemetry.version>1.66.0</opentelemetry.version>
     <opentelemetry-alpha.version>1.66.0-alpha</opentelemetry-alpha.version>
-    <opentelemetry-instrumentation-alpha.version>2.31.1-alpha</opentelemetry-instrumentation-alpha.version>
+    <opentelemetry-instrumentation-alpha.version>2.32.0-alpha</opentelemetry-instrumentation-alpha.version>
 
     <commons-io.version>2.22.0</commons-io.version>
 
     <!-- Kotlin -->
-    <kotlin.version>2.4.20</kotlin.version>
+    <kotlin.version>2.4.21</kotlin.version>
     <kotlinx-coroutines-core.version>1.11.0</kotlinx-coroutines-core.version>
 
     <!-- Test dependencies -->
@@ -1601,7 +1601,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.10.3</version>
+            <version>3.10.4</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
