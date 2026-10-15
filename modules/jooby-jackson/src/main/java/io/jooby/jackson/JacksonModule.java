@@ -54,7 +54,7 @@ import io.jooby.MediaType;
  *
  * @author edgar
  * @since 2.0.0
- * @deprecated Use {@link io.jooby.jackson.JacksonModule} instead.
+ * @deprecated Use {@link io.jooby.jackson.Jackson2Module} instead.
  */
 @Deprecated(since = "4.3.0", forRemoval = true)
 public class JacksonModule extends Jackson2Module {
