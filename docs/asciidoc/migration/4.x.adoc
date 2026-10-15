@@ -38,7 +38,7 @@ performance.
 The new package is now `io.jooby.value`. The API is now decoupled from javadoc:Context[] 
 in future release will be the basis of a new configuration system.
 
-Also, the `io.jooby.ValueNode` and `io.jooby.ValueNodeConverter` are gone.
+Also, the `io.jooby.ValueNode` and `io.jooby.ValueConverter` are gone.
 
 ==== Session API
 
@@ -73,7 +73,7 @@ runApp(args, new NettyServer(new ServerOptions()), App::new);
 |io.jooby.MvcFactory|-| jooby (core) | was deprecated and now removed 
 |io.jooby.annotation.ResultType|-| jooby (core) | removed
 |io.jooby.ValueNode|io.jooby.value.Value | jooby (core) | replaced/merged 
-|io.jooby.ValueNodeConverter|io.jooby.value.ValueConverter| jooby (core) | replaced/merged
+|io.jooby.ValueConverter|io.jooby.value.Converter| jooby (core) | replaced/merged
 |io.jooby.RouteSet|io.jooby.Route.Set | jooby (core) | moved into Route and renamed to Set
 |===
 
