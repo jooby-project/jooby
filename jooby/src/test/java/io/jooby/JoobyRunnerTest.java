@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -93,8 +94,11 @@ class JoobyRunnerTest {
 
     // Verification
     // Defaults was true, so server.setOptions should be called with appOptions
-    verify(server).setOptions(appOptions);
-    verify(mutedServer).start(new Jooby[] {app1, app2});
+    InOrder inOrder = inOrder(server, mutedServer);
+    inOrder.verify(server).setOptions(appOptions);
+    inOrder.verify(server).init(app1);
+    inOrder.verify(server).init(app2);
+    inOrder.verify(mutedServer).start(new Jooby[] {app1, app2});
   }
 
   @Test
@@ -124,7 +128,9 @@ class JoobyRunnerTest {
 
     // Verification
     verify(server, never()).setOptions(any()); // Because defaults == false
-    verify(server).start(new Jooby[] {app1});
+    InOrder inOrder = inOrder(server);
+    inOrder.verify(server).init(app1);
+    inOrder.verify(server).start(new Jooby[] {app1});
   }
 
   @DisplayName("Test Exception: StartupException thrown, stop throws ignored exception")
