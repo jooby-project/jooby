@@ -23,6 +23,7 @@ public enum HttpMethod implements AnnotationSupport {
   TRACE("io.jooby.annotation"),
   DELETE,
   GET,
+  SSE("io.jooby.annotation"),
   HEAD,
   OPTIONS,
   PATCH,
