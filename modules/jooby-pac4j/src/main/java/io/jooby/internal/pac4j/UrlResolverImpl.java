@@ -32,9 +32,11 @@ public class UrlResolverImpl implements UrlResolver {
 
       return url;
     }
-    // Rewrite using context which might uses trust proxy setting.
-    var path = absoluteURL ? URI.create(url).getPath() : url;
-    var requestURL = ((Pac4jContext) context).getContext().getRequestURL(path);
+    if (absoluteURL) {
+      return url;
+    }
+    // Resolve relative URLs using the context, which might use trust proxy settings.
+    var requestURL = ((Pac4jContext) context).getContext().getRequestURL(url);
     // no query String
     int i = requestURL.indexOf('?');
     return i > 0 ? requestURL.substring(0, i) : requestURL;
