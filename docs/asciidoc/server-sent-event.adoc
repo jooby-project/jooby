@@ -7,7 +7,7 @@ https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events[Server-Sent 
 ----
 {
   sse("/sse", sse -> {            // <1>
-    sse.send("Welcome");          // <2>
+    sse.send("Welcome jooby");          // <2>
   });
 }
 ----
@@ -17,13 +17,61 @@ https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events[Server-Sent 
 ----
 {
   sse("/sse") {                   // <1>
-    sse.send("Welcome")           // <2>
+    sse.send("Welcome jooby")           // <2>
   }
 }
 ----
 
 <1> Connection established.
 <2> Send a message to the client.
+
+==== MVC Controllers
+
+Use `@SSE` to register an SSE route from a controller:
+
+.Java
+[source,java,role="primary"]
+----
+import io.jooby.ServerSentEmitter;
+import io.jooby.annotation.SSE;
+
+public class Events {
+  @SSE("/sse")
+  public void sse(ServerSentEmitter emitter) {
+    emitter.send("Welcome");
+    emitter.onClose(() -> {
+      // Clean up resources.
+    });
+    emitter.close();
+  }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import io.jooby.ServerSentEmitter
+import io.jooby.annotation.SSE
+
+class Events {
+  @SSE("/sse")
+  fun sse(emitter: ServerSentEmitter) {
+    emitter.send("Welcome")
+    emitter.onClose {
+      // Clean up resources.
+    }
+    emitter.close()
+  }
+}
+----
+
+Install the controller with `mvc(new Events())`. The annotation processor generates an
+`app.sse("/sse", this::sse)` registration. In Kotlin, use `mvc(Events())` with KAPT enabled.
+The controller method must return `void` in Java or `Unit` in Kotlin. Kotlin `suspend`
+functions are not supported for `@SSE` methods.
+The emitter is injected directly; regular MVC parameters and class-level `@Path` prefixes
+are supported. Use `@SSE(path = "/sse")` (`@SSE(path = ["/sse"])` in Kotlin) or multiple
+path values as with other MVC routes.
 
 ==== Message Options
 

@@ -32,6 +32,13 @@ public class RestRoute extends WebRoute<RestRouter> {
     super(router, method);
     this.httpMethodAnnotation = httpMethodAnnotation;
     this.generatedName = method.getSimpleName().toString();
+    if (isSse() && (!returnType.isVoid() || isSuspendFun())) {
+      context.error("@SSE method must return void and must not be suspend: %s", method);
+    }
+  }
+
+  private boolean isSse() {
+    return httpMethodAnnotation.getQualifiedName().contentEquals("io.jooby.annotation.SSE");
   }
 
   public String getGeneratedName() {
@@ -196,7 +203,10 @@ public class RestRoute extends WebRoute<RestRouter> {
     int controllerIndent = 2;
 
     for (var parameter : getParameters(true)) {
-      var generatedParameter = parameter.generateMapping(kt);
+      var generatedParameter =
+          isSse() && parameter.getType().is("io.jooby.ServerSentEmitter")
+              ? "emitter"
+              : parameter.generateMapping(kt);
       if (parameter.isRequireBeanValidation()) {
         generatedParameter =
             CodeBlock.of(
@@ -208,7 +218,13 @@ public class RestRoute extends WebRoute<RestRouter> {
     buffer.add(
         statement(indent(controllerIndent), var(kt), "c = this.factory.apply(ctx)", semicolon(kt)));
 
-    if (returnType.isVoid()) {
+    if (isSse()) {
+      buffer.add(
+          statement(
+              indent(controllerIndent),
+              makeCall(kt, paramList.toString(), false, false),
+              semicolon(kt)));
+    } else if (returnType.isVoid()) {
       String statusCode =
           httpMethodAnnotation.getSimpleName().toString().equals("DELETE") ? "NO_CONTENT" : "OK";
       buffer.add(
@@ -274,6 +290,22 @@ public class RestRoute extends WebRoute<RestRouter> {
       String returnTypeGenerics,
       String returnTypeString,
       boolean throwsException) {
+    if (isSse()) {
+      if (kt) {
+        if (throwsException) buffer.add(statement("@Throws(Exception::class)"));
+        buffer.add(statement("fun ", methodName, "(emitter: io.jooby.ServerSentEmitter) {"));
+        buffer.add(statement(indent(2), "val ctx = emitter.getContext()"));
+      } else {
+        buffer.add(
+            statement(
+                "public void ",
+                methodName,
+                "(io.jooby.ServerSentEmitter emitter)",
+                throwsException ? " throws Exception {" : " {"));
+        buffer.add(statement(indent(2), "var ctx = emitter.getContext();"));
+      }
+      return;
+    }
     if (kt) {
       if (throwsException) buffer.add(statement("@Throws(Exception::class)"));
 
