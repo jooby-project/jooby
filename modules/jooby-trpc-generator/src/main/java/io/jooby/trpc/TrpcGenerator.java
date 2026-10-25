@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public class TrpcGenerator {
 
   private final Logger log = LoggerFactory.getLogger(getClass());
 
-  private ClassLoader classLoader = getClass().getClassLoader();
+  private @NonNull ClassLoader classLoader = getClass().getClassLoader();
   private Path outputDir;
   private String outputFile = "trpc.d.ts";
 
@@ -499,16 +500,13 @@ public class TrpcGenerator {
             .enableClassInfo()
             .enableAnnotationInfo()
             .enableMethodInfo()
-            .ignoreClassVisibility();
-
-    if (classLoader != null) {
-      classGraph.overrideClassLoaders(classLoader);
-    }
+            .ignoreClassVisibility()
+            .enableClassLoaders(classLoader);
 
     try (var scanResult = classGraph.scan()) {
       for (var classInfo : scanResult.getAllClasses()) {
         try {
-          var clazz = classInfo.loadClass(false); // loads without initializing!
+          var clazz = Class.forName(classInfo.getName(), false, classLoader);
 
           if (isTrpcAnnotated(clazz)) {
             controllers.add(clazz);
