@@ -16,6 +16,7 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 import io.jooby.*;
+import io.jooby.exception.TypeMismatchException;
 
 /**
  * Handler for static resources represented by the {@link Asset} contract.
@@ -98,9 +99,9 @@ public class AssetHandler implements Route.Handler {
     CacheControl cacheParams = cacheControl.apply(resolvedPath);
 
     // handle If-None-Match
+    String ifnm = ctx.header("If-None-Match").valueOrNull();
     if (cacheParams.isEtag()) {
-      String ifnm = ctx.header("If-None-Match").valueOrNull();
-      if (ifnm != null && ifnm.equals(asset.getEtag())) {
+      if (ifnm != null && etagMatches(ifnm, asset.getEtag())) {
         ctx.send(StatusCode.NOT_MODIFIED);
         asset.close();
         return ctx;
@@ -109,11 +110,11 @@ public class AssetHandler implements Route.Handler {
       }
     }
 
-    // Handle If-Modified-Since
+    // Handle If-Modified-Since, which is ignored when If-None-Match is present (RFC 9110, 13.2.2)
     if (cacheParams.isLastModified()) {
       long lastModified = asset.getLastModified();
       if (lastModified > 0) {
-        long ifms = ctx.header("If-Modified-Since").longValue(-1);
+        long ifms = ifnm == null ? ifModifiedSince(ctx) : -1;
         if (lastModified / ONE_SEC <= ifms / ONE_SEC) {
           ctx.send(StatusCode.NOT_MODIFIED);
           asset.close();
@@ -244,6 +245,37 @@ public class AssetHandler implements Route.Handler {
   public AssetHandler notFound(SneakyThrows.Consumer<Context> handler) {
     this.notFound = handler;
     return this;
+  }
+
+  /**
+   * If-None-Match is "*" or a list of entity tags, compared with the weak comparison function (RFC
+   * 9110, section 13.1.2).
+   */
+  private static boolean etagMatches(String ifNoneMatch, String etag) {
+    if (ifNoneMatch.equals(etag)) {
+      return true;
+    }
+    String opaqueTag = opaqueTag(etag);
+    for (String tag : ifNoneMatch.split(",")) {
+      tag = tag.trim();
+      if (tag.equals("*") || opaqueTag(tag).equals(opaqueTag)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static String opaqueTag(String etag) {
+    return etag.startsWith("W/") ? etag.substring(2) : etag;
+  }
+
+  /** An If-Modified-Since that is not a valid date is ignored (RFC 9110, section 13.1.3). */
+  private static long ifModifiedSince(Context ctx) {
+    try {
+      return ctx.header("If-Modified-Since").longValue(-1);
+    } catch (TypeMismatchException x) {
+      return -1;
+    }
   }
 
   private @Nullable Asset resolve(String filepath) {
