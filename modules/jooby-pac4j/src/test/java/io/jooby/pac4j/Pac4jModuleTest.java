@@ -19,7 +19,9 @@ import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
+import org.slf4j.Logger;
 
+import io.jooby.Environment;
 import io.jooby.Jooby;
 import io.jooby.ServiceRegistry;
 import io.jooby.StatusCode;
@@ -29,16 +31,22 @@ import io.jooby.internal.pac4j.SecurityFilterImpl;
 public class Pac4jModuleTest {
 
   private Jooby app;
+  private Logger log;
+  private Environment env;
   private ServiceRegistry registry;
   private com.typesafe.config.Config config;
 
   @BeforeEach
   void setUp() {
     app = mock(Jooby.class);
+    log = mock(Logger.class);
+    env = mock(Environment.class);
     registry = mock(ServiceRegistry.class);
     config = mock(com.typesafe.config.Config.class);
 
     when(app.getServices()).thenReturn(registry);
+    when(app.getLog()).thenReturn(log);
+    when(app.getEnvironment()).thenReturn(env);
     when(app.getConfig()).thenReturn(config);
     when(app.getContextPath()).thenReturn("/");
   }
@@ -76,8 +84,38 @@ public class Pac4jModuleTest {
   }
 
   @Test
-  void testInstallDefaultLogin() throws Exception {
+  void testInstallDevLoginWithWarning() throws Exception {
     Pac4jModule module = new Pac4jModule();
+    when(env.isActive("dev", "test")).thenReturn(true);
+
+    module.install(app);
+
+    verify(app).get(eq("/login"), any());
+    verify(app).get(eq("/callback"), any());
+    verify(app).post(eq("/callback"), any());
+  }
+
+  @Test
+  void testInstallDevLoginWithWarningOff() throws Exception {
+    Pac4jModule module = new Pac4jModule();
+    when(config.hasPath("pac4j.devLoginFormWarning")).thenReturn(true);
+    when(config.getBoolean("pac4j.devLoginFormWarning")).thenReturn(false);
+    when(env.isActive("dev", "test")).thenReturn(true);
+
+    module.install(app);
+
+    verify(app).get(eq("/login"), any());
+    verify(app).get(eq("/callback"), any());
+    verify(app).post(eq("/callback"), any());
+  }
+
+  @Test
+  void testInstallDevLoginWithWarningOn() throws Exception {
+    Pac4jModule module = new Pac4jModule();
+    when(config.hasPath("pac4j.devLoginFormWarning")).thenReturn(true);
+    when(config.getBoolean("pac4j.devLoginFormWarning")).thenReturn(true);
+    when(env.isActive("dev", "test")).thenReturn(true);
+
     module.install(app);
 
     verify(app).get(eq("/login"), any());

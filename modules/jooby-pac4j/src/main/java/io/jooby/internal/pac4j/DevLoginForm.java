@@ -11,6 +11,7 @@ import org.pac4j.core.http.url.UrlResolver;
 import io.jooby.Context;
 import io.jooby.MediaType;
 import io.jooby.Route;
+import io.jooby.XSS;
 import io.jooby.pac4j.Pac4jContext;
 
 public class DevLoginForm implements Route.Handler {
@@ -68,8 +69,8 @@ public class DevLoginForm implements Route.Handler {
 
   @Override
   public Object apply(Context ctx) throws Exception {
-    String error = ctx.query("error").value("");
-    String username = ctx.query("username").value("");
+    String error = XSS.html(ctx.query("error").value(""));
+    String username = XSS.html(ctx.query("username").value(""));
 
     ctx.setAttribute("username", username);
     ctx.setAttribute("error", error);
