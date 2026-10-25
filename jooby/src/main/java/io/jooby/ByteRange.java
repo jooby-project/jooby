@@ -85,7 +85,8 @@ public interface ByteRange {
       long start = range[0];
       long end = range[1];
       if (start == -1) {
-        start = contentLength - end;
+        // A suffix longer than the content selects all of it.
+        start = Math.max(0, contentLength - end);
         end = contentLength - 1;
       }
       if (end == -1 || end > contentLength - 1) {
