@@ -42,12 +42,12 @@
 
   <distributionManagement>
     <repository>
-      <id>central</id>
+      <id>ossrh</id>
       <name>Maven Central Release Repository</name>
       <url>https://ossrh-staging-api.central.sonatype.com/service/local/</url>
     </repository>
     <snapshotRepository>
-      <id>central</id>
+      <id>ossrh</id>
       <name>Maven Central Snapshots</name>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </snapshotRepository>
@@ -1813,7 +1813,7 @@
             <version>0.12.0</version>
             <extensions>true</extensions>
             <configuration>
-              <publishingServerId>central</publishingServerId>
+              <publishingServerId>ossrh</publishingServerId>
               <autoPublish>true</autoPublish>
             </configuration>
           </plugin>
