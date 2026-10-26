@@ -16,6 +16,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigList;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValue;
+import com.typesafe.config.ConfigValueType;
 import io.jstach.rainbowgum.LogProperties;
 
 /** Reads native HOCON objects, including quoted logger names, lists and maps. */
@@ -58,7 +59,12 @@ final class ConfigProperties extends LogProperties.AbstractNested<ConfigValue> {
       return null;
     }
     Map<String, String> result = new LinkedHashMap<>();
-    object.forEach((key, value) -> result.put(key, scalar(value)));
+    object.forEach(
+        (key, value) -> {
+          if (value.valueType() != ConfigValueType.NULL) {
+            result.put(key, scalar(value));
+          }
+        });
     return result;
   }
 

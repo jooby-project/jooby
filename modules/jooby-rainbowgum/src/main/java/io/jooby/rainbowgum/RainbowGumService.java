@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.jooby.Environment;
 import io.jooby.LoggingService;
 import io.jooby.SneakyThrows;
-import io.jstach.rainbowgum.LevelResolver;
 import io.jstach.rainbowgum.LogConfig;
 import io.jstach.rainbowgum.LogProperties;
 import io.jstach.rainbowgum.RainbowGum;
@@ -25,11 +24,7 @@ import io.jstach.rainbowgum.spi.RainbowGumServiceProvider;
 public final class RainbowGumService implements LoggingService {
   private static final Object LOCK = new Object();
   private static final Map<String, Integer> MUTED = new HashMap<>();
-  private static final LogProperties.MutableLogProperties LEVELS =
-      LogProperties.MutableLogProperties.builder()
-          .with(new ConcurrentHashMap<>())
-          .description("Jooby temporary logger levels")
-          .build();
+  private static final Map<String, System.Logger.Level> LEVELS = new ConcurrentHashMap<>();
 
   static final LogProperties DEFAULTS =
       LogProperties.builder()
@@ -47,7 +42,6 @@ public final class RainbowGumService implements LoggingService {
 
   static void register(ServiceRegistry registry) {
     registry.put(Owner.class, Owner.INSTANCE);
-    registry.put(LogProperties.class, LevelResolver.OVERRIDE_PROPERTIES_NAME, LEVELS);
   }
 
   @Override
@@ -69,6 +63,7 @@ public final class RainbowGumService implements LoggingService {
       var config =
           LogConfig.builder()
               .properties(properties)
+              .config(LEVELS::get)
               .serviceRegistry(registry)
               .serviceLoader(
                   ServiceLoader.load(RainbowGumServiceProvider.class, environment.getClassLoader()))
@@ -95,11 +90,11 @@ public final class RainbowGumService implements LoggingService {
 
   @Override
   public void logOff(List<String> loggers, SneakyThrows.Runnable task) {
-    var names = loggers.stream().map(RainbowGumService::levelKey).distinct().toList();
+    var names = loggers.stream().map(RainbowGumService::loggerName).distinct().toList();
     synchronized (LOCK) {
       for (var name : names) {
         MUTED.merge(name, 1, Integer::sum);
-        LEVELS.put(name, "off");
+        LEVELS.put(name, System.Logger.Level.OFF);
       }
     }
     try {
@@ -113,7 +108,7 @@ public final class RainbowGumService implements LoggingService {
           int remaining = MUTED.get(name) - 1;
           if (remaining == 0) {
             MUTED.remove(name);
-            LEVELS.put(name, null);
+            LEVELS.remove(name);
           } else {
             MUTED.put(name, remaining);
           }
@@ -123,10 +118,9 @@ public final class RainbowGumService implements LoggingService {
     }
   }
 
-  private static String levelKey(String name) {
-    return name.isEmpty() || name.equals("ROOT")
-        ? LogProperties.LEVEL_PREFIX
-        : LogProperties.LEVEL_PREFIX + "." + name;
+  private static String loggerName(String name) {
+    // SLF4J's root name is ROOT; lowercase root is an ordinary logger name here.
+    return name.equals("ROOT") ? "" : name;
   }
 
   private static void publish() {
