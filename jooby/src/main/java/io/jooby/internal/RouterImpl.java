@@ -12,16 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
@@ -794,8 +785,7 @@ public class RouterImpl implements Router {
   }
 
   public void setServerOptions(ServerOptions serverOptions) {
-    this.serverOptions = serverOptions;
-    services.put(ServerOptions.class, serverOptions);
+    this.serverOptions = Objects.requireNonNull(serverOptions, "serverOptions cannot be null");
   }
 
   @Override

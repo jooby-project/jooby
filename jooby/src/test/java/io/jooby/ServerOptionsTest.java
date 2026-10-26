@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import javax.net.ssl.SSLContext;
 
@@ -271,5 +272,37 @@ public class ServerOptionsTest {
   void testPackagePrivateConstructor() {
     ServerOptions options = new ServerOptions(true);
     assertTrue(options.defaults);
+  }
+
+  @Test
+  public void settersShouldClearDefaultsFlag() {
+    assertSetterClearsDefault(options -> options.setServer("Netty"));
+    assertSetterClearsDefault(options -> options.setPort(8081));
+    assertSetterClearsDefault(options -> options.setSecurePort(8443));
+    assertSetterClearsDefault(options -> options.setHttpsOnly(true));
+    assertSetterClearsDefault(options -> options.setIoThreads(4));
+    assertSetterClearsDefault(options -> options.setWorkerThreads(16));
+    assertSetterClearsDefault(options -> options.setCompressionLevel(6));
+    assertSetterClearsDefault(options -> options.setDefaultHeaders(false));
+    assertSetterClearsDefault(options -> options.setOutput(new OutputOptions()));
+    assertSetterClearsDefault(options -> options.setMaxRequestSize(1024));
+    assertSetterClearsDefault(options -> options.setMaxFormFields(500));
+    assertSetterClearsDefault(options -> options.setMaxHeaderSize(4096));
+    assertSetterClearsDefault(options -> options.setHost("localhost"));
+    assertSetterClearsDefault(options -> options.setSsl(new SslOptions()));
+    assertSetterClearsDefault(options -> options.setHttp2(true));
+    assertSetterClearsDefault(options -> options.setExpectContinue(true));
+  }
+
+  private void assertSetterClearsDefault(Consumer<ServerOptions> setter) {
+    // 1. Create with defaults = true
+    ServerOptions options = new ServerOptions(true);
+    assertTrue(options.defaults, "defaults flag should be true initially");
+
+    // 2. Invoke the setter
+    setter.accept(options);
+
+    // 3. Assert defaults flag was toggled to false
+    assertFalse(options.defaults, "defaults flag should be false after calling setter");
   }
 }

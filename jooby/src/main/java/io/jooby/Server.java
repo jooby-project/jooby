@@ -156,10 +156,13 @@ public interface Server {
    * @return This instance.
    */
   default Server init(Jooby application) {
-    var registry = application.getServices();
     var options = getOptions();
     options.setServer(getName());
 
+    // set final options
+    application.setServerOptions(options);
+    // update registry with server options and server instance
+    var registry = application.getServices();
     registry.put(ServerOptions.class, options);
     registry.put(Server.class, this);
 

@@ -188,9 +188,16 @@ public interface Router extends Registry {
   ServiceRegistry getServices();
 
   /**
-   * Server options.
+   * Retrieves the server options.
    *
-   * @return Server options.
+   * <p>An application can provide custom server options, which will be used to configure the server
+   * provided that the server has not been explicitly configured elsewhere.
+   *
+   * <p><strong>Multi-application behavior:</strong> In a setup with multiple applications, the
+   * first application that provides server options takes precedence. Any server options provided by
+   * subsequent applications are ignored.
+   *
+   * @return The server options.
    */
   ServerOptions getServerOptions();
 

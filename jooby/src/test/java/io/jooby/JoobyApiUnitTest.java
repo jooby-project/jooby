@@ -136,7 +136,7 @@ public class JoobyApiUnitTest {
     options.setIgnoreCase(true);
     app.setRouterOptions(options);
     assertTrue(app.getRouterOptions().isIgnoreCase());
-    assertNotNull(app.getServerOptions());
+    assertNull(app.getServerOptions());
   }
 
   @Test

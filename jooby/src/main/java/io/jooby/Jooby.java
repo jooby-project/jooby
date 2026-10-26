@@ -73,9 +73,9 @@ public class Jooby implements Router, Registry {
 
   private final transient AtomicBoolean stopped = new AtomicBoolean(false);
 
-  private static Jooby owner;
+  private static @Nullable Jooby owner;
   private static ExecutionMode BOOT_EXECUTION_MODE = ExecutionMode.DEFAULT;
-  private static Server BOOT_SERVER;
+  private static @Nullable Server BOOT_SERVER = null;
 
   private RouterImpl router;
 
@@ -126,8 +126,7 @@ public class Jooby implements Router, Registry {
           Optional.ofNullable(BOOT_SERVER)
               .map(Server::getOutputFactory)
               .orElseGet(OutputFactory::create));
-      router.setServerOptions(
-          Optional.ofNullable(BOOT_SERVER).map(Server::getOptions).orElseGet(ServerOptions::new));
+      Optional.ofNullable(BOOT_SERVER).map(Server::getOptions).ifPresent(router::setServerOptions);
     } else {
       copyState(owner, this);
     }
@@ -441,6 +440,17 @@ public class Jooby implements Router, Registry {
   @Override
   public ServerOptions getServerOptions() {
     return router.getServerOptions();
+  }
+
+  /**
+   * Sets the server options.
+   *
+   * @param serverOptions The server options to configure. Must not be {@code null}.
+   * @return This instance.
+   */
+  public Jooby setServerOptions(ServerOptions serverOptions) {
+    router.setServerOptions(serverOptions);
+    return this;
   }
 
   @Override
@@ -1220,24 +1230,29 @@ public class Jooby implements Router, Registry {
       String[] args, Server server, ExecutionMode executionMode, List<Supplier<Jooby>> provider) {
     /* Dump command line as system properties. */
     parseArguments(args).forEach(System::setProperty);
-    ServerOptions appServerOptions = null;
     var apps = new ArrayList<Jooby>();
+    var serverOptionList = new ArrayList<@Nullable ServerOptions>();
+    serverOptionList.add(server.getOptions());
     var targetServer = server.getLoggerOff().isEmpty() ? server : MutedServer.mute(server);
     try {
       for (var factory : provider) {
         var app = createApp(server, executionMode, factory);
         /*
          When running a single app instance, there is no issue with server options.
-         When multiple apps pick first in the provided order.
+         On multiple apps pick first in the provided order.
         */
-        if (appServerOptions == null) {
-          appServerOptions = ServerOptions.from(app.getConfig()).orElse(null);
-        }
+        serverOptionList.add(ServerOptions.from(app.getConfig()).orElseGet(app::getServerOptions));
         apps.add(app);
       }
       // Override when there is something and server options were not set
-      if (server.getOptions().defaults && appServerOptions != null) {
-        server.setOptions(appServerOptions);
+      var overrideServerOptions =
+          serverOptionList.stream()
+              .filter(Objects::nonNull)
+              .filter(it -> !it.defaults)
+              .findFirst()
+              .orElse(server.getOptions());
+      if (server.getOptions() != overrideServerOptions) {
+        server.setOptions(overrideServerOptions);
       }
       for (var app : apps) {
         server.init(app);

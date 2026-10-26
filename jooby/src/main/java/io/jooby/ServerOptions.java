@@ -205,7 +205,7 @@ public class ServerOptions {
       // ssl
       SslOptions.from(conf, "server.ssl").ifPresent(options::setSsl);
       if (conf.hasPath("server.httpsOnly")) {
-        options.httpsOnly = conf.getBoolean("server.httpsOnly");
+        options.setHttpsOnly(conf.getBoolean("server.httpsOnly"));
       }
       if (conf.hasPath("server.http2")) {
         options.setHttp2(conf.getBoolean("server.http2"));
@@ -241,6 +241,7 @@ public class ServerOptions {
    */
   public ServerOptions setServer(String server) {
     this.server = server;
+    this.defaults = false;
     return this;
   }
 
@@ -270,6 +271,7 @@ public class ServerOptions {
    */
   public ServerOptions setPort(int port) {
     this.port = Math.max(0, port);
+    this.defaults = false;
     return this;
   }
 
@@ -303,6 +305,7 @@ public class ServerOptions {
     } else {
       this.securePort = Math.max(0, securePort);
     }
+    this.defaults = false;
     return this;
   }
 
@@ -323,6 +326,7 @@ public class ServerOptions {
    */
   public ServerOptions setHttpsOnly(boolean httpsOnly) {
     this.httpsOnly = httpsOnly;
+    this.defaults = false;
     return this;
   }
 
@@ -343,6 +347,7 @@ public class ServerOptions {
    */
   public ServerOptions setIoThreads(int ioThreads) {
     this.ioThreads = ioThreads;
+    this.defaults = false;
     return this;
   }
 
@@ -366,6 +371,7 @@ public class ServerOptions {
    */
   public ServerOptions setWorkerThreads(int workerThreads) {
     this.workerThreads = workerThreads;
+    this.defaults = false;
     return this;
   }
 
@@ -388,6 +394,7 @@ public class ServerOptions {
    */
   public ServerOptions setCompressionLevel(@Nullable Integer compressionLevel) {
     this.compressionLevel = compressionLevel;
+    this.defaults = false;
     return this;
   }
 
@@ -411,6 +418,7 @@ public class ServerOptions {
    */
   public ServerOptions setDefaultHeaders(boolean defaultHeaders) {
     this.defaultHeaders = defaultHeaders;
+    this.defaults = false;
     return this;
   }
 
@@ -431,6 +439,7 @@ public class ServerOptions {
    */
   public ServerOptions setOutput(OutputOptions output) {
     this.output = output;
+    this.defaults = false;
     return this;
   }
 
@@ -452,6 +461,7 @@ public class ServerOptions {
    */
   public ServerOptions setMaxRequestSize(int maxRequestSize) {
     this.maxRequestSize = maxRequestSize;
+    this.defaults = false;
     return this;
   }
 
@@ -472,6 +482,7 @@ public class ServerOptions {
    */
   public ServerOptions setMaxFormFields(int maxFormFields) {
     this.maxFormFields = maxFormFields;
+    this.defaults = false;
     return this;
   }
 
@@ -500,6 +511,7 @@ public class ServerOptions {
    */
   public ServerOptions setMaxHeaderSize(int maxHeaderSize) {
     this.maxHeaderSize = maxHeaderSize;
+    this.defaults = false;
     return this;
   }
 
@@ -519,11 +531,12 @@ public class ServerOptions {
    * @return This options.
    */
   public ServerOptions setHost(String host) {
-    if (host == null || host.trim().length() == 0 || "localhost".equalsIgnoreCase(host.trim())) {
+    if (host == null || host.trim().isEmpty() || "localhost".equalsIgnoreCase(host.trim())) {
       this.host = LOCAL_HOST;
     } else {
       this.host = host;
     }
+    this.defaults = false;
     return this;
   }
 
@@ -544,6 +557,7 @@ public class ServerOptions {
    */
   public ServerOptions setSsl(@Nullable SslOptions ssl) {
     this.ssl = ssl;
+    this.defaults = false;
     return this;
   }
 
@@ -567,6 +581,7 @@ public class ServerOptions {
    */
   public ServerOptions setHttp2(@Nullable Boolean http2) {
     this.http2 = http2;
+    this.defaults = false;
     return this;
   }
 
@@ -589,6 +604,7 @@ public class ServerOptions {
    */
   public ServerOptions setExpectContinue(@Nullable Boolean expectContinue) {
     this.expectContinue = expectContinue;
+    this.defaults = false;
     return this;
   }
 

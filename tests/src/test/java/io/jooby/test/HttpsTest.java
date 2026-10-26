@@ -245,8 +245,7 @@ public class HttpsTest {
                 .setSsl(SslOptions.selfSigned()))
         .define(
             app -> {
-              var options = app.require(ServerOptions.class);
-              options.setSsl(SslOptions.selfSigned());
+              var options = app.getServerOptions();
               // a fresh context is created every time based on config
               var ctx1 = options.getSSLContext(this.getClass().getClassLoader());
               var ctx2 = options.getSSLContext(this.getClass().getClassLoader());
