@@ -26,34 +26,49 @@ public final class RainbowGumService implements LoggingService {
   private static final Map<String, Integer> MUTED = new HashMap<>();
   private static final Map<String, System.Logger.Level> LEVELS = new ConcurrentHashMap<>();
 
+  /*
+   * Only the loggers servers mute during start and stop can change level, so other loggers keep
+   * Rainbow Gum's fixed level fast path.
+   */
   static final LogProperties DEFAULTS =
       LogProperties.builder()
-          .fromProperties("logging.change.mode=on\nlogging.change.logger=level")
+          .fromProperties(
+              """
+              logging.change.mode=on
+              logging.change.logger.org.eclipse.jetty.server=level
+              logging.change.logger.io.undertow=level
+              logging.change.logger.org.xnio=level
+              logging.change.logger.org.jboss.threads=level
+              """)
           .description("Jooby logging defaults")
           .order(-1000)
           .build();
 
-  enum Owner {
+  enum Bootstrap {
     INSTANCE
   }
 
   /** For service loading. */
   public RainbowGumService() {}
 
-  static void register(ServiceRegistry registry) {
-    registry.put(Owner.class, Owner.INSTANCE);
+  static void markBootstrap(ServiceRegistry registry) {
+    registry.put(Bootstrap.class, Bootstrap.INSTANCE);
   }
 
   @Override
   public void initialize(Environment environment) {
     synchronized (LOCK) {
       var previous = RainbowGum.getOrNull();
-      if (previous != null && previous.config().serviceRegistry().findOrNull(Owner.class) == null) {
-        // An explicitly installed Rainbow Gum remains under the application's control.
+      if (previous != null
+          && previous.config().serviceRegistry().findOrNull(Bootstrap.class) == null) {
+        /*
+         * Logging is configured once per JVM from the first environment, as with Logback and Log4j.
+         * Loggers with a fixed level stay bound to the instance that created them, so replacing it
+         * would leave them writing to a closed instance. An explicitly installed Rainbow Gum also
+         * remains under the application's control.
+         */
         return;
       }
-      var registry = ServiceRegistry.of();
-      register(registry);
       var properties =
           LogProperties.of(
               List.of(
@@ -64,7 +79,6 @@ public final class RainbowGumService implements LoggingService {
           LogConfig.builder()
               .properties(properties)
               .config(LEVELS::get)
-              .serviceRegistry(registry)
               .serviceLoader(
                   ServiceLoader.load(RainbowGumServiceProvider.class, environment.getClassLoader()))
               .build();
