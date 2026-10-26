@@ -23,7 +23,7 @@ public final class RainbowGumBootstrap implements RainbowGumServiceProvider.Rain
   public Optional<RainbowGum> provide(LogConfig config) {
     // Only this queued instance is marked as Jooby's, not every service loaded config.
     var registry = ServiceRegistry.of();
-    RainbowGumService.register(registry);
+    RainbowGumService.markBootstrap(registry);
     var properties =
         LogProperties.of(
             List.of(

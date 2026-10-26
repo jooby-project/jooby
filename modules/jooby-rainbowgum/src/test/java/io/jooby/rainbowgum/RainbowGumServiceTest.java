@@ -144,7 +144,10 @@ class RainbowGumServiceTest {
 
   @Test
   void publishRereadsLevelsFromTheCurrentEnvironmentConfig() throws Exception {
-    var env = environment(configuration("warn"));
+    var env =
+        environment(
+            configuration("warn")
+                .withValue("logging.change.logger", ConfigValueFactory.fromAnyRef("level")));
     new Jooby().setEnvironment(env);
     var logger = LoggerFactory.getLogger("reload.logger");
     assertFalse(logger.isDebugEnabled());
@@ -159,41 +162,47 @@ class RainbowGumServiceTest {
   }
 
   @Test
-  void replacingEnvironmentClosesThePreviousOutputsAndUpdatesExistingLoggers() throws Exception {
+  void laterEnvironmentsKeepTheFirstConfigurationAndExistingLoggersWorking() throws Exception {
     var app = new Jooby().setEnvironment(environment(configuration("warn")));
     var first = RainbowGum.of();
     var logger = LoggerFactory.getLogger("replacement.logger");
-    assertFalse(logger.isDebugEnabled());
     app.setEnvironment(environment(configuration("debug")));
-    assertNotSame(first, RainbowGum.of());
-    assertTrue(logger.isDebugEnabled());
-    logger.debug("replacement");
-    assertEquals("replacement\n", output());
+    new Jooby().setEnvironment(environment(configuration("debug")));
+    assertSame(first, RainbowGum.of());
+    assertFalse(logger.isDebugEnabled());
+    logger.warn("kept");
+    assertEquals("kept\n", output());
   }
 
   @Test
   void logOffRestoresInheritedLevelsEvenWhenNestedTaskThrows() throws Exception {
     new Jooby().setEnvironment(environment(configuration("debug")));
-    var logger = LoggerFactory.getLogger("mute.logger");
+    var logger = LoggerFactory.getLogger("io.undertow.Undertow");
     var service = new RainbowGumService();
     assertEquals(
         io.jstach.rainbowgum.LogConfig.ChangePublisher.ChangeMode.ON,
         RainbowGum.of().config().globals().changeMode());
     assertEquals(
         java.util.Set.of(io.jstach.rainbowgum.LogConfig.ChangePublisher.ChangeType.LEVEL),
-        RainbowGum.of().config().changePublisher().allowedChanges("mute.logger"));
+        RainbowGum.of().config().changePublisher().allowedChanges("io.undertow.Undertow"));
+    assertEquals(
+        java.util.Set.of(),
+        RainbowGum.of().config().changePublisher().allowedChanges("com.example.Service"));
     assertThrows(
         IllegalStateException.class,
         () ->
             service.logOff(
-                List.of("mute.logger"),
+                List.of("io.undertow.Undertow"),
                 () -> {
                   assertEquals(
                       Level.OFF,
-                      RainbowGum.of().config().levelResolver().resolveLevel("mute.logger"));
+                      RainbowGum.of()
+                          .config()
+                          .levelResolver()
+                          .resolveLevel("io.undertow.Undertow"));
                   assertFalse(logger.isErrorEnabled());
                   service.logOff(
-                      List.of("mute.logger"), () -> assertFalse(logger.isErrorEnabled()));
+                      List.of("io.undertow.Undertow"), () -> assertFalse(logger.isErrorEnabled()));
                   assertFalse(logger.isErrorEnabled());
                   logger.error("hidden");
                   throw new IllegalStateException("expected");
@@ -205,7 +214,12 @@ class RainbowGumServiceTest {
 
   @Test
   void mutingLiteralRootDoesNotMuteUnrelatedLoggers() {
-    new Jooby().setEnvironment(environment(configuration("debug")));
+    new Jooby()
+        .setEnvironment(
+            environment(
+                configuration("debug")
+                    .withValue(
+                        "logging.change.logger.root", ConfigValueFactory.fromAnyRef("level"))));
     var root = LoggerFactory.getLogger("root");
     var other = LoggerFactory.getLogger("unrelated.logger");
     new RainbowGumService()
@@ -223,29 +237,31 @@ class RainbowGumServiceTest {
     RainbowGum.of();
     var service = new RainbowGumService();
     service.logOff(
-        List.of("server.logger"),
+        List.of("org.xnio.Xnio"),
         () -> {
           new Jooby().setEnvironment(environment(configuration("debug")));
           assertEquals(
-              Level.OFF, RainbowGum.of().config().levelResolver().resolveLevel("server.logger"));
-          assertFalse(LoggerFactory.getLogger("server.logger").isErrorEnabled());
+              Level.OFF, RainbowGum.of().config().levelResolver().resolveLevel("org.xnio.Xnio"));
+          assertFalse(LoggerFactory.getLogger("org.xnio.Xnio").isErrorEnabled());
         });
-    assertTrue(LoggerFactory.getLogger("server.logger").isDebugEnabled());
+    assertTrue(LoggerFactory.getLogger("org.xnio.Xnio").isDebugEnabled());
   }
 
   @Test
-  void invalidConfigurationDoesNotUnbindTheWorkingInstance() throws Exception {
-    var app = new Jooby().setEnvironment(environment(configuration("debug")));
-    var current = RainbowGum.of();
+  void invalidConfigurationKeepsQueueingUntilAValidEnvironment() throws Exception {
+    var bootstrap = RainbowGum.of();
     var invalid =
         configuration("debug")
             .withValue(
                 "logging.appender.capture.encoder.uri",
                 ConfigValueFactory.fromAnyRef("missing-encoder"));
+    var app = new Jooby();
     assertThrows(RuntimeException.class, () -> app.setEnvironment(environment(invalid)));
-    assertSame(current, RainbowGum.of());
-    LoggerFactory.getLogger("still.working").debug("still-working");
-    assertEquals("still-working\n", output());
+    assertSame(bootstrap, RainbowGum.of());
+    LoggerFactory.getLogger("still.queued").info("still-queued");
+    app.setEnvironment(environment(configuration("debug")));
+    assertNotSame(bootstrap, RainbowGum.of());
+    assertEquals("still-queued\n", output());
   }
 
   @Test
