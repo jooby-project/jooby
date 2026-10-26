@@ -38,6 +38,20 @@ Working notes for this branch. Remove before merging.
   closes the previous class loader's instance or removes its shutdown hook. This is from reading the
   code, not tested.
 
+## GraalVM native image
+
+Checked with GraalVM CE 25.0.4 `native-image` on a small Jetty application with a static logger
+and a `logging` block in `application.conf`. This module needs no native image metadata: its
+service providers are registered from `META-INF/services`, and the native executable printed the
+same output as the JVM run (early message replayed through the configured pattern, debug levels
+from the config, Jetty startup muted).
+
+Jooby itself ships no native image metadata. Without it, a classpath `application.conf` is not in
+the image, and Jooby silently falls back to defaults (port 8080, default logging). The application
+had to add `META-INF/native-image/<group>/<artifact>/reachability-metadata.json` with
+`{"resources": [{"glob": "application*.conf"}]}`. Jooby could ship that resource entry in its own
+jar.
+
 ## Jooby bugs outside this module
 
 - **Log4j `logOff` does not restore exactly configured loggers.** `Log4jService.setLog4jLevel` reads
