@@ -97,7 +97,7 @@ class RainbowGumServiceTest {
             logging.level.database = info
             logging.change.logger."com.example" = [level]
             logging.caller.logger."com.example" = true
-            logging.extra = { "user.name" = alice, retries = 3, active = true }
+            logging.extra = { "user.name" = alice, retries = 3, active = true, unset = null }
             logging.nullValue = null
             """);
     var properties = new ConfigProperties(() -> config);
@@ -200,6 +200,21 @@ class RainbowGumServiceTest {
     assertTrue(logger.isDebugEnabled());
     logger.debug("restored");
     assertEquals("restored\n", output());
+  }
+
+  @Test
+  void mutingLiteralRootDoesNotMuteUnrelatedLoggers() {
+    new Jooby().setEnvironment(environment(configuration("debug")));
+    var root = LoggerFactory.getLogger("root");
+    var other = LoggerFactory.getLogger("unrelated.logger");
+    new RainbowGumService()
+        .logOff(
+            List.of("root"),
+            () -> {
+              assertFalse(root.isErrorEnabled());
+              assertTrue(other.isDebugEnabled());
+            });
+    assertTrue(root.isDebugEnabled());
   }
 
   @Test

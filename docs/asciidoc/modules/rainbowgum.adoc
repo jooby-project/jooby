@@ -47,8 +47,12 @@ logging. Logging is global to the JVM, as with Jooby's other logging implementat
 
 A bootstrap Rainbow Gum queues messages emitted before Jooby loads its environment, including messages
 from static loggers. When the environment is available, the module installs the configured Rainbow
-Gum, replays queued messages through its routes, and updates existing SLF4J loggers. It then closes
+Gum, replays queued messages through its routes, and updates existing SLF4J logger levels and routes. It then closes
 the previous instance. An explicitly installed Rainbow Gum is left under the application's control.
+
+Caller information and decorators are chosen when a logger is created. For loggers created during
+bootstrap, configure these capabilities before startup (for example,
+`-Dlogging.caller.logger.root=true`); the later environment configuration does not retrofit them.
 
 === Configuration changes
 
