@@ -421,7 +421,7 @@ public interface DefaultContext extends Context {
   @Override
   default int getPort() {
     var hostAndPort = getHostAndPort();
-    int index = hostAndPort.indexOf(':');
+    int index = portSeparator(hostAndPort);
     if (index > 0) {
       return Integer.parseInt(hostAndPort.substring(index + 1));
     }
@@ -431,8 +431,26 @@ public interface DefaultContext extends Context {
   @Override
   default String getHost() {
     String hostAndPort = getHostAndPort();
-    int index = hostAndPort.indexOf(':');
-    return index > 0 ? hostAndPort.substring(0, index).trim() : hostAndPort;
+    int index = portSeparator(hostAndPort);
+    if (index > 0) {
+      return hostAndPort.substring(0, index).trim();
+    }
+    if (!hostAndPort.startsWith("[") && hostAndPort.indexOf(':') != hostAndPort.lastIndexOf(':')) {
+      // IPv6 address without port, which getHostAndPort() returns without brackets
+      return "[" + hostAndPort + "]";
+    }
+    return hostAndPort;
+  }
+
+  private static int portSeparator(String hostAndPort) {
+    int index = hostAndPort.lastIndexOf(':');
+    if (hostAndPort.startsWith("[")) {
+      // IPv6 address: the port follows the closing bracket, as in [::1]:8080
+      int end = hostAndPort.indexOf(']');
+      return end > 0 && index > end ? index : -1;
+    }
+    // more than one colon is an IPv6 address without brackets, so without port
+    return index == hostAndPort.indexOf(':') ? index : -1;
   }
 
   @Override

@@ -542,6 +542,44 @@ public class DefaultContextTest {
     doReturn(mockHostHeader).when(ctx).header("Host");
 
     assertEquals("::1", ctx.getHostAndPort());
+    assertEquals("[::1]", ctx.getHost());
+  }
+
+  @Test
+  void hostAndPortIPv6WithPort() {
+    Value mockHostHeader = mock(Value.class);
+    when(mockHostHeader.valueOrNull()).thenReturn("[2001:db8::1]:8080");
+    doReturn(mockHostHeader).when(ctx).header("Host");
+
+    assertEquals("[2001:db8::1]:8080", ctx.getHostAndPort());
+    assertEquals("[2001:db8::1]", ctx.getHost());
+    assertEquals(8080, ctx.getPort());
+  }
+
+  @Test
+  void hostAndPortIPv6DefaultPort() {
+    doReturn(false).when(ctx).isSecure();
+
+    Value mockHostHeader = mock(Value.class);
+    when(mockHostHeader.valueOrNull()).thenReturn("[2001:db8::1]");
+    doReturn(mockHostHeader).when(ctx).header("Host");
+
+    assertEquals("[2001:db8::1]", ctx.getHost());
+    assertEquals(80, ctx.getPort());
+  }
+
+  @Test
+  void requestURLIPv6() {
+    doReturn("http").when(ctx).getScheme();
+    doReturn("/").when(ctx).getContextPath();
+    doReturn("/path").when(ctx).getRequestPath();
+    doReturn("?q=1").when(ctx).queryString();
+
+    Value mockHostHeader = mock(Value.class);
+    when(mockHostHeader.valueOrNull()).thenReturn("[::1]:8080");
+    doReturn(mockHostHeader).when(ctx).header("Host");
+
+    assertEquals("http://[::1]:8080/path?q=1", ctx.getRequestURL());
   }
 
   @Test
