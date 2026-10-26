@@ -150,7 +150,7 @@ public class Jooby implements Router, Registry {
    */
   public Environment getEnvironment() {
     if (env == null) {
-      env = Environment.loadEnvironment(environmentOptions);
+      setEnvironment(Environment.loadEnvironment(environmentOptions));
     }
     return env;
   }
@@ -212,6 +212,7 @@ public class Jooby implements Router, Registry {
    */
   public Jooby setEnvironment(Environment environment) {
     this.env = environment;
+    LoggingService.configure(environment);
     return this;
   }
 
@@ -223,9 +224,9 @@ public class Jooby implements Router, Registry {
    */
   public Environment setEnvironmentOptions(EnvironmentOptions options) {
     this.environmentOptions = options;
-    this.env =
+    setEnvironment(
         Environment.loadEnvironment(
-            options.setClassLoader(options.getClassLoader(getClass().getClassLoader())));
+            options.setClassLoader(options.getClassLoader(getClass().getClassLoader()))));
     return this.env;
   }
 
