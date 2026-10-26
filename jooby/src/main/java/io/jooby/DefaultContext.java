@@ -394,7 +394,14 @@ public interface DefaultContext extends Context {
         header.orElseGet(
             () ->
                 ofNullable(header("Host").valueOrNull())
-                    .orElseGet(() -> getServerHost() + ":" + getServerPort()));
+                    .orElseGet(
+                        () -> {
+                          String sh = getServerHost();
+                          if (sh.indexOf(':') != -1 && !sh.startsWith("[")) {
+                            return "[" + sh + "]:" + getServerPort();
+                          }
+                          return sh + ":" + getServerPort();
+                        }));
     int i = value.indexOf(',');
     String host = i > 0 ? value.substring(0, i).trim() : value;
     if (host.startsWith("[") && host.endsWith("]")) {

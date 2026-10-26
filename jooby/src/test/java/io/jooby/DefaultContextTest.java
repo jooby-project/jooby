@@ -583,6 +583,50 @@ public class DefaultContextTest {
   }
 
   @Test
+  void hostAndPortIPv6ServerFallback() {
+    ServerOptions options = new ServerOptions().setPort(9090).setHost("::1");
+    doReturn(options).when(ctx).require(ServerOptions.class);
+    doReturn(false).when(ctx).isSecure();
+
+    Value mockHostHeader = mock(Value.class);
+    when(mockHostHeader.valueOrNull()).thenReturn(null);
+    doReturn(mockHostHeader).when(ctx).header("Host");
+
+    // Without brackets in the fallback, this would fail and return "[::1:9090]" / 80
+    assertEquals("[::1]:9090", ctx.getHostAndPort());
+    assertEquals("[::1]", ctx.getHost());
+    assertEquals(9090, ctx.getPort());
+  }
+
+  @Test
+  void hostAndPortBareIPv6() {
+    doReturn(false).when(ctx).isSecure();
+
+    Value mockHostHeader = mock(Value.class);
+    when(mockHostHeader.valueOrNull()).thenReturn("2001:db8::1");
+    doReturn(mockHostHeader).when(ctx).header("Host");
+
+    // Ensures getHost() successfully detects and wraps unbracketed IPv6 headers
+    assertEquals("2001:db8::1", ctx.getHostAndPort());
+    assertEquals("[2001:db8::1]", ctx.getHost());
+    assertEquals(80, ctx.getPort());
+  }
+
+  @Test
+  void hostAndPortIPv6WithProxy() {
+    when(router.getRouterOptions()).thenReturn(new RouterOptions().setTrustProxy(true));
+    Value mockProxyHeader = mock(Value.class);
+
+    // Multiple proxy hops, first one is IPv6 with a port
+    when(mockProxyHeader.toOptional()).thenReturn(Optional.of("[2001:db8::1]:8443, [::1]"));
+    doReturn(mockProxyHeader).when(ctx).header("X-Forwarded-Host");
+
+    assertEquals("[2001:db8::1]:8443", ctx.getHostAndPort());
+    assertEquals("[2001:db8::1]", ctx.getHost());
+    assertEquals(8443, ctx.getPort());
+  }
+
+  @Test
   void securePortFallback() {
     ServerOptions options = new ServerOptions().setPort(8080); // securePort is null
     doReturn(options).when(ctx).require(ServerOptions.class);
