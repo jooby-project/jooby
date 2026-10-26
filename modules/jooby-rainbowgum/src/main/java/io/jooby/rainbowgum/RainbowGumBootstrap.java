@@ -8,7 +8,6 @@ package io.jooby.rainbowgum;
 import java.util.List;
 import java.util.Optional;
 
-import io.jstach.rainbowgum.LogAlerts;
 import io.jstach.rainbowgum.LogConfig;
 import io.jstach.rainbowgum.LogProperties;
 import io.jstach.rainbowgum.RainbowGum;
@@ -16,20 +15,26 @@ import io.jstach.rainbowgum.ServiceRegistry;
 import io.jstach.rainbowgum.spi.RainbowGumServiceProvider;
 
 /** Queues logging before Jooby's application environment is available. */
-public final class RainbowGumBootstrap
-    implements RainbowGumServiceProvider.RainbowGumProvider,
-        RainbowGumServiceProvider.PropertiesProvider {
+public final class RainbowGumBootstrap implements RainbowGumServiceProvider.RainbowGumProvider {
   /** For service loading. */
   public RainbowGumBootstrap() {}
 
   @Override
-  public List<LogProperties> provideProperties(ServiceRegistry registry, LogAlerts alerts) {
+  public Optional<RainbowGum> provide(LogConfig config) {
+    // Only this queued instance is marked as Jooby's, not every service loaded config.
+    var registry = ServiceRegistry.of();
     RainbowGumService.register(registry);
-    return List.of(RainbowGumService.DEFAULTS);
+    var properties =
+        LogProperties.of(
+            List.of(
+                LogProperties.StandardProperties.SYSTEM_PROPERTIES, RainbowGumService.DEFAULTS));
+    var bootstrap = LogConfig.builder().properties(properties).serviceRegistry(registry).build();
+    return Optional.of(RainbowGum.queued(bootstrap));
   }
 
   @Override
-  public Optional<RainbowGum> provide(LogConfig config) {
-    return Optional.of(RainbowGum.queued(config));
+  public int priority() {
+    // Application providers win; their Rainbow Gum is left under the application's control.
+    return Integer.MIN_VALUE;
   }
 }
