@@ -89,6 +89,16 @@ public class ByteRangeTest {
           assertEquals("bytes 101-199/200", range.getContentRange());
         });
 
+    range(
+        "bytes=-300",
+        200,
+        range -> {
+          assertEquals(PARTIAL_CONTENT, range.getStatusCode());
+          assertEquals(0, range.getStart());
+          assertEquals(200, range.getEnd());
+          assertEquals("bytes 0-199/200", range.getContentRange());
+        });
+
     // 100-150 is ignored.
     range(
         "bytes=0-50, 100-150",
