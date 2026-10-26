@@ -20,6 +20,7 @@
 
     <module>jooby-logback</module>
     <module>jooby-log4j</module>
+    <module>jooby-rainbowgum</module>
 
     <module>jooby-conscrypt</module>
 

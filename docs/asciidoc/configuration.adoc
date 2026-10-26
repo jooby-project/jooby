@@ -157,13 +157,20 @@ Jooby uses **SLF4J**, allowing you to plug in your preferred logging framework.
 1. **Add Dependencies:** `log4j-slf4j-impl` and `log4j-core`.
 2. **Configure:** Place `log4j2.xml` in your `conf` directory or classpath root.
 
+===== Rainbow Gum
+
+Add `jooby-rainbowgum` to configure logging directly in `application.conf`, including environment-specific
+files. The module includes the SLF4J provider and pattern encoder and handles logging before the
+application environment is available. See link:{uiVersion}/modules/rainbowgum[Rainbow Gum] for examples
+and configuration updates.
+
 ===== Environment-Aware Logging
 
 Logging is also environment-aware. Jooby will look for `logback.[env].xml` or `log4j2.[env].xml` and favor them over the default files.
 
 [IMPORTANT]
 ====
-To ensure environment-specific logging works correctly, avoid using **static** loggers in your main App class before `runApp` is called. Static loggers force the logging framework to initialize before Jooby can apply the environment-specific configuration. Use an instance logger or Jooby's `getLog()` method instead.
+With Logback or Log4j2, to ensure environment-specific logging works correctly, avoid using **static** loggers in your main App class before `runApp` is called. Static loggers force the logging framework to initialize before Jooby can apply the environment-specific configuration. Use an instance logger or Jooby's `getLog()` method instead.
 ====
 
 ==== Application Properties

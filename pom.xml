@@ -90,6 +90,8 @@
     <grpc.version>1.85.1</grpc.version>
 
     <!-- logging -->
+    <!-- Bump to the release containing the Jooby logging lifecycle fixes before merging. -->
+    <rainbowgum.version>0.16.0</rainbowgum.version>
     <logback-classic.version>1.6.5</logback-classic.version>
     <log4j.version>2.26.1</log4j.version>
     <slf4j.version>2.0.20</slf4j.version>
@@ -290,6 +292,11 @@
         <version>${jooby.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.jooby</groupId>
+        <artifactId>jooby-rainbowgum</artifactId>
+        <version>${jooby.version}</version>
+      </dependency>
       <!-- server -->
       <dependency>
         <groupId>io.jooby</groupId>
