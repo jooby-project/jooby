@@ -1,33 +1,37 @@
 version: 2
 updates:
-- package-ecosystem: maven
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  groups:
-    dependencies:
-      patterns:
-      - "*"
-      exclude-patterns:
-      - "*vue*"
-- package-ecosystem: npm
-  directory: "/modules/jooby-graphiql"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 1
-- package-ecosystem: npm
-  directory: "/modules/jooby-graphql-playground"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 1
-- package-ecosystem: npm
-  directory: "/modules/jooby-redoc"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 1
-- package-ecosystem: npm
-  directory: "/modules/jooby-swagger-ui"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 1
+  - package-ecosystem: maven
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "io.github.classgraph:classgraph"
+        versions:
+          - ">= 6.0.0"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "*vue*"
+  - package-ecosystem: npm
+    directory: "/modules/jooby-graphiql"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+  - package-ecosystem: npm
+    directory: "/modules/jooby-graphql-playground"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+  - package-ecosystem: npm
+    directory: "/modules/jooby-redoc"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+  - package-ecosystem: npm
+    directory: "/modules/jooby-swagger-ui"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
