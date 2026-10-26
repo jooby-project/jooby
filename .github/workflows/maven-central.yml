@@ -51,7 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      issues: write # Required to update/close milestones
+      issues: write
+      pull-requests: read # Required to fetch PR JSON data
 
     steps:
       - uses: actions/checkout@v4
@@ -135,10 +136,42 @@ jobs:
               end
             ' > label_summary.md
 
-          # 6. Initialize the changelog file
+          # 6. Fetch all issue numbers in this milestone to use as a filter
+          CURRENT_ISSUES_JSON=$(gh issue list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\"" \
+            --state all \
+            --limit 1000 \
+            --json number \
+            --jq '[.[].number]')
+
+          if [ -z "$CURRENT_ISSUES_JSON" ]; then
+            CURRENT_ISSUES_JSON="[]"
+          fi
+
+          # 7. Fetch Pull Requests and filter out those that close CURRENT issues
+          # Note: We dump to JSON first, then use a jq set-difference to check if the PR's closing issues overlap with the current milestone issues.
+          gh pr list \
+            --repo ${{ github.repository }} \
+            --search "milestone:\"$VERSION_NUM\" is:merged -author:app/dependabot -label:dependencies" \
+            --limit 100 \
+            --json title,number,closingIssuesReferences > all_prs.json
+
+          jq -r --argjson current_issues "$CURRENT_ISSUES_JSON" '
+            .[] |
+            select(
+              ([.closingIssuesReferences[]?.number] - $current_issues | length) == ([.closingIssuesReferences[]?.number] | length)
+            ) |
+            "- \(.title) #\(.number)"
+          ' all_prs.json > unlinked_prs.md
+
+          # 8. Merge generic changes and standalone PRs into one file
+          cat other_issues.md unlinked_prs.md > merged_changes.md
+
+          # 9. Initialize the changelog file
           > changelog.md
 
-          # 7. Conditionally add "Breaking Changes"
+          # 10. Conditionally add "Breaking Changes"
           if [ -s breaking_issues.md ]; then
             echo "## ⚠️ Breaking Changes" >> changelog.md
             echo "" >> changelog.md
@@ -146,7 +179,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 8. Conditionally add "What's New"
+          # 11. Conditionally add "What's New"
           if [ -s new_issues.md ]; then
             echo "## 🚀 What's New" >> changelog.md
             echo "" >> changelog.md
@@ -154,15 +187,15 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 9. Conditionally add "Other Changes"
-          if [ -s other_issues.md ]; then
+          # 12. Conditionally add "Changes & Pull Requests"
+          if [ -s merged_changes.md ]; then
             echo "## 🛠️ Changes" >> changelog.md
             echo "" >> changelog.md
-            cat other_issues.md >> changelog.md
+            cat merged_changes.md >> changelog.md
             echo "" >> changelog.md
           fi
 
-          # 10. Conditionally add "Deprecated"
+          # 13. Conditionally add "Deprecated"
           if [ -s deprecated_issues.md ]; then
             echo "## 🗑️ Deprecated" >> changelog.md
             echo "" >> changelog.md
@@ -170,7 +203,7 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 11. Conditionally add "Component Summary" Table inside a collapsible section
+          # 14. Conditionally add "Component Summary" Table inside a collapsible section
           if [ -s label_summary.md ]; then
             echo "## 📊 Component Updates" >> changelog.md
             echo "" >> changelog.md
@@ -183,14 +216,13 @@ jobs:
             echo "" >> changelog.md
           fi
 
-          # 12. Build the rest of the changelog (Links & Sponsors)
+          # 15. Build the rest of the changelog (Links & Resources only)
           cat << EOF >> changelog.md
           ## 🔗 Links & Resources
-          - [$CURRENT_TAG](https://github.com/jooby-project/jooby/tree/$CURRENT_TAG)
-          - [Closed Issues](https://github.com/jooby-project/jooby/milestone/$MILESTONE_ID?closed=1)
-          - [Changelog](https://github.com/jooby-project/jooby/compare/$PREV_TAG...$CURRENT_TAG)
-          - [Dependency Updates](https://github.com/jooby-project/jooby/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
-
+          - [$CURRENT_TAG](https://github.com/${{ github.repository }}/tree/$CURRENT_TAG)
+          - [Closed Issues](https://github.com/${{ github.repository }}/milestone/$MILESTONE_ID?closed=1)
+          - [Changelog](https://github.com/${{ github.repository }}/compare/$PREV_TAG...$CURRENT_TAG)
+          - [Dependency Updates](https://github.com/${{ github.repository }}/pulls?q=is%3Apr+label%3Adependencies+is%3Aclosed+milestone%3A$VERSION_NUM)
           EOF
 
           # Overwrite the existing release notes
