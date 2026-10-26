@@ -61,8 +61,9 @@ class RainbowGumServiceTest {
             .formatted(root, directory.resolve("application.log").toUri()));
   }
 
-  private String output() throws Exception {
-    return Files.readString(directory.resolve("application.log"));
+  // Lines, because %n is the platform line separator.
+  private List<String> output() throws Exception {
+    return Files.readAllLines(directory.resolve("application.log"));
   }
 
   @Test
@@ -78,7 +79,7 @@ class RainbowGumServiceTest {
     assertNotSame(bootstrap, RainbowGum.of());
     assertTrue(early.isDebugEnabled());
     early.debug("after-environment");
-    assertEquals("before-environment\nafter-environment\n", output());
+    assertEquals(List.of("before-environment", "after-environment"), output());
     assertSame(app.getEnvironment(), app.getEnvironment());
   }
 
@@ -158,7 +159,7 @@ class RainbowGumServiceTest {
     assertSame(gum, RainbowGum.of());
     assertTrue(logger.isDebugEnabled());
     logger.debug("reloaded");
-    assertEquals("reloaded\n", output());
+    assertEquals(List.of("reloaded"), output());
   }
 
   @Test
@@ -171,7 +172,7 @@ class RainbowGumServiceTest {
     assertSame(first, RainbowGum.of());
     assertFalse(logger.isDebugEnabled());
     logger.warn("kept");
-    assertEquals("kept\n", output());
+    assertEquals(List.of("kept"), output());
   }
 
   @Test
@@ -209,7 +210,7 @@ class RainbowGumServiceTest {
                 }));
     assertTrue(logger.isDebugEnabled());
     logger.debug("restored");
-    assertEquals("restored\n", output());
+    assertEquals(List.of("restored"), output());
   }
 
   @Test
@@ -261,7 +262,7 @@ class RainbowGumServiceTest {
     LoggerFactory.getLogger("still.queued").info("still-queued");
     app.setEnvironment(environment(configuration("debug")));
     assertNotSame(bootstrap, RainbowGum.of());
-    assertEquals("still-queued\n", output());
+    assertEquals(List.of("still-queued"), output());
   }
 
   @Test
