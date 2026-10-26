@@ -89,7 +89,7 @@ public class Pac4jModule implements Extension {
 
   private final Pac4jOptions options;
 
-  private Map<String, ProtectedPath> clientMap;
+  private @Nullable Map<String, ProtectedPath> clientMap;
 
   /** Creates a new pac4j module. */
   public Pac4jModule() {
@@ -353,9 +353,8 @@ public class Pac4jModule implements Extension {
     Map<String, List<ClientReference>> allClients = new LinkedHashMap<>();
 
     /* Should add simple login form? */
-    var devLogin = false;
-    if (clientMap.isEmpty()) {
-      devLogin = true;
+    var devLogin = app.getEnvironment().isActive("dev", "test");
+    if (clientMap.isEmpty() && devLogin) {
       client(
           conf ->
               new FormClient(
@@ -441,6 +440,15 @@ public class Pac4jModule implements Extension {
         ofNullable(options.getProfileManagerFactory()).orElse(ProfileManagerFactory.DEFAULT));
 
     if (devLogin) {
+      var devLoginFormWarning =
+          !conf.hasPath("pac4j.devLoginFormWarning")
+              || conf.getBoolean("pac4j.devLoginFormWarning");
+      if (devLoginFormWarning) {
+        app.getLog()
+            .warn(
+                "Pac4j module is using the fallback DevLoginForm. This component is for development"
+                    + " purposes only and should NOT be used in production.");
+      }
       app.get("/login", new DevLoginForm(options, contextPath + options.getCallbackPath()));
     }
 

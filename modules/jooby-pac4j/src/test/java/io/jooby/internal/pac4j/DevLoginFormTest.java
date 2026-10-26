@@ -5,12 +5,16 @@
  */
 package io.jooby.internal.pac4j;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.http.url.UrlResolver;
 
 import io.jooby.Context;
@@ -97,5 +101,53 @@ public class DevLoginFormTest {
                     html.contains("<h3>Login</h3>")
                         && html.contains("action=\"/callback?client_name=FormClient\"")
                         && html.contains("value=\"\"")));
+  }
+
+  @Test
+  public void shouldEscapeXssPayloads() throws Exception {
+    Config config = mock(Config.class);
+    Clients clients = mock(Clients.class);
+    UrlResolver urlResolver = mock(UrlResolver.class);
+
+    when(config.getClients()).thenReturn(clients);
+    when(clients.getUrlResolver()).thenReturn(urlResolver);
+    when(urlResolver.compute(anyString(), any(WebContext.class))).thenReturn("/callback");
+
+    Context ctx = mock(Context.class);
+    Value errorNode = mock(Value.class);
+    Value userNode = mock(Value.class);
+
+    String xssError = "<script>alert('error')</script>";
+    String xssUser = "\"><script>alert('user')</script>";
+
+    when(ctx.query("error")).thenReturn(errorNode);
+    when(errorNode.value("")).thenReturn(xssError);
+
+    when(ctx.query("username")).thenReturn(userNode);
+    when(userNode.value("")).thenReturn(xssUser);
+
+    // Mock response chain
+    when(ctx.setResponseType(MediaType.html)).thenReturn(ctx);
+
+    // Capture the HTML argument passed to ctx.send() and return the ctx mock
+    ArgumentCaptor<String> htmlCaptor = ArgumentCaptor.forClass(String.class);
+    when(ctx.send(htmlCaptor.capture())).thenReturn(ctx);
+
+    DevLoginForm form = new DevLoginForm(config, "/callback");
+    form.apply(ctx);
+
+    // Retrieve the captured HTML
+    String html = htmlCaptor.getValue();
+
+    // Assert inputs were sanitized
+    assertFalse(html.contains(xssError), "Error payload was rendered unescaped!");
+    assertFalse(html.contains(xssUser), "Username payload was rendered unescaped!");
+
+    // Verify HTML entity encoding occurred (checking < and >)
+    assertTrue(html.contains("&lt;script&gt;"), "Expected escaped <script> tag");
+
+    // Verify quotes were escaped in the value attribute injection
+    assertTrue(
+        html.contains("&quot;&gt;") || html.contains("&#34;&gt;"), "Expected escaped double quote");
   }
 }
