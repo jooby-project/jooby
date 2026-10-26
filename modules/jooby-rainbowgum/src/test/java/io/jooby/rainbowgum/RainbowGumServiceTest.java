@@ -30,6 +30,7 @@ import io.jooby.LoggingService;
 import io.jstach.rainbowgum.LogConfig;
 import io.jstach.rainbowgum.LogRouter;
 import io.jstach.rainbowgum.RainbowGum;
+import io.jstach.rainbowgum.spi.RainbowGumServiceProvider;
 
 class RainbowGumServiceTest {
   @TempDir Path directory;
@@ -250,6 +251,17 @@ class RainbowGumServiceTest {
   @Test
   void doesNotReplaceAnExplicitlyInstalledRainbowGum() {
     var custom = RainbowGum.builder(LogConfig.builder().build()).set();
+    new Jooby().setEnvironment(environment(configuration("debug")));
+    assertSame(custom, RainbowGum.of());
+  }
+
+  @Test
+  void doesNotReplaceAnExplicitlyInstalledServiceLoadedRainbowGum() {
+    var config =
+        LogConfig.builder()
+            .serviceLoader(ServiceLoader.load(RainbowGumServiceProvider.class))
+            .build();
+    var custom = RainbowGum.builder(config).set();
     new Jooby().setEnvironment(environment(configuration("debug")));
     assertSame(custom, RainbowGum.of());
   }
