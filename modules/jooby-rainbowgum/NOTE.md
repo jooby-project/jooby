@@ -2,6 +2,23 @@
 
 Working notes for this branch. Remove before merging.
 
+## Public API added outside this module
+
+Only `io.jooby.LoggingService` changes:
+
+- `default void initialize(Environment environment)`: a hook for logging systems configured from the
+  Jooby environment. The default does nothing, so `jooby-logback` and `jooby-log4j` are unchanged.
+- `static void configure(Environment environment)`: finds the installed `LoggingService` with the
+  environment's class loader and calls `initialize`. It is public only because interface static
+  methods cannot be package private; `Jooby` is its only caller. It overloads the existing
+  `configure(ClassLoader, List<String>)`.
+
+`Jooby` keeps its signatures, but `setEnvironment`, `setEnvironmentOptions` and the lazy load in
+`getEnvironment` now all go through `setEnvironment`, which calls `LoggingService.configure`. Every
+environment Jooby loads or is given now does a `ServiceLoader` lookup.
+
+The BOM and the parent pom gain `jooby-rainbowgum`, and the parent pom gains `rainbowgum.version`.
+
 ## Changed in review
 
 - **Bootstrap marker.** The marker that lets Jooby replace the bootstrap Rainbow Gum was added by a
