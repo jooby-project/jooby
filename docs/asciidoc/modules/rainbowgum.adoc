@@ -1,0 +1,93 @@
+== Rainbow Gum
+
+https://jstach.io/rainbowgum/[Rainbow Gum] is an SLF4J implementation for Java 21 and newer.
+The `jooby-rainbowgum` module configures it directly from Jooby's resolved Typesafe Config environment.
+
+=== Usage
+
+Add the dependency:
+
+[dependency, artifactId="jooby-rainbowgum"]
+.
+
+Use this module in place of `jooby-logback`, `jooby-log4j`, or another SLF4J provider.
+No `install(...)` call or separate logging configuration file is needed. The module includes the
+SLF4J provider, pattern encoder and file output support.
+
+.application.conf
+[source, hocon]
+----
+logging {
+  level {
+    root = info
+    "com.myapp" = debug
+  }
+  appenders = [console]
+  appender.console {
+    output.uri = stdout
+    encoder {
+      uri = pattern
+      pattern.pattern = "[%thread] %-5level %logger - %msg%n"
+    }
+  }
+}
+----
+
+All Rainbow Gum properties are available, including appenders, encoders, routes and asynchronous
+publishers. Native HOCON lists and maps are supported. Quote dotted logger names so they remain
+one object member. Use `logging.level.root` for the root level when defining other logger levels
+in the same object; HOCON cannot keep `logging.level` as both a scalar and an object.
+
+Jooby resolves `application.conf`, environment-specific files such as `application.prod.conf`,
+substitutions and system properties before passing the environment to Rainbow Gum. Programmatic
+environments supplied through `setEnvironment(...)` and `setEnvironmentOptions(...)` also configure
+logging.
+
+Logging is global to the JVM and configured once, from the first environment Jooby loads, as with
+Jooby's other logging implementations. Later environments, such as those of additional applications
+started by `runApp` or another `setEnvironment(...)` call, do not change it.
+
+=== Early logging
+
+A bootstrap Rainbow Gum queues messages emitted before Jooby loads its environment, including messages
+from static loggers. When the environment is available, the module installs the configured Rainbow
+Gum, replays queued messages through its routes, and moves loggers created during bootstrap to its
+levels and routes. It then closes the bootstrap instance. An explicitly installed Rainbow Gum, or one supplied by the application's own
+`RainbowGumProvider`, is left under the application's control.
+
+Caller information and decorators are chosen when a logger is created. For loggers created during
+bootstrap, configure these capabilities before startup (for example,
+`-Dlogging.caller.logger.root=true`); the later environment configuration does not retrofit them.
+
+=== Configuration changes
+
+Jooby core does not watch configuration files or publish configuration-change events. Jooby Run's
+development watcher restarts the application but keeps project dependencies loaded, so logging keeps
+the configuration from the first start. Restart Jooby Run to apply logging changes.
+
+Loggers have a fixed level once created. To let existing loggers follow level changes, allow them
+with Rainbow Gum's `logging.change.logger` property:
+
+.application.conf
+[source, hocon]
+----
+logging.change.logger = level
+----
+
+The application can then replace the configuration of its environment and reread logger levels
+without reopening appenders:
+
+[source, java]
+----
+getEnvironment().setConfig(updatedConfig);
+RainbowGum.of().config().changePublisher().publish();
+----
+
+=== Server logger muting
+
+Jooby turns off some server loggers while the server starts and stops. The module allows level
+changes for those loggers only: `org.eclipse.jetty.server` for Jetty, and `io.undertow`, `org.xnio`
+and `org.jboss.threads` for Undertow. `logging.change.mode = off` turns off all level changes,
+including this muting.
+
+See the https://jstach.io/rainbowgum/[Rainbow Gum guide] for the complete configuration reference.

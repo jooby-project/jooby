@@ -18,8 +18,8 @@ import java.util.stream.StreamSupport;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Describe the underlying logging system. Jooby provides two implementation: jooby-logback and
- * jooby-log4j. You might want to add one of these to your classpath, yet still these are optional.
+ * Describe the underlying logging system. Jooby provides jooby-logback, jooby-log4j and
+ * jooby-rainbowgum. These integrations are optional; add one to your classpath.
  *
  * @since 3.0.1
  */
@@ -31,6 +31,26 @@ public interface LoggingService {
    * @return System property to instruct the logging system where the configuration file is.
    */
   String getPropertyName();
+
+  /**
+   * Initializes logging using the application's resolved environment. Called when Jooby loads or
+   * replaces its environment, including environments supplied programmatically. The default does
+   * nothing, for logging systems configured by their own files.
+   *
+   * @param environment Application environment.
+   */
+  default void initialize(Environment environment) {}
+
+  /**
+   * Initializes the installed logging service using the application's resolved environment.
+   *
+   * @param environment Application environment.
+   */
+  static void configure(Environment environment) {
+    ServiceLoader.load(LoggingService.class, environment.getClassLoader())
+        .findFirst()
+        .ifPresent(service -> service.initialize(environment));
+  }
 
   /**
    * List of possible names for configuration file. Like: <code>logback.xml, log4j.properties, etc..

@@ -59,6 +59,23 @@ public class LoggingServiceTest {
   }
 
   @Test
+  public void configureResolvedEnvironment() {
+    var environment =
+        new Environment(
+            getClass().getClassLoader(), com.typesafe.config.ConfigFactory.empty(), "test");
+    try (MockedStatic<ServiceLoader> serviceLoaderMock = mockStatic(ServiceLoader.class)) {
+      ServiceLoader<LoggingService> loader = mock(ServiceLoader.class);
+      LoggingService service = mock(LoggingService.class);
+      when(loader.findFirst()).thenReturn(Optional.of(service));
+      serviceLoaderMock
+          .when(() -> ServiceLoader.load(LoggingService.class, environment.getClassLoader()))
+          .thenReturn(loader);
+      LoggingService.configure(environment);
+      verify(service).initialize(environment);
+    }
+  }
+
+  @Test
   public void isBinaryPath() {
     assertFalse(LoggingService.isBinary(Paths.get("src", "main", "java")));
     assertTrue(LoggingService.isBinary(Paths.get("target")));
