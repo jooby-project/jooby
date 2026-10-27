@@ -42,6 +42,7 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.content.InputStreamContentSource;
+import org.eclipse.jetty.server.FormFields;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.BufferUtil;
@@ -145,6 +146,9 @@ public class JettyContext implements DefaultContext, Callback {
 
   @Override
   public Body body() {
+    if (isFormLike()) {
+      return Body.empty(this);
+    }
     InputStream in = Content.Source.asInputStream(request);
     long len = request.getLength();
     if (maxRequestSize > 0) {
@@ -210,6 +214,23 @@ public class JettyContext implements DefaultContext, Callback {
     return query;
   }
 
+  private boolean isFormLike() {
+    var contentType = request.getHeaders().get(HttpHeader.CONTENT_TYPE);
+    return isFormEncoded(contentType) || isMultipart(contentType);
+  }
+
+  private boolean isFormEncoded(String contentType) {
+    return MimeTypes.Type.FORM_ENCODED.is(contentType);
+  }
+
+  private boolean isMultipart() {
+    return isMultipart(request.getHeaders().get(HttpHeader.CONTENT_TYPE));
+  }
+
+  private boolean isMultipart(String contentType) {
+    return MimeTypes.Type.MULTIPART_FORM_DATA.is(HttpField.getValueParameters(contentType, null));
+  }
+
   @Override
   public Formdata form() {
     if (formdata == null) {
@@ -218,10 +239,8 @@ public class JettyContext implements DefaultContext, Callback {
       formParam(request, formdata);
 
       // Files:
-      String contentType = request.getHeaders().get(HttpHeader.CONTENT_TYPE);
-      if (contentType != null
-          && MimeTypes.Type.MULTIPART_FORM_DATA.is(
-              HttpField.getValueParameters(contentType, null))) {
+      if (isMultipart()) {
+        String contentType = request.getHeaders().get(HttpHeader.CONTENT_TYPE);
         // Is a multipart... make sure isn't empty
         String boundary = MultiPart.extractBoundary(contentType);
         if (boundary != null) {
@@ -724,7 +743,7 @@ public class JettyContext implements DefaultContext, Callback {
 
   private void formParam(Request request, Formdata form) {
     try {
-      var params = Request.getParameters(request);
+      var params = FormFields.getFields(request);
       for (Fields.Field param : params) {
         String name = param.getName();
         var values = param.getValues();

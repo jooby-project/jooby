@@ -22,6 +22,8 @@ public class TestUtil {
 
   public static final String _8kb = _16kb.substring(0, _16kb.length() / 2);
 
+  public static final String _4kb = _8kb.substring(0, _8kb.length() / 2);
+
   private static String readText(Path file) {
     try {
       return Files.readString(file);

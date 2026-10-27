@@ -1555,6 +1555,13 @@ public class FeaturedTest {
                     assertEquals(200, rsp.code());
                     assertEquals(_8kb, rsp.body().string());
                   });
+              client.post(
+                  "/request-size",
+                  RequestBody.create(_4kb, MediaType.get("text/plain")),
+                  rsp -> {
+                    assertEquals(200, rsp.code());
+                    assertEquals(_4kb, rsp.body().string());
+                  });
               // Empty
               client.post(
                   "/request-size",
