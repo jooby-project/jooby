@@ -251,13 +251,19 @@ class RainbowGumServiceTest {
   @Test
   void invalidConfigurationKeepsQueueingUntilAValidEnvironment() throws Exception {
     var bootstrap = RainbowGum.of();
+    /*
+     * An invalid output rather than an invalid encoder: Rainbow Gum 0.16.2 opens the output before
+     * resolving the encoder and does not close it when that fails, and Windows cannot delete the
+     * temp directory while the log file is open.
+     */
     var invalid =
         configuration("debug")
             .withValue(
-                "logging.appender.capture.encoder.uri",
-                ConfigValueFactory.fromAnyRef("missing-encoder"));
+                "logging.appender.capture.output.uri",
+                ConfigValueFactory.fromAnyRef("missing-output:///"));
     var app = new Jooby();
     assertThrows(RuntimeException.class, () -> app.setEnvironment(environment(invalid)));
+    assertFalse(Files.exists(directory.resolve("application.log")));
     assertSame(bootstrap, RainbowGum.of());
     LoggerFactory.getLogger("still.queued").info("still-queued");
     app.setEnvironment(environment(configuration("debug")));
