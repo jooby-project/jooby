@@ -275,6 +275,15 @@ public class ServerOptionsTest {
   }
 
   @Test
+  @DisplayName(
+      "MaxRequestSize setter should throw IllegalArgumentException for non-positive values")
+  void testMaxRequestSizeSetterThrows() {
+    ServerOptions options = new ServerOptions();
+    assertThrows(IllegalArgumentException.class, () -> options.setMaxRequestSize(0));
+    assertThrows(IllegalArgumentException.class, () -> options.setMaxRequestSize(-1));
+  }
+
+  @Test
   public void settersShouldClearDefaultsFlag() {
     assertSetterClearsDefault(options -> options.setServer("Netty"));
     assertSetterClearsDefault(options -> options.setPort(8081));

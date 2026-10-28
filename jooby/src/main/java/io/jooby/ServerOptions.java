@@ -460,6 +460,9 @@ public class ServerOptions {
    * @return This options.
    */
   public ServerOptions setMaxRequestSize(int maxRequestSize) {
+    if (maxRequestSize <= 0) {
+      throw new IllegalArgumentException("maxRequestSize must be greater than 0");
+    }
     this.maxRequestSize = maxRequestSize;
     this.defaults = false;
     return this;
