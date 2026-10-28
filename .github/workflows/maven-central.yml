@@ -32,7 +32,7 @@ jobs:
         with: # running setup-java again overwrites the settings.xml
           java-version: 17
           distribution: 'temurin'
-          server-id: central
+          server-id: ossrh
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_TOKEN
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
