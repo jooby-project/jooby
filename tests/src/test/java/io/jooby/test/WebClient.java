@@ -366,6 +366,18 @@ public class WebClient implements AutoCloseable {
     post(path).execute(callback);
   }
 
+  public Request post(String path, RequestBody body, Map<String, Object> query) {
+    return invoke("POST", path, query, body);
+  }
+
+  public void post(
+      String path,
+      RequestBody form,
+      Map<String, Object> query,
+      SneakyThrows.Consumer<Response> callback) {
+    post(path, form, query).execute(callback);
+  }
+
   public Request post(String path, RequestBody body) {
     return invoke("POST", path, body);
   }

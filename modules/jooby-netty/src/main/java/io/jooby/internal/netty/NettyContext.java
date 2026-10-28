@@ -373,10 +373,21 @@ public class NettyContext implements DefaultContext {
     return headers;
   }
 
+  private boolean hasNext(InterfaceHttpPostRequestDecoder decoder) {
+    try {
+      return decoder != null && decoder.hasNext();
+    } catch (HttpPostRequestDecoder.EndOfDataDecoderException ignored) {
+      return false;
+    }
+  }
+
   @Override
   public Body body() {
-    if (decoder != null && decoder.hasNext()) {
-      return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
+    if (hasNext(decoder)) {
+      if (decoder instanceof HttpRawPostRequestDecoder) {
+        return new NettyBody(this, (HttpData) decoder.next(), HttpUtil.getContentLength(req, -1L));
+      }
+      // form-like, we must use formdata() to get the body, so we return an empty body here.
     }
     return Body.empty(this);
   }
@@ -900,20 +911,19 @@ public class NettyContext implements DefaultContext {
       return;
     }
     try {
-      while (decoder.hasNext()) {
+      while (hasNext(decoder)) {
         HttpData next = (HttpData) decoder.next();
         if (next.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
-          var fileUpoad =
+          var fileUpload =
               new NettyFileUpload(
                   router.getTmpdir(), (io.netty.handler.codec.http.multipart.FileUpload) next);
-          register(new DeleteFileTask(router.getLog(), fileUpoad.getFileName(), fileUpoad::close));
-          form.put(next.getName(), fileUpoad);
+          register(
+              new DeleteFileTask(router.getLog(), fileUpload.getFileName(), fileUpload::close));
+          form.put(next.getName(), fileUpload);
         } else {
           form.put(next.getName(), next.getString(UTF_8));
         }
       }
-    } catch (HttpPostRequestDecoder.EndOfDataDecoderException x) {
-      // ignore, silly netty
     } catch (Exception x) {
       throw SneakyThrows.propagate(x);
     }
