@@ -38,7 +38,6 @@ import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.http.HttpField;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.HttpHeaderValue;
-import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.io.ByteBufferPool;
 import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.io.content.InputStreamContentSource;
@@ -220,7 +219,7 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   private boolean isFormEncoded(String contentType) {
-    return MimeTypes.Type.FORM_ENCODED.is(contentType);
+    return contentType != null && contentType.startsWith(MediaType.FORM_URLENCODED);
   }
 
   private boolean isMultipart() {
@@ -228,7 +227,7 @@ public class JettyContext implements DefaultContext, Callback {
   }
 
   private boolean isMultipart(String contentType) {
-    return MimeTypes.Type.MULTIPART_FORM_DATA.is(HttpField.getValueParameters(contentType, null));
+    return contentType != null && contentType.startsWith(MediaType.MULTIPART_FORMDATA);
   }
 
   @Override
