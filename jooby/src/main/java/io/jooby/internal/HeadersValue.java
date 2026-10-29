@@ -30,7 +30,7 @@ public class HeadersValue extends HashValue implements Value {
   @Override
   public Map<String, String> toMap() {
     Map<String, String> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    toMultimap().forEach((k, v) -> map.put(k, v.get(0)));
+    toMultimap().forEach((k, v) -> map.put(k, v.getFirst()));
     return map;
   }
 
