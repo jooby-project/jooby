@@ -7,6 +7,8 @@ package io.jooby.internal.opentelemetry;
 
 import static io.opentelemetry.context.Context.current;
 
+import java.util.Iterator;
+
 import org.jspecify.annotations.NonNull;
 
 import io.jooby.opentelemetry.OtelContextExtractor;
@@ -52,8 +54,14 @@ public class DefaultOtelContextExtractor implements OtelContextExtractor {
 
     @Override
     public String get(io.jooby.Context ctx, String key) {
+      var value = ctx.header(key).toList();
       // Safely extract the header value, returning null if it doesn't exist
-      return ctx.header(key).valueOrNull();
+      return value.isEmpty() ? null : value.getFirst();
+    }
+
+    @Override
+    public Iterator<String> getAll(io.jooby.Context ctx, String key) {
+      return ctx.header(key).toList().iterator();
     }
   }
 }

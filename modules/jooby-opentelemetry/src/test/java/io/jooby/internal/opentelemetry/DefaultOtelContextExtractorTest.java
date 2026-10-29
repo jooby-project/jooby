@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -108,8 +109,8 @@ class DefaultOtelContextExtractorTest {
   void joobyRequestGetterShouldReturnHeaderValueOrNull() {
     // Arrange
     Value mockHeaderValue = mock(Value.class);
-    when(mockHeaderValue.valueOrNull())
-        .thenReturn("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01");
+    when(mockHeaderValue.toList())
+        .thenReturn(List.of("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"));
     when(joobyCtx.header("traceparent")).thenReturn(mockHeaderValue);
 
     // Act
