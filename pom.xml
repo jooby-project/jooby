@@ -73,7 +73,7 @@
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
     <log4jdbc.version>1.2</log4jdbc.version>
-    <hibernate.version>7.4.13.Final</hibernate.version>
+    <hibernate.version>7.4.14.Final</hibernate.version>
     <ebean.version>19.6.0</ebean.version>
     <jdbi.version>3.55.0</jdbi.version>
     <flyway.version>11.20.1</flyway.version>
@@ -143,7 +143,7 @@
     <jasypt.version>1.9.3</jasypt.version>
     <opentelemetry.version>1.67.0</opentelemetry.version>
     <opentelemetry-alpha.version>1.67.0-alpha</opentelemetry-alpha.version>
-    <opentelemetry-instrumentation-alpha.version>2.32.0-alpha</opentelemetry-instrumentation-alpha.version>
+    <opentelemetry-instrumentation-alpha.version>2.33.1-alpha</opentelemetry-instrumentation-alpha.version>
 
     <commons-io.version>2.22.0</commons-io.version>
 
