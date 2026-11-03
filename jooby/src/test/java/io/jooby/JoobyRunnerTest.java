@@ -133,6 +133,7 @@ class JoobyRunnerTest {
     inOrder.verify(server).start(new Jooby[] {app1});
   }
 
+  @Test
   @DisplayName("Test Exception: StartupException thrown, stop throws ignored exception")
   void testRunApp_StartupException_StopThrows() {
     String[] args = new String[0];
