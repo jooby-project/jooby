@@ -80,7 +80,7 @@
     <dependency>
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
-      <version>1.9.1</version>
+      <version>1.9.2</version>
     </dependency>
 
     <dependency>
@@ -162,7 +162,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.18.16</version>
+      <version>1.18.17</version>
       <scope>test</scope>
     </dependency>
     <dependency>
