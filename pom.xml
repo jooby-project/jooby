@@ -68,7 +68,7 @@
     <yasson.version>3.0.5</yasson.version>
     <rocker.version>2.4.0</rocker.version>
     <thymeleaf.version>3.1.5.RELEASE</thymeleaf.version>
-    <jte.version>3.2.4</jte.version>
+    <jte.version>3.2.5</jte.version>
 
     <!-- data -->
     <HikariCP.version>7.1.0</HikariCP.version>
@@ -109,11 +109,11 @@
     <!-- Server -->
     <undertow.version>2.4.4.Final</undertow.version>
     <jetty.version>12.1.14</jetty.version>
-    <netty.version>4.2.19.Final</netty.version>
+    <netty.version>4.2.20.Final</netty.version>
     <vertx.version>5.2.2</vertx.version>
 
     <!--OpenAPI-->
-    <swagger.version>2.2.55</swagger.version>
+    <swagger.version>3.0.0</swagger.version>
     <swagger-parser.version>2.1.48</swagger-parser.version>
     <redoc.version>2.0.0-rc.20</redoc.version>
 
@@ -160,7 +160,7 @@
     <maven.m2.repo>${user.home}${file.separator}.m2${file.separator}repository</maven.m2.repo>
     <mockito.agent>org${file.separator}mockito${file.separator}mockito-core${file.separator}${mockito.version}${file.separator}mockito-core-${mockito.version}.jar</mockito.agent>
     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
-    <guava.version>33.7.2-jre</guava.version>
+    <guava.version>33.8.0-jre</guava.version>
 
     <compile-testing.version>0.24.0</compile-testing.version>
     <truth.version>1.4.5</truth.version>
@@ -178,7 +178,7 @@
     <maven-tiles-plugin.version>2.47.0</maven-tiles-plugin.version>
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     <maven-core.version>3.10.0</maven-core.version>
-    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <maven-enforcer-plugin.version>3.7.0</maven-enforcer-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
     <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -1601,7 +1601,7 @@
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
-            <version>3.10.4</version>
+            <version>3.11.0</version>
             <configuration>
               <upToDateChecking>
                 <enabled>true</enabled>
