@@ -11,5 +11,6 @@ module io.jooby.jte {
   requires static org.jspecify;
   requires gg.jte;
   requires gg.jte.runtime;
+  requires gg.jte.models.runtime;
   requires static gg.jte.models;
 }
