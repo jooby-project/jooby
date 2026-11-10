@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
 import io.jooby.Extension;
 import io.jooby.Jooby;
 import io.jooby.internal.opentelemetry.DefaultOtelContextExtractor;
@@ -128,10 +126,6 @@ import jakarta.inject.Provider;
  * @author edgar
  */
 public class OtelModule implements Extension {
-
-  static {
-    SLF4JBridgeHandler.install();
-  }
 
   private final OpenTelemetry openTelemetry;
   private final List<OtelExtension> extensions;
