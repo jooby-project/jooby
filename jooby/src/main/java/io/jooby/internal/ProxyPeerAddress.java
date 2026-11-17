@@ -56,7 +56,8 @@ public class ProxyPeerAddress {
     String forwardedProto = ctx.header(X_FORWARDED_PROTO).toOptional().orElseGet(ctx::getScheme);
     result.scheme = mostRecent(forwardedProto);
 
-    String forwardedHost = ctx.header(X_FORWARDED_HOST).toOptional().orElseGet(ctx::getHost);
+    String forwardedHost =
+        ctx.header(X_FORWARDED_HOST).toOptional().orElseGet(() -> hostAndPort(ctx));
     String forwardedPort = ctx.header(X_FORWARDED_PORT).valueOrNull();
 
     String value = mostRecent(forwardedHost);
@@ -88,10 +89,10 @@ public class ProxyPeerAddress {
       try {
         result.port = Integer.parseInt(mostRecent(forwardedPort));
       } catch (NumberFormatException ignore) {
-        result.port = defaultPort(ctx, hostHeader);
+        result.port = defaultPort(ctx, hostHeader, result.scheme);
       }
     } else {
-      result.port = defaultPort(ctx, hostHeader);
+      result.port = defaultPort(ctx, hostHeader, result.scheme);
     }
 
     result.host = hostHeader;
@@ -99,11 +100,19 @@ public class ProxyPeerAddress {
     return result;
   }
 
-  private static int defaultPort(Context ctx, String host) {
+  private static String hostAndPort(Context ctx) {
+    // getHostAndPort() drops the brackets of an IPv6 address without a port, so use it only when
+    // it is the host followed by a port
+    String host = ctx.getHost();
+    String value = ctx.getHostAndPort();
+    return value.startsWith(host + ":") ? value : host;
+  }
+
+  private static int defaultPort(Context ctx, String host, String scheme) {
     if ("localhost".equals(host)) {
       return ctx.getServerPort();
     }
-    return ctx.isSecure() ? 443 : 80;
+    return "https".equals(scheme) ? 443 : 80;
   }
 
   private static String mostRecent(String header) {

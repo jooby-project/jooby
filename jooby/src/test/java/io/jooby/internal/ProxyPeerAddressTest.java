@@ -37,6 +37,7 @@ public class ProxyPeerAddressTest {
     when(ctx.getRemoteAddress()).thenReturn("127.0.0.1");
     when(ctx.getScheme()).thenReturn("http");
     when(ctx.getHost()).thenReturn("localhost");
+    when(ctx.getHostAndPort()).thenReturn("localhost");
     when(ctx.getServerPort()).thenReturn(8080);
     when(ctx.isSecure()).thenReturn(false);
 
@@ -91,6 +92,72 @@ public class ProxyPeerAddressTest {
   }
 
   @Test
+  @DisplayName("Test Host header port is kept when X-Forwarded-Host is missing")
+  void testParseHostHeaderWithPort() {
+    Context ctx = setupBaseContext();
+    when(ctx.getHost()).thenReturn("api.jooby.io");
+    when(ctx.getHostAndPort()).thenReturn("api.jooby.io:9090");
+    mockHeader(ctx, "X-Forwarded-Proto", "https");
+
+    ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
+
+    assertEquals("api.jooby.io", peer.getHost());
+    assertEquals(9090, peer.getPort());
+  }
+
+  @Test
+  @DisplayName("Test localhost Host header port wins over the server port")
+  void testParseLocalhostHostHeaderWithPort() {
+    Context ctx = setupBaseContext();
+    when(ctx.getHostAndPort()).thenReturn("localhost:9090");
+
+    ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
+
+    assertEquals("localhost", peer.getHost());
+    assertEquals(9090, peer.getPort());
+  }
+
+  @Test
+  @DisplayName("Test IPv6 Host header port is kept when X-Forwarded-Host is missing")
+  void testParseIPv6HostHeaderWithPort() {
+    Context ctx = setupBaseContext();
+    when(ctx.getHost()).thenReturn("[2001:db8::1]");
+    when(ctx.getHostAndPort()).thenReturn("[2001:db8::1]:9090");
+
+    ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
+
+    assertEquals("[2001:db8::1]", peer.getHost());
+    assertEquals(9090, peer.getPort());
+  }
+
+  @Test
+  @DisplayName("Test IPv6 Host header without port when X-Forwarded-Host is missing")
+  void testParseIPv6HostHeaderNoPort() {
+    Context ctx = setupBaseContext();
+    // getHostAndPort() drops the brackets of an IPv6 address that has no port
+    when(ctx.getHost()).thenReturn("[2001:db8::1]");
+    when(ctx.getHostAndPort()).thenReturn("2001:db8::1");
+
+    ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
+
+    assertEquals("[2001:db8::1]", peer.getHost());
+    assertEquals(80, peer.getPort());
+  }
+
+  @Test
+  @DisplayName("Test default port follows X-Forwarded-Proto")
+  void testDefaultPortFollowsForwardedProto() {
+    Context ctx = setupBaseContext();
+    mockHeader(ctx, "X-Forwarded-Proto", "https");
+    mockHeader(ctx, "X-Forwarded-Host", "jooby.io");
+
+    ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
+
+    assertEquals("https", peer.getScheme());
+    assertEquals(443, peer.getPort());
+  }
+
+  @Test
   @DisplayName("Test X-Forwarded-Port taking precedence over Host port")
   void testPortPrecedence() {
     Context ctx = setupBaseContext();
@@ -108,7 +175,7 @@ public class ProxyPeerAddressTest {
   void testParseIPv6NoPort() {
     Context ctx = setupBaseContext();
     mockHeader(ctx, "X-Forwarded-Host", "[2001:db8::1]");
-    when(ctx.isSecure()).thenReturn(true);
+    when(ctx.getScheme()).thenReturn("https");
 
     ProxyPeerAddress peer = ProxyPeerAddress.parse(ctx);
 

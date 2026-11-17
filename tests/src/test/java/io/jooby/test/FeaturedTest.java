@@ -3833,6 +3833,13 @@ public class FeaturedTest {
                     assertEquals(
                         "http://localhost:" + client.getPort() + "/somepath", rsp.body().string());
                   });
+              client.header("Host", "myhost:90");
+              client.header("X-Forwarded-Proto", "https");
+              client.get(
+                  "/somepath",
+                  rsp -> {
+                    assertEquals("https://myhost:90/somepath", rsp.body().string());
+                  });
               client.header("X-Forwarded-Host", "myhost");
               client.get(
                   "/somepath",
