@@ -49,6 +49,9 @@ Modules are distributed as separate dependencies. Below is the catalog of offici
   * link:{uiVersion}/modules/jackson3[Jackson3]: Jackson3 module for Jooby.
   * link:{uiVersion}/modules/yasson[Yasson]: JSON-B module for Jooby.
 
+==== Logging
+  * link:{uiVersion}/modules/rainbowgum[Rainbow Gum]: SLF4J logging configured through the application environment.
+
 ==== Metrics
   * link:{uiVersion}/modules/metrics[Metrics]: Application metrics from the excellent metrics library.
   * link:{uiVersion}/modules/opentelemetry[Open Telemetry]: Application metrics using Open Telemetry library.
