@@ -167,7 +167,9 @@ public class OtelModule implements Extension {
     }
     var tracer = otel.getTracer("io.jooby.opentelemetry");
 
-    application.onStop(RuntimeTelemetry.create(otel));
+    if (isRuntimeTelemetryEnabled(application)) {
+      application.onStop(RuntimeTelemetry.create(otel));
+    }
     var services = application.getServices();
     services.put(OpenTelemetry.class, otel);
     services.put(Tracer.class, tracer);
@@ -180,6 +182,29 @@ public class OtelModule implements Extension {
 
   private static Provider<Trace> trace(Tracer tracer) {
     return () -> new Trace(tracer);
+  }
+
+  private static final String RUNTIME_TELEMETRY_ENABLED =
+      "otel.instrumentation.runtime-telemetry.enabled";
+
+  /**
+   * JVM runtime metrics are enabled by default. They can be disabled with the standard
+   * OpenTelemetry property {@code otel.instrumentation.runtime-telemetry.enabled=false}, either as
+   * a system property, as the {@code OTEL_INSTRUMENTATION_RUNTIME_TELEMETRY_ENABLED} environment
+   * variable or in the {@code otel} block of the application configuration.
+   */
+  private boolean isRuntimeTelemetryEnabled(Jooby application) {
+    var value = System.getProperty(RUNTIME_TELEMETRY_ENABLED);
+    if (value == null) {
+      value = System.getenv(RUNTIME_TELEMETRY_ENABLED.toUpperCase().replaceAll("[.-]", "_"));
+    }
+    if (value == null) {
+      var appConfig = application.getConfig();
+      if (appConfig != null && appConfig.hasPath(RUNTIME_TELEMETRY_ENABLED)) {
+        value = appConfig.getValue(RUNTIME_TELEMETRY_ENABLED).unwrapped().toString();
+      }
+    }
+    return value == null || Boolean.parseBoolean(value.trim());
   }
 
   boolean isRunningInJoobyRun() {
