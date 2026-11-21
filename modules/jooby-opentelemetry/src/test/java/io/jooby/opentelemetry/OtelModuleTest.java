@@ -84,6 +84,39 @@ class OtelModuleTest {
   }
 
   @Test
+  void shouldRegisterRuntimeTelemetryByDefault() {
+    OtelModule module = new OtelModule(OpenTelemetry.noop());
+
+    module.install(application);
+
+    verify(application).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldSkipRuntimeTelemetryWhenDisabledBySystemProperty() {
+    System.setProperty("otel.instrumentation.runtime-telemetry.enabled", "false");
+    try {
+      new OtelModule(OpenTelemetry.noop()).install(application);
+    } finally {
+      System.clearProperty("otel.instrumentation.runtime-telemetry.enabled");
+    }
+
+    verify(application, never()).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldSkipRuntimeTelemetryWhenDisabledByConfig() {
+    when(application.getConfig()).thenReturn(rootConfig);
+    when(rootConfig.hasPath("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(true);
+    when(rootConfig.getValue("otel.instrumentation.runtime-telemetry.enabled"))
+        .thenReturn(ConfigValueFactory.fromAnyRef(false));
+
+    new OtelModule(OpenTelemetry.noop()).install(application);
+
+    verify(application, never()).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
   void shouldEvaluateIsRunningInJoobyRunLocally() {
     OtelModule module = new OtelModule();
     assertFalse(module.isRunningInJoobyRun());
