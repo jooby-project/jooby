@@ -161,7 +161,7 @@ public class OtelModule implements Extension {
     }
     var tracer = otel.getTracer("io.jooby.opentelemetry");
 
-    if (isRuntimeTelemetryEnabled(application)) {
+    if (isRuntimeTelemetryEnabled(application) && !isJavaAgentPresent()) {
       application.onStop(RuntimeTelemetry.create(otel));
     }
     var services = application.getServices();
@@ -199,6 +199,24 @@ public class OtelModule implements Extension {
       }
     }
     return value == null || Boolean.parseBoolean(value.trim());
+  }
+
+  /**
+   * The OpenTelemetry Java agent already registers JVM runtime metrics (unless disabled with {@code
+   * otel.instrumentation.runtime-telemetry.enabled=false}), so registering them again would
+   * duplicate every JVM metric.
+   */
+  boolean isJavaAgentPresent() {
+    try {
+      // Agent classes live in the bootstrap class loader, visible from any class loader.
+      Class.forName(
+          "io.opentelemetry.javaagent.bootstrap.AgentInitializer",
+          false,
+          getClass().getClassLoader());
+      return true;
+    } catch (ClassNotFoundException | LinkageError e) {
+      return false;
+    }
   }
 
   boolean isRunningInJoobyRun() {

@@ -117,6 +117,21 @@ class OtelModuleTest {
   }
 
   @Test
+  void shouldSkipRuntimeTelemetryWhenJavaAgentIsPresent() {
+    OtelModule module = spy(new OtelModule(OpenTelemetry.noop()));
+    doReturn(true).when(module).isJavaAgentPresent();
+
+    module.install(application);
+
+    verify(application, never()).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldDetectMissingJavaAgent() {
+    assertFalse(new OtelModule().isJavaAgentPresent());
+  }
+
+  @Test
   void shouldEvaluateIsRunningInJoobyRunLocally() {
     OtelModule module = new OtelModule();
     assertFalse(module.isRunningInJoobyRun());
