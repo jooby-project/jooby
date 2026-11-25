@@ -109,7 +109,6 @@ module io.jooby.opentelemetry {
   requires static org.jspecify;
   requires typesafe.config;
   requires org.slf4j;
-  requires jul.to.slf4j;
   requires io.opentelemetry.api;
   requires io.opentelemetry.context;
   requires io.opentelemetry.instrumentation.runtime_telemetry;
