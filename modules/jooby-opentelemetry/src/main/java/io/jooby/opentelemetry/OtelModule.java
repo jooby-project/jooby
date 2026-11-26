@@ -183,22 +183,15 @@ public class OtelModule implements Extension {
 
   /**
    * JVM runtime metrics are enabled by default. They can be disabled with the standard
-   * OpenTelemetry property {@code otel.instrumentation.runtime-telemetry.enabled=false}, either as
-   * a system property, as the {@code OTEL_INSTRUMENTATION_RUNTIME_TELEMETRY_ENABLED} environment
-   * variable or in the {@code otel} block of the application configuration.
+   * OpenTelemetry property {@code otel.instrumentation.runtime-telemetry.enabled=false}. System
+   * properties and environment variables are already merged into the application configuration, so
+   * it is read from there only.
    */
   private boolean isRuntimeTelemetryEnabled(Jooby application) {
-    var value = System.getProperty(RUNTIME_TELEMETRY_ENABLED);
-    if (value == null) {
-      value = System.getenv(RUNTIME_TELEMETRY_ENABLED.toUpperCase().replaceAll("[.-]", "_"));
-    }
-    if (value == null) {
-      var appConfig = application.getConfig();
-      if (appConfig != null && appConfig.hasPath(RUNTIME_TELEMETRY_ENABLED)) {
-        value = appConfig.getValue(RUNTIME_TELEMETRY_ENABLED).unwrapped().toString();
-      }
-    }
-    return value == null || Boolean.parseBoolean(value.trim());
+    var appConfig = application.getConfig();
+    return appConfig == null
+        || !appConfig.hasPath(RUNTIME_TELEMETRY_ENABLED)
+        || appConfig.getBoolean(RUNTIME_TELEMETRY_ENABLED);
   }
 
   /**
