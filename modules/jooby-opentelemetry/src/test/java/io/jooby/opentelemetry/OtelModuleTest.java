@@ -8,6 +8,7 @@ package io.jooby.opentelemetry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -137,6 +138,13 @@ class OtelModuleTest {
   @Test
   void shouldDetectMissingJavaAgent() {
     assertFalse(new OtelModule().isJavaAgentPresent());
+  }
+
+  @Test
+  void shouldDetectPresentClass() {
+    OtelModule module = new OtelModule();
+    assertTrue(module.isClassPresent(OtelModule.class.getName()));
+    assertFalse(module.isClassPresent("io.jooby.opentelemetry.DoesNotExist"));
   }
 
   @Test

@@ -200,12 +200,13 @@ public class OtelModule implements Extension {
    * duplicate every JVM metric.
    */
   boolean isJavaAgentPresent() {
+    // Agent classes live in the bootstrap class loader, visible from any class loader.
+    return isClassPresent("io.opentelemetry.javaagent.bootstrap.AgentInitializer");
+  }
+
+  boolean isClassPresent(String className) {
     try {
-      // Agent classes live in the bootstrap class loader, visible from any class loader.
-      Class.forName(
-          "io.opentelemetry.javaagent.bootstrap.AgentInitializer",
-          false,
-          getClass().getClassLoader());
+      Class.forName(className, false, getClass().getClassLoader());
       return true;
     } catch (ClassNotFoundException | LinkageError e) {
       return false;
