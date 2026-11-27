@@ -5,15 +5,16 @@
  */
 package io.jooby.internal.apt.ws;
 
-import io.jooby.internal.apt.*;
+import static io.jooby.internal.apt.CodeBlock.*;
+import static java.lang.System.lineSeparator;
+
+import java.util.List;
 
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import java.util.List;
 
-import static io.jooby.internal.apt.CodeBlock.*;
-import static java.lang.System.lineSeparator;
+import io.jooby.internal.apt.*;
 
 public class WsRouter extends WebRouter<WsRoute> {
 
@@ -33,8 +34,9 @@ public class WsRouter extends WebRouter<WsRoute> {
       }
     }
 
-    boolean isWsHandler = router.routes.containsKey(WsLifecycle.CONNECT.name())
-                          || router.routes.containsKey(WsLifecycle.MESSAGE.name());
+    boolean isWsHandler =
+        router.routes.containsKey(WsLifecycle.CONNECT.name())
+            || router.routes.containsKey(WsLifecycle.MESSAGE.name());
 
     if (!isWsHandler) {
       return new WsRouter(context, controller);
@@ -54,10 +56,7 @@ public class WsRouter extends WebRouter<WsRoute> {
       return List.of("/");
     }
 
-    return declared.stream()
-        .map(WebRoute::leadingSlash)
-        .distinct()
-        .toList();
+    return declared.stream().map(WebRoute::leadingSlash).distinct().toList();
   }
 
   @Override
@@ -90,8 +89,7 @@ public class WsRouter extends WebRouter<WsRoute> {
               ", ",
               "this::wsInit",
               ")",
-              semicolon(kt))
-      );
+              semicolon(kt)));
     }
 
     trimr(buffer);
@@ -100,7 +98,7 @@ public class WsRouter extends WebRouter<WsRoute> {
     buffer.append(lineSeparator()).append(generateWsInitMethod(kt));
 
     return getTemplate(kt)
-        .replace("${packageName}", getPackageName())
+        .replace("${packageDeclaration}", getPackageDeclaration(kt))
         .replace("${imports}", "")
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)
@@ -116,13 +114,13 @@ public class WsRouter extends WebRouter<WsRoute> {
           statement(
               indent(4),
               "private void wsInit(io.jooby.Context ctx, io.jooby.WebSocketConfigurer"
-              + " configurer) {"));
+                  + " configurer) {"));
     } else {
       buffer.append(
           statement(
               indent(4),
               "private fun wsInit(ctx: io.jooby.Context, configurer:"
-              + " io.jooby.WebSocketConfigurer) {"));
+                  + " io.jooby.WebSocketConfigurer) {"));
     }
 
     appendLifecycle(kt, buffer, WsLifecycle.CONNECT);
@@ -143,9 +141,10 @@ public class WsRouter extends WebRouter<WsRoute> {
     var open =
         switch (lc) {
           case CONNECT -> kt ? "configurer.onConnect { ws ->" : "configurer.onConnect(ws -> {";
-          case MESSAGE -> kt
-              ? "configurer.onMessage { ws, message ->"
-              : "configurer.onMessage((ws, message) -> {";
+          case MESSAGE ->
+              kt
+                  ? "configurer.onMessage { ws, message ->"
+                  : "configurer.onMessage((ws, message) -> {";
           case CLOSE ->
               kt ? "configurer.onClose { ws, status ->" : "configurer.onClose((ws, status) -> {";
           case ERROR ->
@@ -154,11 +153,8 @@ public class WsRouter extends WebRouter<WsRoute> {
     appendCallback(kt, buffer, handler, open, kt ? "}" : "});");
   }
 
-  private void appendCallback(boolean kt,
-                              StringBuilder buffer,
-                              WsRoute route,
-                              String openLine,
-                              String closeToken) {
+  private void appendCallback(
+      boolean kt, StringBuilder buffer, WsRoute route, String openLine, String closeToken) {
     buffer.append(indent(6)).append(route.seeControllerMethodJavadoc(kt));
     buffer.append(indent(6)).append(openLine).append(lineSeparator());
     route.appendBody(kt, buffer, indent(8));

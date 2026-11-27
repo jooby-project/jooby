@@ -126,7 +126,7 @@ public class TrpcRouter extends WebRouter<TrpcRoute> {
         .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
 
     return template
-        .replace("${packageName}", getPackageName())
+        .replace("${packageDeclaration}", getPackageDeclaration(kt))
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)

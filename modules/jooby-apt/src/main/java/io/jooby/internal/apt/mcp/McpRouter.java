@@ -163,7 +163,7 @@ public class McpRouter extends WebRouter<McpRoute> {
     appendCompletionHandlers(buffer, kt, completionGroups);
 
     return getTemplate(kt)
-        .replace("${packageName}", getPackageName())
+        .replace("${packageDeclaration}", getPackageDeclaration(kt))
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", mcpClassName)
