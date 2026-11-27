@@ -182,7 +182,7 @@ public class HtmxRouter extends WebRouter<HtmxRoute> {
     }
 
     return template
-        .replace("${packageName}", getPackageName())
+        .replace("${packageDeclaration}", getPackageDeclaration(kt))
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)

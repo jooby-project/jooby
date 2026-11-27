@@ -56,13 +56,12 @@ public class TypeDefinition {
       return "";
     }
     return filtered.stream()
-        .map(
-            it ->
-                kt
-                    ? convertTypeVar && it.getType().getKind() == TypeKind.TYPEVAR
-                        ? "Any"
-                        : CodeBlock.type(kt, it.toString())
-                    : CodeBlock.type(kt, it.toString()))
+        .map(it ->
+            kt
+                ? convertTypeVar && it.getType().getKind() == TypeKind.TYPEVAR
+                    ? "Any"
+                    : CodeBlock.type(kt, it.toString())
+                : CodeBlock.type(kt, it.toString()))
         .collect(Collectors.joining(", ", "<", "> "));
   }
 
@@ -98,10 +97,27 @@ public class TypeDefinition {
       return buffer.toString();
     } else {
       if (generics && kt) {
-        return type.getRawType().toString().replace("java.lang.", "") + clazz(kt);
+        var rawType = type.getRawType().toString();
+        var kotlinType = CodeBlock.type(kt, rawType);
+        return kotlinType + (isBoxedPrimitive(rawType) ? "::class.javaObjectType" : clazz(kt));
       }
       return CodeBlock.type(kt, type.getRawType().toString()) + clazz(kt);
     }
+  }
+
+  private static boolean isBoxedPrimitive(String type) {
+    return switch (type) {
+      case "java.lang.Boolean",
+          "java.lang.Byte",
+          "java.lang.Character",
+          "java.lang.Double",
+          "java.lang.Float",
+          "java.lang.Integer",
+          "java.lang.Long",
+          "java.lang.Short" ->
+          true;
+      default -> false;
+    };
   }
 
   /**

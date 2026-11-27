@@ -25,8 +25,7 @@ import javax.lang.model.element.TypeElement;
 public abstract class WebRouter<R extends WebRoute> {
   public static final String JAVA =
       """
-      package ${packageName};
-      ${imports}
+      ${packageDeclaration}${imports}
       @io.jooby.annotation.Generated(${className}.class)
       public class ${generatedClassName} implements ${implements} {
           protected java.util.function.Function<io.jooby.Context, ${className}> factory;
@@ -53,8 +52,7 @@ public abstract class WebRouter<R extends WebRoute> {
       """;
   public static final String KOTLIN =
       """
-      package ${packageName}
-      ${imports}
+      ${packageDeclaration}${imports}
       @io.jooby.annotation.Generated(${className}::class)
       open class ${generatedClassName} : ${implements} {
           private lateinit var factory: java.util.function.Function<io.jooby.Context, ${className}>
@@ -124,6 +122,13 @@ public abstract class WebRouter<R extends WebRoute> {
     return pkgEnd > 0 ? classname.substring(0, pkgEnd) : "";
   }
 
+  public String getPackageDeclaration(boolean kt) {
+    var packageName = getPackageName();
+    return packageName.isEmpty()
+        ? ""
+        : "package " + packageName + (kt ? "" : ";") + System.lineSeparator();
+  }
+
   public boolean hasBeanValidation() {
     return getRoutes().stream().anyMatch(WebRoute::hasBeanValidation);
   }
@@ -144,10 +149,9 @@ public abstract class WebRouter<R extends WebRoute> {
   protected StringBuilder constructors(String generatedName, boolean kt) {
     var constructors =
         getTargetType().getEnclosedElements().stream()
-            .filter(
-                it ->
-                    it.getKind() == ElementKind.CONSTRUCTOR
-                        && it.getModifiers().contains(Modifier.PUBLIC))
+            .filter(it ->
+                it.getKind() == ElementKind.CONSTRUCTOR
+                    && it.getModifiers().contains(Modifier.PUBLIC))
             .map(ExecutableElement.class::cast)
             .toList();
     var targetType = getTargetType().getSimpleName();
@@ -278,14 +282,13 @@ public abstract class WebRouter<R extends WebRoute> {
       buffer.append("public ").append(generatedName).append("(");
     }
     var separator = ", ";
-    parameters.forEach(
-        e -> {
-          if (kt) {
-            buffer.append(e.getValue()).append(": ").append(e.getKey()).append(separator);
-          } else {
-            buffer.append(e.getKey()).append(" ").append(e.getValue()).append(separator);
-          }
-        });
+    parameters.forEach(e -> {
+      if (kt) {
+        buffer.append(e.getValue()).append(": ").append(e.getKey()).append(separator);
+      } else {
+        buffer.append(e.getKey()).append(" ").append(e.getValue()).append(separator);
+      }
+    });
     if (!parameters.isEmpty()) {
       buffer.setLength(buffer.length() - separator.length());
     }

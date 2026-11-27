@@ -49,6 +49,14 @@ public class CodeBlock {
     var result = value.toString().replace("java.lang.", "");
     if (kt) {
       return switch (result) {
+        case "byte[]" -> "ByteArray";
+        case "short[]" -> "ShortArray";
+        case "int[]" -> "IntArray";
+        case "long[]" -> "LongArray";
+        case "char[]" -> "CharArray";
+        case "float[]" -> "FloatArray";
+        case "double[]" -> "DoubleArray";
+        case "boolean[]" -> "BooleanArray";
         case "byte", "Byte" -> "Byte";
         case "boolean", "Boolean" -> "Boolean";
         case "char", "Character" -> "Char";

@@ -122,26 +122,24 @@ public class RestRouter extends WebRouter<RestRoute> {
       buffer.append(statement(indent(6), "val kooby = app as io.jooby.kt.Kooby"));
       buffer.append(statement(indent(6), "kooby.coroutine {"));
       suspended.stream()
-          .flatMap(
-              it ->
-                  it
-                      .generateMapping(
-                          kt,
-                          generateTypeName,
-                          suspended.indexOf(it) == suspended.size() - 1 && noSuspended.isEmpty())
-                      .stream())
+          .flatMap(it ->
+              it
+                  .generateMapping(
+                      kt,
+                      generateTypeName,
+                      suspended.indexOf(it) == suspended.size() - 1 && noSuspended.isEmpty())
+                  .stream())
           .forEach(line -> buffer.append(CodeBlock.indent(8)).append(line));
       trimr(buffer);
       buffer.append(System.lineSeparator()).append(statement(indent(6), "}"));
     }
 
     noSuspended.stream()
-        .flatMap(
-            it ->
-                it
-                    .generateMapping(
-                        kt, generateTypeName, noSuspended.indexOf(it) == noSuspended.size() - 1)
-                    .stream())
+        .flatMap(it ->
+            it
+                .generateMapping(
+                    kt, generateTypeName, noSuspended.indexOf(it) == noSuspended.size() - 1)
+                .stream())
         .forEach(line -> buffer.append(CodeBlock.indent(6)).append(line));
 
     trimr(buffer);
@@ -159,7 +157,7 @@ public class RestRouter extends WebRouter<RestRoute> {
         .forEach(line -> buffer.append(CodeBlock.indent(4)).append(line));
 
     return template
-        .replace("${packageName}", getPackageName())
+        .replace("${packageDeclaration}", getPackageDeclaration(kt))
         .replace("${imports}", imports)
         .replace("${className}", generateTypeName)
         .replace("${generatedClassName}", generatedClass)
