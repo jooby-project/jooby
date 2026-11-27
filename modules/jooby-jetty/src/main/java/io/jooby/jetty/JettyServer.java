@@ -272,6 +272,9 @@ public class JettyServer extends io.jooby.Server.Base {
 
       for (var app : applications) {
         var services = app.getServices();
+        // Like NettyServer: a server started without runApp still needs its options here.
+        services.put(ServerOptions.class, options);
+        services.put(io.jooby.Server.class, this);
         services.put(Server.class, server);
       }
 
