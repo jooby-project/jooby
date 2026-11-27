@@ -163,22 +163,29 @@ public abstract class WebRoute<R extends WebRouter<?>> {
 
   protected List<String> getJavaMethodSignature(boolean kt) {
     return getParameters(false).stream()
-        .map(
-            it -> {
-              var type = it.getType();
-              if (kt && type.isPrimitive()) {
-                return type(kt, type.getRawType().toString());
-              }
-              return type.getRawType().toString();
-            })
+        .map(it -> {
+          var type = it.getType();
+          if (kt && type.isPrimitive()) {
+            return type(kt, type.getRawType().toString());
+          }
+          return type.getRawType().toString();
+        })
         .map(it -> it + clazz(kt))
         .toList();
   }
 
   protected boolean isNullableKotlinReturn() {
+    // Kotlin always marks the Object return type of a suspend fun as @Nullable (it may return
+    // COROUTINE_SUSPENDED), so it says nothing about the declared return type.
+    var annotations =
+        isSuspendFun()
+            ? getReturnType().getType().getAnnotationMirrors()
+            : Stream.concat(
+                    method.getAnnotationMirrors().stream(),
+                    method.getReturnType().getAnnotationMirrors().stream())
+                .toList();
     // SpotBugs/FindBugs vs JSpecify:
-    return Stream.of(method.getAnnotationMirrors(), method.getReturnType().getAnnotationMirrors())
-        .flatMap(List::stream)
+    return annotations.stream()
         .map(javax.lang.model.element.AnnotationMirror::getAnnotationType)
         .map(java.util.Objects::toString)
         .anyMatch(AnnotationSupport.NULLABLE);
