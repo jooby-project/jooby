@@ -150,7 +150,8 @@ public class JettyContext implements DefaultContext, Callback {
     }
     InputStream in = Content.Source.asInputStream(request);
     long len = request.getLength();
-    if (len >= maxRequestSize) {
+    // A chunked body reports -1, so it gets the limit too.
+    if (len < 0 || len >= maxRequestSize) {
       in = new LimitedInputStream(in, maxRequestSize);
     }
     return Body.of(this, in, len);
