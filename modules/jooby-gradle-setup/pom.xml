@@ -29,6 +29,9 @@
   <profiles>
     <profile>
       <id>gradlePlugin</id>
+      <properties>
+        <gradlew.executable>./gradlew</gradlew.executable>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -38,7 +41,7 @@
             <inherited>false</inherited>
             <configuration>
               <workingDirectory>${project.basedir}${file.separator}..${file.separator}jooby-gradle-plugin</workingDirectory>
-              <executable>./gradlew</executable>
+              <executable>${gradlew.executable}</executable>
             </configuration>
 
             <executions>
@@ -87,6 +90,17 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>gradlePlugin-windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <gradlew.executable>${project.basedir}${file.separator}..${file.separator}jooby-gradle-plugin${file.separator}gradlew.bat</gradlew.executable>
+      </properties>
     </profile>
   </profiles>
 </project>
