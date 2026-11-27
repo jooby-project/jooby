@@ -161,7 +161,9 @@ public class OtelModule implements Extension {
     }
     var tracer = otel.getTracer("io.jooby.opentelemetry");
 
-    application.onStop(RuntimeTelemetry.create(otel));
+    if (isRuntimeTelemetryEnabled(application) && !isJavaAgentPresent()) {
+      application.onStop(RuntimeTelemetry.create(otel));
+    }
     var services = application.getServices();
     services.put(OpenTelemetry.class, otel);
     services.put(Tracer.class, tracer);
@@ -174,6 +176,41 @@ public class OtelModule implements Extension {
 
   private static Provider<Trace> trace(Tracer tracer) {
     return () -> new Trace(tracer);
+  }
+
+  private static final String RUNTIME_TELEMETRY_ENABLED =
+      "otel.instrumentation.runtime-telemetry.enabled";
+
+  /**
+   * JVM runtime metrics are enabled by default. They can be disabled with the standard
+   * OpenTelemetry property {@code otel.instrumentation.runtime-telemetry.enabled=false}. System
+   * properties and environment variables are already merged into the application configuration, so
+   * it is read from there only.
+   */
+  private boolean isRuntimeTelemetryEnabled(Jooby application) {
+    var appConfig = application.getConfig();
+    return appConfig == null
+        || !appConfig.hasPath(RUNTIME_TELEMETRY_ENABLED)
+        || appConfig.getBoolean(RUNTIME_TELEMETRY_ENABLED);
+  }
+
+  /**
+   * The OpenTelemetry Java agent already registers JVM runtime metrics (unless disabled with {@code
+   * otel.instrumentation.runtime-telemetry.enabled=false}), so registering them again would
+   * duplicate every JVM metric.
+   */
+  boolean isJavaAgentPresent() {
+    // Agent classes live in the bootstrap class loader, visible from any class loader.
+    return isClassPresent("io.opentelemetry.javaagent.bootstrap.AgentInitializer");
+  }
+
+  boolean isClassPresent(String className) {
+    try {
+      Class.forName(className, false, getClass().getClassLoader());
+      return true;
+    } catch (ClassNotFoundException | LinkageError e) {
+      return false;
+    }
   }
 
   boolean isRunningInJoobyRun() {

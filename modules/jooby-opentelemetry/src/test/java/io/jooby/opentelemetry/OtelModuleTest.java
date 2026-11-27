@@ -8,6 +8,7 @@ package io.jooby.opentelemetry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -81,6 +82,69 @@ class OtelModuleTest {
     ArgumentCaptor<Provider<Trace>> providerCaptor = ArgumentCaptor.forClass(Provider.class);
     verify(services).put(eq(Trace.class), providerCaptor.capture());
     assertNotNull(providerCaptor.getValue().get());
+  }
+
+  @Test
+  void shouldRegisterRuntimeTelemetryByDefault() {
+    OtelModule module = new OtelModule(OpenTelemetry.noop());
+
+    module.install(application);
+
+    verify(application).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldSkipRuntimeTelemetryWhenDisabledByConfig() {
+    when(application.getConfig()).thenReturn(rootConfig);
+    when(rootConfig.hasPath("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(true);
+    when(rootConfig.getBoolean("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(false);
+
+    new OtelModule(OpenTelemetry.noop()).install(application);
+
+    verify(application, never()).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldRegisterRuntimeTelemetryWhenEnabledByConfig() {
+    when(application.getConfig()).thenReturn(rootConfig);
+    when(rootConfig.hasPath("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(true);
+    when(rootConfig.getBoolean("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(true);
+
+    new OtelModule(OpenTelemetry.noop()).install(application);
+
+    verify(application).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldRegisterRuntimeTelemetryWhenConfigHasNoSetting() {
+    when(application.getConfig()).thenReturn(rootConfig);
+    when(rootConfig.hasPath("otel.instrumentation.runtime-telemetry.enabled")).thenReturn(false);
+
+    new OtelModule(OpenTelemetry.noop()).install(application);
+
+    verify(application).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldSkipRuntimeTelemetryWhenJavaAgentIsPresent() {
+    OtelModule module = spy(new OtelModule(OpenTelemetry.noop()));
+    doReturn(true).when(module).isJavaAgentPresent();
+
+    module.install(application);
+
+    verify(application, never()).onStop(any(AutoCloseable.class));
+  }
+
+  @Test
+  void shouldDetectMissingJavaAgent() {
+    assertFalse(new OtelModule().isJavaAgentPresent());
+  }
+
+  @Test
+  void shouldDetectPresentClass() {
+    OtelModule module = new OtelModule();
+    assertTrue(module.isClassPresent(OtelModule.class.getName()));
+    assertFalse(module.isClassPresent("io.jooby.opentelemetry.DoesNotExist"));
   }
 
   @Test
