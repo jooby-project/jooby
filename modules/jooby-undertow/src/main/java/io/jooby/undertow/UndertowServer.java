@@ -181,7 +181,11 @@ public class UndertowServer extends Server.Base {
       }
       server = builder.build();
       for (var app : applications) {
-        app.getServices().put(Undertow.class, server);
+        var services = app.getServices();
+        // Like NettyServer: a server started without runApp still needs its options here.
+        services.put(ServerOptions.class, options);
+        services.put(Server.class, this);
+        services.put(Undertow.class, server);
       }
       fireStart(applications, worker);
 
